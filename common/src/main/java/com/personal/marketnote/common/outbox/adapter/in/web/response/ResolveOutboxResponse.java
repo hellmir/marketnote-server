@@ -4,21 +4,21 @@ import com.personal.marketnote.common.outbox.adapter.command.OutboxResolveComman
 import com.personal.marketnote.common.outbox.adapter.command.OutboxResolveResult;
 
 public record ResolveOutboxResponse(
-        Long id,
-        String eventId,
-        String topic,
-        String resolution,
-        String reason,
-        boolean alreadyResolved
+    Long id,
+    String eventId,
+    String topic,
+    String resolution,
+    String reason,
+    boolean alreadyResolved
 ) {
     public static ResolveOutboxResponse from(OutboxResolveCommand command, OutboxResolveResult result) {
         return new ResolveOutboxResponse(
-                command.id(),
-                result.eventId(),
-                result.topic(),
-                result.resolution(),
-                result.reason(),
-                result.alreadyResolved()
+            command.id(),
+            result.eventId(),
+            result.topic(),
+            result.resolution(),
+            result.reason(),
+            result.alreadyResolved()
         );
     }
 }

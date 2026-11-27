@@ -20,7 +20,7 @@ public class HmacNonceValidator {
         String key = REDIS_NONCE_KEY_PREFIX + nonce;
         try {
             Boolean isNewKey = stringRedisTemplate.opsForValue()
-                    .setIfAbsent(key, "1", Duration.ofSeconds(TIMESTAMP_TOLERANCE_SECONDS));
+                .setIfAbsent(key, "1", Duration.ofSeconds(TIMESTAMP_TOLERANCE_SECONDS));
             if (Boolean.FALSE.equals(isNewKey)) {
                 throw new HmacNonceReplayedException(nonce);
             }

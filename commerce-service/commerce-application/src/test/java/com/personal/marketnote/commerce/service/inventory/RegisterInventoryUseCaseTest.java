@@ -128,7 +128,7 @@ class RegisterInventoryUseCaseTest {
             when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(true);
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isInstanceOf(InventoryAlreadyExistsException.class);
+                .isInstanceOf(InventoryAlreadyExistsException.class);
         }
 
         @Test
@@ -141,7 +141,7 @@ class RegisterInventoryUseCaseTest {
             when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(true);
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isInstanceOf(InventoryAlreadyExistsException.class);
+                .isInstanceOf(InventoryAlreadyExistsException.class);
 
             verify(saveInventoryPort, never()).save(any(Inventory.class));
             verify(saveCacheStockPort, never()).save(anyLong(), anyInt());
@@ -158,7 +158,7 @@ class RegisterInventoryUseCaseTest {
             when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenThrow(exception);
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(saveInventoryPort);
             verifyNoInteractions(saveCacheStockPort);
@@ -176,7 +176,7 @@ class RegisterInventoryUseCaseTest {
             doThrow(exception).when(saveInventoryPort).save(any(Inventory.class));
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(saveCacheStockPort);
         }
@@ -193,7 +193,7 @@ class RegisterInventoryUseCaseTest {
             doThrow(exception).when(saveCacheStockPort).save(pricePolicyId, 0);
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verify(saveInventoryPort).save(any(Inventory.class));
         }
@@ -266,7 +266,7 @@ class RegisterInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void registerInventories_success_callsPortsInOrder() {
             Set<RegisterInventoryCommand> commands = Set.of(
-                    RegisterInventoryCommand.of(13L, 1300L)
+                RegisterInventoryCommand.of(13L, 1300L)
             );
 
             registerInventoryService.registerInventories(commands);
@@ -282,7 +282,7 @@ class RegisterInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void registerInventories_doesNotCheckDuplicates() {
             Set<RegisterInventoryCommand> commands = Set.of(
-                    RegisterInventoryCommand.of(14L, 1400L)
+                RegisterInventoryCommand.of(14L, 1400L)
             );
 
             registerInventoryService.registerInventories(commands);
@@ -295,7 +295,7 @@ class RegisterInventoryUseCaseTest {
         @DisplayName("하나의 커맨드로 복수 재고 등록 시 단일 재고를 저장하고 반환한다")
         void registerInventories_singleCommand_savesSingleInventory() {
             Set<RegisterInventoryCommand> commands = Set.of(
-                    RegisterInventoryCommand.of(15L, 1500L)
+                RegisterInventoryCommand.of(15L, 1500L)
             );
 
             Set<Inventory> result = registerInventoryService.registerInventories(commands);
@@ -339,16 +339,16 @@ class RegisterInventoryUseCaseTest {
             assertThat(result).hasSize(2);
 
             Inventory nullProductIdInventory = result.stream()
-                    .filter(inv -> inv.getPricePolicyId().equals(1600L))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(inv -> inv.getPricePolicyId().equals(1600L))
+                .findFirst()
+                .orElseThrow();
             assertThat(nullProductIdInventory.getProductId()).isNull();
             assertThat(nullProductIdInventory.getStockValue()).isEqualTo(0);
 
             Inventory withProductIdInventory = result.stream()
-                    .filter(inv -> inv.getPricePolicyId().equals(1700L))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(inv -> inv.getPricePolicyId().equals(1700L))
+                .findFirst()
+                .orElseThrow();
             assertThat(withProductIdInventory.getProductId()).isEqualTo(17L);
             assertThat(withProductIdInventory.getStockValue()).isEqualTo(0);
         }
@@ -358,14 +358,14 @@ class RegisterInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void registerInventories_saveInventoryFails_propagates() {
             Set<RegisterInventoryCommand> commands = Set.of(
-                    RegisterInventoryCommand.of(18L, 1800L)
+                RegisterInventoryCommand.of(18L, 1800L)
             );
             RuntimeException exception = new RuntimeException("batch save fail");
 
             doThrow(exception).when(saveInventoryPort).save(any(Set.class));
 
             assertThatThrownBy(() -> registerInventoryService.registerInventories(commands))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(saveCacheStockPort);
         }
@@ -375,14 +375,14 @@ class RegisterInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void registerInventories_saveCacheFails_propagates() {
             Set<RegisterInventoryCommand> commands = Set.of(
-                    RegisterInventoryCommand.of(19L, 1900L)
+                RegisterInventoryCommand.of(19L, 1900L)
             );
             RuntimeException exception = new RuntimeException("batch cache fail");
 
             doThrow(exception).when(saveCacheStockPort).save(any(Set.class));
 
             assertThatThrownBy(() -> registerInventoryService.registerInventories(commands))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verify(saveInventoryPort).save(any(Set.class));
         }
@@ -397,13 +397,13 @@ class RegisterInventoryUseCaseTest {
             registerInventoryService.registerInventories(commands);
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 0, InventoryChangeAction.CREATED
+                100L, 1L, 0, InventoryChangeAction.CREATED
             );
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    200L, 2L, 0, InventoryChangeAction.CREATED
+                200L, 2L, 0, InventoryChangeAction.CREATED
             );
             verify(publishInventoryEventPort, times(2)).publishInventoryChangedEvent(
-                    any(), any(), any(), any()
+                any(), any(), any(), any()
             );
         }
     }
@@ -428,7 +428,7 @@ class RegisterInventoryUseCaseTest {
             registerInventoryService.registerInventory(command);
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    pricePolicyId, productId, 0, InventoryChangeAction.CREATED
+                pricePolicyId, productId, 0, InventoryChangeAction.CREATED
             );
         }
 
@@ -444,7 +444,7 @@ class RegisterInventoryUseCaseTest {
             registerInventoryService.registerInventory(command);
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    2100L, 21L, 0, InventoryChangeAction.CREATED
+                2100L, 21L, 0, InventoryChangeAction.CREATED
             );
         }
 
@@ -458,7 +458,7 @@ class RegisterInventoryUseCaseTest {
             when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(true);
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isInstanceOf(InventoryAlreadyExistsException.class);
+                .isInstanceOf(InventoryAlreadyExistsException.class);
 
             verifyNoInteractions(publishInventoryEventPort);
         }

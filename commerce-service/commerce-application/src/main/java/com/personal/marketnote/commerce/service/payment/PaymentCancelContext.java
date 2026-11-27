@@ -30,20 +30,20 @@ import lombok.Builder;
  */
 @Builder
 public record PaymentCancelContext(
-        Payment payment,
-        PspPaymentEvent event,
-        Order order,
-        Long cancelAmount,
-        Long adjustedCancelAmount,
-        Long remainAmount,
-        Long alreadyRefunded,
-        Long shippingFeeDeduction,
-        boolean isFullCancel,
-        String cancelReason,
-        String adjustedCancelReason,
-        String cancelId,
-        String transactionNumber,
-        String modType,
-        CancelPaymentCommand originalCommand
+    Payment payment,
+    PspPaymentEvent event,
+    Order order,
+    Long cancelAmount,
+    Long adjustedCancelAmount,
+    Long remainAmount,
+    Long alreadyRefunded,
+    Long shippingFeeDeduction,
+    boolean isFullCancel,
+    String cancelReason,
+    String adjustedCancelReason,
+    String cancelId,
+    String transactionNumber,
+    String modType,
+    CancelPaymentCommand originalCommand
 ) {
 }

@@ -46,8 +46,8 @@ public class DltQueryService {
             }
 
             List<TopicPartition> partitions = partitionInfos.stream()
-                    .map(pi -> new TopicPartition(dltTopic, pi.partition()))
-                    .toList();
+                .map(pi -> new TopicPartition(dltTopic, pi.partition()))
+                .toList();
 
             consumer.assign(partitions);
             consumer.seekToBeginning(partitions);
@@ -112,8 +112,8 @@ public class DltQueryService {
         }
 
         List<TopicPartition> partitions = partitionInfos.stream()
-                .map(pi -> new TopicPartition(dltTopic, pi.partition()))
-                .toList();
+            .map(pi -> new TopicPartition(dltTopic, pi.partition()))
+            .toList();
 
         Map<TopicPartition, Long> beginOffsets = consumer.beginningOffsets(partitions);
         Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);

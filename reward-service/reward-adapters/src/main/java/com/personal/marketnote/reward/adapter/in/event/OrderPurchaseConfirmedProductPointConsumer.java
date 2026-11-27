@@ -25,12 +25,12 @@ public class OrderPurchaseConfirmedProductPointConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
-            groupId = "reward-pending-point"
+        topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
+        groupId = "reward-pending-point"
     )
     public void handleOrderPurchaseConfirmedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -46,15 +46,15 @@ public class OrderPurchaseConfirmedProductPointConsumer {
 
         try {
             OrderPurchaseConfirmedEvent payload = envelope.getPayloadAs(
-                    OrderPurchaseConfirmedEvent.class, objectMapper
+                OrderPurchaseConfirmedEvent.class, objectMapper
             );
 
             log.info("구매 확정 이벤트 수신 (상품 적립 예정 포인트 확정). eventId={}, orderId={}, buyerId={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId());
+                envelope.eventId(), payload.orderId(), payload.buyerId());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()),
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -62,10 +62,10 @@ public class OrderPurchaseConfirmedProductPointConsumer {
             confirmPending(payload.buyerId(), payload.orderId());
 
             log.info("상품 적립 예정 포인트 확정 완료. orderId={}, buyerId={}",
-                    payload.orderId(), payload.buyerId());
+                payload.orderId(), payload.buyerId());
         } catch (Exception e) {
             log.error("상품 적립 예정 포인트 확정 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -74,11 +74,11 @@ public class OrderPurchaseConfirmedProductPointConsumer {
 
     private void confirmPending(Long buyerId, Long orderId) {
         ConfirmPendingPointCommand command = ConfirmPendingPointCommand.builder()
-                .userId(buyerId)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(orderId)
-                .reason(CONFIRM_REASON)
-                .build();
+            .userId(buyerId)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(orderId)
+            .reason(CONFIRM_REASON)
+            .build();
         confirmPendingPointUseCase.confirmPending(command);
     }
 }

@@ -73,28 +73,28 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review1, review2, review3));
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(-1L),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(false),
+            eq(-1L),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
         when(findReviewPort.countActive(productId, false)).thenReturn(3L);
 
         GetFilesResult imagesResult = buildFilesResult(11L, "review-1.jpg");
         when(findReviewImagesPort.findImagesByReviewIdAndSort(review1.getId(), FileSort.REVIEW_IMAGE))
-                .thenReturn(Optional.of(imagesResult));
+            .thenReturn(Optional.of(imagesResult));
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review1.getId(), userId)).thenReturn(true);
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review2.getId(), userId)).thenReturn(false);
 
         GetReviewsResult result = getReviewService.getProductReviews(
-                userId,
-                productId,
-                false,
-                -1L,
-                pageSize,
-                Sort.Direction.DESC,
-                ReviewSortProperty.ID
+            userId,
+            productId,
+            false,
+            -1L,
+            pageSize,
+            Sort.Direction.DESC,
+            ReviewSortProperty.ID
         );
 
         assertThat(result.totalElements()).isEqualTo(3L);
@@ -111,11 +111,11 @@ class GetReviewUseCaseTest {
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(findReviewPort).findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(-1L),
-                pageableCaptor.capture(),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(false),
+            eq(-1L),
+            pageableCaptor.capture(),
+            eq(ReviewSortProperty.ID)
         );
         Pageable pageable = pageableCaptor.getValue();
         assertThat(pageable.getPageSize()).isEqualTo(pageSize + 1);
@@ -127,9 +127,9 @@ class GetReviewUseCaseTest {
         verify(findReviewPort).countActive(productId, false);
         verify(findReviewImagesPort).findImagesByReviewIdAndSort(review1.getId(), FileSort.REVIEW_IMAGE);
         verify(findReviewImagesPort, never())
-                .findImagesByReviewIdAndSort(review2.getId(), FileSort.REVIEW_IMAGE);
+            .findImagesByReviewIdAndSort(review2.getId(), FileSort.REVIEW_IMAGE);
         verify(findReviewImagesPort, never())
-                .findImagesByReviewIdAndSort(review3.getId(), FileSort.REVIEW_IMAGE);
+            .findImagesByReviewIdAndSort(review3.getId(), FileSort.REVIEW_IMAGE);
         verify(getLikeUseCase).existsUserLike(LikeTargetType.REVIEW, review1.getId(), userId);
         verify(getLikeUseCase).existsUserLike(LikeTargetType.REVIEW, review2.getId(), userId);
         verifyNoInteractions(findProductByPricePolicyPort);
@@ -147,23 +147,23 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review1, review2));
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(cursor),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(false),
+            eq(cursor),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review1.getId(), userId)).thenReturn(true);
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review2.getId(), userId)).thenReturn(false);
 
         GetReviewsResult result = getReviewService.getProductReviews(
-                userId,
-                productId,
-                false,
-                cursor,
-                pageSize,
-                Sort.Direction.DESC,
-                ReviewSortProperty.ID
+            userId,
+            productId,
+            false,
+            cursor,
+            pageSize,
+            Sort.Direction.DESC,
+            ReviewSortProperty.ID
         );
 
         assertThat(result.reviews()).hasSize(2);
@@ -187,21 +187,21 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review1, review2));
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(cursor),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ORDER_NUM)
+            eq(productId),
+            eq(false),
+            eq(cursor),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ORDER_NUM)
         )).thenReturn(reviews);
 
         GetReviewsResult result = getReviewService.getProductReviews(
-                null,
-                productId,
-                false,
-                cursor,
-                pageSize,
-                Sort.Direction.ASC,
-                ReviewSortProperty.ORDER_NUM
+            null,
+            productId,
+            false,
+            cursor,
+            pageSize,
+            Sort.Direction.ASC,
+            ReviewSortProperty.ORDER_NUM
         );
 
         assertThat(result.totalElements()).isNull();
@@ -222,22 +222,22 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of());
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(-1L),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(false),
+            eq(-1L),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
         when(findReviewPort.countActive(productId, false)).thenReturn(0L);
 
         GetReviewsResult result = getReviewService.getProductReviews(
-                1L,
-                productId,
-                false,
-                -1L,
-                pageSize,
-                Sort.Direction.DESC,
-                ReviewSortProperty.ID
+            1L,
+            productId,
+            false,
+            -1L,
+            pageSize,
+            Sort.Direction.DESC,
+            ReviewSortProperty.ID
         );
 
         assertThat(result.totalElements()).isEqualTo(0L);
@@ -259,26 +259,26 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(true),
-                eq(-1L),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(true),
+            eq(-1L),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
         when(findReviewPort.countActive(productId, true)).thenReturn(1L);
 
         GetFilesResult imagesResult = buildFilesResult(21L, "review-photo.jpg");
         when(findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), FileSort.REVIEW_IMAGE))
-                .thenReturn(Optional.of(imagesResult));
+            .thenReturn(Optional.of(imagesResult));
 
         GetReviewsResult result = getReviewService.getProductReviews(
-                userId,
-                productId,
-                true,
-                -1L,
-                pageSize,
-                Sort.Direction.DESC,
-                ReviewSortProperty.ID
+            userId,
+            productId,
+            true,
+            -1L,
+            pageSize,
+            Sort.Direction.DESC,
+            ReviewSortProperty.ID
         );
 
         ReviewItemResult item = result.reviews().getFirst();
@@ -305,23 +305,23 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(-1L),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(false),
+            eq(-1L),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
         when(findReviewPort.countActive(productId, false)).thenReturn(1L);
 
         // when
         GetReviewsResult result = getReviewService.getProductReviews(
-                userId,
-                productId,
-                false,
-                -1L,
-                pageSize,
-                Sort.Direction.DESC,
-                ReviewSortProperty.ID
+            userId,
+            productId,
+            false,
+            -1L,
+            pageSize,
+            Sort.Direction.DESC,
+            ReviewSortProperty.ID
         );
 
         // then
@@ -340,23 +340,23 @@ class GetReviewUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findProductReviews(
-                eq(productId),
-                eq(false),
-                eq(-1L),
-                any(Pageable.class),
-                eq(ReviewSortProperty.ID)
+            eq(productId),
+            eq(false),
+            eq(-1L),
+            any(Pageable.class),
+            eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
         when(findReviewPort.countActive(productId, false)).thenReturn(1L);
 
         // when
         GetReviewsResult result = getReviewService.getProductReviews(
-                userId,
-                productId,
-                false,
-                -1L,
-                pageSize,
-                Sort.Direction.DESC,
-                ReviewSortProperty.ID
+            userId,
+            productId,
+            false,
+            -1L,
+            pageSize,
+            Sort.Direction.DESC,
+            ReviewSortProperty.ID
         );
 
         // then
@@ -365,7 +365,7 @@ class GetReviewUseCaseTest {
         // maskedReviewerName만 포함되어 있는지 검증
         assertThat(result.reviews().getFirst().maskedReviewerName()).isNotNull();
         assertThat(result.reviews().getFirst()).hasNoNullFieldsOrPropertiesExcept(
-                "images", "product"
+            "images", "product"
         );
     }
 
@@ -386,20 +386,20 @@ class GetReviewUseCaseTest {
 
         GetFilesResult imagesResult = buildFilesResult(11L, "review-detail.jpg");
         when(findReviewImagesPort.findImagesByReviewIdAndSort(reviewId, FileSort.REVIEW_IMAGE))
-                .thenReturn(Optional.of(imagesResult));
+            .thenReturn(Optional.of(imagesResult));
 
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L,
-                "테스트 상품",
-                "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
+            1L,
+            "테스트 상품",
+            "테스트 브랜드",
+            new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
+            List.of(),
+            new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
         when(findOrderProductPort.findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId))
-                .thenReturn(Optional.of(unitAmount));
+            .thenReturn(Optional.of(unitAmount));
 
         // when
         ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
@@ -435,7 +435,7 @@ class GetReviewUseCaseTest {
         when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         // when
         ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
@@ -462,7 +462,7 @@ class GetReviewUseCaseTest {
         when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(true);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         // when
         ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
@@ -484,7 +484,7 @@ class GetReviewUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getReviewService.getReviewDetail(reviewId, userId))
-                .isInstanceOf(ReviewNotFoundException.class);
+            .isInstanceOf(ReviewNotFoundException.class);
 
         verify(findReviewPort).findById(reviewId);
         verifyNoInteractions(getLikeUseCase, findReviewImagesPort, findProductByPricePolicyPort, findOrderProductPort);
@@ -506,13 +506,13 @@ class GetReviewUseCaseTest {
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
 
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, "테스트 상품", "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
+            1L, "테스트 상품", "테스트 브랜드",
+            new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
+            List.of(),
+            new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
 
         // when
         ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
@@ -537,15 +537,15 @@ class GetReviewUseCaseTest {
         when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
 
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, "테스트 상품", "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 18000L, BigDecimal.valueOf(10), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
+            1L, "테스트 상품", "테스트 브랜드",
+            new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 18000L, BigDecimal.valueOf(10), 100L),
+            List.of(),
+            new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
         when(findOrderProductPort.findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId))
-                .thenReturn(Optional.of(fallbackUnitAmount));
+            .thenReturn(Optional.of(fallbackUnitAmount));
 
         // when
         ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
@@ -580,7 +580,7 @@ class GetReviewUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> getReviewService.validateAuthor(1L, 999L))
-                    .isInstanceOf(NotReviewAuthorException.class);
+                .isInstanceOf(NotReviewAuthorException.class);
 
             verify(findReviewPort).existsByIdAndReviewerId(1L, 999L);
         }
@@ -647,31 +647,31 @@ class GetReviewUseCaseTest {
     }
 
     private Review buildReviewWithUnitAmount(
-            Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto, Long unitAmount
+        Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto, Long unitAmount
     ) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(1000L + id)
-                        .productId(productId)
-                        .pricePolicyId(pricePolicyId)
-                        .productImageUrl("https://example.com/product-" + productId + ".jpg")
-                        .selectedOptions("옵션-" + id)
-                        .quantity(1)
-                        .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
-                        .rating(Rating.of(5.0f))
-                        .content("리뷰-" + id)
-                        .isPhoto(isPhoto)
-                        .isEdited(false)
-                        .likeCount(3)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .unitAmount(unitAmount)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(1000L + id)
+                .productId(productId)
+                .pricePolicyId(pricePolicyId)
+                .productImageUrl("https://example.com/product-" + productId + ".jpg")
+                .selectedOptions("옵션-" + id)
+                .quantity(1)
+                .reviewerName("사용자-" + id)
+                .maskedReviewerName("사*자-" + id)
+                .rating(Rating.of(5.0f))
+                .content("리뷰-" + id)
+                .isPhoto(isPhoto)
+                .isEdited(false)
+                .likeCount(3)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .unitAmount(unitAmount)
+                .build()
         );
     }
 
@@ -684,15 +684,15 @@ class GetReviewUseCaseTest {
         void shouldThrowWhenDuplicateReviewExists() {
             // given
             RegisterReviewCommand command = RegisterReviewCommand.builder()
-                    .orderId(100L)
-                    .pricePolicyId(200L)
-                    .build();
+                .orderId(100L)
+                .pricePolicyId(200L)
+                .build();
 
             when(findReviewPort.existsByOrderIdAndPricePolicyId(100L, 200L)).thenReturn(true);
 
             // when & then
             assertThatThrownBy(() -> getReviewService.validateDuplicateReview(command))
-                    .isInstanceOf(ReviewAlreadyExistsException.class);
+                .isInstanceOf(ReviewAlreadyExistsException.class);
 
             verify(findReviewPort).existsByOrderIdAndPricePolicyId(100L, 200L);
         }
@@ -702,9 +702,9 @@ class GetReviewUseCaseTest {
         void shouldPassWhenNoDuplicateReview() {
             // given
             RegisterReviewCommand command = RegisterReviewCommand.builder()
-                    .orderId(100L)
-                    .pricePolicyId(200L)
-                    .build();
+                .orderId(100L)
+                .pricePolicyId(200L)
+                .build();
 
             when(findReviewPort.existsByOrderIdAndPricePolicyId(100L, 200L)).thenReturn(false);
 
@@ -716,50 +716,50 @@ class GetReviewUseCaseTest {
     }
 
     private Review buildReview(
-            Long id,
-            Long reviewerId,
-            Long productId,
-            Long pricePolicyId,
-            boolean isPhoto
+        Long id,
+        Long reviewerId,
+        Long productId,
+        Long pricePolicyId,
+        boolean isPhoto
     ) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(1000L + id)
-                        .productId(productId)
-                        .pricePolicyId(pricePolicyId)
-                        .productImageUrl("https://example.com/product-" + productId + ".jpg")
-                        .selectedOptions("옵션-" + id)
-                        .quantity(1)
-                        .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
-                        .rating(Rating.of(5.0f))
-                        .content("리뷰-" + id)
-                        .isPhoto(isPhoto)
-                        .isEdited(false)
-                        .likeCount(3)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(1000L + id)
+                .productId(productId)
+                .pricePolicyId(pricePolicyId)
+                .productImageUrl("https://example.com/product-" + productId + ".jpg")
+                .selectedOptions("옵션-" + id)
+                .quantity(1)
+                .reviewerName("사용자-" + id)
+                .maskedReviewerName("사*자-" + id)
+                .rating(Rating.of(5.0f))
+                .content("리뷰-" + id)
+                .isPhoto(isPhoto)
+                .isEdited(false)
+                .likeCount(3)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 
     private GetFilesResult buildFilesResult(Long id, String name) {
         return new GetFilesResult(
-                List.of(
-                        new GetFileResult(
-                                id,
-                                FileSort.REVIEW_IMAGE.name(),
-                                "jpg",
-                                name,
-                                "https://example.com/" + name,
-                                List.of(),
-                                1L
-                        )
+            List.of(
+                new GetFileResult(
+                    id,
+                    FileSort.REVIEW_IMAGE.name(),
+                    "jpg",
+                    name,
+                    "https://example.com/" + name,
+                    List.of(),
+                    1L
                 )
+            )
         );
     }
 }

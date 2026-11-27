@@ -33,8 +33,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/internal/inventories")
 @Tag(
-        name = "내부 재고 API",
-        description = "서비스 간 통신용 재고 API"
+    name = "내부 재고 API",
+    description = "서비스 간 통신용 재고 API"
 )
 @RequiredArgsConstructor
 public class InternalInventoryController {
@@ -48,19 +48,19 @@ public class InternalInventoryController {
      */
     @PostMapping
     public ResponseEntity<BaseResponse<Void>> registerInventory(
-            @Valid @RequestBody RegisterInventoryRequest request
+        @Valid @RequestBody RegisterInventoryRequest request
     ) {
         registerInventoryUseCase.registerInventory(
-                InventoryRequestToCommandMapper.mapToCommand(request)
+            InventoryRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "재고 도메인 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "재고 도메인 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -72,21 +72,21 @@ public class InternalInventoryController {
      */
     @GetMapping
     public ResponseEntity<BaseResponse<GetInventoriesResponse>> getInventories(
-            @Valid @RequestParam List<Long> pricePolicyIds,
-            @RequestParam(required = false) List<Long> productIds
+        @Valid @RequestParam List<Long> pricePolicyIds,
+        @RequestParam(required = false) List<Long> productIds
     ) {
         Set<Inventory> inventories = resolveInventories(pricePolicyIds, productIds);
 
         GetInventoriesResult getInventoriesResult = GetInventoriesResult.from(inventories);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetInventoriesResponse.from(getInventoriesResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 재고 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetInventoriesResponse.from(getInventoriesResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 재고 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 

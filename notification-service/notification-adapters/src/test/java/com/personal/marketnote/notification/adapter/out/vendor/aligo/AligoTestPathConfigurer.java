@@ -35,12 +35,12 @@ final class AligoTestPathConfigurer {
         api.setHistoryDetailPath("/akv10/history/detail/");
         api.setBrandTalkSendPath("/brandtalk/template/send/");
         api.setSensitivePaths(Set.of(
-                "/akv10/alimtalk/send/",
-                "/brandtalk/template/send/",
-                "/akv10/history/list/",
-                "/akv10/history/detail/",
-                "/akv10/profile/auth/",
-                "/akv10/profile/add/"
+            "/akv10/alimtalk/send/",
+            "/brandtalk/template/send/",
+            "/akv10/history/list/",
+            "/akv10/history/detail/",
+            "/akv10/profile/auth/",
+            "/akv10/profile/add/"
         ));
     }
 }

@@ -22,7 +22,7 @@ public class JsonBearerTokenResolver implements BearerTokenResolver {
         }
 
         return authorization.startsWith(AUTHENTICATION_SCHEME)
-                ? authorization.substring(7)
-                : authorization;
+            ? authorization.substring(7)
+            : authorization;
     }
 }

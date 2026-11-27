@@ -30,12 +30,12 @@ public class UserReferralCompletedRewardConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.USER_REFERRAL_COMPLETED,
-            groupId = "reward-service"
+        topics = KafkaTopicConstants.USER_REFERRAL_COMPLETED,
+        groupId = "reward-service"
     )
     public void handleUserReferralCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,15 +51,15 @@ public class UserReferralCompletedRewardConsumer {
 
         try {
             UserReferralCompletedEvent payload = envelope.getPayloadAs(
-                    UserReferralCompletedEvent.class, objectMapper
+                UserReferralCompletedEvent.class, objectMapper
             );
 
             log.info("추천코드 등록 완료 이벤트 수신. eventId={}, requestUserId={}, referredUserId={}",
-                    envelope.eventId(), payload.requestUserId(), payload.referredUserId());
+                envelope.eventId(), payload.requestUserId(), payload.referredUserId());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("requestUserId", payload.requestUserId()),
-                    EventPayloadValidator.id("referredUserId", payload.referredUserId()))) {
+                EventPayloadValidator.id("requestUserId", payload.requestUserId()),
+                EventPayloadValidator.id("referredUserId", payload.referredUserId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -71,10 +71,10 @@ public class UserReferralCompletedRewardConsumer {
             accrueReferredPointIdempotent(envelope.eventId(), referredId, referrerId);
 
             log.info("Kafka 이벤트로 추천 포인트 적립 완료. requestUserId={}, referredUserId={}",
-                    payload.requestUserId(), payload.referredUserId());
+                payload.requestUserId(), payload.referredUserId());
         } catch (Exception e) {
             log.error("추천 포인트 적립 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -86,7 +86,7 @@ public class UserReferralCompletedRewardConsumer {
 
         if (ReferralBonusTier.isMaxReached(referralCount)) {
             log.info("최대 초대 수 도달, 추천인 포인트 적립 생략. eventId={}, referrerId={}, count={}",
-                    eventId, referrerId, referralCount);
+                eventId, referrerId, referralCount);
             return;
         }
 
@@ -98,7 +98,7 @@ public class UserReferralCompletedRewardConsumer {
             accrueReferrerPoint(referrerId, referredId);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 추천인 포인트 적립 이벤트 (멱등 처리). eventId={}, message={}",
-                    eventId, e.getMessage());
+                eventId, e.getMessage());
         }
     }
 
@@ -107,31 +107,31 @@ public class UserReferralCompletedRewardConsumer {
             accrueReferredPoint(referredId, referrerId);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 피추천인 포인트 적립 이벤트 (멱등 처리). eventId={}, message={}",
-                    eventId, e.getMessage());
+                eventId, e.getMessage());
         }
     }
 
     private void accrueReferrerPoint(Long referrerId, Long referredId) {
         ModifyUserPointCommand referrerCommand = ModifyUserPointCommand.builder()
-                .userId(referrerId)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount((long) REFERRER_USER_POINT_AMOUNT)
-                .sourceType(UserPointSourceType.USER)
-                .sourceId(referredId)
-                .reason(REFERRER_POINT_REASON)
-                .build();
+            .userId(referrerId)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount((long) REFERRER_USER_POINT_AMOUNT)
+            .sourceType(UserPointSourceType.USER)
+            .sourceId(referredId)
+            .reason(REFERRER_POINT_REASON)
+            .build();
         modifyUserPointUseCase.modify(referrerCommand);
     }
 
     private void accrueReferredPoint(Long referredId, Long referrerId) {
         ModifyUserPointCommand referredCommand = ModifyUserPointCommand.builder()
-                .userId(referredId)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount((long) REFERRED_USER_POINT_AMOUNT)
-                .sourceType(UserPointSourceType.USER)
-                .sourceId(referrerId)
-                .reason(REFERRED_POINT_REASON)
-                .build();
+            .userId(referredId)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount((long) REFERRED_USER_POINT_AMOUNT)
+            .sourceType(UserPointSourceType.USER)
+            .sourceId(referrerId)
+            .reason(REFERRED_POINT_REASON)
+            .build();
         modifyUserPointUseCase.modify(referredCommand);
     }
 }

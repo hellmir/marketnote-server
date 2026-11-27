@@ -21,7 +21,7 @@ public class DeleteAttendancePolicyService implements DeleteAttendancePolicyUseC
     @Override
     public void delete(Short id) {
         AttendancePolicy policy = findAttendancePolicyPort.findByIdForUpdate(id)
-                .orElseThrow(() -> new DomainNotFoundException("대상 출석 정책을 찾을 수 없습니다. 전송된 id: " + id));
+            .orElseThrow(() -> new DomainNotFoundException("대상 출석 정책을 찾을 수 없습니다. 전송된 id: " + id));
 
         policy.delete();
         updateAttendancePolicyPort.update(policy);

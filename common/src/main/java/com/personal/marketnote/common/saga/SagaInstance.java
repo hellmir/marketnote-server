@@ -34,28 +34,28 @@ public class SagaInstance {
         }
         LocalDateTime now = LocalDateTime.now(clock);
         return SagaInstance.builder()
-                .sagaId(state.sagaId())
-                .sagaType(state.sagaType())
-                .status(SagaStatus.STARTED)
-                .currentStepIndex(0)
-                .payload(state.payload())
-                .createdAt(now)
-                .modifiedAt(now)
-                .build();
+            .sagaId(state.sagaId())
+            .sagaType(state.sagaType())
+            .status(SagaStatus.STARTED)
+            .currentStepIndex(0)
+            .payload(state.payload())
+            .createdAt(now)
+            .modifiedAt(now)
+            .build();
     }
 
     public static SagaInstance from(SagaInstanceSnapshotState state) {
         return SagaInstance.builder()
-                .id(state.id())
-                .sagaId(state.sagaId())
-                .sagaType(state.sagaType())
-                .status(state.status())
-                .currentStepIndex(state.currentStepIndex())
-                .payload(state.payload())
-                .createdAt(state.createdAt())
-                .modifiedAt(state.modifiedAt())
-                .completedAt(state.completedAt())
-                .build();
+            .id(state.id())
+            .sagaId(state.sagaId())
+            .sagaType(state.sagaType())
+            .status(state.status())
+            .currentStepIndex(state.currentStepIndex())
+            .payload(state.payload())
+            .createdAt(state.createdAt())
+            .modifiedAt(state.modifiedAt())
+            .completedAt(state.completedAt())
+            .build();
     }
 
     public void process() {

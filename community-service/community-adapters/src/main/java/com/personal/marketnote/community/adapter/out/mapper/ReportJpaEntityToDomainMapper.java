@@ -14,15 +14,15 @@ public class ReportJpaEntityToDomainMapper {
         }
 
         return Optional.of(
-                Report.from(
-                        ReportSnapshotState.builder()
-                                .targetType(entity.getId().getTargetType())
-                                .targetId(entity.getTargetId())
-                                .reporterId(entity.getReporterId())
-                                .reason(entity.getReason())
-                                .createdAt(entity.getCreatedAt())
-                                .build()
-                )
+            Report.from(
+                ReportSnapshotState.builder()
+                    .targetType(entity.getId().getTargetType())
+                    .targetId(entity.getTargetId())
+                    .reporterId(entity.getReporterId())
+                    .reason(entity.getReason())
+                    .createdAt(entity.getCreatedAt())
+                    .build()
+            )
         );
     }
 }

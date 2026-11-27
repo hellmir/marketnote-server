@@ -104,7 +104,7 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
 
             // when
             Map<Long, ProductReviewAggregateResult> result =
-                    adapter.findByProductIds(List.of(100L, 200L, 300L));
+                adapter.findByProductIds(List.of(100L, 200L, 300L));
 
             // then
             assertThat(result).hasSize(3);
@@ -124,7 +124,7 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
 
             // when
             Map<Long, ProductReviewAggregateResult> result =
-                    adapter.findByProductIds(List.of(100L, 999L));
+                adapter.findByProductIds(List.of(100L, 999L));
 
             // then
             assertThat(result).hasSize(1);
@@ -137,7 +137,7 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
         void returnsEmptyMapForEmptyProductIds() {
             // when
             Map<Long, ProductReviewAggregateResult> result =
-                    adapter.findByProductIds(List.of());
+                adapter.findByProductIds(List.of());
 
             // then
             assertThat(result).isEmpty();

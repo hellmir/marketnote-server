@@ -4,8 +4,7 @@
 -- `IS NULL` 가드로 멱등성은 보장된다.
 
 UPDATE orders o
-SET scheduled_auto_confirm_at = sub.max_scheduled_auto_confirm_at
-    FROM (
+SET scheduled_auto_confirm_at = sub.max_scheduled_auto_confirm_at FROM (
     SELECT op.order_id, MAX(op.scheduled_auto_confirm_at) AS max_scheduled_auto_confirm_at
     FROM order_product op
     WHERE op.scheduled_auto_confirm_at IS NOT NULL

@@ -66,14 +66,14 @@ class PollShippingStatusUseCaseTest {
     void setUp() {
         lenient().when(transactionManager.getTransaction(any())).thenReturn(new SimpleTransactionStatus());
         pollShippingStatusService = new PollShippingStatusService(
-                findShippingTrackerPort,
-                updateShippingTrackerPort,
-                fulfillmentAuthenticatedCaller,
-                getDeliveryStatusesPort,
-                publishShippingStatusChangedEventPort,
-                sendDeliveryFailureSlackAlertPort,
-                clock,
-                transactionManager
+            findShippingTrackerPort,
+            updateShippingTrackerPort,
+            fulfillmentAuthenticatedCaller,
+            getDeliveryStatusesPort,
+            publishShippingStatusChangedEventPort,
+            sendDeliveryFailureSlackAlertPort,
+            clock,
+            transactionManager
         );
     }
 
@@ -87,7 +87,7 @@ class PollShippingStatusUseCaseTest {
 
     private void stubMinCreatedAt() {
         when(findShippingTrackerPort.findMinCreatedAtOfPollingActive())
-                .thenReturn(Optional.of(LocalDateTime.of(2026, 4, 8, 10, 0)));
+            .thenReturn(Optional.of(LocalDateTime.of(2026, 4, 8, 10, 0)));
     }
 
     @Test
@@ -117,7 +117,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -154,7 +154,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "피킹완료", null, null));
+            .thenReturn(createDeliveryStatusResult("100", "피킹완료", null, null));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -182,7 +182,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "배송완료", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "배송완료", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -212,7 +212,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -242,7 +242,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -264,7 +264,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -288,15 +288,15 @@ class PollShippingStatusUseCaseTest {
         stubAuthenticatedCaller();
 
         GetFulfillmentDeliveryStatusesResult result = GetFulfillmentDeliveryStatusesResult.of(2, List.of(
-                createDeliveryStatusInfo("100", "배송불가", "INV001", "CJ"),
-                createDeliveryStatusInfo("200", "집하완료", "INV002", "HANJIN")
+            createDeliveryStatusInfo("100", "배송불가", "INV001", "CJ"),
+            createDeliveryStatusInfo("200", "집하완료", "INV002", "HANJIN")
         ));
         when(getDeliveryStatusesPort.getDeliveryStatuses(any())).thenReturn(result);
 
         LocalDateTime expectedOccurredAt = LocalDateTime.now(clock);
         doThrow(new RuntimeException("Slack webhook failed"))
-                .when(sendDeliveryFailureSlackAlertPort)
-                .sendDeliveryFailureAlert(100L, "INV001", "CJ", expectedOccurredAt);
+            .when(sendDeliveryFailureSlackAlertPort)
+            .sendDeliveryFailureAlert(100L, "INV001", "CJ", expectedOccurredAt);
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -325,7 +325,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "피킹중", null, null));
+            .thenReturn(createDeliveryStatusResult("100", "피킹중", null, null));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -353,7 +353,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+            .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -384,8 +384,8 @@ class PollShippingStatusUseCaseTest {
         // tracker1은 배송완료 (PREPARING→DELIVERED는 전이 불가 → 예외)
         // tracker2는 집하완료 (PREPARING→SHIPPING은 정상 전이)
         GetFulfillmentDeliveryStatusesResult result = GetFulfillmentDeliveryStatusesResult.of(2, List.of(
-                createDeliveryStatusInfo("100", "배송완료", "INV001", "CJ"),
-                createDeliveryStatusInfo("200", "집하완료", "INV002", "HANJIN")
+            createDeliveryStatusInfo("100", "배송완료", "INV001", "CJ"),
+            createDeliveryStatusInfo("200", "집하완료", "INV002", "HANJIN")
         ));
         when(getDeliveryStatusesPort.getDeliveryStatuses(any())).thenReturn(result);
 
@@ -403,20 +403,20 @@ class PollShippingStatusUseCaseTest {
     void updateTrackingInfoWhenBecomeAvailable() {
         // given - SHIPPING이지만 송장번호 없는 상태 (advanceToShipping으로 전이된 경우)
         ShippingTracker tracker = ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(100L)
-                .buyerId(1L)
-                .shippingStatus(ShippingStatus.SHIPPING)
-                .pollingActive(true)
-                .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .build());
+            .id(1L)
+            .orderId(100L)
+            .buyerId(1L)
+            .shippingStatus(ShippingStatus.SHIPPING)
+            .pollingActive(true)
+            .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .build());
         stubMinCreatedAt();
         when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -444,8 +444,8 @@ class PollShippingStatusUseCaseTest {
             firstChunk.add(createPreparingTrackerWithId(i, 100L + i));
         }
         List<ShippingTracker> secondChunk = List.of(
-                createPreparingTrackerWithId(101L, 201L),
-                createPreparingTrackerWithId(102L, 202L)
+            createPreparingTrackerWithId(101L, 201L),
+            createPreparingTrackerWithId(102L, 202L)
         );
         stubMinCreatedAt();
         when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(firstChunk);
@@ -453,15 +453,15 @@ class PollShippingStatusUseCaseTest {
         lenient().when(findShippingTrackerPort.findByOrderId(anyLong())).thenAnswer(invocation -> {
             Long orderId = invocation.getArgument(0);
             return firstChunk.stream()
+                .filter(t -> t.getOrderId().equals(orderId))
+                .findFirst()
+                .or(() -> secondChunk.stream()
                     .filter(t -> t.getOrderId().equals(orderId))
-                    .findFirst()
-                    .or(() -> secondChunk.stream()
-                            .filter(t -> t.getOrderId().equals(orderId))
-                            .findFirst());
+                    .findFirst());
         });
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+            .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -493,8 +493,8 @@ class PollShippingStatusUseCaseTest {
             secondChunk.add(createPreparingTrackerWithId(i, 1000L + i));
         }
         List<ShippingTracker> thirdChunk = List.of(
-                createPreparingTrackerWithId(201L, 1201L),
-                createPreparingTrackerWithId(202L, 1202L)
+            createPreparingTrackerWithId(201L, 1201L),
+            createPreparingTrackerWithId(202L, 1202L)
         );
         stubMinCreatedAt();
         when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(firstChunk);
@@ -503,13 +503,13 @@ class PollShippingStatusUseCaseTest {
         lenient().when(findShippingTrackerPort.findByOrderId(anyLong())).thenAnswer(invocation -> {
             Long orderId = invocation.getArgument(0);
             return java.util.stream.Stream.of(firstChunk, secondChunk, thirdChunk)
-                    .flatMap(List::stream)
-                    .filter(t -> t.getOrderId().equals(orderId))
-                    .findFirst();
+                .flatMap(List::stream)
+                .filter(t -> t.getOrderId().equals(orderId))
+                .findFirst();
         });
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+            .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -544,12 +544,12 @@ class PollShippingStatusUseCaseTest {
         lenient().when(findShippingTrackerPort.findByOrderId(anyLong())).thenAnswer(invocation -> {
             Long orderId = invocation.getArgument(0);
             return firstChunk.stream()
-                    .filter(t -> t.getOrderId().equals(orderId))
-                    .findFirst();
+                .filter(t -> t.getOrderId().equals(orderId))
+                .findFirst();
         });
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+            .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -575,7 +575,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(Collections.emptyList());
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+            .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -600,7 +600,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
-                .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
+            .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
@@ -616,43 +616,43 @@ class PollShippingStatusUseCaseTest {
 
     private ShippingTracker createPreparingTrackerWithId(Long id, Long orderId) {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .buyerId(1L)
-                .shippingStatus(ShippingStatus.PREPARING)
-                .pollingActive(true)
-                .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .buyerId(1L)
+            .shippingStatus(ShippingStatus.PREPARING)
+            .pollingActive(true)
+            .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .build());
     }
 
     private ShippingTracker createShippingTrackerWithId(Long id, Long orderId) {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .buyerId(1L)
-                .trackingNumber(TrackingNumber.of("INV001"))
-                .carrierCode(CarrierCode.of("CJ"))
-                .shippingStatus(ShippingStatus.SHIPPING)
-                .pollingActive(true)
-                .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .buyerId(1L)
+            .trackingNumber(TrackingNumber.of("INV001"))
+            .carrierCode(CarrierCode.of("CJ"))
+            .shippingStatus(ShippingStatus.SHIPPING)
+            .pollingActive(true)
+            .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .build());
     }
 
     private GetFulfillmentDeliveryStatusesResult createDeliveryStatusResult(
-            String ordNo, String crgStNm, String invoiceNo, String courierCode) {
+        String ordNo, String crgStNm, String invoiceNo, String courierCode) {
         return GetFulfillmentDeliveryStatusesResult.of(1,
-                List.of(createDeliveryStatusInfo(ordNo, crgStNm, invoiceNo, courierCode)));
+            List.of(createDeliveryStatusInfo(ordNo, crgStNm, invoiceNo, courierCode)));
     }
 
     private FulfillmentDeliveryStatusInfoResult createDeliveryStatusInfo(
-            String ordNo, String crgStNm, String invoiceNo, String courierCode) {
+        String ordNo, String crgStNm, String invoiceNo, String courierCode) {
         return FulfillmentDeliveryStatusInfoResult.builder()
-                .cargoStatusName(crgStNm)
-                .invoiceNumber(invoiceNo)
-                .orderNumber(ordNo)
-                .courierCode(courierCode)
-                .build();
+            .cargoStatusName(crgStNm)
+            .invoiceNumber(invoiceNo)
+            .orderNumber(ordNo)
+            .courierCode(courierCode)
+            .build();
     }
 }

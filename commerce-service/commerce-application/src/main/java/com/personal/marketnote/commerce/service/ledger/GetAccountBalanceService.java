@@ -37,16 +37,16 @@ public class GetAccountBalanceService implements GetAccountBalanceUseCase {
         List<AccountBalanceDto> balanceDtos = findLedgerEntryPort.findAccountBalanceSummary(asOf);
 
         return balanceDtos.stream()
-                .map(this::toAccountBalanceResult)
-                .toList();
+            .map(this::toAccountBalanceResult)
+            .toList();
     }
 
     private GetAccountBalanceResult toAccountBalanceResult(AccountBalanceDto dto) {
         Account account = findAccountPort.findById(dto.accountId())
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountId={}", dto.accountId());
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountId={}", dto.accountId());
+                return new AccountNotFoundException();
+            });
 
         AccountBalance accountBalance = AccountBalance.of(account, dto.debitTotal(), dto.creditTotal());
         return GetAccountBalanceResult.from(accountBalance);

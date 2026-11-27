@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record OrderAutoConfirmFailedEvent(
-        Long orderId,
-        Long buyerId,
-        String reason,
-        LocalDateTime failedAt
+    Long orderId,
+    Long buyerId,
+    String reason,
+    LocalDateTime failedAt
 ) {
 }

@@ -34,23 +34,23 @@ public class RegisterSettlementPolicyService implements RegisterSettlementPolicy
     @Transactional(isolation = READ_COMMITTED)
     public GetSettlementPolicyResult registerPolicy(RegisterSettlementPolicyCommand command) {
         findSettlementPolicyPort.findActiveBySellerId(command.sellerId())
-                .ifPresent(existing -> {
-                    log.warn("해당 판매자의 정산 정책이 이미 존재합니다. sellerId={}", command.sellerId());
-                    throw new SettlementPolicyAlreadyExistsException();
-                });
+            .ifPresent(existing -> {
+                log.warn("해당 판매자의 정산 정책이 이미 존재합니다. sellerId={}", command.sellerId());
+                throw new SettlementPolicyAlreadyExistsException();
+            });
 
         SettlementPolicy policy = SettlementPolicy.from(SettlementPolicyCreateState.forSeller(
-                command.sellerId(),
-                FeeRate.of(command.pgFeeRate()),
-                FeeRate.of(command.platformFeeRate()),
-                SettlementCycle.valueOf(command.settlementCycle()),
-                command.minPayoutAmount()
+            command.sellerId(),
+            FeeRate.of(command.pgFeeRate()),
+            FeeRate.of(command.platformFeeRate()),
+            SettlementCycle.valueOf(command.settlementCycle()),
+            command.minPayoutAmount()
         ));
 
         SettlementPolicy saved = saveSettlementPolicyPort.save(policy);
 
         log.info("정산 정책 등록 완료 - sellerId: {}, pgFeeRate: {}, platformFeeRate: {}, cycle: {}",
-                command.sellerId(), command.pgFeeRate(), command.platformFeeRate(), command.settlementCycle()
+            command.sellerId(), command.pgFeeRate(), command.platformFeeRate(), command.settlementCycle()
         );
 
         return GetSettlementPolicyResult.from(saved);

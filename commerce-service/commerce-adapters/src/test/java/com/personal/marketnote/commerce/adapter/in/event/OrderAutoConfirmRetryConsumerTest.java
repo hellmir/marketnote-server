@@ -45,17 +45,17 @@ class OrderAutoConfirmRetryConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderAutoConfirmFailedEvent event = new OrderAutoConfirmFailedEvent(
-                orderId, buyerId, "DB 오류", LocalDateTime.of(2026, 4, 19, 19, 0)
+            orderId, buyerId, "DB 오류", LocalDateTime.of(2026, 4, 19, 19, 0)
         );
         EventEnvelope<OrderAutoConfirmFailedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED,
-                "commerce-service",
-                LocalDateTime.of(2026, 4, 19, 19, 0),
-                event
+            "test-event-id",
+            KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED,
+            "commerce-service",
+            LocalDateTime.of(2026, 4, 19, 19, 0),
+            event
         );
         return new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED, 0, 0L, String.valueOf(orderId), envelope
+            KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED, 0, 0L, String.valueOf(orderId), envelope
         );
     }
 
@@ -84,7 +84,7 @@ class OrderAutoConfirmRetryConsumerTest {
     void handleEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED, 0, 0L, "1", null
+            KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED, 0, 0L, "1", null
         );
 
         // when
@@ -100,14 +100,14 @@ class OrderAutoConfirmRetryConsumerTest {
     void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderAutoConfirmFailedEvent event = new OrderAutoConfirmFailedEvent(
-                1L, 50L, "오류", LocalDateTime.of(2026, 4, 19, 19, 0)
+            1L, 50L, "오류", LocalDateTime.of(2026, 4, 19, 19, 0)
         );
         EventEnvelope<OrderAutoConfirmFailedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 19, 19, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 19, 19, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED, 0, 0L, "1", envelope
+            KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED, 0, 0L, "1", envelope
         );
 
         // when
@@ -152,7 +152,7 @@ class OrderAutoConfirmRetryConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 50L);
         doThrow(new OrderStatusAlreadyChangedException(OrderStatus.CONFIRMED))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when
         consumer.handleOrderAutoConfirmFailedEvent(record, acknowledgment);
@@ -168,12 +168,12 @@ class OrderAutoConfirmRetryConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 50L);
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderAutoConfirmFailedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
         verify(acknowledgment, never()).acknowledge();

@@ -35,10 +35,10 @@ public interface FindOrderPort {
      * @Description 구매자 ID와 조건으로 주문 목록을 조회합니다.
      */
     List<Order> findByBuyerId(
-            Long buyerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            List<OrderStatus> statuses
+        Long buyerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        List<OrderStatus> statuses
     );
 
     /**
@@ -52,10 +52,10 @@ public interface FindOrderPort {
      * @Description 관리자용 전체 주문 조회. 판매자별, 기간별, 상태별 필터링을 지원합니다.
      */
     List<Order> findAllWithFilters(
-            Long sellerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            OrderStatus orderStatus
+        Long sellerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        OrderStatus orderStatus
     );
 
     /**

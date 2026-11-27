@@ -32,30 +32,30 @@ class UserServiceCommunicationHistoryPersistenceAdapterTest {
     void savesHistoryAndReturnsDomain() {
         // given
         UserServiceCommunicationHistory history = UserServiceCommunicationHistory.from(
-                UserServiceCommunicationHistoryCreateState.builder()
-                        .targetType(UserServiceCommunicationTargetType.USER_POINT)
-                        .targetId("42")
-                        .communicationType(UserServiceCommunicationType.REQUEST)
-                        .sender(UserServiceCommunicationSenderType.REWARD)
-                        .exception("timeout")
-                        .payload("{\"userId\":42}")
-                        .payloadJson(null)
-                        .build()
+            UserServiceCommunicationHistoryCreateState.builder()
+                .targetType(UserServiceCommunicationTargetType.USER_POINT)
+                .targetId("42")
+                .communicationType(UserServiceCommunicationType.REQUEST)
+                .sender(UserServiceCommunicationSenderType.REWARD)
+                .exception("timeout")
+                .payload("{\"userId\":42}")
+                .payloadJson(null)
+                .build()
         );
         UserServiceCommunicationHistoryJpaEntity savedEntity = UserServiceCommunicationHistoryJpaEntity.from(
-                UserServiceCommunicationHistory.from(
-                        UserServiceCommunicationHistorySnapshotState.builder()
-                                .id(99L)
-                                .targetType(UserServiceCommunicationTargetType.USER_POINT)
-                                .targetId("42")
-                                .communicationType(UserServiceCommunicationType.REQUEST)
-                                .sender(UserServiceCommunicationSenderType.REWARD)
-                                .exception("timeout")
-                                .payload("{\"userId\":42}")
-                                .payloadJson(null)
-                                .createdAt(LocalDateTime.of(2025, 3, 1, 10, 0))
-                                .build()
-                )
+            UserServiceCommunicationHistory.from(
+                UserServiceCommunicationHistorySnapshotState.builder()
+                    .id(99L)
+                    .targetType(UserServiceCommunicationTargetType.USER_POINT)
+                    .targetId("42")
+                    .communicationType(UserServiceCommunicationType.REQUEST)
+                    .sender(UserServiceCommunicationSenderType.REWARD)
+                    .exception("timeout")
+                    .payload("{\"userId\":42}")
+                    .payloadJson(null)
+                    .createdAt(LocalDateTime.of(2025, 3, 1, 10, 0))
+                    .build()
+            )
         );
         when(repository.save(any(UserServiceCommunicationHistoryJpaEntity.class))).thenReturn(savedEntity);
 
@@ -64,7 +64,7 @@ class UserServiceCommunicationHistoryPersistenceAdapterTest {
 
         // then
         ArgumentCaptor<UserServiceCommunicationHistoryJpaEntity> captor =
-                ArgumentCaptor.forClass(UserServiceCommunicationHistoryJpaEntity.class);
+            ArgumentCaptor.forClass(UserServiceCommunicationHistoryJpaEntity.class);
         verify(repository).save(captor.capture());
         UserServiceCommunicationHistoryJpaEntity captured = captor.getValue();
         assertThat(captured.getTargetType()).isEqualTo(UserServiceCommunicationTargetType.USER_POINT);

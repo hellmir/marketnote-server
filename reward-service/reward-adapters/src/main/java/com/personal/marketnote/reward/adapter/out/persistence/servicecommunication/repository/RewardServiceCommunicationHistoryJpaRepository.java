@@ -4,5 +4,5 @@ import com.personal.marketnote.reward.adapter.out.persistence.servicecommunicati
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RewardServiceCommunicationHistoryJpaRepository
-        extends JpaRepository<RewardServiceCommunicationHistoryJpaEntity, Long> {
+    extends JpaRepository<RewardServiceCommunicationHistoryJpaEntity, Long> {
 }

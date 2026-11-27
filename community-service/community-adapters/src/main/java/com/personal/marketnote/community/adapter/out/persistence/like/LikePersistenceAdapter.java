@@ -33,9 +33,9 @@ public class LikePersistenceAdapter implements SaveLikePort, FindLikePort, Updat
 
     @Override
     public Optional<Like> findByTargetAndUser(LikeTargetType targetType, Long targetId, Long userId)
-            throws LikeNotFoundException {
+        throws LikeNotFoundException {
         return LikeJpaEntityToDomainMapper.mapToDomain(
-                findEntityByTargetAndUser(targetType, targetId, userId)
+            findEntityByTargetAndUser(targetType, targetId, userId)
         );
     }
 
@@ -46,11 +46,11 @@ public class LikePersistenceAdapter implements SaveLikePort, FindLikePort, Updat
     }
 
     private LikeJpaEntity findEntityByTargetAndUser(LikeTargetType targetType, Long targetId, Long userId)
-            throws LikeNotFoundException {
+        throws LikeNotFoundException {
         return likeJpaRepository.findByTargetAndUser(targetType, targetId, userId)
-                .orElseThrow(() -> {
-                    log.warn("좋아요를 찾을 수 없습니다. targetType={}, targetId={}, userId={}", targetType, targetId, userId);
-                    return new LikeNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("좋아요를 찾을 수 없습니다. targetType={}, targetId={}, userId={}", targetType, targetId, userId);
+                return new LikeNotFoundException();
+            });
     }
 }

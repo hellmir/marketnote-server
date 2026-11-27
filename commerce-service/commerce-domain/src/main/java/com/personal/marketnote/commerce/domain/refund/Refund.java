@@ -45,15 +45,15 @@ public class Refund {
     public static Refund from(RefundCreateState state) {
         validate(state);
         return Refund.builder()
-                .paymentId(state.getPaymentId())
-                .orderId(state.getOrderId())
-                .refundType(state.getRefundType())
-                .refundAmount(Money.of(state.getRefundAmount()))
-                .cancelReason(state.getCancelReason())
-                .processedBy(state.getProcessedBy())
-                .pgRefundKey(state.getPgRefundKey())
-                .pgRawResponse(state.getPgRawResponse())
-                .build();
+            .paymentId(state.getPaymentId())
+            .orderId(state.getOrderId())
+            .refundType(state.getRefundType())
+            .refundAmount(Money.of(state.getRefundAmount()))
+            .cancelReason(state.getCancelReason())
+            .processedBy(state.getProcessedBy())
+            .pgRefundKey(state.getPgRefundKey())
+            .pgRawResponse(state.getPgRawResponse())
+            .build();
     }
 
     /**
@@ -64,17 +64,17 @@ public class Refund {
      */
     public static Refund from(RefundSnapshotState state) {
         return Refund.builder()
-                .id(state.getId())
-                .paymentId(state.getPaymentId())
-                .orderId(state.getOrderId())
-                .refundType(state.getRefundType())
-                .refundAmount(Money.of(state.getRefundAmount()))
-                .cancelReason(state.getCancelReason())
-                .processedBy(state.getProcessedBy())
-                .pgRefundKey(state.getPgRefundKey())
-                .pgRawResponse(state.getPgRawResponse())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .paymentId(state.getPaymentId())
+            .orderId(state.getOrderId())
+            .refundType(state.getRefundType())
+            .refundAmount(Money.of(state.getRefundAmount()))
+            .cancelReason(state.getCancelReason())
+            .processedBy(state.getProcessedBy())
+            .pgRefundKey(state.getPgRefundKey())
+            .pgRawResponse(state.getPgRawResponse())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     /**

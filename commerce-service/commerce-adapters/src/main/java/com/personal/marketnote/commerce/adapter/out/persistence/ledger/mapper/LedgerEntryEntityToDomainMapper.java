@@ -11,12 +11,12 @@ public class LedgerEntryEntityToDomainMapper {
 
     public static LedgerEntry toDomain(LedgerEntryJpaEntity entity) {
         return LedgerEntry.from(LedgerEntrySnapshotState.builder()
-                .id(entity.getId())
-                .accountId(entity.getAccountId())
-                .transactionId(entity.getTransactionId())
-                .amount(entity.getAmount())
-                .transactionType(entity.getTransactionType())
-                .createdAt(entity.getCreatedAt())
-                .build());
+            .id(entity.getId())
+            .accountId(entity.getAccountId())
+            .transactionId(entity.getTransactionId())
+            .amount(entity.getAmount())
+            .transactionType(entity.getTransactionType())
+            .createdAt(entity.getCreatedAt())
+            .build());
     }
 }

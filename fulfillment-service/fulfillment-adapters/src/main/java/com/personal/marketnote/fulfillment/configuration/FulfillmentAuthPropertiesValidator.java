@@ -36,18 +36,18 @@ public class FulfillmentAuthPropertiesValidator {
         Set<String> sensitivePaths = properties.getSensitivePaths();
         if (FormatValidator.hasNoValue(sensitivePaths)) {
             throw new InvalidFulfillmentAuthPropertiesException(
-                    "vendor.fassto.auth.sensitive-paths 값이 설정되지 않았습니다. "
-                            + "raw body 노출 방지를 위해 마스킹 대상 경로를 1개 이상 등록해야 합니다."
+                "vendor.fassto.auth.sensitive-paths 값이 설정되지 않았습니다. "
+                    + "raw body 노출 방지를 위해 마스킹 대상 경로를 1개 이상 등록해야 합니다."
             );
         }
 
         Set<String> definedPaths = collectDefinedPaths(properties);
         Set<String> orphans = sensitivePaths.stream()
-                .filter(path -> !definedPaths.contains(path))
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(path -> !definedPaths.contains(path))
+            .collect(Collectors.toUnmodifiableSet());
         if (!orphans.isEmpty()) {
             throw new InvalidFulfillmentAuthPropertiesException(
-                    "vendor.fassto.auth.sensitive-paths에 등록된 경로가 Path 정의와 불일치합니다. orphans=" + orphans
+                "vendor.fassto.auth.sensitive-paths에 등록된 경로가 Path 정의와 불일치합니다. orphans=" + orphans
             );
         }
 
@@ -56,11 +56,11 @@ public class FulfillmentAuthPropertiesValidator {
 
     private Set<String> collectDefinedPaths(FulfillmentAuthProperties properties) {
         return Arrays.stream(FulfillmentAuthProperties.class.getDeclaredFields())
-                .filter(field -> field.getType() == String.class)
-                .filter(field -> field.getName().endsWith("Path"))
-                .map(field -> readStringField(properties, field))
-                .filter(FormatValidator::hasValue)
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(field -> field.getType() == String.class)
+            .filter(field -> field.getName().endsWith("Path"))
+            .map(field -> readStringField(properties, field))
+            .filter(FormatValidator::hasValue)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     private String readStringField(FulfillmentAuthProperties properties, Field field) {
@@ -69,7 +69,7 @@ public class FulfillmentAuthPropertiesValidator {
             return (String) field.get(properties);
         } catch (IllegalAccessException iae) {
             throw new InvalidFulfillmentAuthPropertiesException(
-                    "FulfillmentAuthProperties 필드 reflection 접근 실패: " + field.getName(), iae
+                "FulfillmentAuthProperties 필드 reflection 접근 실패: " + field.getName(), iae
             );
         }
     }

@@ -36,20 +36,20 @@ class OrderCancelSagaStarterTest {
     void shouldStartSagaWithCorrectSagaId() {
         List<OrderProductItem> orderProducts = List.of(new OrderProductItem(10L, 1000L, null, null, 2, 25000L));
         OrderCancelSagaContext context = new OrderCancelSagaContext(
-                1L, "order-key-1", 100L,
-                50000L, 50000L, 0L, 3000L,
-                true, 0L,
-                "PAID", "CANCEL_ORDER", "구매 의사 취소",
-                orderProducts, orderProducts, List.of(), null
+            1L, "order-key-1", 100L,
+            50000L, 50000L, 0L, 3000L,
+            true, 0L,
+            "PAID", "CANCEL_ORDER", "구매 의사 취소",
+            orderProducts, orderProducts, List.of(), null
         );
 
         orderCancelSagaStarter.start(context);
 
         ArgumentCaptor<String> sagaIdCaptor = ArgumentCaptor.forClass(String.class);
         verify(sagaOrchestrator).start(
-                eq(orderCancelSagaDefinition),
-                sagaIdCaptor.capture(),
-                eq(context)
+            eq(orderCancelSagaDefinition),
+            sagaIdCaptor.capture(),
+            eq(context)
         );
         assertThat(sagaIdCaptor.getValue()).isEqualTo("ORDER_CANCEL:1");
     }
@@ -58,26 +58,26 @@ class OrderCancelSagaStarterTest {
     @DisplayName("SAGA를 시작하면 전달받은 컨텍스트가 그대로 전달된다")
     void shouldPassContextToOrchestrator() {
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(10L, 1000L, null, null, 1, 50000L),
-                new OrderProductItem(20L, 2000L, null, null, 2, 25000L)
+            new OrderProductItem(10L, 1000L, null, null, 1, 50000L),
+            new OrderProductItem(20L, 2000L, null, null, 2, 25000L)
         );
         OrderCancelSagaContext context = new OrderCancelSagaContext(
-                42L, "order-key-42", 200L,
-                100000L, 100000L, 5000L, 3000L,
-                true, 0L,
-                "PREPARING", "MISTAKE", "주문 실수",
-                orderProducts, orderProducts, List.of(), null
+            42L, "order-key-42", 200L,
+            100000L, 100000L, 5000L, 3000L,
+            true, 0L,
+            "PREPARING", "MISTAKE", "주문 실수",
+            orderProducts, orderProducts, List.of(), null
         );
 
         orderCancelSagaStarter.start(context);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<OrderCancelSagaContext> contextCaptor =
-                ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            ArgumentCaptor.forClass(OrderCancelSagaContext.class);
         verify(sagaOrchestrator).start(
-                any(OrderCancelSagaDefinition.class),
-                eq("ORDER_CANCEL:42"),
-                contextCaptor.capture()
+            any(OrderCancelSagaDefinition.class),
+            eq("ORDER_CANCEL:42"),
+            contextCaptor.capture()
         );
         OrderCancelSagaContext captured = contextCaptor.getValue();
         assertThat(captured.orderId()).isEqualTo(42L);
@@ -90,25 +90,25 @@ class OrderCancelSagaStarterTest {
     @DisplayName("전달받은 컨텍스트의 cancelId가 Orchestrator에 그대로 전달된다")
     void shouldPropagateCancelIdToOrchestrator() {
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(10L, 1000L, null, null, 1, 50000L)
+            new OrderProductItem(10L, 1000L, null, null, 1, 50000L)
         );
         OrderCancelSagaContext context = new OrderCancelSagaContext(
-                100L, "order-key-100", 300L,
-                50000L, 50000L, 0L, 3000L,
-                true, 0L,
-                "PREPARING", "CANCEL_ORDER", "취소",
-                orderProducts, orderProducts, List.of(), "cancel-uuid-xyz"
+            100L, "order-key-100", 300L,
+            50000L, 50000L, 0L, 3000L,
+            true, 0L,
+            "PREPARING", "CANCEL_ORDER", "취소",
+            orderProducts, orderProducts, List.of(), "cancel-uuid-xyz"
         );
 
         orderCancelSagaStarter.start(context);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<OrderCancelSagaContext> contextCaptor =
-                ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            ArgumentCaptor.forClass(OrderCancelSagaContext.class);
         verify(sagaOrchestrator).start(
-                any(OrderCancelSagaDefinition.class),
-                eq("ORDER_CANCEL:100"),
-                contextCaptor.capture()
+            any(OrderCancelSagaDefinition.class),
+            eq("ORDER_CANCEL:100"),
+            contextCaptor.capture()
         );
         assertThat(contextCaptor.getValue().cancelId()).isEqualTo("cancel-uuid-xyz");
     }

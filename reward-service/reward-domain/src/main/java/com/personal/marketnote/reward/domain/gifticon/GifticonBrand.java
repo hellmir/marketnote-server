@@ -18,21 +18,21 @@ public class GifticonBrand {
 
     public static GifticonBrand from(GifticonBrandCreateState state) {
         return GifticonBrand.builder()
-                .brandCode(BrandCode.of(state.getBrandCode()))
-                .brandName(state.getBrandName())
-                .brandImageUrl(state.getBrandImageUrl())
-                .build();
+            .brandCode(BrandCode.of(state.getBrandCode()))
+            .brandName(state.getBrandName())
+            .brandImageUrl(state.getBrandImageUrl())
+            .build();
     }
 
     public static GifticonBrand from(GifticonBrandSnapshotState state) {
         return GifticonBrand.builder()
-                .id(state.getId())
-                .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
-                .brandName(state.getBrandName())
-                .brandImageUrl(state.getBrandImageUrl())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
+            .brandName(state.getBrandName())
+            .brandImageUrl(state.getBrandImageUrl())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void syncFromApi(String brandName, String brandImageUrl) {

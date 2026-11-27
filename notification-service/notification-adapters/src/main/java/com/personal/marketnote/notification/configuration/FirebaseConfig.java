@@ -33,12 +33,12 @@ public class FirebaseConfig {
 
         try {
             InputStream credentialStream = new ByteArrayInputStream(
-                    serviceAccountJson.getBytes(StandardCharsets.UTF_8)
+                serviceAccountJson.getBytes(StandardCharsets.UTF_8)
             );
 
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(credentialStream))
-                    .build();
+                .setCredentials(GoogleCredentials.fromStream(credentialStream))
+                .build();
 
             log.info("Firebase 초기화 완료");
             return FirebaseApp.initializeApp(options);

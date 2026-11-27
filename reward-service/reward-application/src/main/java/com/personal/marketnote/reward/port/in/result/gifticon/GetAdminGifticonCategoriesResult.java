@@ -8,19 +8,19 @@ public record GetAdminGifticonCategoriesResult(List<GifticonCategoryItemResult> 
 
     public static GetAdminGifticonCategoriesResult from(List<GifticonCategory> categories) {
         List<GifticonCategoryItemResult> items = categories.stream()
-                .map(category -> new GifticonCategoryItemResult(
-                        category.getId(),
-                        category.getCategoryCode().getValue(),
-                        category.getCategoryName(),
-                        category.getDisplayName(),
-                        category.getEffectiveDisplayName(),
-                        category.getIconUrl(),
-                        category.isExposed(),
-                        category.getOrderNum(),
-                        category.getCreatedAt(),
-                        category.getModifiedAt()
-                ))
-                .toList();
+            .map(category -> new GifticonCategoryItemResult(
+                category.getId(),
+                category.getCategoryCode().getValue(),
+                category.getCategoryName(),
+                category.getDisplayName(),
+                category.getEffectiveDisplayName(),
+                category.getIconUrl(),
+                category.isExposed(),
+                category.getOrderNum(),
+                category.getCreatedAt(),
+                category.getModifiedAt()
+            ))
+            .toList();
         return new GetAdminGifticonCategoriesResult(items);
     }
 }

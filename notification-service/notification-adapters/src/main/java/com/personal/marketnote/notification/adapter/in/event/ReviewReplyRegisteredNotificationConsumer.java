@@ -26,12 +26,12 @@ public class ReviewReplyRegisteredNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.REVIEW_REPLY_REGISTERED,
-            groupId = "notification-review-reply"
+        topics = KafkaTopicConstants.REVIEW_REPLY_REGISTERED,
+        groupId = "notification-review-reply"
     )
     public void handleReviewReplyRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -48,11 +48,11 @@ public class ReviewReplyRegisteredNotificationConsumer {
         ReviewReplyRegisteredEvent payload = envelope.getPayloadAs(ReviewReplyRegisteredEvent.class, objectMapper);
 
         log.info("리뷰 답글 등록 이벤트 수신 (알림 발송). eventId={}, userId={}, reviewId={}",
-                envelope.eventId(), payload.userId(), payload.reviewId());
+            envelope.eventId(), payload.userId(), payload.reviewId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("userId", payload.userId()),
-                EventPayloadValidator.id("reviewId", payload.reviewId()))) {
+            EventPayloadValidator.id("userId", payload.userId()),
+            EventPayloadValidator.id("reviewId", payload.reviewId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -60,18 +60,18 @@ public class ReviewReplyRegisteredNotificationConsumer {
         try {
             String productName = FormatValidator.hasValue(payload.productName()) ? payload.productName() : "";
             SendNotificationCommand command = new SendNotificationCommand(
-                    payload.userId(),
-                    "REVIEW_REPLY",
-                    Map.of("product_name", productName),
-                    "PUSH_ONLY",
-                    null
+                payload.userId(),
+                "REVIEW_REPLY",
+                Map.of("product_name", productName),
+                "PUSH_ONLY",
+                null
             );
             sendNotificationUseCase.sendNotification(command);
 
             log.info("리뷰 답글 알림 발송 완료. userId={}, reviewId={}", payload.userId(), payload.reviewId());
         } catch (Exception e) {
             log.error("리뷰 답글 알림 발송 실패. eventId={}, userId={}, reviewId={}, error={}",
-                    envelope.eventId(), payload.userId(), payload.reviewId(), e.getMessage(), e);
+                envelope.eventId(), payload.userId(), payload.reviewId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

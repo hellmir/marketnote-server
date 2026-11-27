@@ -39,8 +39,8 @@ class OneOnOneInquiryAnsweredNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long userId, Long postId, String title, String board) {
         InquiryAnsweredEvent event = new InquiryAnsweredEvent(userId, postId, title, board);
         EventEnvelope<InquiryAnsweredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "community.inquiry.answered", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "community.inquiry.answered", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         return new ConsumerRecord<>("community.inquiry.answered", 0, 0L, "key-1", envelope);
     }
@@ -88,7 +88,7 @@ class OneOnOneInquiryAnsweredNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.inquiry.answered", 0, 0L, "1", null
+            "community.inquiry.answered", 0, 0L, "1", null
         );
 
         // when
@@ -105,11 +105,11 @@ class OneOnOneInquiryAnsweredNotificationConsumerTest {
         // given
         InquiryAnsweredEvent event = new InquiryAnsweredEvent(10L, 200L, "문의", "ONE_ON_ONE_INQUERY");
         EventEnvelope<InquiryAnsweredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.inquiry.answered", 0, 0L, "key-1", envelope
+            "community.inquiry.answered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -168,7 +168,7 @@ class OneOnOneInquiryAnsweredNotificationConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(10L, 200L, "문의", "ONE_ON_ONE_INQUERY");
         doThrow(new RuntimeException("발송 실패"))
-                .when(sendNotificationUseCase).sendNotification(any());
+            .when(sendNotificationUseCase).sendNotification(any());
 
         // when
         consumer.handleInquiryAnsweredEvent(record, acknowledgment);

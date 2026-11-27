@@ -54,21 +54,21 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
         updateMessageAfterSend(message, response);
 
         return new SendAligoAlimTalkResult(
-                message.getId(), response.mid(), response.successCount(), response.failCount()
+            message.getId(), response.mid(), response.successCount(), response.failCount()
         );
     }
 
     private AligoTemplate findApprovedTemplate(String templateCode) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(templateCode)
-                .orElseThrow(() -> {
-                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
-                    return new AligoTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                return new AligoTemplateNotFoundException();
+            });
 
         AligoTemplateInspectionStatus inspStatus = AligoTemplateInspectionStatus.from(template.getInspStatus());
         if (!inspStatus.isApproved()) {
             throw new AligoTemplateMismatchException(
-                    "승인(APR) 상태의 템플릿만 발송할 수 있습니다. inspStatus=" + template.getInspStatus()
+                "승인(APR) 상태의 템플릿만 발송할 수 있습니다. inspStatus=" + template.getInspStatus()
             );
         }
 
@@ -76,11 +76,11 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
     }
 
     private AligoMessage saveMessage(
-            AligoTemplate template, SendAligoAlimTalkCommand command,
-            String renderedContent, String buttonsJson
+        AligoTemplate template, SendAligoAlimTalkCommand command,
+        String renderedContent, String buttonsJson
     ) {
         AligoMessageCreateState state = AligoMessageCommandToStateMapper.mapToState(
-                command, template, renderedContent, buttonsJson, LocalDateTime.now()
+            command, template, renderedContent, buttonsJson, LocalDateTime.now()
         );
         AligoMessage message = AligoMessage.from(state);
 
@@ -96,8 +96,8 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
         LocalDateTime now = LocalDateTime.now();
         if (FormatValidator.hasValue(response.smid())) {
             message.markAsFailovered(
-                    response.mid(), response.smid(),
-                    response.successCount(), response.failCount(), now
+                response.mid(), response.smid(),
+                response.successCount(), response.failCount(), now
             );
             return;
         }
@@ -118,8 +118,8 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
             return null;
         }
         List<Map<String, String>> buttonList = template.getButtons().stream()
-                .map(this::toButtonMap)
-                .toList();
+            .map(this::toButtonMap)
+            .toList();
         try {
             return objectMapper.writeValueAsString(Map.of("button", buttonList));
         } catch (JsonProcessingException e) {

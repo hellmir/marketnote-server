@@ -30,16 +30,16 @@ class RewardRecordVendorCommunicationHistoryUseCaseTest {
     void shouldRecordVendorCommunicationHistorySuccessfully() {
         // given
         RewardVendorCommunicationHistoryCommand command = RewardVendorCommunicationHistoryCommand.builder()
-                .targetType(RewardVendorCommunicationTargetType.OFFERWALL)
-                .targetId("offerwall-123")
-                .vendorName(RewardVendorName.ADPOPCORN)
-                .communicationType(RewardVendorCommunicationType.REQUEST)
-                .sender(RewardVendorCommunicationSenderType.SERVER)
-                .payload("{\"data\": \"value\"}")
-                .build();
+            .targetType(RewardVendorCommunicationTargetType.OFFERWALL)
+            .targetId("offerwall-123")
+            .vendorName(RewardVendorName.ADPOPCORN)
+            .communicationType(RewardVendorCommunicationType.REQUEST)
+            .sender(RewardVendorCommunicationSenderType.SERVER)
+            .payload("{\"data\": \"value\"}")
+            .build();
 
         when(saveVendorCommunicationHistoryPort.save(any(RewardVendorCommunicationHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         RewardVendorCommunicationHistory result = rewardRecordVendorCommunicationHistoryService.record(command);

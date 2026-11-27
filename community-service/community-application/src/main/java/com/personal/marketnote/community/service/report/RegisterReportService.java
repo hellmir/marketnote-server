@@ -32,7 +32,7 @@ public class RegisterReportService implements RegisterReportUseCase {
     public void report(ReportCommand command) {
         validate(command);
         saveReportPort.save(
-                Report.from(ReportCommandToStateMapper.mapToState(command))
+            Report.from(ReportCommandToStateMapper.mapToState(command))
         );
     }
 

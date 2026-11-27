@@ -75,19 +75,19 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
 
     public static ShippingAddressJpaEntity from(ShippingAddress shippingAddress) {
         return ShippingAddressJpaEntity.builder()
-                .userId(shippingAddress.getUserId())
-                .addressType(shippingAddress.getAddressType())
-                .address(shippingAddress.getAddress())
-                .addressDetail(shippingAddress.getAddressDetail())
-                .companyName(shippingAddress.getCompanyName())
-                .addressAlias(shippingAddress.getAddressAlias())
-                .recipientName(shippingAddress.getRecipientName().getValue())
-                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
-                .deliveryRequestType(shippingAddress.getDeliveryRequestType())
-                .deliveryRequestMessage(toValueOrNull(shippingAddress.getDeliveryRequestMessage()))
-                .isDefault(shippingAddress.isDefault())
-                .regionType(shippingAddress.getRegionType())
-                .build();
+            .userId(shippingAddress.getUserId())
+            .addressType(shippingAddress.getAddressType())
+            .address(shippingAddress.getAddress())
+            .addressDetail(shippingAddress.getAddressDetail())
+            .companyName(shippingAddress.getCompanyName())
+            .addressAlias(shippingAddress.getAddressAlias())
+            .recipientName(shippingAddress.getRecipientName().getValue())
+            .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
+            .deliveryRequestType(shippingAddress.getDeliveryRequestType())
+            .deliveryRequestMessage(toValueOrNull(shippingAddress.getDeliveryRequestMessage()))
+            .isDefault(shippingAddress.isDefault())
+            .regionType(shippingAddress.getRegionType())
+            .build();
     }
 
     private static String toValueOrNull(DeliveryRequestMessage deliveryRequestMessage) {

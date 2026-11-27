@@ -43,11 +43,11 @@ class ShippingStatusChangedOrderStatusConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String shippingStatus) {
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                orderId, 1L, shippingStatus, "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0), null, null
+            orderId, 1L, shippingStatus, "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         return new ConsumerRecord<>("fulfillment.shipping.status-changed", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -166,7 +166,7 @@ class ShippingStatusChangedOrderStatusConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "SHIPPING");
         doThrow(new OrderStatusAlreadyChangedException(SHIPPING))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when
         consumer.handleShippingStatusChangedEvent(record, acknowledgment);
@@ -182,7 +182,7 @@ class ShippingStatusChangedOrderStatusConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "DELIVERED");
         doThrow(new InvalidOrderStatusTransitionException(CANCELLED, DELIVERED))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when
         consumer.handleShippingStatusChangedEvent(record, acknowledgment);
@@ -239,7 +239,7 @@ class ShippingStatusChangedOrderStatusConsumerTest {
     void handleShippingStatusChangedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "fulfillment.shipping.status-changed", 0, 0L, "1", null
+            "fulfillment.shipping.status-changed", 0, 0L, "1", null
         );
 
         // when
@@ -255,14 +255,14 @@ class ShippingStatusChangedOrderStatusConsumerTest {
     void handleShippingStatusChangedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                1L, 1L, "SHIPPING", "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0), null, null
+            1L, 1L, "SHIPPING", "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "fulfillment.shipping.status-changed", 0, 0L, "1", envelope
+            "fulfillment.shipping.status-changed", 0, 0L, "1", envelope
         );
 
         // when
@@ -293,12 +293,12 @@ class ShippingStatusChangedOrderStatusConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "SHIPPING");
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleShippingStatusChangedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
         verify(acknowledgment, never()).acknowledge();

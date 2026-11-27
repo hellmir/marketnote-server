@@ -9,24 +9,24 @@ import java.util.List;
 import java.util.Map;
 
 public record OrderHistoryByDateResult(
-        LocalDate orderDate,
-        Integer count,
-        List<GetOrderResult> orders
+    LocalDate orderDate,
+    Integer count,
+    List<GetOrderResult> orders
 ) {
     public static OrderHistoryByDateResult of(
-            LocalDate orderDate,
-            List<Order> orders,
-            Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId
+        LocalDate orderDate,
+        List<Order> orders,
+        Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId
     ) {
         List<GetOrderResult> orderResults = orders.stream()
-                .map(order -> GetOrderResult.from(
-                        order,
-                        FormatValidator.hasValue(productInfoResultsByPricePolicyId)
-                                && FormatValidator.hasValue(productInfoResultsByPricePolicyId.values())
-                                ? productInfoResultsByPricePolicyId
-                                : Map.of()
-                ))
-                .toList();
+            .map(order -> GetOrderResult.from(
+                order,
+                FormatValidator.hasValue(productInfoResultsByPricePolicyId)
+                    && FormatValidator.hasValue(productInfoResultsByPricePolicyId.values())
+                    ? productInfoResultsByPricePolicyId
+                    : Map.of()
+            ))
+            .toList();
 
         return new OrderHistoryByDateResult(orderDate, orderResults.size(), orderResults);
     }

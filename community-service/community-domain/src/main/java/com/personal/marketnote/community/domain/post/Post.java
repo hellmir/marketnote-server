@@ -61,26 +61,26 @@ public class Post {
 
     public static Post from(PostCreateState state) {
         return Post.builder()
-                .userId(state.getUserId())
-                .postKey(RandomCodeGenerator.generatePostKey())
-                .parentId(state.getParentId())
-                .board(state.getBoard())
-                .category(PostCategoryResolver.resolve(state.getBoard(), state.getCategory()))
-                .targetGroupType(state.getTargetGroupType())
-                .targetGroupId(state.getTargetGroupId())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .productImageUrl(state.getProductImageUrl())
-                .writerName(state.getWriterName())
-                .maskedWriterName(resolveMaskedWriterName(state))
-                .title(state.getTitle())
-                .content(state.getContent())
-                .isPrivate(state.isPrivate())
-                .isPhoto(state.isPhoto())
-                .isImportant(resolveIsImportant(state.getBoard(), state.getCategory(), state.isImportant()))
-                .hasReply(false)
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .userId(state.getUserId())
+            .postKey(RandomCodeGenerator.generatePostKey())
+            .parentId(state.getParentId())
+            .board(state.getBoard())
+            .category(PostCategoryResolver.resolve(state.getBoard(), state.getCategory()))
+            .targetGroupType(state.getTargetGroupType())
+            .targetGroupId(state.getTargetGroupId())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .productImageUrl(state.getProductImageUrl())
+            .writerName(state.getWriterName())
+            .maskedWriterName(resolveMaskedWriterName(state))
+            .title(state.getTitle())
+            .content(state.getContent())
+            .isPrivate(state.isPrivate())
+            .isPhoto(state.isPhoto())
+            .isImportant(resolveIsImportant(state.getBoard(), state.getCategory(), state.isImportant()))
+            .hasReply(false)
+            .status(EntityStatus.ACTIVE)
+            .build();
     }
 
     private static boolean resolveIsImportant(Board board, String category, boolean requested) {
@@ -99,30 +99,30 @@ public class Post {
 
     public static Post from(PostSnapshotState state) {
         return Post.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .postKey(state.getPostKey())
-                .parentId(state.getParentId())
-                .board(state.getBoard())
-                .category(PostCategoryResolver.resolve(state.getBoard(), state.getCategory()))
-                .targetGroupType(state.getTargetGroupType())
-                .targetGroupId(state.getTargetGroupId())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .productImageUrl(state.getProductImageUrl())
-                .writerName(state.getWriterName())
-                .maskedWriterName(state.getMaskedWriterName())
-                .title(state.getTitle())
-                .content(state.getContent())
-                .isPrivate(state.isPrivate())
-                .isPhoto(state.isPhoto())
-                .isImportant(state.isImportant())
-                .hasReply(state.isHasReply())
-                .status(state.getStatus())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .orderNum(state.getOrderNum())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .postKey(state.getPostKey())
+            .parentId(state.getParentId())
+            .board(state.getBoard())
+            .category(PostCategoryResolver.resolve(state.getBoard(), state.getCategory()))
+            .targetGroupType(state.getTargetGroupType())
+            .targetGroupId(state.getTargetGroupId())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .productImageUrl(state.getProductImageUrl())
+            .writerName(state.getWriterName())
+            .maskedWriterName(state.getMaskedWriterName())
+            .title(state.getTitle())
+            .content(state.getContent())
+            .isPrivate(state.isPrivate())
+            .isPhoto(state.isPhoto())
+            .isImportant(state.isImportant())
+            .hasReply(state.isHasReply())
+            .status(state.getStatus())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .orderNum(state.getOrderNum())
+            .build();
     }
 
     public boolean isOwnedBy(Long userId) {
@@ -190,7 +190,7 @@ public class Post {
 
     private boolean isAnnouncementNotice() {
         return board.isNotice() && category instanceof NoticePostCategory noticeCategory
-                && NoticePostCategory.ANNOUNCEMENT.equals(noticeCategory);
+            && NoticePostCategory.ANNOUNCEMENT.equals(noticeCategory);
     }
 
     public boolean isReply() {

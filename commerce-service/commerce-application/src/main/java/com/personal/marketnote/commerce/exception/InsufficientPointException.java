@@ -11,7 +11,7 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
  */
 public class InsufficientPointException extends InvalidValueException {
     private static final String MESSAGE =
-            "ERR_ORDER_POINT_01::포인트 잔액이 부족합니다. 요청 포인트: %d, 보유 포인트: %d";
+        "ERR_ORDER_POINT_01::포인트 잔액이 부족합니다. 요청 포인트: %d, 보유 포인트: %d";
 
     public InsufficientPointException(Long requestedAmount, Long availableAmount) {
         super(String.format(MESSAGE, requestedAmount, availableAmount));

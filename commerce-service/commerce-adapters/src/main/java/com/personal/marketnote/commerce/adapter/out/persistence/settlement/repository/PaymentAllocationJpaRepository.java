@@ -12,9 +12,9 @@ public interface PaymentAllocationJpaRepository extends JpaRepository<PaymentAll
     boolean existsByIdempotencyKey(String idempotencyKey);
 
     @Query("SELECT pa FROM PaymentAllocationJpaEntity pa WHERE pa.settlementId IS NULL " +
-            "AND YEAR(pa.createdAt) = :year AND MONTH(pa.createdAt) = :month")
+        "AND YEAR(pa.createdAt) = :year AND MONTH(pa.createdAt) = :month")
     List<PaymentAllocationJpaEntity> findAllUnsettledByPeriod(
-            @Param("year") Integer year, @Param("month") Integer month
+        @Param("year") Integer year, @Param("month") Integer month
     );
 
     @Modifying

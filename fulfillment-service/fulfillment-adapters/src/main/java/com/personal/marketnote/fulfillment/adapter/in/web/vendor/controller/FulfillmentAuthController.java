@@ -44,17 +44,17 @@ public class FulfillmentAuthController {
     @RequestFulfillmentAuthApiDocs
     public ResponseEntity<BaseResponse<FulfillmentAuthTokenResponse>> requestAccessToken() {
         FulfillmentAccessTokenResult result = FulfillmentAccessTokenResult.from(
-                requestFulfillmentAuthUseCase.requestAccessToken()
+            requestFulfillmentAuthUseCase.requestAccessToken()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        FulfillmentAuthTokenResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 인증 요청 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                FulfillmentAuthTokenResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 인증 요청 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -70,18 +70,18 @@ public class FulfillmentAuthController {
     @PreAuthorize(ADMIN_POINTCUT)
     @DisconnectFulfillmentAuthApiDocs
     public ResponseEntity<BaseResponse<Void>> disconnectAccessToken(
-            @RequestHeader("accessToken") String accessToken
+        @RequestHeader("accessToken") String accessToken
     ) {
         disconnectFulfillmentAuthUseCase.disconnectAccessToken(accessToken);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 인증 해제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 인증 해제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

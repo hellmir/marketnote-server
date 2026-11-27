@@ -57,26 +57,26 @@ public class UserAttendanceJpaEntity {
         }
 
         return UserAttendanceJpaEntity.builder()
-                .id(attendance.getId())
-                .userId(attendance.getUserId())
-                .year(attendance.getYear())
-                .month(attendance.getMonth())
-                .createdAt(attendance.getCreatedAt())
-                .totalRewardQuantity(attendance.getTotalRewardQuantityValue())
-                .build();
+            .id(attendance.getId())
+            .userId(attendance.getUserId())
+            .year(attendance.getYear())
+            .month(attendance.getMonth())
+            .createdAt(attendance.getCreatedAt())
+            .totalRewardQuantity(attendance.getTotalRewardQuantityValue())
+            .build();
     }
 
     public UserAttendance toDomain(List<UserAttendanceHistory> histories) {
         return UserAttendance.from(
-                UserAttendanceSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .year(year)
-                        .month(month)
-                        .createdAt(createdAt)
-                        .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
-                        .histories(histories)
-                        .build()
+            UserAttendanceSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .year(year)
+                .month(month)
+                .createdAt(createdAt)
+                .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
+                .histories(histories)
+                .build()
         );
     }
 }

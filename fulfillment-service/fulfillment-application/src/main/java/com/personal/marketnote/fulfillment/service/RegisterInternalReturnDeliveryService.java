@@ -40,13 +40,13 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
             RegisterFulfillmentDeliveryResult fasstoResult;
             try {
                 fasstoResult = registerFulfillmentReturnDeliveryPort.registerReturnDelivery(
-                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                    buildFasstoCommand(customerCode, accessToken.getValue(), command)
                 );
             } catch (FulfillmentInvalidAccessException firstFailure) {
                 requestFulfillmentAuthUseCase.invalidateCache();
                 accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
                 fasstoResult = registerFulfillmentReturnDeliveryPort.registerReturnDelivery(
-                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                    buildFasstoCommand(customerCode, accessToken.getValue(), command)
                 );
             }
 
@@ -71,15 +71,15 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
     }
 
     private RegisterFulfillmentReturnDeliveryCommand buildFasstoCommand(
-            String customerCode,
-            String accessToken,
-            RegisterInternalReturnDeliveryCommand command
+        String customerCode,
+        String accessToken,
+        RegisterInternalReturnDeliveryCommand command
     ) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = command.products().stream()
-                .map(product -> RegisterFulfillmentDeliveryGoodsCommand.of(
-                        product.productKey(), product.quantity()
-                ))
-                .toList();
+            .map(product -> RegisterFulfillmentDeliveryGoodsCommand.of(
+                product.productKey(), product.quantity()
+            ))
+            .toList();
 
         RegisterFulfillmentReturnDeliveryItemCommand itemCommand = RegisterFulfillmentReturnDeliveryItemCommand.from(command, goods);
 
@@ -93,10 +93,10 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
 
         RegisterFulfillmentDeliveryItemResult firstDelivery = fasstoResult.deliveries().get(0);
         return RegisterInternalReturnDeliveryResult.of(
-                orderId,
-                firstDelivery.fulfillmentSlipNumber(),
-                true,
-                firstDelivery.message()
+            orderId,
+            firstDelivery.fulfillmentSlipNumber(),
+            true,
+            firstDelivery.message()
         );
     }
 }

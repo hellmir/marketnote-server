@@ -37,10 +37,10 @@ class GetGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "GD001", "아메리카노", 4500L, 4000L, 1);
         when(findGifticonGoodsPort.countAllExposed(categoryCode, brandCode)).thenReturn(15L);
         when(findGifticonGoodsPort.findAllExposedByCursor(categoryCode, brandCode, FIRST_PAGE_CURSOR_VALUE, 21))
-                .thenReturn(List.of(goods));
+            .thenReturn(List.of(goods));
 
         GetGifticonGoodsResult result = getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(categoryCode, brandCode, FIRST_PAGE_CURSOR_VALUE, 20)
+            new GetGifticonGoodsCommand(categoryCode, brandCode, FIRST_PAGE_CURSOR_VALUE, 20)
         );
 
         assertThat(result.totalElements()).isEqualTo(15L);
@@ -63,10 +63,10 @@ class GetGifticonGoodsUseCaseTest {
         GifticonGoods g3 = createGoods(3L, "G3", "상품3", 1000L, 900L, 3);
         when(findGifticonGoodsPort.countAllExposed(null, null)).thenReturn(10L);
         when(findGifticonGoodsPort.findAllExposedByCursor(null, null, FIRST_PAGE_CURSOR_VALUE, 3))
-                .thenReturn(List.of(g1, g2, g3));
+            .thenReturn(List.of(g1, g2, g3));
 
         GetGifticonGoodsResult result = getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(null, null, FIRST_PAGE_CURSOR_VALUE, 2)
+            new GetGifticonGoodsCommand(null, null, FIRST_PAGE_CURSOR_VALUE, 2)
         );
 
         assertThat(result.hasNext()).isTrue();
@@ -80,10 +80,10 @@ class GetGifticonGoodsUseCaseTest {
     void shouldReturnEmptyFirstPage() {
         when(findGifticonGoodsPort.countAllExposed(null, null)).thenReturn(0L);
         when(findGifticonGoodsPort.findAllExposedByCursor(null, null, FIRST_PAGE_CURSOR_VALUE, 21))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         GetGifticonGoodsResult result = getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(null, null, FIRST_PAGE_CURSOR_VALUE, 20)
+            new GetGifticonGoodsCommand(null, null, FIRST_PAGE_CURSOR_VALUE, 20)
         );
 
         assertThat(result.totalElements()).isZero();
@@ -97,10 +97,10 @@ class GetGifticonGoodsUseCaseTest {
     void shouldSkipCountOnSubsequentPages() {
         GifticonGoods g10 = createGoods(10L, "G10", "상품10", 1000L, 900L, 10);
         when(findGifticonGoodsPort.findAllExposedByCursor(null, null, 5L, 21))
-                .thenReturn(List.of(g10));
+            .thenReturn(List.of(g10));
 
         GetGifticonGoodsResult result = getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(null, null, 5L, 20)
+            new GetGifticonGoodsCommand(null, null, 5L, 20)
         );
 
         assertThat(result.totalElements()).isNull();
@@ -117,10 +117,10 @@ class GetGifticonGoodsUseCaseTest {
         GifticonGoods g12 = createGoods(12L, "G12", "상품12", 1000L, 900L, 12);
         GifticonGoods g13 = createGoods(13L, "G13", "상품13", 1000L, 900L, 13);
         when(findGifticonGoodsPort.findAllExposedByCursor(null, null, 10L, 3))
-                .thenReturn(List.of(g11, g12, g13));
+            .thenReturn(List.of(g11, g12, g13));
 
         GetGifticonGoodsResult result = getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(null, null, 10L, 2)
+            new GetGifticonGoodsCommand(null, null, 10L, 2)
         );
 
         assertThat(result.hasNext()).isTrue();
@@ -134,10 +134,10 @@ class GetGifticonGoodsUseCaseTest {
     void shouldMarkLastPageOnSubsequentPage() {
         GifticonGoods g20 = createGoods(20L, "G20", "상품20", 1000L, 900L, 20);
         when(findGifticonGoodsPort.findAllExposedByCursor(null, null, 15L, 21))
-                .thenReturn(List.of(g20));
+            .thenReturn(List.of(g20));
 
         GetGifticonGoodsResult result = getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(null, null, 15L, 20)
+            new GetGifticonGoodsCommand(null, null, 15L, 20)
         );
 
         assertThat(result.hasNext()).isFalse();
@@ -150,10 +150,10 @@ class GetGifticonGoodsUseCaseTest {
     void shouldPassNullFiltersAsNull() {
         when(findGifticonGoodsPort.countAllExposed(null, null)).thenReturn(0L);
         when(findGifticonGoodsPort.findAllExposedByCursor(null, null, FIRST_PAGE_CURSOR_VALUE, 21))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         getGifticonGoodsService.getGoods(
-                new GetGifticonGoodsCommand(null, null, FIRST_PAGE_CURSOR_VALUE, 20)
+            new GetGifticonGoodsCommand(null, null, FIRST_PAGE_CURSOR_VALUE, 20)
         );
 
         verify(findGifticonGoodsPort).findAllExposedByCursor(null, null, FIRST_PAGE_CURSOR_VALUE, 21);
@@ -163,25 +163,25 @@ class GetGifticonGoodsUseCaseTest {
     private GifticonGoods createGoods(Long id, String goodsCode, String goodsName,
                                       Long salePrice, Long cashPrice, Integer orderNum) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(id)
-                .goodsCode(goodsCode)
-                .goodsName(goodsName)
-                .brandCode("BR001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://img.com/sb.png")
-                .categoryCode("1")
-                .realPrice(5000L)
-                .salePrice(salePrice)
-                .cashPrice(cashPrice)
-                .imageUrl("https://img.com/goods.png")
-                .description("설명")
-                .validDays(30)
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(true)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .id(id)
+            .goodsCode(goodsCode)
+            .goodsName(goodsName)
+            .brandCode("BR001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://img.com/sb.png")
+            .categoryCode("1")
+            .realPrice(5000L)
+            .salePrice(salePrice)
+            .cashPrice(cashPrice)
+            .imageUrl("https://img.com/goods.png")
+            .description("설명")
+            .validDays(30)
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(true)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 }

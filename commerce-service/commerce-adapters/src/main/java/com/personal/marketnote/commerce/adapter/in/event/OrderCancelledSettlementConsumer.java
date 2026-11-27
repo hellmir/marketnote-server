@@ -34,12 +34,12 @@ public class OrderCancelledSettlementConsumer {
     private final SavePaymentAllocationPort savePaymentAllocationPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_CANCELLED,
-            groupId = "commerce-order-cancelled-settlement"
+        topics = KafkaTopicConstants.ORDER_CANCELLED,
+        groupId = "commerce-order-cancelled-settlement"
     )
     public void handleOrderCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -56,11 +56,11 @@ public class OrderCancelledSettlementConsumer {
         OrderCancelledEvent payload = envelope.getPayloadAs(OrderCancelledEvent.class, objectMapper);
 
         log.info("주문 취소 이벤트 수신 (정산 역배분). eventId={}, orderId={}, isFullCancel={}",
-                envelope.eventId(), payload.orderId(), payload.isFullCancel()
+            envelope.eventId(), payload.orderId(), payload.isFullCancel()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -71,7 +71,7 @@ public class OrderCancelledSettlementConsumer {
             log.info("주문 취소 역배분 생성 완료. orderId={}, cancelId={}", payload.orderId(), payload.cancelId());
         } catch (DataIntegrityViolationException e) {
             log.info("이미 처리된 주문 취소 역배분 이벤트 (멱등 처리). eventId={}, orderId={}, cancelId={}",
-                    envelope.eventId(), payload.orderId(), payload.cancelId()
+                envelope.eventId(), payload.orderId(), payload.cancelId()
             );
         }
 
@@ -82,21 +82,21 @@ public class OrderCancelledSettlementConsumer {
         List<PaymentAllocation> originalAllocations = findPaymentAllocationPort.findByOrderId(orderId);
 
         List<PaymentAllocation> cancellationAllocations = originalAllocations.stream()
-                .filter(allocation -> allocation.getTransactionType().isPositiveContribution())
-                .map(allocation -> PaymentAllocation.from(
-                        PaymentAllocationCreateState.builder()
-                                .orderId(orderId)
-                                .sellerId(allocation.getSellerId())
-                                .allocatedAmount(allocation.getAllocatedAmount().getValue())
-                                .shippingFee(allocation.getShippingFee().getValue())
-                                .transactionType(PaymentAllocationTransactionType.CANCELLATION)
-                                .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey(IdempotencyKey.of(
-                                        buildIdempotencyKeyValue(orderId, allocation.getSellerId(), cancelId)
-                                ))
-                                .build()
-                ))
-                .toList();
+            .filter(allocation -> allocation.getTransactionType().isPositiveContribution())
+            .map(allocation -> PaymentAllocation.from(
+                PaymentAllocationCreateState.builder()
+                    .orderId(orderId)
+                    .sellerId(allocation.getSellerId())
+                    .allocatedAmount(allocation.getAllocatedAmount().getValue())
+                    .shippingFee(allocation.getShippingFee().getValue())
+                    .transactionType(PaymentAllocationTransactionType.CANCELLATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey(IdempotencyKey.of(
+                        buildIdempotencyKeyValue(orderId, allocation.getSellerId(), cancelId)
+                    ))
+                    .build()
+            ))
+            .toList();
 
         if (!cancellationAllocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(cancellationAllocations);

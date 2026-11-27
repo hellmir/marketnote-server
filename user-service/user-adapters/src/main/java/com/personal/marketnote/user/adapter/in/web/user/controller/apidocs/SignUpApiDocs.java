@@ -15,151 +15,151 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Operation(
-        summary = "회원 가입",
-        description = """
-                작성일자: 2025-12-26
-                
-                작성자: 성효빈
-                
-                ---
-                
-                ## Description
-                - **소셜 로그인**은 OAuth2 콜백 URI를 통해 발급된 **Access Token**과 **이메일 주소**, 회원 이메일 주소로 발송된 **인증 코드**가 필요합니다.
-                
-                - **일반 로그인**은 **이메일 주소**와 **비밀번호**, 회원 이메일 주소로 발송된 **인증 코드**가 필요합니다.
-                
-                    - 이메일 주소: example@example.com과 같은 형식이어야 합니다.
-                
-                    - 닉네임: 한글만 가능하며, 6글자 이하여야 합니다.
-                
-                    - 전화번호: "01012345678" 또는 "010-1234-5678"처럼 하이픈 포함 여부와 무관하게 입력 가능합니다. 서버에서는 하이픈을 제거한 canonical 형식("01012345678")으로 정규화되어 저장됩니다.
-                
-                    ~- 비밀번호: 8자 이상, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.~
-                
-                - 이미 **다른 방법으로 가입된 회원**인 경우 **isNewUser**: **false**를 반환합니다. 이 경우 계정이 새로 생성되지 않고, 기존 계정에 통합됩니다.
-                
-                - 비활성화된 계정인 경우 ERR06(403 FORBIDDEN)을 반환합니다.
-                
-                ---
-                
-                ## Request
-                
-                | **키** | **타입** | **설명** | **필수 여부** | **예시** |
-                | --- | --- | --- | --- | --- |
-                | email | string | 이메일 주소(형식: example@example.com) | Y | "example@example.com" |
-                | password | string | 비밀번호(8자 이상, 대문자, 소문자, 숫자, 특수문자 포함) | N | "Password123!" |
-                | verificationCode | string | 인증 코드 | Y | "NZW32E" |
-                | nickname | string | 닉네임(2~20자, 한글) | N | "고길동" |
-                | fullName | string | 성명(2~10자, 한글) | N | "홍길동" |
-                | phoneNumber | string | 전화번호(하이픈 포함/미포함 모두 허용, 내부 canonical 저장) | N | "01012345678" |
-                
-                ---
-                
-                ## Response
-                
-                | **키** | **타입** | **설명** | **예시** |
-                | --- | --- | --- | --- |
-                | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 |
-                | code | string | 응답 코드 | "SUC01" / "ERR01" / "ERR02" / "ERR03" / "ERR04" / "ERR05" / "ERR06" |
-                | timestamp | string(datetime) | 응답 일시 | "2025-12-26T12:12:30.013" |
-                | content | object | 응답 본문 | { ... } |
-                | message | string | 처리 결과 | "회원 가입 성공" |
-                
-                ---
-                
-                ### Response > content
-                
-                | **키** | **타입** | **설명** | **예시** |
-                | --- | --- | --- | --- |
-                | accessToken | string | 신규 발급된 Access Token | "f8310f8asohvh80scvh0zio3hr31d" |
-                | isNewUser | boolean | 신규 회원 여부 | true |
-                
-                ---
-                
-                ### Response > headers
-                | **키** | **타입** | **설명** | **예시** |
-                | --- | --- | --- | --- |
-                | Set-Cookie | string | Refresh Token (HttpOnly, Secure, SameSite=Strict) | "refresh_token=<jwt-refresh-token>; Path=/; Secure; HttpOnly; SameSite=Strict" |
-                """,
-        security = {@SecurityRequirement(name = "bearer")},
-        requestBody = @RequestBody(
-                required = true,
-                content = @Content(
-                        schema = @Schema(implementation = SignUpRequest.class),
-                        examples = @ExampleObject("""
-                                {
-                                    "email": "example@example.com",
-                                    "password": "Password123!",
-                                    "verificationCode": "NZW32E"
-                                }
-                                """)
-                )
+    summary = "회원 가입",
+    description = """
+        작성일자: 2025-12-26
+
+        작성자: 성효빈
+
+        ---
+
+        ## Description
+        - **소셜 로그인**은 OAuth2 콜백 URI를 통해 발급된 **Access Token**과 **이메일 주소**, 회원 이메일 주소로 발송된 **인증 코드**가 필요합니다.
+
+        - **일반 로그인**은 **이메일 주소**와 **비밀번호**, 회원 이메일 주소로 발송된 **인증 코드**가 필요합니다.
+
+            - 이메일 주소: example@example.com과 같은 형식이어야 합니다.
+
+            - 닉네임: 한글만 가능하며, 6글자 이하여야 합니다.
+
+            - 전화번호: "01012345678" 또는 "010-1234-5678"처럼 하이픈 포함 여부와 무관하게 입력 가능합니다. 서버에서는 하이픈을 제거한 canonical 형식("01012345678")으로 정규화되어 저장됩니다.
+
+            ~- 비밀번호: 8자 이상, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.~
+
+        - 이미 **다른 방법으로 가입된 회원**인 경우 **isNewUser**: **false**를 반환합니다. 이 경우 계정이 새로 생성되지 않고, 기존 계정에 통합됩니다.
+
+        - 비활성화된 계정인 경우 ERR06(403 FORBIDDEN)을 반환합니다.
+
+        ---
+
+        ## Request
+
+        | **키** | **타입** | **설명** | **필수 여부** | **예시** |
+        | --- | --- | --- | --- | --- |
+        | email | string | 이메일 주소(형식: example@example.com) | Y | "example@example.com" |
+        | password | string | 비밀번호(8자 이상, 대문자, 소문자, 숫자, 특수문자 포함) | N | "Password123!" |
+        | verificationCode | string | 인증 코드 | Y | "NZW32E" |
+        | nickname | string | 닉네임(2~20자, 한글) | N | "고길동" |
+        | fullName | string | 성명(2~10자, 한글) | N | "홍길동" |
+        | phoneNumber | string | 전화번호(하이픈 포함/미포함 모두 허용, 내부 canonical 저장) | N | "01012345678" |
+
+        ---
+
+        ## Response
+
+        | **키** | **타입** | **설명** | **예시** |
+        | --- | --- | --- | --- |
+        | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 |
+        | code | string | 응답 코드 | "SUC01" / "ERR01" / "ERR02" / "ERR03" / "ERR04" / "ERR05" / "ERR06" |
+        | timestamp | string(datetime) | 응답 일시 | "2025-12-26T12:12:30.013" |
+        | content | object | 응답 본문 | { ... } |
+        | message | string | 처리 결과 | "회원 가입 성공" |
+
+        ---
+
+        ### Response > content
+
+        | **키** | **타입** | **설명** | **예시** |
+        | --- | --- | --- | --- |
+        | accessToken | string | 신규 발급된 Access Token | "f8310f8asohvh80scvh0zio3hr31d" |
+        | isNewUser | boolean | 신규 회원 여부 | true |
+
+        ---
+
+        ### Response > headers
+        | **키** | **타입** | **설명** | **예시** |
+        | --- | --- | --- | --- |
+        | Set-Cookie | string | Refresh Token (HttpOnly, Secure, SameSite=Strict) | "refresh_token=<jwt-refresh-token>; Path=/; Secure; HttpOnly; SameSite=Strict" |
+        """,
+    security = {@SecurityRequirement(name = "bearer")},
+    requestBody = @RequestBody(
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = SignUpRequest.class),
+            examples = @ExampleObject("""
+                {
+                    "email": "example@example.com",
+                    "password": "Password123!",
+                    "verificationCode": "NZW32E"
+                }
+                """)
+        )
+    ),
+    responses = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "회원 가입 성공",
+            content = @Content(
+                examples = @ExampleObject("""
+                    {
+                      "statusCode": 201,
+                      "code": "SUC01",
+                      "timestamp": "2025-12-28T10:38:42.720864",
+                      "content": {
+                        "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3NjIzMDY3MjIsImV4cCI6MTc2MjMwODUyMiwic3ViIjoiODUiLCJyb2xlSWRzIjpbIlJPTEVfQlVZRVIiXSwidXNlcklkIjo4NSwiYXV0aFZlbmRvciI6Ik5BVElWRSJ9.O053YP2Vs41O_LYI2P3IGk7GLzaMeYM5mGgj0PZklxY",
+                        "isNewUser": true
+                      },
+                      "message": "회원 가입 성공"
+                    }
+                    """)
+            )
         ),
-        responses = {
-                @ApiResponse(
-                        responseCode = "201",
-                        description = "회원 가입 성공",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 201,
-                                          "code": "SUC01",
-                                          "timestamp": "2025-12-28T10:38:42.720864",
-                                          "content": {
-                                            "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3NjIzMDY3MjIsImV4cCI6MTc2MjMwODUyMiwic3ViIjoiODUiLCJyb2xlSWRzIjpbIlJPTEVfQlVZRVIiXSwidXNlcklkIjo4NSwiYXV0aFZlbmRvciI6Ik5BVElWRSJ9.O053YP2Vs41O_LYI2P3IGk7GLzaMeYM5mGgj0PZklxY",
-                                            "isNewUser": true
-                                          },
-                                          "message": "회원 가입 성공"
-                                        }
-                                        """)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "409",
-                        description = "중복된 회원 등록",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 409,
-                                          "code": "CONFLICT",
-                                          "timestamp": "2025-12-28T11:50:53.656526",
-                                          "content": null,
-                                          "message": "이미 존재하는 데이터입니다."
-                                        }
-                                        """)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "401",
-                        description = "인증 코드 검증 실패",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 401,
-                                          "code": "UNAUTHORIZED",
-                                          "timestamp": "2025-12-282T09:23:22.091551",
-                                          "content": null,
-                                          "message": "인증에 실패했습니다."
-                                        }
-                                        """)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "403",
-                        description = "비활성화된 계정",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 403,
-                                          "code": "FORBIDDEN",
-                                          "timestamp": "2025-12-28T16:13:25.045291",
-                                          "content": null,
-                                          "message": "접근이 거부되었습니다."
-                                        }
-                                        """)
-                        )
-                )
-        }
+        @ApiResponse(
+            responseCode = "409",
+            description = "중복된 회원 등록",
+            content = @Content(
+                examples = @ExampleObject("""
+                    {
+                      "statusCode": 409,
+                      "code": "CONFLICT",
+                      "timestamp": "2025-12-28T11:50:53.656526",
+                      "content": null,
+                      "message": "이미 존재하는 데이터입니다."
+                    }
+                    """)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "인증 코드 검증 실패",
+            content = @Content(
+                examples = @ExampleObject("""
+                    {
+                      "statusCode": 401,
+                      "code": "UNAUTHORIZED",
+                      "timestamp": "2025-12-282T09:23:22.091551",
+                      "content": null,
+                      "message": "인증에 실패했습니다."
+                    }
+                    """)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "비활성화된 계정",
+            content = @Content(
+                examples = @ExampleObject("""
+                    {
+                      "statusCode": 403,
+                      "code": "FORBIDDEN",
+                      "timestamp": "2025-12-28T16:13:25.045291",
+                      "content": null,
+                      "message": "접근이 거부되었습니다."
+                    }
+                    """)
+            )
+        )
+    }
 )
 public @interface SignUpApiDocs {
 }

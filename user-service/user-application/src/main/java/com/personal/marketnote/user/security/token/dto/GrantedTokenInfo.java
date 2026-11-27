@@ -7,12 +7,12 @@ import lombok.Builder;
 
 @Builder
 public record GrantedTokenInfo(
-        @NotNull String accessToken,
-        @Nullable String refreshToken,
-        @NotNull String id,
-        @NotNull AuthVendor authVendor,
-        String name,
-        String profileImageUrl,
-        OAuth2UserInfo userInfo
+    @NotNull String accessToken,
+    @Nullable String refreshToken,
+    @NotNull String id,
+    @NotNull AuthVendor authVendor,
+    String name,
+    String profileImageUrl,
+    OAuth2UserInfo userInfo
 ) {
 }

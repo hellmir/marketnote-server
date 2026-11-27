@@ -28,8 +28,8 @@ public class GetProductInventoryService implements GetProductInventoryUseCase {
         Map<Long, Integer> inventories = findCacheStockPort.findByPricePolicyIds(pricePolicyIds);
 
         List<Long> pricePolicyIdsWithoutStocks = pricePolicyIds.stream()
-                .filter(pricePolicyId -> FormatValidator.hasNoValue(inventories.get(pricePolicyId)))
-                .toList();
+            .filter(pricePolicyId -> FormatValidator.hasNoValue(inventories.get(pricePolicyId)))
+            .toList();
 
         if (FormatValidator.hasNoValue(pricePolicyIdsWithoutStocks)) {
             return inventories;
@@ -37,10 +37,10 @@ public class GetProductInventoryService implements GetProductInventoryUseCase {
 
         // Cache Memory에 저장돼 있지 않은 재고 수량 목록은 커머스 서비스 요청을 통해 조회
         Set<GetInventoryResult> restInventories
-                = findStockPort.findByPricePolicyIds(pricePolicyIdsWithoutStocks);
+            = findStockPort.findByPricePolicyIds(pricePolicyIdsWithoutStocks);
 
         restInventories.forEach(
-                restInventory -> inventories.put(restInventory.pricePolicyId(), restInventory.stock())
+            restInventory -> inventories.put(restInventory.pricePolicyId(), restInventory.stock())
         );
 
         return inventories;

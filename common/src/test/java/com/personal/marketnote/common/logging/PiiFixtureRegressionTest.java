@@ -34,34 +34,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PiiFixtureRegressionTest {
 
     private static final List<String> FORBIDDEN_EMAIL_DOMAINS = List.of(
-            "gmail.com",
-            "naver.com",
-            "daum.net",
-            "kakao.com",
-            "hanmail.net",
-            "nate.com",
-            "outlook.com",
-            "hotmail.com",
-            "yahoo.com",
-            "icloud.com",
-            "live.com"
+        "gmail.com",
+        "naver.com",
+        "daum.net",
+        "kakao.com",
+        "hanmail.net",
+        "nate.com",
+        "outlook.com",
+        "hotmail.com",
+        "yahoo.com",
+        "icloud.com",
+        "live.com"
     );
 
     private static final Pattern FORBIDDEN_EMAIL_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9._%+-]+@(gmail\\.com|naver\\.com|daum\\.net|kakao\\.com|hanmail\\.net|nate\\.com"
-                    + "|outlook\\.com|hotmail\\.com|yahoo\\.com|icloud\\.com|live\\.com)",
-            Pattern.CASE_INSENSITIVE
+        "[a-zA-Z0-9._%+-]+@(gmail\\.com|naver\\.com|daum\\.net|kakao\\.com|hanmail\\.net|nate\\.com"
+            + "|outlook\\.com|hotmail\\.com|yahoo\\.com|icloud\\.com|live\\.com)",
+        Pattern.CASE_INSENSITIVE
     );
 
     private static final String SELF_RELATIVE_PATH =
-            "common/src/test/java/com/personal/marketnote/common/logging/PiiFixtureRegressionTest.java";
+        "common/src/test/java/com/personal/marketnote/common/logging/PiiFixtureRegressionTest.java";
 
     private static final List<String> EXCLUDED_PATH_SEGMENTS = List.of(
-            "/build/",
-            "/.history/",
-            "/.git/",
-            "/.gradle/",
-            "/bin/"
+        "/build/",
+        "/.history/",
+        "/.git/",
+        "/.gradle/",
+        "/bin/"
     );
 
     @Test
@@ -74,30 +74,30 @@ class PiiFixtureRegressionTest {
 
         try (Stream<Path> paths = Files.walk(projectRoot)) {
             scannedCount = paths.filter(Files::isRegularFile)
-                    .filter(path -> path.getFileName().toString().endsWith("Test.java"))
-                    .filter(path -> !isExcluded(path))
-                    .filter(path -> !isSelf(path, selfAbsolute))
-                    .peek(path -> collectViolations(path, projectRoot, violations))
-                    .count();
+                .filter(path -> path.getFileName().toString().endsWith("Test.java"))
+                .filter(path -> !isExcluded(path))
+                .filter(path -> !isSelf(path, selfAbsolute))
+                .peek(path -> collectViolations(path, projectRoot, violations))
+                .count();
         }
 
         assertThat(scannedCount)
-                .as(
-                        "프로젝트 루트 탐색 실패로 스캔된 *Test.java가 0건입니다. "
-                                + "회귀 방지 장치가 침묵 실패했습니다. resolveProjectRoot()를 확인하십시오. root=%s",
-                        projectRoot
-                )
-                .isGreaterThan(0);
+            .as(
+                "프로젝트 루트 탐색 실패로 스캔된 *Test.java가 0건입니다. "
+                    + "회귀 방지 장치가 침묵 실패했습니다. resolveProjectRoot()를 확인하십시오. root=%s",
+                projectRoot
+            )
+            .isGreaterThan(0);
 
         assertThat(violations)
-                .as(
-                        "테스트 fixture에 실 PII 이메일 도메인이 하드코딩되어 있습니다. "
-                                + "금지 도메인: %s. CI 로그 아티팩트 유출 방지를 위해 "
-                                + "test.com / example.com 등 테스트 도메인으로 교체하십시오. 위반 목록:%n%s",
-                        FORBIDDEN_EMAIL_DOMAINS,
-                        String.join(System.lineSeparator(), violations)
-                )
-                .isEmpty();
+            .as(
+                "테스트 fixture에 실 PII 이메일 도메인이 하드코딩되어 있습니다. "
+                    + "금지 도메인: %s. CI 로그 아티팩트 유출 방지를 위해 "
+                    + "test.com / example.com 등 테스트 도메인으로 교체하십시오. 위반 목록:%n%s",
+                FORBIDDEN_EMAIL_DOMAINS,
+                String.join(System.lineSeparator(), violations)
+            )
+            .isEmpty();
     }
 
     private Path resolveProjectRoot() {

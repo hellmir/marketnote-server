@@ -71,8 +71,8 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
 
         Set<Long> consentedUserIds = resolveConsentedUserIds(category, userIds, template);
         Set<Long> skippedUserIds = userIds.stream()
-                .filter(id -> !consentedUserIds.contains(id))
-                .collect(Collectors.toSet());
+            .filter(id -> !consentedUserIds.contains(id))
+            .collect(Collectors.toSet());
 
         String title = TemplateRenderer.render(template.getTitle(), command.variables());
         String body = TemplateRenderer.render(template.getBodyTemplate(), command.variables());
@@ -85,17 +85,17 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
 
         LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime scheduledAt = NightTimeNotificationPolicy.resolveScheduledAt(
-                category, now, command.scheduledAt()
+            category, now, command.scheduledAt()
         );
 
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
 
         List<Notification> consentedNotifications = createNotifications(
-                new ArrayList<>(consentedUserIds), template, title, body, landingUrl,
-                deliveryChannel, scheduledAt
+            new ArrayList<>(consentedUserIds), template, title, body, landingUrl,
+            deliveryChannel, scheduledAt
         );
         List<Notification> skippedNotifications = createSkippedNotifications(
-                new ArrayList<>(skippedUserIds), template, deliveryChannel
+            new ArrayList<>(skippedUserIds), template, deliveryChannel
         );
 
         List<Notification> allToSave = new ArrayList<>();
@@ -105,15 +105,15 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
         List<Notification> savedNotifications = saveNotificationPort.saveAll(allToSave);
 
         List<Notification> savedConsented = savedNotifications.stream()
-                .filter(n -> !n.getSendStatus().isSkipped())
-                .toList();
+            .filter(n -> !n.getSendStatus().isSkipped())
+            .toList();
         List<Notification> pendingNotifications = savedConsented.stream()
-                .filter(n -> n.getSendStatus().isPending())
-                .toList();
+            .filter(n -> n.getSendStatus().isPending())
+            .toList();
 
         Set<Long> allSavedUserIds = savedNotifications.stream()
-                .map(Notification::getUserId)
-                .collect(Collectors.toSet());
+            .map(Notification::getUserId)
+            .collect(Collectors.toSet());
 
         if (pendingNotifications.isEmpty() || !deliveryChannel.hasPush()) {
             publishUnreadCountChangedEvents(allSavedUserIds);
@@ -121,8 +121,8 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
         }
 
         SendBatchNotificationResult result = sendPushAndProcessResults(
-                pendingNotifications, title, body, landingUrl,
-                userIds.size(), skippedUserIds.size()
+            pendingNotifications, title, body, landingUrl,
+            userIds.size(), skippedUserIds.size()
         );
         publishUnreadCountChangedEvents(allSavedUserIds);
         return result;
@@ -130,75 +130,75 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
 
     private NotificationTemplate findTemplate(String templateCode) {
         return findNotificationTemplatePort.findActiveByTemplateCode(templateCode)
-                .orElseThrow(() -> {
-                    log.warn("알림 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
-                    return new NotificationTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                return new NotificationTemplateNotFoundException();
+            });
     }
 
     private Set<Long> resolveConsentedUserIds(
-            NotificationCategory category, List<Long> userIds, NotificationTemplate template
+        NotificationCategory category, List<Long> userIds, NotificationTemplate template
     ) {
         if (!category.requiresConsent()) {
             return new HashSet<>(userIds);
         }
         List<NotificationPreference> enabledPrefs =
-                findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                        userIds, template.getNotificationType()
-                );
+            findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
+                userIds, template.getNotificationType()
+            );
         return enabledPrefs.stream()
-                .map(NotificationPreference::getUserId)
-                .collect(Collectors.toSet());
+            .map(NotificationPreference::getUserId)
+            .collect(Collectors.toSet());
     }
 
     private List<Notification> createNotifications(
-            List<Long> userIds, NotificationTemplate template,
-            String title, String body, String landingUrl,
-            DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
+        List<Long> userIds, NotificationTemplate template,
+        String title, String body, String landingUrl,
+        DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
     ) {
         return userIds.stream()
-                .map(userId -> {
-                    NotificationCreateState state = NotificationCommandToStateMapper.mapToBatchState(
-                            userId, template, title, body, landingUrl, deliveryChannel, scheduledAt
-                    );
-                    return Notification.from(state);
-                })
-                .toList();
+            .map(userId -> {
+                NotificationCreateState state = NotificationCommandToStateMapper.mapToBatchState(
+                    userId, template, title, body, landingUrl, deliveryChannel, scheduledAt
+                );
+                return Notification.from(state);
+            })
+            .toList();
     }
 
     private List<Notification> createSkippedNotifications(
-            List<Long> userIds, NotificationTemplate template, DeliveryChannel deliveryChannel
+        List<Long> userIds, NotificationTemplate template, DeliveryChannel deliveryChannel
     ) {
         return userIds.stream()
-                .map(userId -> {
-                    NotificationCreateState state = NotificationCommandToStateMapper.mapToBatchSkippedState(
-                            userId, template, deliveryChannel
-                    );
-                    Notification notification = Notification.from(state);
-                    notification.markAsSkipped();
-                    return notification;
-                })
-                .toList();
+            .map(userId -> {
+                NotificationCreateState state = NotificationCommandToStateMapper.mapToBatchSkippedState(
+                    userId, template, deliveryChannel
+                );
+                Notification notification = Notification.from(state);
+                notification.markAsSkipped();
+                return notification;
+            })
+            .toList();
     }
 
     private SendBatchNotificationResult sendPushAndProcessResults(
-            List<Notification> pendingNotifications,
-            String title, String body, String landingUrl,
-            int totalUserCount, int skippedCount
+        List<Notification> pendingNotifications,
+        String title, String body, String landingUrl,
+        int totalUserCount, int skippedCount
     ) {
 
         Map<Long, Notification> userIdToNotification = pendingNotifications.stream()
-                .collect(Collectors.toMap(Notification::getUserId, n -> n));
+            .collect(Collectors.toMap(Notification::getUserId, n -> n));
 
         List<Long> pendingUserIds = new ArrayList<>(userIdToNotification.keySet());
         List<DeviceToken> deviceTokens = findDeviceTokenPort.findActiveByUserIds(pendingUserIds);
 
         Map<Long, List<DeviceToken>> tokensByUserId = deviceTokens.stream()
-                .collect(Collectors.groupingBy(DeviceToken::getUserId));
+            .collect(Collectors.groupingBy(DeviceToken::getUserId));
 
         Set<Long> usersWithoutTokens = pendingUserIds.stream()
-                .filter(userId -> !tokensByUserId.containsKey(userId))
-                .collect(Collectors.toSet());
+            .filter(userId -> !tokensByUserId.containsKey(userId))
+            .collect(Collectors.toSet());
 
         for (Long userId : usersWithoutTokens) {
             Notification notification = userIdToNotification.get(userId);
@@ -211,7 +211,7 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
         for (Map.Entry<Long, List<DeviceToken>> entry : tokensByUserId.entrySet()) {
             for (DeviceToken deviceToken : entry.getValue()) {
                 SendPushNotificationCommand pushCommand = new SendPushNotificationCommand(
-                        deviceToken.getToken(), title, body, landingUrl, deviceToken.getPlatform());
+                    deviceToken.getToken(), title, body, landingUrl, deviceToken.getPlatform());
                 pushCommands.add(pushCommand);
                 tokenMap.put(deviceToken.getToken(), deviceToken);
             }
@@ -231,7 +231,7 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
             for (Map.Entry<Long, List<DeviceToken>> entry : tokensByUserId.entrySet()) {
                 Long userId = entry.getKey();
                 boolean anySuccess = entry.getValue().stream()
-                        .anyMatch(dt -> !failedTokenIds.contains(dt.getId()));
+                    .anyMatch(dt -> !failedTokenIds.contains(dt.getId()));
                 userSendSuccess.put(userId, anySuccess);
             }
 
@@ -250,20 +250,20 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
         publishSentEvents(userIdToNotification.values(), sentDeviceCount, failedDeviceCount);
 
         int sentUserCount = (int) userIdToNotification.values().stream()
-                .filter(n -> n.getSendStatus().isSent())
-                .count();
+            .filter(n -> n.getSendStatus().isSent())
+            .count();
         int failedUserCount = (int) userIdToNotification.values().stream()
-                .filter(n -> n.getSendStatus().isFailed())
-                .count();
+            .filter(n -> n.getSendStatus().isFailed())
+            .count();
 
         return buildResult(totalUserCount, sentUserCount, skippedCount,
-                failedUserCount, sentDeviceCount, failedDeviceCount
+            failedUserCount, sentDeviceCount, failedDeviceCount
         );
     }
 
     private Set<Long> processFailedTokens(
-            List<SendBatchPushNotificationResult.FailedToken> failedTokens,
-            Map<String, DeviceToken> tokenMap
+        List<SendBatchPushNotificationResult.FailedToken> failedTokens,
+        Map<String, DeviceToken> tokenMap
     ) {
         Set<Long> failedTokenIds = new HashSet<>();
         for (SendBatchPushNotificationResult.FailedToken failed : failedTokens) {
@@ -280,12 +280,12 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     }
 
     private SendBatchNotificationResult buildResult(
-            int totalUserCount, int sentUserCount, int skippedCount,
-            int failedUserCount, int sentDeviceCount, int failedDeviceCount
+        int totalUserCount, int sentUserCount, int skippedCount,
+        int failedUserCount, int sentDeviceCount, int failedDeviceCount
     ) {
         return new SendBatchNotificationResult(
-                totalUserCount, sentUserCount, skippedCount,
-                failedUserCount, sentDeviceCount, failedDeviceCount
+            totalUserCount, sentUserCount, skippedCount,
+            failedUserCount, sentDeviceCount, failedDeviceCount
         );
     }
 
@@ -296,13 +296,13 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
                 continue;
             }
             PushNotificationSentEvent event = new PushNotificationSentEvent(
-                    notification.getId(),
-                    notification.getUserId(),
-                    notification.getNotificationType().name(),
-                    notification.getSendStatus().name(),
-                    sentDeviceCount,
-                    failedDeviceCount,
-                    now
+                notification.getId(),
+                notification.getUserId(),
+                notification.getNotificationType().name(),
+                notification.getSendStatus().name(),
+                sentDeviceCount,
+                failedDeviceCount,
+                now
             );
             publishNotificationSentEventPort.publish(event);
         }
@@ -313,9 +313,9 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
             try {
                 long unreadCount = findNotificationPort.countUnreadByUserId(userId);
                 publishSseEventPort.publish(
-                        userId,
-                        NotificationSseEventType.UNREAD_COUNT_CHANGED,
-                        UnreadCountChangedPayload.of(unreadCount)
+                    userId,
+                    NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                    UnreadCountChangedPayload.of(unreadCount)
                 );
             } catch (Exception e) {
                 log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);

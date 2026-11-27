@@ -41,17 +41,17 @@ class ImageChangedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.FILE_IMAGE_CHANGED, 0, 0, "1", envelope
+            KafkaTopicConstants.FILE_IMAGE_CHANGED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<ImageChangedEvent> createEnvelope(ImageChangedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.FILE_IMAGE_CHANGED,
-                "file-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-27T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.FILE_IMAGE_CHANGED,
+            "file-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-27T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
@@ -60,8 +60,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_createdPost_upsertsReadModel() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                1L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
+            1L, 100L, "POST", "POST_IMAGE",
+            "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -71,8 +71,8 @@ class ImageChangedReadModelConsumerTest {
 
         // then
         verify(saveImageReadModelPort).upsert(
-                1L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1
+            1L, 100L, "POST", "POST_IMAGE",
+            "https://cdn.example.com/post.png", 1
         );
         verify(acknowledgment).acknowledge();
     }
@@ -82,8 +82,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_createdReview_upsertsReadModel() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                2L, 200L, "REVIEW", "REVIEW_IMAGE",
-                "https://cdn.example.com/review.png", 1, List.of(), ImageChangeAction.CREATED
+            2L, 200L, "REVIEW", "REVIEW_IMAGE",
+            "https://cdn.example.com/review.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -93,8 +93,8 @@ class ImageChangedReadModelConsumerTest {
 
         // then
         verify(saveImageReadModelPort).upsert(
-                2L, 200L, "REVIEW", "REVIEW_IMAGE",
-                "https://cdn.example.com/review.png", 1
+            2L, 200L, "REVIEW", "REVIEW_IMAGE",
+            "https://cdn.example.com/review.png", 1
         );
         verify(acknowledgment).acknowledge();
     }
@@ -104,8 +104,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_deletedPost_deactivatesReadModel() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                3L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.DELETED
+            3L, 100L, "POST", "POST_IMAGE",
+            "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.DELETED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -124,8 +124,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_deletedReview_deactivatesReadModel() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                4L, 200L, "REVIEW", "REVIEW_IMAGE",
-                "https://cdn.example.com/review.png", 1, List.of(), ImageChangeAction.DELETED
+            4L, 200L, "REVIEW", "REVIEW_IMAGE",
+            "https://cdn.example.com/review.png", 1, List.of(), ImageChangeAction.DELETED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -144,8 +144,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_nonCommunityType_ignoresEvent() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                5L, 300L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
-                "https://cdn.example.com/product.png", 1, List.of(), ImageChangeAction.CREATED
+            5L, 300L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
+            "https://cdn.example.com/product.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -163,7 +163,7 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.FILE_IMAGE_CHANGED, 0, 0, "1", null
+            KafkaTopicConstants.FILE_IMAGE_CHANGED, 0, 0, "1", null
         );
 
         // when
@@ -179,15 +179,15 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_eventTypeMismatch_acknowledges() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                6L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
+            6L, 100L, "POST", "POST_IMAGE",
+            "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "file-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "file-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -204,8 +204,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_invalidImageId_acknowledges() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                -1L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
+            -1L, 100L, "POST", "POST_IMAGE",
+            "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -223,8 +223,8 @@ class ImageChangedReadModelConsumerTest {
     void handleImageChangedEvent_invalidTargetId_acknowledges() {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
-                7L, 0L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
+            7L, 0L, "POST", "POST_IMAGE",
+            "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);

@@ -34,32 +34,32 @@ class GetAligoTemplateByCodeUseCaseTest {
         // given
         String templateCode = "TPL001";
         AligoTemplate template = AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("sender-key-1")
-                .templateCode(templateCode)
-                .templateName("주문 완료 알림")
-                .templateContent("#{이름}님의 주문이 완료되었습니다.")
-                .templateTitle("주문 완료")
-                .templateSubtitle("배송 안내")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .templateSecure(false)
-                .templateAdvert(false)
-                .inspStatus("APR")
-                .templateStatus(AligoTemplateStatus.A)
-                .status(EntityStatus.ACTIVE)
-                .buttons(List.of(
-                        AligoTemplateButton.from(
-                                AligoTemplateButtonCreateState.builder()
-                                        .ordering(1)
-                                        .name("주문 상세")
-                                        .linkType(AligoTemplateButtonLinkType.WL)
-                                        .linkMo("https://m.example.com/orders")
-                                        .linkPc("https://example.com/orders")
-                                        .build()
-                        )
-                ))
-                .build());
+            .id(1L)
+            .senderKey("sender-key-1")
+            .templateCode(templateCode)
+            .templateName("주문 완료 알림")
+            .templateContent("#{이름}님의 주문이 완료되었습니다.")
+            .templateTitle("주문 완료")
+            .templateSubtitle("배송 안내")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .templateSecure(false)
+            .templateAdvert(false)
+            .inspStatus("APR")
+            .templateStatus(AligoTemplateStatus.A)
+            .status(EntityStatus.ACTIVE)
+            .buttons(List.of(
+                AligoTemplateButton.from(
+                    AligoTemplateButtonCreateState.builder()
+                        .ordering(1)
+                        .name("주문 상세")
+                        .linkType(AligoTemplateButtonLinkType.WL)
+                        .linkMo("https://m.example.com/orders")
+                        .linkPc("https://example.com/orders")
+                        .build()
+                )
+            ))
+            .build());
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
 
@@ -94,18 +94,18 @@ class GetAligoTemplateByCodeUseCaseTest {
         // given
         String templateCode = "TPL002";
         AligoTemplate template = AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(2L)
-                .senderKey("sender-key-1")
-                .templateCode(templateCode)
-                .templateName("간단 알림")
-                .templateContent("안녕하세요.")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("REG")
-                .templateStatus(AligoTemplateStatus.R)
-                .status(EntityStatus.ACTIVE)
-                .buttons(List.of())
-                .build());
+            .id(2L)
+            .senderKey("sender-key-1")
+            .templateCode(templateCode)
+            .templateName("간단 알림")
+            .templateContent("안녕하세요.")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("REG")
+            .templateStatus(AligoTemplateStatus.R)
+            .status(EntityStatus.ACTIVE)
+            .buttons(List.of())
+            .build());
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
 
@@ -127,7 +127,7 @@ class GetAligoTemplateByCodeUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getAligoTemplateByCodeService.getTemplateByCode(templateCode))
-                .isInstanceOf(AligoTemplateNotFoundException.class);
+            .isInstanceOf(AligoTemplateNotFoundException.class);
         verify(findAligoTemplatePort).findByTemplateCode(templateCode);
     }
 }

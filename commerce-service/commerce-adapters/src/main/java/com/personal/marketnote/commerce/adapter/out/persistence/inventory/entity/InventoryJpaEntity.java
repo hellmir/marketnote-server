@@ -44,12 +44,12 @@ public class InventoryJpaEntity extends BaseEntity {
 
     public static InventoryJpaEntity from(Inventory inventory) {
         return new InventoryJpaEntity(
-                inventory.getProductId(),
-                inventory.getProductKey(),
-                inventory.getPricePolicyId(),
-                inventory.getStockValue(),
-                inventory.getReserved(),
-                inventory.getVersion()
+            inventory.getProductId(),
+            inventory.getProductKey(),
+            inventory.getPricePolicyId(),
+            inventory.getStockValue(),
+            inventory.getReserved(),
+            inventory.getVersion()
         );
     }
 

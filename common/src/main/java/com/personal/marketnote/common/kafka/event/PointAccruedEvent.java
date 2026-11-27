@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PointAccruedEvent(
-        Long userId,
-        Long amount
+    Long userId,
+    Long amount
 ) {
 }

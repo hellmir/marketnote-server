@@ -34,25 +34,25 @@ public class ReviewAggregateReadModelPersistenceAdapter implements FindProductRe
         }
 
         List<ReviewAggregateReadModelJpaEntity> entities =
-                reviewAggregateReadModelJpaRepository.findByProductIdInAndStatus(productIds, EntityStatus.ACTIVE);
+            reviewAggregateReadModelJpaRepository.findByProductIdInAndStatus(productIds, EntityStatus.ACTIVE);
 
         return entities.stream()
-                .collect(Collectors.toMap(
-                        ReviewAggregateReadModelJpaEntity::getProductId,
-                        entity -> new ProductReviewAggregateResult(
-                                entity.getProductId(),
-                                entity.getTotalCount(),
-                                entity.getAverageRating()
-                        ),
-                        (existing, replacement) -> existing
-                ));
+            .collect(Collectors.toMap(
+                ReviewAggregateReadModelJpaEntity::getProductId,
+                entity -> new ProductReviewAggregateResult(
+                    entity.getProductId(),
+                    entity.getTotalCount(),
+                    entity.getAverageRating()
+                ),
+                (existing, replacement) -> existing
+            ));
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(Long productId, Integer totalCount, BigDecimal averageRating) {
         Optional<ReviewAggregateReadModelJpaEntity> existing =
-                reviewAggregateReadModelJpaRepository.findByProductId(productId);
+            reviewAggregateReadModelJpaRepository.findByProductId(productId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(totalCount, averageRating);
@@ -61,13 +61,13 @@ public class ReviewAggregateReadModelPersistenceAdapter implements FindProductRe
 
         try {
             ReviewAggregateReadModelJpaEntity entity =
-                    ReviewAggregateReadModelJpaEntity.of(productId, totalCount, averageRating);
+                ReviewAggregateReadModelJpaEntity.of(productId, totalCount, averageRating);
             reviewAggregateReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("리뷰 집계 Read Model 중복 저장 (멱등 처리). productId={}", productId);
             reviewAggregateReadModelJpaRepository.findByProductId(productId)
-                    .ifPresent(entity -> entity.updateFrom(totalCount, averageRating));
+                .ifPresent(entity -> entity.updateFrom(totalCount, averageRating));
         }
     }
 }

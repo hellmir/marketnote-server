@@ -11,17 +11,17 @@ import java.util.UUID;
 @Getter
 public class SyncFulfillmentVendorInventoryItemRequest {
     @Schema(
-            name = "productKey",
-            description = "상품 키 (UUID)",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "productKey",
+        description = "상품 키 (UUID)",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "상품 키는 필수값입니다.")
     private UUID productKey;
 
     @Schema(
-            name = "stock",
-            description = "동기화 대상 재고 수량",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "stock",
+        description = "동기화 대상 재고 수량",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "재고 수량은 필수값입니다.")
     @Min(value = 0, message = "재고 수량은 0 이상이어야 합니다.")

@@ -6,21 +6,21 @@ import lombok.Builder;
 
 @Builder
 public record GetAccountBalanceResult(
-        Long accountId,
-        String accountName,
-        AccountType accountType,
-        Long debitTotal,
-        Long creditTotal,
-        Long balance
+    Long accountId,
+    String accountName,
+    AccountType accountType,
+    Long debitTotal,
+    Long creditTotal,
+    Long balance
 ) {
     public static GetAccountBalanceResult from(AccountBalance accountBalance) {
         return GetAccountBalanceResult.builder()
-                .accountId(accountBalance.getAccountId())
-                .accountName(accountBalance.getAccountName())
-                .accountType(accountBalance.getAccountType())
-                .debitTotal(accountBalance.getDebitTotal().getValue())
-                .creditTotal(accountBalance.getCreditTotal().getValue())
-                .balance(accountBalance.getBalance())
-                .build();
+            .accountId(accountBalance.getAccountId())
+            .accountName(accountBalance.getAccountName())
+            .accountType(accountBalance.getAccountType())
+            .debitTotal(accountBalance.getDebitTotal().getValue())
+            .creditTotal(accountBalance.getCreditTotal().getValue())
+            .balance(accountBalance.getBalance())
+            .build();
     }
 }

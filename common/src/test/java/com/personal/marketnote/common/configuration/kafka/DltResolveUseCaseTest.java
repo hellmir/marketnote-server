@@ -62,16 +62,16 @@ class DltResolveUseCaseTest {
         String dltTopic = originalTopic + ".dlt";
         String reason = "일시적 DB 타임아웃 복구";
         DltResolveCommand command = new DltResolveCommand(
-                originalTopic, 0, 5L, DltResolutionAction.RETRY, reason);
+            originalTopic, 0, 5L, DltResolutionAction.RETRY, reason);
 
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 0, 5L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(consumerFactory.createConsumer(anyString(), eq(""))).thenReturn(consumer);
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(dltTopic, 0, 5L, "key-1", "value-1");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record)));
+            Map.of(topicPartition, List.of(record)));
         when(consumer.poll(any(Duration.class))).thenReturn(records);
 
         CompletableFuture<SendResult<String, Object>> future = CompletableFuture.completedFuture(null);
@@ -86,7 +86,7 @@ class DltResolveUseCaseTest {
         verify(kafkaTemplate).send(originalTopic, "key-1", "value-1");
 
         ArgumentCaptor<DltMessageResolutionJpaEntity> captor =
-                ArgumentCaptor.forClass(DltMessageResolutionJpaEntity.class);
+            ArgumentCaptor.forClass(DltMessageResolutionJpaEntity.class);
         verify(resolutionRepository).save(captor.capture());
         DltMessageResolutionJpaEntity saved = captor.getValue();
         assertThat(saved.getOriginalTopic()).isEqualTo(originalTopic);
@@ -110,10 +110,10 @@ class DltResolveUseCaseTest {
         String dltTopic = originalTopic + ".dlt";
         String reason = "데이터 정합성 오류 — 수동 보정 완료";
         DltResolveCommand command = new DltResolveCommand(
-                originalTopic, 1, 10L, DltResolutionAction.DISCARD, reason);
+            originalTopic, 1, 10L, DltResolutionAction.DISCARD, reason);
 
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 1, 10L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when
         DltResolveResult result = dltResolveService.resolve(command, OPERATOR);
@@ -125,7 +125,7 @@ class DltResolveUseCaseTest {
         verify(consumerFactory, never()).createConsumer(anyString(), anyString());
 
         ArgumentCaptor<DltMessageResolutionJpaEntity> captor =
-                ArgumentCaptor.forClass(DltMessageResolutionJpaEntity.class);
+            ArgumentCaptor.forClass(DltMessageResolutionJpaEntity.class);
         verify(resolutionRepository).save(captor.capture());
         DltMessageResolutionJpaEntity saved = captor.getValue();
         assertThat(saved.getResolution()).isEqualTo(DltResolutionStatus.DISCARDED);
@@ -142,14 +142,14 @@ class DltResolveUseCaseTest {
         String originalTopic = "commerce.payment.cancelled";
         String dltTopic = originalTopic + ".dlt";
         DltResolveCommand command = new DltResolveCommand(
-                originalTopic, 0, 3L, DltResolutionAction.RETRY, "재시도");
+            originalTopic, 0, 3L, DltResolutionAction.RETRY, "재시도");
 
         DltMessageResolutionJpaEntity existingEntity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 3L,
-                DltResolutionStatus.DISCARDED, "other-admin", LocalDateTime.now(), "이전 폐기 사유"
+            originalTopic, dltTopic, 0, 3L,
+            DltResolutionStatus.DISCARDED, "other-admin", LocalDateTime.now(), "이전 폐기 사유"
         );
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 0, 3L))
-                .thenReturn(Optional.of(existingEntity));
+            .thenReturn(Optional.of(existingEntity));
 
         // when
         DltResolveResult result = dltResolveService.resolve(command, OPERATOR);
@@ -167,12 +167,12 @@ class DltResolveUseCaseTest {
     void resolve_invalidTopic_throwsInvalidDltTopicException() {
         // given
         DltResolveCommand command = new DltResolveCommand(
-                "unknown.topic", 0, 0L, DltResolutionAction.RETRY, null);
+            "unknown.topic", 0, 0L, DltResolutionAction.RETRY, null);
 
         // when & then
         assertThatThrownBy(() -> dltResolveService.resolve(command, OPERATOR))
-                .isInstanceOf(InvalidDltTopicException.class)
-                .hasMessageContaining("unknown.topic");
+            .isInstanceOf(InvalidDltTopicException.class)
+            .hasMessageContaining("unknown.topic");
     }
 
     @Test
@@ -182,10 +182,10 @@ class DltResolveUseCaseTest {
         String originalTopic = "commerce.settlement.executed";
         String dltTopic = originalTopic + ".dlt";
         DltResolveCommand command = new DltResolveCommand(
-                originalTopic, 0, 99L, DltResolutionAction.RETRY, null);
+            originalTopic, 0, 99L, DltResolutionAction.RETRY, null);
 
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 0, 99L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(consumerFactory.createConsumer(anyString(), eq(""))).thenReturn(consumer);
 
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
@@ -193,7 +193,7 @@ class DltResolveUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> dltResolveService.resolve(command, OPERATOR))
-                .isInstanceOf(DltMessageNotFoundException.class);
+            .isInstanceOf(DltMessageNotFoundException.class);
         verify(resolutionRepository, never()).save(any(DltMessageResolutionJpaEntity.class));
         verify(consumer).close();
     }
@@ -205,16 +205,16 @@ class DltResolveUseCaseTest {
         String originalTopic = "commerce.order.payment-completed";
         String dltTopic = originalTopic + ".dlt";
         DltResolveCommand command = new DltResolveCommand(
-                originalTopic, 0, 7L, DltResolutionAction.RETRY, "재시도");
+            originalTopic, 0, 7L, DltResolutionAction.RETRY, "재시도");
 
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 0, 7L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(consumerFactory.createConsumer(anyString(), eq(""))).thenReturn(consumer);
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(dltTopic, 0, 7L, "key-1", "value-1");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record)));
+            Map.of(topicPartition, List.of(record)));
         when(consumer.poll(any(Duration.class))).thenReturn(records);
 
         CompletableFuture<SendResult<String, Object>> failedFuture = new CompletableFuture<>();
@@ -223,11 +223,11 @@ class DltResolveUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> dltResolveService.resolve(command, OPERATOR))
-                .isInstanceOf(DltResolveFailedException.class)
-                .hasMessageContaining(originalTopic);
+            .isInstanceOf(DltResolveFailedException.class)
+            .hasMessageContaining(originalTopic);
         verify(resolutionRepository, never()).save(any(DltMessageResolutionJpaEntity.class));
         verify(dltAuditLogger).logResolveError(
-                eq(originalTopic), eq(0), eq(7L), eq("RETRY"), eq(OPERATOR), any(Exception.class));
+            eq(originalTopic), eq(0), eq(7L), eq("RETRY"), eq(OPERATOR), any(Exception.class));
         verify(consumer).close();
     }
 
@@ -238,10 +238,10 @@ class DltResolveUseCaseTest {
         String originalTopic = "user.user.signup-completed";
         String dltTopic = originalTopic + ".dlt";
         DltResolveCommand command = new DltResolveCommand(
-                originalTopic, 0, 0L, DltResolutionAction.DISCARD, null);
+            originalTopic, 0, 0L, DltResolutionAction.DISCARD, null);
 
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 0, 0L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when
         DltResolveResult result = dltResolveService.resolve(command, OPERATOR);
@@ -251,7 +251,7 @@ class DltResolveUseCaseTest {
         assertThat(result.alreadyResolved()).isFalse();
 
         ArgumentCaptor<DltMessageResolutionJpaEntity> captor =
-                ArgumentCaptor.forClass(DltMessageResolutionJpaEntity.class);
+            ArgumentCaptor.forClass(DltMessageResolutionJpaEntity.class);
         verify(resolutionRepository).save(captor.capture());
         assertThat(captor.getValue().getReason()).isNull();
     }

@@ -127,7 +127,7 @@ class NightTimeNotificationPolicyTest {
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 22, 0, 0);
 
             LocalDateTime result = NightTimeNotificationPolicy.resolveScheduledAt(
-                    NotificationCategory.PROMOTIONAL, now, null
+                NotificationCategory.PROMOTIONAL, now, null
             );
 
             assertThat(result).isEqualTo(LocalDateTime.of(2026, 4, 10, 8, 0, 0));
@@ -140,7 +140,7 @@ class NightTimeNotificationPolicyTest {
             LocalDateTime requestedScheduledAt = LocalDateTime.of(2026, 4, 9, 15, 0, 0);
 
             LocalDateTime result = NightTimeNotificationPolicy.resolveScheduledAt(
-                    NotificationCategory.PROMOTIONAL, now, requestedScheduledAt
+                NotificationCategory.PROMOTIONAL, now, requestedScheduledAt
             );
 
             assertThat(result).isEqualTo(requestedScheduledAt);
@@ -153,7 +153,7 @@ class NightTimeNotificationPolicyTest {
             LocalDateTime requestedScheduledAt = LocalDateTime.of(2026, 4, 10, 9, 0, 0);
 
             LocalDateTime result = NightTimeNotificationPolicy.resolveScheduledAt(
-                    NotificationCategory.MANDATORY, now, requestedScheduledAt
+                NotificationCategory.MANDATORY, now, requestedScheduledAt
             );
 
             assertThat(result).isEqualTo(requestedScheduledAt);
@@ -165,7 +165,7 @@ class NightTimeNotificationPolicyTest {
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 22, 0, 0);
 
             LocalDateTime result = NightTimeNotificationPolicy.resolveScheduledAt(
-                    NotificationCategory.INFORMATIONAL, now, null
+                NotificationCategory.INFORMATIONAL, now, null
             );
 
             assertThat(result).isNull();
@@ -177,7 +177,7 @@ class NightTimeNotificationPolicyTest {
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 10, 0, 0);
 
             LocalDateTime result = NightTimeNotificationPolicy.resolveScheduledAt(
-                    NotificationCategory.PROMOTIONAL, now, null
+                NotificationCategory.PROMOTIONAL, now, null
             );
 
             assertThat(result).isNull();
@@ -189,7 +189,7 @@ class NightTimeNotificationPolicyTest {
             LocalDateTime now = LocalDateTime.of(2026, 4, 10, 3, 0, 0);
 
             LocalDateTime result = NightTimeNotificationPolicy.resolveScheduledAt(
-                    NotificationCategory.PROMOTIONAL, now, null
+                NotificationCategory.PROMOTIONAL, now, null
             );
 
             assertThat(result).isEqualTo(LocalDateTime.of(2026, 4, 10, 8, 0, 0));

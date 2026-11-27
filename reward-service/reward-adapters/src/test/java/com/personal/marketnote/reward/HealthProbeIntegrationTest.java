@@ -32,36 +32,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
-        "spring.autoconfigure.exclude="
-                + "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration",
-        "management.health.redis.enabled=false",
-        "management.health.kafka.enabled=false"
+    "spring.autoconfigure.exclude="
+        + "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration,"
+        + "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,"
+        + "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration",
+    "management.health.redis.enabled=false",
+    "management.health.kafka.enabled=false"
 })
 class HealthProbeIntegrationTest {
 
     @Configuration
     @EnableAutoConfiguration(exclude = {
-            OAuth2ResourceServerAutoConfiguration.class,
-            KafkaAutoConfiguration.class,
-            BatchAutoConfiguration.class
+        OAuth2ResourceServerAutoConfiguration.class,
+        KafkaAutoConfiguration.class,
+        BatchAutoConfiguration.class
     })
     @ComponentScan(
-            basePackages = "com.personal.marketnote",
-            excludeFilters = {
-                    @ComponentScan.Filter(
-                            type = FilterType.ANNOTATION,
-                            classes = SpringBootApplication.class
-                    ),
-                    @ComponentScan.Filter(
-                            type = FilterType.REGEX,
-                            pattern = {
-                                    "com\\.personal\\.shop\\.common\\.security\\..*",
-                                    "com\\.personal\\.shop\\.common\\.configuration\\.security\\..*"
-                            }
-                    )
-            }
+        basePackages = "com.personal.marketnote",
+        excludeFilters = {
+            @ComponentScan.Filter(
+                type = FilterType.ANNOTATION,
+                classes = SpringBootApplication.class
+            ),
+            @ComponentScan.Filter(
+                type = FilterType.REGEX,
+                pattern = {
+                    "com\\.personal\\.shop\\.common\\.security\\..*",
+                    "com\\.personal\\.shop\\.common\\.configuration\\.security\\..*"
+                }
+            )
+        }
     )
     static class TestConfig {
     }
@@ -85,16 +85,16 @@ class HealthProbeIntegrationTest {
     @DisplayName("/actuator/health/liveness 응답이 200 OK이고 status는 UP이다")
     void livenessProbeReturnsUp() throws Exception {
         mockMvc.perform(get("/actuator/health/liveness"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("UP"));
     }
 
     @Test
     @DisplayName("/actuator/health/readiness 응답이 200 OK이고 status는 UP이다")
     void readinessProbeReturnsUp() throws Exception {
         mockMvc.perform(get("/actuator/health/readiness"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("UP"));
     }
 
     @Test

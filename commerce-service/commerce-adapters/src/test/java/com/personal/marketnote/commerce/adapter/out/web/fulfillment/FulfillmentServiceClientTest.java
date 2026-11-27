@@ -45,16 +45,16 @@ class FulfillmentServiceClientTest {
         String trimmedBaseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
 
         HttpClient httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(2))
-                .build();
+            .connectTimeout(Duration.ofSeconds(2))
+            .build();
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
         requestFactory.setReadTimeout(Duration.ofSeconds(2));
 
         RestClient.Builder builder = RestClient.builder().requestFactory(requestFactory);
         fulfillmentServiceClient = new FulfillmentServiceClient(
-                builder,
-                trimmedBaseUrl,
-                hmacServiceAuthHeaderBuilder
+            builder,
+            trimmedBaseUrl,
+            hmacServiceAuthHeaderBuilder
         );
     }
 
@@ -65,23 +65,23 @@ class FulfillmentServiceClientTest {
 
     private RegisterFulfillmentReturnDeliveryCommand buildCommand() {
         return RegisterFulfillmentReturnDeliveryCommand.builder()
-                .orderId(100L)
-                .orderDate("2026-10-31")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01011112222")
-                .recipientAddress("서울시 강남구")
-                .pickupRecipientName("홍길동")
-                .pickupRecipientPhoneNumber("01011112222")
-                .pickupZipCode("06000")
-                .pickupAddress("서울시 강남구")
-                .pickupAddressDetail("101동 101호")
-                .returnReason("UNSATISFIED")
-                .returnDetailReason("사이즈 불일치")
-                .returnShippingRequest("경비실 맡겨주세요")
-                .products(List.of(
-                        RegisterFulfillmentReturnDeliveryCommand.ProductItem.of("P-001", 2)
-                ))
-                .build();
+            .orderId(100L)
+            .orderDate("2026-10-31")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01011112222")
+            .recipientAddress("서울시 강남구")
+            .pickupRecipientName("홍길동")
+            .pickupRecipientPhoneNumber("01011112222")
+            .pickupZipCode("06000")
+            .pickupAddress("서울시 강남구")
+            .pickupAddressDetail("101동 101호")
+            .returnReason("UNSATISFIED")
+            .returnDetailReason("사이즈 불일치")
+            .returnShippingRequest("경비실 맡겨주세요")
+            .products(List.of(
+                RegisterFulfillmentReturnDeliveryCommand.ProductItem.of("P-001", 2)
+            ))
+            .build();
     }
 
     @Nested
@@ -93,27 +93,27 @@ class FulfillmentServiceClientTest {
         void shouldMapResultWhen2xxResponse() throws Exception {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("POST"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("POST"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setResponseCode(201)
-                    .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .setBody("""
-                            {
-                                "content": {
-                                    "orderId": 100,
-                                    "returnSlipNumber": "RS-20260420-0001",
-                                    "registered": true,
-                                    "message": "반품 접수 완료"
-                                }
-                            }
-                            """));
+                .setResponseCode(201)
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .setBody("""
+                    {
+                        "content": {
+                            "orderId": 100,
+                            "returnSlipNumber": "RS-20260420-0001",
+                            "registered": true,
+                            "message": "반품 접수 완료"
+                        }
+                    }
+                    """));
 
             // when
             RegisterFulfillmentReturnDeliveryResult result =
-                    fulfillmentServiceClient.registerReturnDelivery(buildCommand());
+                fulfillmentServiceClient.registerReturnDelivery(buildCommand());
 
             // then
             assertThat(result.orderId()).isEqualTo(100L);
@@ -127,9 +127,9 @@ class FulfillmentServiceClientTest {
             assertThat(recorded.getHeader("Content-Type")).contains(MediaType.APPLICATION_JSON_VALUE);
 
             verify(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("POST"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("POST"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
         }
 
         @Test
@@ -137,22 +137,22 @@ class FulfillmentServiceClientTest {
         void shouldThrowExceptionWhen4xxResponse() {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("POST"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("POST"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setResponseCode(400)
-                    .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .setBody("""
-                            {
-                                "message": "잘못된 요청"
-                            }
-                            """));
+                .setResponseCode(400)
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .setBody("""
+                    {
+                        "message": "잘못된 요청"
+                    }
+                    """));
 
             // when & then
             assertThatThrownBy(() -> fulfillmentServiceClient.registerReturnDelivery(buildCommand()))
-                    .isInstanceOf(FulfillmentServiceRequestFailedException.class);
+                .isInstanceOf(FulfillmentServiceRequestFailedException.class);
         }
 
         @Test
@@ -160,22 +160,22 @@ class FulfillmentServiceClientTest {
         void shouldThrowExceptionWhen5xxResponse() {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("POST"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("POST"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setResponseCode(500)
-                    .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .setBody("""
-                            {
-                                "message": "내부 서버 오류"
-                            }
-                            """));
+                .setResponseCode(500)
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .setBody("""
+                    {
+                        "message": "내부 서버 오류"
+                    }
+                    """));
 
             // when & then
             assertThatThrownBy(() -> fulfillmentServiceClient.registerReturnDelivery(buildCommand()))
-                    .isInstanceOf(FulfillmentServiceRequestFailedException.class);
+                .isInstanceOf(FulfillmentServiceRequestFailedException.class);
         }
 
         @Test
@@ -183,16 +183,16 @@ class FulfillmentServiceClientTest {
         void shouldWrapIoExceptionWhenNetworkFails() {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("POST"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("POST"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
+                .setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
             // when & then
             assertThatThrownBy(() -> fulfillmentServiceClient.registerReturnDelivery(buildCommand()))
-                    .isInstanceOf(FulfillmentServiceRequestFailedException.class);
+                .isInstanceOf(FulfillmentServiceRequestFailedException.class);
         }
     }
 
@@ -205,34 +205,34 @@ class FulfillmentServiceClientTest {
         void shouldMapResultWhen2xxResponse() throws Exception {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("GET"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return-god-detail"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("GET"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return-god-detail"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setResponseCode(200)
-                    .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .setBody("""
-                            {
-                                "content": {
-                                    "dataCount": 1,
-                                    "returnGodInfos": [
+                .setResponseCode(200)
+                .setHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .setBody("""
+                    {
+                        "content": {
+                            "dataCount": 1,
+                            "returnGodInfos": [
+                                {
+                                    "orderNumber": "O-0001",
+                                    "inboundOrderSlipNumber": "IB-0001",
+                                    "products": [
                                         {
-                                            "orderNumber": "O-0001",
-                                            "inboundOrderSlipNumber": "IB-0001",
-                                            "products": [
-                                                {
-                                                    "customerProductCode": "CP-001",
-                                                    "productName": "상품A",
-                                                    "returnProductCheckStatus": "COMPLETED",
-                                                    "returnProductCheckStatusName": "검수완료"
-                                                }
-                                            ]
+                                            "customerProductCode": "CP-001",
+                                            "productName": "상품A",
+                                            "returnProductCheckStatus": "COMPLETED",
+                                            "returnProductCheckStatusName": "검수완료"
                                         }
                                     ]
                                 }
-                            }
-                            """));
+                            ]
+                        }
+                    }
+                    """));
 
             // when
             ReturnInspectionResult result = fulfillmentServiceClient.getReturnGodDetail("RS-20260420-0001");
@@ -261,16 +261,16 @@ class FulfillmentServiceClientTest {
         void shouldThrowWhenResponseBodyIsNull() {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("GET"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return-god-detail"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("GET"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return-god-detail"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setResponseCode(204));
+                .setResponseCode(204));
 
             // when & then
             assertThatThrownBy(() -> fulfillmentServiceClient.getReturnGodDetail("RS-20260420-0001"))
-                    .isInstanceOf(FulfillmentServiceRequestFailedException.class);
+                .isInstanceOf(FulfillmentServiceRequestFailedException.class);
         }
 
         @Test
@@ -278,16 +278,16 @@ class FulfillmentServiceClientTest {
         void shouldWrapIoExceptionWhenNetworkFails() {
             // given
             doNothing().when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(org.mockito.ArgumentMatchers.any(),
-                            org.mockito.ArgumentMatchers.eq("GET"),
-                            org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return-god-detail"));
+                .applyHeaders(org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.eq("GET"),
+                    org.mockito.ArgumentMatchers.eq("/api/v1/internal/fulfillment/deliveries/return-god-detail"));
 
             mockWebServer.enqueue(new MockResponse()
-                    .setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
+                .setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
             // when & then
             assertThatThrownBy(() -> fulfillmentServiceClient.getReturnGodDetail("RS-20260420-0001"))
-                    .isInstanceOf(FulfillmentServiceRequestFailedException.class);
+                .isInstanceOf(FulfillmentServiceRequestFailedException.class);
         }
     }
 }

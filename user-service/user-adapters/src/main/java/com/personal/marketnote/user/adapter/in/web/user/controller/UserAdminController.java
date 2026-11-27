@@ -43,8 +43,8 @@ import static com.personal.marketnote.common.utility.ApiConstant.DEFAULT_PAGE_NU
 @RestController
 @RequestMapping("/api/v1/admin/users")
 @Tag(
-        name = "회원 관리자 API",
-        description = "회원 관련 관리자 API"
+    name = "회원 관리자 API",
+    description = "회원 관련 관리자 API"
 )
 @RequiredArgsConstructor
 @Slf4j
@@ -81,32 +81,32 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUsersApiDocs
     public ResponseEntity<BaseResponse<GetUsersResponse>> getUsers(
-            @RequestParam(required = false, defaultValue = GET_USERS_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ORDER_NUM") UserSortProperty sortProperty,
-            @RequestParam(required = false, defaultValue = "EMAIL") UserSearchTarget searchTarget,
-            @RequestParam(required = false) String searchKeyword
+        @RequestParam(required = false, defaultValue = GET_USERS_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ORDER_NUM") UserSortProperty sortProperty,
+        @RequestParam(required = false, defaultValue = "EMAIL") UserSearchTarget searchTarget,
+        @RequestParam(required = false) String searchKeyword
     ) {
         GetUsersResponse getUsersResponse = GetUsersResponse.from(
-                getUserUseCase.getAllStatusUsers(
-                        pageSize,
-                        pageNumber - 1,
-                        sortDirection,
-                        sortProperty,
-                        searchTarget,
-                        searchKeyword
-                )
+            getUserUseCase.getAllStatusUsers(
+                pageSize,
+                pageNumber - 1,
+                sortDirection,
+                sortProperty,
+                searchTarget,
+                searchKeyword
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        getUsersResponse,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                getUsersResponse,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -124,17 +124,17 @@ public class UserAdminController {
     @GetUserInfoApiDocs
     public ResponseEntity<BaseResponse<GetUserInfoResponse>> getUserInfo(@PathVariable Long id) {
         GetUserInfoResponse getUserInfoResponse = GetUserInfoResponse.from(
-                getUserUseCase.getAllStatusUserInfo(id)
+            getUserUseCase.getAllStatusUserInfo(id)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        getUserInfoResponse,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                getUserInfoResponse,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -151,21 +151,21 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateUserInfoApiDocs
     public ResponseEntity<BaseResponse<Void>> updateUserInfo(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateUserInfoRequest updateUserInfoRequest
+        @PathVariable Long id,
+        @Valid @RequestBody UpdateUserInfoRequest updateUserInfoRequest
     ) {
         updateUserUseCase.updateUserInfo(
-                true, id, UserRequestToCommandMapper.mapToCommand(updateUserInfoRequest)
+            true, id, UserRequestToCommandMapper.mapToCommand(updateUserInfoRequest)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 정보 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 정보 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -186,30 +186,30 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetLoginHistoriesApiDocs
     public ResponseEntity<BaseResponse<GetLoginHistoriesResponse>> getLoginHistories(
-            @PathVariable Long userId,
-            @RequestParam(required = false, defaultValue = GET_LOGIN_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ID") LoginHistorySortProperty sortProperty
+        @PathVariable Long userId,
+        @RequestParam(required = false, defaultValue = GET_LOGIN_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ID") LoginHistorySortProperty sortProperty
     ) {
         GetLoginHistoriesResponse response = com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse.from(
-                getLoginHistoryUseCase.getLoginHistories(
-                        userId,
-                        pageSize,
-                        pageNumber - 1,
-                        sortDirection,
-                        sortProperty
-                )
+            getLoginHistoryUseCase.getLoginHistories(
+                userId,
+                pageSize,
+                pageNumber - 1,
+                sortDirection,
+                sortProperty
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        response,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 로그인 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                response,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 로그인 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -228,25 +228,25 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ChangeUserStatusApiDocs
     public ResponseEntity<BaseResponse<ChangeUserStatusResponse>> changeUserStatus(
-            @PathVariable Long userId,
-            @Valid @RequestBody ChangeUserStatusRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long userId,
+        @Valid @RequestBody ChangeUserStatusRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long adminId = ElementExtractor.extractUserId(principal);
         ChangeUserStatusResult result = changeUserStatusUseCase.changeStatus(
-                new ChangeUserStatusCommand(
-                        userId, adminId, request.action().name(), request.reason(), request.deactivatedUntil()
-                )
+            new ChangeUserStatusCommand(
+                userId, adminId, request.action().name(), request.reason(), request.deactivatedUntil()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ChangeUserStatusResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 상태 변경 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ChangeUserStatusResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 상태 변경 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -265,23 +265,23 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ApplyUserPenaltyApiDocs
     public ResponseEntity<BaseResponse<ApplyUserPenaltyResponse>> applyUserPenalty(
-            @PathVariable Long userId,
-            @Valid @RequestBody ApplyUserPenaltyRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long userId,
+        @Valid @RequestBody ApplyUserPenaltyRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long adminId = ElementExtractor.extractUserId(principal);
         ApplyUserPenaltyResult result = applyUserPenaltyUseCase.applyPenalty(
-                new ApplyUserPenaltyCommand(userId, adminId, request.reason())
+            new ApplyUserPenaltyCommand(userId, adminId, request.reason())
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ApplyUserPenaltyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 패널티 부과 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ApplyUserPenaltyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 패널티 부과 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -300,23 +300,23 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateUserPenaltyCountApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPenaltyCountResponse>> updateUserPenaltyCount(
-            @PathVariable Long userId,
-            @Valid @RequestBody UpdateUserPenaltyCountRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long userId,
+        @Valid @RequestBody UpdateUserPenaltyCountRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long adminId = ElementExtractor.extractUserId(principal);
         UpdateUserPenaltyCountResult result = updateUserPenaltyCountUseCase.updatePenaltyCount(
-                new UpdateUserPenaltyCountCommand(userId, adminId, request.penaltyCount(), request.reason())
+            new UpdateUserPenaltyCountCommand(userId, adminId, request.penaltyCount(), request.reason())
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateUserPenaltyCountResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 패널티 횟수 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateUserPenaltyCountResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 패널티 횟수 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -337,30 +337,30 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUserPenaltyHistoriesApiDocs
     public ResponseEntity<BaseResponse<GetUserPenaltyHistoriesResponse>> getUserPenaltyHistories(
-            @PathVariable Long userId,
-            @RequestParam(required = false, defaultValue = GET_USER_PENALTY_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ID") UserPenaltyHistorySortProperty sortProperty
+        @PathVariable Long userId,
+        @RequestParam(required = false, defaultValue = GET_USER_PENALTY_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ID") UserPenaltyHistorySortProperty sortProperty
     ) {
         GetUserPenaltyHistoriesResponse response = GetUserPenaltyHistoriesResponse.from(
-                getUserPenaltyHistoryUseCase.getUserPenaltyHistories(
-                        userId,
-                        pageSize,
-                        pageNumber - 1,
-                        sortDirection,
-                        sortProperty
-                )
+            getUserPenaltyHistoryUseCase.getUserPenaltyHistories(
+                userId,
+                pageSize,
+                pageNumber - 1,
+                sortDirection,
+                sortProperty
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        response,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 패널티 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                response,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 패널티 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -381,30 +381,30 @@ public class UserAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUserStatusHistoriesApiDocs
     public ResponseEntity<BaseResponse<GetUserStatusHistoriesResponse>> getUserStatusHistories(
-            @PathVariable Long userId,
-            @RequestParam(required = false, defaultValue = GET_USER_STATUS_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ID") UserStatusHistorySortProperty sortProperty
+        @PathVariable Long userId,
+        @RequestParam(required = false, defaultValue = GET_USER_STATUS_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ID") UserStatusHistorySortProperty sortProperty
     ) {
         GetUserStatusHistoriesResponse response = GetUserStatusHistoriesResponse.from(
-                getUserStatusHistoryUseCase.getUserStatusHistories(
-                        userId,
-                        pageSize,
-                        pageNumber - 1,
-                        sortDirection,
-                        sortProperty
-                )
+            getUserStatusHistoryUseCase.getUserStatusHistories(
+                userId,
+                pageSize,
+                pageNumber - 1,
+                sortDirection,
+                sortProperty
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        response,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 상태 변경 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                response,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 상태 변경 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

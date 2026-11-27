@@ -25,17 +25,17 @@ public class FulfillmentGoodsRegistration {
             throw new FulfillmentQueryParameterNoValueException("fasstoProductCode");
         }
         return FulfillmentGoodsRegistration.builder()
-                .productKey(state.getProductKey())
-                .fasstoProductCode(state.getFasstoProductCode())
-                .build();
+            .productKey(state.getProductKey())
+            .fasstoProductCode(state.getFasstoProductCode())
+            .build();
     }
 
     public static FulfillmentGoodsRegistration from(FulfillmentGoodsRegistrationSnapshotState state) {
         return FulfillmentGoodsRegistration.builder()
-                .id(state.getId())
-                .productKey(state.getProductKey())
-                .fasstoProductCode(state.getFasstoProductCode())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .productKey(state.getProductKey())
+            .fasstoProductCode(state.getFasstoProductCode())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

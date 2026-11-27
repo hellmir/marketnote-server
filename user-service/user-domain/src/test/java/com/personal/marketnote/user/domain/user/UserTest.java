@@ -167,7 +167,7 @@ class UserTest {
             User user = createUserWithReferredUserCode("EXSTC1");
 
             assertThatThrownBy(() -> user.registerReferredUserCode(ReferenceCode.of("NEWCD1")))
-                    .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
+                .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
         }
 
         @Test
@@ -177,7 +177,7 @@ class UserTest {
             user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
 
             assertThatThrownBy(() -> user.registerReferredUserCode(ReferenceCode.of("NEWCD1")))
-                    .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+                .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
         }
     }
 
@@ -203,7 +203,7 @@ class UserTest {
             User user = createUserWithReferredUserCode("EXSTC1");
 
             assertThatThrownBy(() -> user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0)))
-                    .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
+                .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
         }
 
         @Test
@@ -213,7 +213,7 @@ class UserTest {
             user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
 
             assertThatThrownBy(() -> user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 28, 10, 0)))
-                    .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+                .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
         }
     }
 
@@ -278,7 +278,7 @@ class UserTest {
             User user = createUserWithEmail("test@example.com");
 
             assertThatThrownBy(() -> user.validateDifferentEmail(Email.of("test@example.com")))
-                    .isInstanceOf(SameUpdateTargetException.class);
+                .isInstanceOf(SameUpdateTargetException.class);
         }
 
         @Test
@@ -287,7 +287,7 @@ class UserTest {
             User user = createUserWithNickname("홍길동");
 
             assertThatThrownBy(() -> user.validateDifferentNickname(Nickname.of("홍길동")))
-                    .isInstanceOf(SameUpdateTargetException.class);
+                .isInstanceOf(SameUpdateTargetException.class);
         }
 
         @Test
@@ -296,7 +296,7 @@ class UserTest {
             User user = createUserWithPhoneNumber("01012345678");
 
             assertThatThrownBy(() -> user.validateDifferentPhoneNumber(PhoneNumber.of("01012345678")))
-                    .isInstanceOf(SameUpdateTargetException.class);
+                .isInstanceOf(SameUpdateTargetException.class);
         }
     }
 
@@ -445,125 +445,125 @@ class UserTest {
             User user = createUserWithPenaltyCount(3);
 
             assertThatThrownBy(() -> user.validateDifferentPenaltyCount(3))
-                    .isInstanceOf(SameUpdateTargetException.class);
+                .isInstanceOf(SameUpdateTargetException.class);
         }
     }
 
     private User createUserWithPenaltyCount(int penaltyCount) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .penaltyCount(penaltyCount)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .penaltyCount(penaltyCount)
+            .build());
     }
 
     private User createActiveUser() {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .nickname(Nickname.of("테스트유저"))
-                .email("test@example.com")
-                .phoneNumber("01012345678")
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .nickname(Nickname.of("테스트유저"))
+            .email("test@example.com")
+            .phoneNumber("01012345678")
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createUserWithStatus(EntityStatus status) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(status)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(status)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createUserWithReferenceCode(String referenceCode) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .referenceCode(ReferenceCode.of(referenceCode))
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .referenceCode(ReferenceCode.of(referenceCode))
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createUserWithReferredUserCode(String referredUserCode) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .referredUserCode(ReferenceCode.of(referredUserCode))
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .referredUserCode(ReferenceCode.of(referredUserCode))
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createUserWithEmail(String email) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .email(email)
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .email(email)
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createUserWithNickname(String nickname) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .nickname(Nickname.of(nickname))
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .nickname(Nickname.of(nickname))
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createUserWithPhoneNumber(String phoneNumber) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .phoneNumber(phoneNumber)
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .phoneNumber(phoneNumber)
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build());
     }
 
     private User createWithdrawnUser(LocalDateTime withdrawnAt) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.INACTIVE)
-                .withdrawalYn(true)
-                .withdrawnAt(withdrawnAt)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.INACTIVE)
+            .withdrawalYn(true)
+            .withdrawnAt(withdrawnAt)
+            .build());
     }
 }

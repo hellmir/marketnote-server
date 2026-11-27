@@ -10,13 +10,13 @@ import java.util.Optional;
 
 public interface OrderProductJpaRepository extends JpaRepository<OrderProductJpaEntity, OrderProductId> {
     @Query("""
-            SELECT op
-            FROM OrderProductJpaEntity op
-            WHERE 1 = 1
-                AND op.id.orderId = :orderId
-                AND op.id.pricePolicyId = :pricePolicyId
-            """)
+        SELECT op
+        FROM OrderProductJpaEntity op
+        WHERE 1 = 1
+            AND op.id.orderId = :orderId
+            AND op.id.pricePolicyId = :pricePolicyId
+        """)
     Optional<OrderProductJpaEntity> findByOrderIdAndPricePolicyId(
-            @Param("orderId") Long orderId, @Param("pricePolicyId") Long pricePolicyId
+        @Param("orderId") Long orderId, @Param("pricePolicyId") Long pricePolicyId
     );
 }

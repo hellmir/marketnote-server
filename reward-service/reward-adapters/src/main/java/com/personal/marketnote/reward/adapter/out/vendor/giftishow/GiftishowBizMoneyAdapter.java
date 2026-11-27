@@ -19,7 +19,7 @@ public class GiftishowBizMoneyAdapter implements FetchGifticonVendorBalancePort 
     @Override
     public long fetchBalance() {
         GiftishowApiResponse<GiftishowBizMoneyResponse> response =
-                giftishowApiClient.getBizMoneyBalance(properties.getUserId());
+            giftishowApiClient.getBizMoneyBalance(properties.getUserId());
 
         if (!response.isSuccess()) {
             log.error("기프티쇼 비즈머니 잔액 조회 실패: code={}, message={}", response.code(), response.message());

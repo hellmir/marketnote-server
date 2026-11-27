@@ -48,15 +48,15 @@ class GetInventoryUseCaseTest {
             Inventory inv2 = Inventory.of(2L, 200L, 20);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
+                .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
             assertThat(result).hasSize(2);
             assertThat(result).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
             assertThat(result).extracting(Inventory::getStockValue)
-                    .containsExactlyInAnyOrder(10, 20);
+                .containsExactlyInAnyOrder(10, 20);
         }
 
         @Test
@@ -66,7 +66,7 @@ class GetInventoryUseCaseTest {
             Inventory inv = Inventory.of(1L, 100L, 5);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(new HashSet<>(Set.of(inv)));
+                .thenReturn(new HashSet<>(Set.of(inv)));
 
             getInventoryService.getInventories(pricePolicyIds);
 
@@ -79,7 +79,7 @@ class GetInventoryUseCaseTest {
             List<Long> pricePolicyIds = List.of(100L, 200L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
@@ -94,7 +94,7 @@ class GetInventoryUseCaseTest {
             Inventory existing = Inventory.of(1L, 100L, 5);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(existing)));
+                .thenReturn(new HashSet<>(Set.of(existing)));
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
@@ -109,7 +109,7 @@ class GetInventoryUseCaseTest {
             List<Long> pricePolicyIds = List.of();
 
             when(findInventoryPort.findByPricePolicyIds(Set.of()))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
@@ -124,7 +124,7 @@ class GetInventoryUseCaseTest {
             Inventory inv = Inventory.of(1L, 100L, 15);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(new HashSet<>(Set.of(inv)));
+                .thenReturn(new HashSet<>(Set.of(inv)));
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
@@ -141,7 +141,7 @@ class GetInventoryUseCaseTest {
             List<Long> pricePolicyIds = List.of(100L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
@@ -155,7 +155,7 @@ class GetInventoryUseCaseTest {
             List<Long> pricePolicyIds = List.of(100L, 200L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(Inventory.of(1L, 100L), Inventory.of(2L, 200L))));
+                .thenReturn(new HashSet<>(Set.of(Inventory.of(1L, 100L), Inventory.of(2L, 200L))));
 
             getInventoryService.getInventories(pricePolicyIds);
 
@@ -175,7 +175,7 @@ class GetInventoryUseCaseTest {
             Inventory inv2 = Inventory.of(2L, 200L, 10);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
+                .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
@@ -194,12 +194,12 @@ class GetInventoryUseCaseTest {
             Inventory inv3 = Inventory.of(3L, 300L, 999);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L, 300L)))
-                    .thenReturn(new HashSet<>(Set.of(inv1, inv2, inv3)));
+                .thenReturn(new HashSet<>(Set.of(inv1, inv2, inv3)));
 
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
             assertThat(result).extracting(Inventory::getStockValue)
-                    .containsExactlyInAnyOrder(0, 50, 999);
+                .containsExactlyInAnyOrder(0, 50, 999);
         }
 
         @Test
@@ -211,7 +211,7 @@ class GetInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenThrow(exception);
 
             assertThatThrownBy(() -> getInventoryService.getInventories(pricePolicyIds))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(registerInventoryUseCase);
         }
@@ -233,15 +233,15 @@ class GetInventoryUseCaseTest {
             Inventory inv2 = Inventory.of(2000L, 200L, 20);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
+                .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
 
             Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
             assertThat(result).hasSize(2);
             assertThat(result).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
             assertThat(result).extracting(Inventory::getStockValue)
-                    .containsExactlyInAnyOrder(10, 20);
+                .containsExactlyInAnyOrder(10, 20);
         }
 
         @Test
@@ -251,7 +251,7 @@ class GetInventoryUseCaseTest {
             Inventory inv = Inventory.of(1000L, 100L, 5);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(new HashSet<>(Set.of(inv)));
+                .thenReturn(new HashSet<>(Set.of(inv)));
 
             getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
@@ -265,13 +265,13 @@ class GetInventoryUseCaseTest {
             Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L, 300L, 3000L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L, 300L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Inventory created1 = Inventory.of(1000L, 100L);
             Inventory created2 = Inventory.of(2000L, 200L);
             Inventory created3 = Inventory.of(3000L, 300L);
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created1, created2, created3));
+                .thenReturn(Set.of(created1, created2, created3));
 
             Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
@@ -281,9 +281,9 @@ class GetInventoryUseCaseTest {
 
             assertThat(commands).hasSize(3);
             assertThat(commands).extracting(RegisterInventoryCommand::pricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L, 300L);
+                .containsExactlyInAnyOrder(100L, 200L, 300L);
             assertThat(commands).extracting(RegisterInventoryCommand::productId)
-                    .containsExactlyInAnyOrder(1000L, 2000L, 3000L);
+                .containsExactlyInAnyOrder(1000L, 2000L, 3000L);
         }
 
         @Test
@@ -293,18 +293,18 @@ class GetInventoryUseCaseTest {
             Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Inventory created1 = Inventory.of(1000L, 100L);
             Inventory created2 = Inventory.of(2000L, 200L);
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created1, created2));
+                .thenReturn(Set.of(created1, created2));
 
             Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
             assertThat(result).hasSize(2);
             assertThat(result).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
             assertThat(result).allMatch(inv -> inv.getStockValue() == 0);
         }
 
@@ -316,9 +316,9 @@ class GetInventoryUseCaseTest {
             Inventory existing = Inventory.of(1000L, 100L, 5);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(existing)));
+                .thenReturn(new HashSet<>(Set.of(existing)));
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(Inventory.of(2000L, 200L)));
+                .thenReturn(Set.of(Inventory.of(2000L, 200L)));
 
             Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
@@ -333,7 +333,7 @@ class GetInventoryUseCaseTest {
 
             assertThat(result).hasSize(2);
             assertThat(result).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
         }
 
         @Test
@@ -345,15 +345,15 @@ class GetInventoryUseCaseTest {
             Inventory created = Inventory.of(2000L, 200L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>(Set.of(existing)));
+                .thenReturn(new HashSet<>(Set.of(existing)));
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created));
+                .thenReturn(Set.of(created));
 
             Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
             assertThat(result).hasSize(2);
             assertThat(result).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
         }
 
         @Test
@@ -363,11 +363,11 @@ class GetInventoryUseCaseTest {
             Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Inventory created = Inventory.of(1000L, 100L);
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created));
+                .thenReturn(Set.of(created));
 
             Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
@@ -389,9 +389,9 @@ class GetInventoryUseCaseTest {
             Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(Inventory.of(1000L, 100L), Inventory.of(2000L, 200L)));
+                .thenReturn(Set.of(Inventory.of(1000L, 100L), Inventory.of(2000L, 200L)));
 
             getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
 
@@ -412,12 +412,12 @@ class GetInventoryUseCaseTest {
             RuntimeException exception = new RuntimeException("register fail");
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
             when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenThrow(exception);
+                .thenThrow(exception);
 
             assertThatThrownBy(() -> getInventoryService.getOrCreateInventories(productIdsByPricePolicyId))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -429,7 +429,7 @@ class GetInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenThrow(exception);
 
             assertThatThrownBy(() -> getInventoryService.getOrCreateInventories(productIdsByPricePolicyId))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(registerInventoryUseCase);
         }
@@ -471,7 +471,7 @@ class GetInventoryUseCaseTest {
             when(findInventoryPort.existsByPricePolicyId(300L)).thenThrow(exception);
 
             assertThatThrownBy(() -> getInventoryService.existsInventory(300L))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -550,10 +550,10 @@ class GetInventoryUseCaseTest {
         @DisplayName("Port 예외 발생 시 RegisterInventoryUseCase와 상호작용하지 않는다")
         void existsInventory_portFails_doesNotInteractWithRegisterUseCase() {
             when(findInventoryPort.existsByPricePolicyId(100L))
-                    .thenThrow(new RuntimeException("port error"));
+                .thenThrow(new RuntimeException("port error"));
 
             assertThatThrownBy(() -> getInventoryService.existsInventory(100L))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(registerInventoryUseCase);
         }

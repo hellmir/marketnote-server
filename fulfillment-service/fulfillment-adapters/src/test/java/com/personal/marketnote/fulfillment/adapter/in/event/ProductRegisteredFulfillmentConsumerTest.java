@@ -52,21 +52,21 @@ class ProductRegisteredFulfillmentConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long productId, String productName, String godType
+        Long productId, String productName, String godType
     ) {
         return buildRecord(productId, productName, godType, null, false);
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long productId, String productName, String godType, String fasstoProductCode, boolean imported
+        Long productId, String productName, String godType, String fasstoProductCode, boolean imported
     ) {
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                productId, UUID.randomUUID(), 100L, 1L, productName, godType, "테스트 브랜드",
-                10000L, 8000L, 100L, 0L, null, null, fasstoProductCode, imported
+            productId, UUID.randomUUID(), 100L, 1L, productName, godType, "테스트 브랜드",
+            10000L, 8000L, 100L, 0L, null, null, fasstoProductCode, imported
         );
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.registered", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.registered", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.product.registered", 0, 0L, "key-1", envelope);
     }
@@ -163,13 +163,13 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_nullProductKey_skipsAndAcknowledges() {
         // given
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.registered", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.registered", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.registered", 0, 0L, "key-1", envelope
+            "product.product.registered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -188,11 +188,11 @@ class ProductRegisteredFulfillmentConsumerTest {
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RegisterFulfillmentGoodsFailedException(new IOException("Fulfillment API 오류")))
-                .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
+            .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
+            .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
 
         verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -206,7 +206,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new FulfillmentGoodsAlreadyRegisteredException(java.util.UUID.randomUUID()))
-                .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
+            .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
@@ -221,7 +221,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.registered", 0, 0L, "1", null
+            "product.product.registered", 0, 0L, "1", null
         );
 
         // when
@@ -238,11 +238,11 @@ class ProductRegisteredFulfillmentConsumerTest {
         // given
         ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "wrong.event.type", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.registered", 0, 0L, "key-1", envelope
+            "product.product.registered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -261,12 +261,12 @@ class ProductRegisteredFulfillmentConsumerTest {
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
+            .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("네트워크 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("네트워크 오류");
 
         verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -277,7 +277,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_imported_recordsMappingAndSkipsFasstoCall() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, "import 상품", "1", "VZL00001", true
+            100L, "import 상품", "1", "VZL00001", true
         );
 
         // when
@@ -295,7 +295,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_importedMissingFasstoCode_skipsAllAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, "import 상품", "1", null, true
+            100L, "import 상품", "1", null, true
         );
 
         // when
@@ -311,7 +311,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_notImported_proceedsWithRegistration() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                200L, "신규 상품", "1", null, false
+            200L, "신규 상품", "1", null, false
         );
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");

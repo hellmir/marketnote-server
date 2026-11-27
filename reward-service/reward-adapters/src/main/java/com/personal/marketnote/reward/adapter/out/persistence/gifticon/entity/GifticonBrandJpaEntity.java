@@ -28,23 +28,23 @@ public class GifticonBrandJpaEntity extends BaseEntity {
 
     public static GifticonBrandJpaEntity from(GifticonBrand domain) {
         return GifticonBrandJpaEntity.builder()
-                .id(domain.getId())
-                .brandCode(domain.getBrandCode().getValue())
-                .brandName(domain.getBrandName())
-                .brandImageUrl(domain.getBrandImageUrl())
-                .build();
+            .id(domain.getId())
+            .brandCode(domain.getBrandCode().getValue())
+            .brandName(domain.getBrandName())
+            .brandImageUrl(domain.getBrandImageUrl())
+            .build();
     }
 
     public GifticonBrand toDomain() {
         return GifticonBrand.from(
-                GifticonBrandSnapshotState.builder()
-                        .id(id)
-                        .brandCode(brandCode)
-                        .brandName(brandName)
-                        .brandImageUrl(brandImageUrl)
-                        .createdAt(getCreatedAt())
-                        .modifiedAt(getModifiedAt())
-                        .build()
+            GifticonBrandSnapshotState.builder()
+                .id(id)
+                .brandCode(brandCode)
+                .brandName(brandName)
+                .brandImageUrl(brandImageUrl)
+                .createdAt(getCreatedAt())
+                .modifiedAt(getModifiedAt())
+                .build()
         );
     }
 

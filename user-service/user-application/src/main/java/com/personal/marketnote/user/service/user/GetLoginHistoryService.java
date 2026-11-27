@@ -22,14 +22,14 @@ public class GetLoginHistoryService implements GetLoginHistoryUseCase {
 
     @Override
     public Page<GetLoginHistoryResult> getLoginHistories(
-            Long userId,
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            LoginHistorySortProperty sortProperty
+        Long userId,
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        LoginHistorySortProperty sortProperty
     ) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue()));
         return findLoginHistoryPort.findLoginHistoriesByUserId(pageable, userId)
-                .map(GetLoginHistoryResult::from);
+            .map(GetLoginHistoryResult::from);
     }
 }

@@ -54,8 +54,8 @@ class RegisterProductCategoriesUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> registerProductCategoriesService.registerProductCategories(userId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(getProductUseCase).getProduct(productId);
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
@@ -74,11 +74,11 @@ class RegisterProductCategoriesUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
         when(findCategoryPort.findAllActiveByIds(categoryIds))
-                .thenReturn(List.of(buildCategory(1L, "카테고리1"), buildCategory(2L, "카테고리2")));
+            .thenReturn(List.of(buildCategory(1L, "카테고리1"), buildCategory(2L, "카테고리2")));
 
         assertThatThrownBy(() -> registerProductCategoriesService.registerProductCategories(userId, false, command))
-                .isInstanceOf(InvalidProductCategoryException.class)
-                .hasMessageContaining("ERR_PRODUCT_CATEGORY_01");
+            .isInstanceOf(InvalidProductCategoryException.class)
+            .hasMessageContaining("ERR_PRODUCT_CATEGORY_01");
 
         verify(replaceProductCategoriesPort, never()).replaceProductCategories(anyLong(), any());
     }
@@ -94,10 +94,10 @@ class RegisterProductCategoriesUseCaseTest {
 
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(findCategoryPort.findAllActiveByIds(categoryIds))
-                .thenReturn(List.of(buildCategory(10L, "카테고리10"), buildCategory(20L, "카테고리20")));
+            .thenReturn(List.of(buildCategory(10L, "카테고리10"), buildCategory(20L, "카테고리20")));
 
         RegisterProductCategoriesResult result = registerProductCategoriesService.registerProductCategories(
-                userId, true, command
+            userId, true, command
         );
 
         assertThat(result.productId()).isEqualTo(productId);
@@ -120,7 +120,7 @@ class RegisterProductCategoriesUseCaseTest {
         when(findCategoryPort.findAllActiveByIds(categoryIds)).thenReturn(List.of());
 
         RegisterProductCategoriesResult result = registerProductCategoriesService.registerProductCategories(
-                userId, false, command
+            userId, false, command
         );
 
         assertThat(result.productId()).isEqualTo(productId);
@@ -139,7 +139,7 @@ class RegisterProductCategoriesUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 
         assertThatThrownBy(() -> registerProductCategoriesService.registerProductCategories(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(findProductPort, findCategoryPort, replaceProductCategoriesPort);
     }
@@ -159,7 +159,7 @@ class RegisterProductCategoriesUseCaseTest {
         when(findCategoryPort.findAllActiveByIds(categoryIds)).thenThrow(exception);
 
         assertThatThrownBy(() -> registerProductCategoriesService.registerProductCategories(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(replaceProductCategoriesPort);
     }
@@ -177,38 +177,38 @@ class RegisterProductCategoriesUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
         when(findCategoryPort.findAllActiveByIds(categoryIds))
-                .thenReturn(List.of(buildCategory(1L, "카테고리1"), buildCategory(2L, "카테고리2")));
+            .thenReturn(List.of(buildCategory(1L, "카테고리1"), buildCategory(2L, "카테고리2")));
         doThrow(exception).when(replaceProductCategoriesPort).replaceProductCategories(productId, categoryIds);
 
         assertThatThrownBy(() -> registerProductCategoriesService.registerProductCategories(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private Product buildProduct(Long productId, Long sellerId) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(productId)
-                        .productKey(productKey)
-                        .sellerId(sellerId)
-                        .name("테스트 상품")
-                        .brandName("브랜드")
-                        .detail("상세 설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(productId)
+                .productKey(productKey)
+                .sellerId(sellerId)
+                .name("테스트 상품")
+                .brandName("브랜드")
+                .detail("상세 설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private Category buildCategory(Long id, String name) {
         return Category.from(
-                CategorySnapshotState.builder()
-                        .id(id)
-                        .name(name)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CategorySnapshotState.builder()
+                .id(id)
+                .name(name)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

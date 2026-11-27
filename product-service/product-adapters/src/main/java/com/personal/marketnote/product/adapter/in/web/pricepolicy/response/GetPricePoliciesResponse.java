@@ -16,8 +16,8 @@ public class GetPricePoliciesResponse {
 
     public static GetPricePoliciesResponse from(GetPricePoliciesResult result) {
         return GetPricePoliciesResponse.builder()
-                .policies(result.policies().stream().map(PricePolicyItemResponse::from).toList())
-                .build();
+            .policies(result.policies().stream().map(PricePolicyItemResponse::from).toList())
+            .build();
     }
 }
 

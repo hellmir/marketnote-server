@@ -46,123 +46,123 @@ public class AligoTemplateController {
     @GetMapping
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<GetAligoTemplateListResponse>> getTemplateList(
-            @RequestParam("sender-key") String senderKey
+        @RequestParam("sender-key") String senderKey
     ) {
         GetAligoTemplateListResult result = getAligoTemplateListUseCase.getTemplateList(senderKey);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoTemplateListResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoTemplateListResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
     @GetMapping("/{templateCode}")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<GetAligoTemplateDetailResponse>> getTemplateDetail(
-            @PathVariable String templateCode
+        @PathVariable String templateCode
     ) {
         GetAligoTemplateDetailResult result = getAligoTemplateByCodeUseCase.getTemplateByCode(templateCode);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoTemplateDetailResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 상세 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoTemplateDetailResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 상세 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
     @PostMapping
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<RegisterAligoTemplateResponse>> registerTemplate(
-            @Valid @RequestBody RegisterAligoTemplateRequest request
+        @Valid @RequestBody RegisterAligoTemplateRequest request
     ) {
         RegisterAligoTemplateResult result = registerAligoTemplateUseCase.registerTemplate(
-                new RegisterAligoTemplateCommand(
-                        request.senderKey(), request.templateCode(),
-                        request.templateName(), request.templateContent(),
-                        request.templateTitle(), request.templateSubtitle(),
-                        request.templateType(), request.templateEmType(),
-                        request.templateSecure(), request.templateAdvert(),
-                        request.imageUrl(), request.imageName(),
-                        mapButtons(request.buttons())
-                )
+            new RegisterAligoTemplateCommand(
+                request.senderKey(), request.templateCode(),
+                request.templateName(), request.templateContent(),
+                request.templateTitle(), request.templateSubtitle(),
+                request.templateType(), request.templateEmType(),
+                request.templateSecure(), request.templateAdvert(),
+                request.imageUrl(), request.imageName(),
+                mapButtons(request.buttons())
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterAligoTemplateResponse.from(result),
-                        HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "템플릿 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterAligoTemplateResponse.from(result),
+                HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "템플릿 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
     @PatchMapping("/{templateCode}")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<UpdateAligoTemplateResponse>> updateTemplate(
-            @PathVariable String templateCode,
-            @Valid @RequestBody UpdateAligoTemplateRequest request
+        @PathVariable String templateCode,
+        @Valid @RequestBody UpdateAligoTemplateRequest request
     ) {
         UpdateAligoTemplateResult result = updateAligoTemplateUseCase.updateTemplate(
-                new UpdateAligoTemplateCommand(
-                        templateCode, request.senderKey(),
-                        request.templateName(), request.templateContent(),
-                        request.templateTitle(), request.templateSubtitle(),
-                        mapButtons(request.buttons())
-                )
+            new UpdateAligoTemplateCommand(
+                templateCode, request.senderKey(),
+                request.templateName(), request.templateContent(),
+                request.templateTitle(), request.templateSubtitle(),
+                mapButtons(request.buttons())
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateAligoTemplateResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateAligoTemplateResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
     @PostMapping("/{templateCode}/inspection")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<RequestAligoTemplateInspectionResult>> requestInspection(
-            @PathVariable String templateCode
+        @PathVariable String templateCode
     ) {
         RequestAligoTemplateInspectionResult result = requestAligoTemplateInspectionUseCase.requestInspection(templateCode);
 
         return new ResponseEntity<>(
-                BaseResponse.of(result, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 검수요청 성공"),
-                HttpStatus.OK
+            BaseResponse.of(result, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 검수요청 성공"),
+            HttpStatus.OK
         );
     }
 
     @DeleteMapping("/{templateCode}")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<Void>> deleteTemplate(
-            @PathVariable String templateCode,
-            @Valid @RequestBody DeleteAligoTemplateRequest request
+        @PathVariable String templateCode,
+        @Valid @RequestBody DeleteAligoTemplateRequest request
     ) {
         deleteAligoTemplateUseCase.deleteTemplate(new DeleteAligoTemplateCommand(templateCode, request.senderKey()));
 
         return new ResponseEntity<>(
-                BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 삭제 성공"),
-                HttpStatus.OK
+            BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 삭제 성공"),
+            HttpStatus.OK
         );
     }
 
     private List<AligoTemplateButtonCommand> mapButtons(
-            List<RegisterAligoTemplateRequest.ButtonRequest> buttons
+        List<RegisterAligoTemplateRequest.ButtonRequest> buttons
     ) {
         if (FormatValidator.hasNoValue(buttons)) {
             return List.of();
         }
         return buttons.stream()
-                .map(btn -> new AligoTemplateButtonCommand(
-                        btn.ordering(), btn.name(), btn.linkType(),
-                        btn.linkMo(), btn.linkPc(), btn.linkIos(), btn.linkAnd()
-                ))
-                .toList();
+            .map(btn -> new AligoTemplateButtonCommand(
+                btn.ordering(), btn.name(), btn.linkType(),
+                btn.linkMo(), btn.linkPc(), btn.linkIos(), btn.linkAnd()
+            ))
+            .toList();
     }
 }

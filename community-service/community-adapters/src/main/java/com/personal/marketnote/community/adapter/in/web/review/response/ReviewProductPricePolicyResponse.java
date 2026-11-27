@@ -6,11 +6,11 @@ import com.personal.marketnote.community.port.in.result.review.ReviewProductPric
 import java.math.BigDecimal;
 
 public record ReviewProductPricePolicyResponse(
-        Long id,
-        Long price,
-        Long discountPrice,
-        BigDecimal discountRate,
-        Long accumulatedPoint
+    Long id,
+    Long price,
+    Long discountPrice,
+    BigDecimal discountRate,
+    Long accumulatedPoint
 ) {
     public static ReviewProductPricePolicyResponse from(ReviewProductPricePolicyResult result) {
         if (FormatValidator.hasNoValue(result)) {
@@ -18,11 +18,11 @@ public record ReviewProductPricePolicyResponse(
         }
 
         return new ReviewProductPricePolicyResponse(
-                result.id(),
-                result.price(),
-                result.discountPrice(),
-                result.discountRate(),
-                result.accumulatedPoint()
+            result.id(),
+            result.price(),
+            result.discountPrice(),
+            result.discountRate(),
+            result.accumulatedPoint()
         );
     }
 }

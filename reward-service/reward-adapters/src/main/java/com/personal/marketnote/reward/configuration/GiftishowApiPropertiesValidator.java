@@ -36,18 +36,18 @@ public class GiftishowApiPropertiesValidator {
         Set<String> sensitivePaths = properties.getApi().getSensitivePaths();
         if (FormatValidator.hasNoValue(sensitivePaths)) {
             throw new InvalidGiftishowApiPropertiesException(
-                    "vendor.giftishow.api.sensitive-paths 값이 설정되지 않았습니다. "
-                            + "PIN/raw body 노출 방지를 위해 마스킹 대상 경로를 1개 이상 등록해야 합니다."
+                "vendor.giftishow.api.sensitive-paths 값이 설정되지 않았습니다. "
+                    + "PIN/raw body 노출 방지를 위해 마스킹 대상 경로를 1개 이상 등록해야 합니다."
             );
         }
 
         Set<String> definedPaths = collectDefinedPaths(properties.getApi());
         Set<String> orphans = sensitivePaths.stream()
-                .filter(path -> !definedPaths.contains(path))
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(path -> !definedPaths.contains(path))
+            .collect(Collectors.toUnmodifiableSet());
         if (!orphans.isEmpty()) {
             throw new InvalidGiftishowApiPropertiesException(
-                    "vendor.giftishow.api.sensitive-paths에 등록된 경로가 Api 정의와 불일치합니다. orphans=" + orphans
+                "vendor.giftishow.api.sensitive-paths에 등록된 경로가 Api 정의와 불일치합니다. orphans=" + orphans
             );
         }
 
@@ -56,11 +56,11 @@ public class GiftishowApiPropertiesValidator {
 
     private Set<String> collectDefinedPaths(GiftishowApiProperties.Api api) {
         return Arrays.stream(GiftishowApiProperties.Api.class.getDeclaredFields())
-                .filter(field -> field.getType() == String.class)
-                .filter(field -> field.getName().endsWith("Path"))
-                .map(field -> readStringField(api, field))
-                .filter(FormatValidator::hasValue)
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(field -> field.getType() == String.class)
+            .filter(field -> field.getName().endsWith("Path"))
+            .map(field -> readStringField(api, field))
+            .filter(FormatValidator::hasValue)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     private String readStringField(GiftishowApiProperties.Api api, Field field) {
@@ -69,7 +69,7 @@ public class GiftishowApiPropertiesValidator {
             return (String) field.get(api);
         } catch (IllegalAccessException iae) {
             throw new InvalidGiftishowApiPropertiesException(
-                    "Api 필드 reflection 접근 실패: " + field.getName(), iae
+                "Api 필드 reflection 접근 실패: " + field.getName(), iae
             );
         }
     }

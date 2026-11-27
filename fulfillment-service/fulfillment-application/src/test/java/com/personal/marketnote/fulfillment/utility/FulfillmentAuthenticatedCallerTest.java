@@ -55,8 +55,8 @@ class FulfillmentAuthenticatedCallerTest {
     @DisplayName("첫 호출이 INVALID_ACCESS면 invalidateCache 후 재발급된 토큰으로 1회 재시도한다")
     void call_whenFirstCallInvalidAccess_invalidatesCacheAndRetriesOnce() {
         when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(firstToken)
-                .thenReturn(reissuedToken);
+            .thenReturn(firstToken)
+            .thenReturn(reissuedToken);
 
         AtomicInteger invocationCount = new AtomicInteger(0);
         Function<String, String> operation = token -> {
@@ -81,8 +81,8 @@ class FulfillmentAuthenticatedCallerTest {
     @DisplayName("재시도에서도 INVALID_ACCESS면 FulfillmentInvalidAccessException을 그대로 throw한다")
     void call_whenRetryAlsoInvalidAccess_rethrowsException() {
         when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(firstToken)
-                .thenReturn(reissuedToken);
+            .thenReturn(firstToken)
+            .thenReturn(reissuedToken);
 
         AtomicInteger invocationCount = new AtomicInteger(0);
         FulfillmentInvalidAccessException retryFailure = new FulfillmentInvalidAccessException();
@@ -95,7 +95,7 @@ class FulfillmentAuthenticatedCallerTest {
         };
 
         assertThatThrownBy(() -> fulfillmentAuthenticatedCaller.call(operation))
-                .isSameAs(retryFailure);
+            .isSameAs(retryFailure);
 
         assertThat(invocationCount.get()).isEqualTo(2);
         verify(requestFulfillmentAuthUseCase, times(2)).requestAccessToken();
@@ -114,7 +114,7 @@ class FulfillmentAuthenticatedCallerTest {
         };
 
         assertThatThrownBy(() -> fulfillmentAuthenticatedCaller.call(operation))
-                .isSameAs(unexpected);
+            .isSameAs(unexpected);
 
         verify(requestFulfillmentAuthUseCase, times(1)).requestAccessToken();
         verify(requestFulfillmentAuthUseCase, never()).invalidateCache();
@@ -150,8 +150,8 @@ class FulfillmentAuthenticatedCallerTest {
     @DisplayName("재시도 시 연산에 새 토큰 값이 전달된다")
     void call_retriesOperationWithNewTokenValue() {
         when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(firstToken)
-                .thenReturn(reissuedToken);
+            .thenReturn(firstToken)
+            .thenReturn(reissuedToken);
 
         AtomicInteger invocationCount = new AtomicInteger(0);
         Function<String, String> operation = token -> {

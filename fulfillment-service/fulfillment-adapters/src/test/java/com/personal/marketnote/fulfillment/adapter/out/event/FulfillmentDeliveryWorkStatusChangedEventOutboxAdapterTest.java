@@ -54,11 +54,11 @@ class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             FulfillmentDeliveryWorkStatusChangedEvent event = new FulfillmentDeliveryWorkStatusChangedEvent(
-                    100L, "DELIVERED"
+                100L, "DELIVERED"
             );
             ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
             when(objectMapper.writeValueAsString(envelopeCaptor.capture()))
-                    .thenReturn("{\"eventType\":\"fulfillment.delivery.work.status.changed\"}");
+                .thenReturn("{\"eventType\":\"fulfillment.delivery.work.status.changed\"}");
 
             // when
             adapter.publish(event);
@@ -96,15 +96,15 @@ class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             FulfillmentDeliveryWorkStatusChangedEvent event = new FulfillmentDeliveryWorkStatusChangedEvent(
-                    100L, "DELIVERED"
+                100L, "DELIVERED"
             );
             when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
-                    .thenThrow(new JsonProcessingException("직렬화 실패") {
-                    });
+                .thenThrow(new JsonProcessingException("직렬화 실패") {
+                });
 
             // when & then
             assertThatThrownBy(() -> adapter.publish(event))
-                    .isInstanceOf(FulfillmentDeliveryWorkStatusChangedEventSerializationException.class);
+                .isInstanceOf(FulfillmentDeliveryWorkStatusChangedEventSerializationException.class);
             verifyNoInteractions(saveOutboxEventPort);
         }
     }

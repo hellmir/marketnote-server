@@ -4,23 +4,23 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GiftishowProductDetailResponse(
-        GoodsDetail goodsDetail
+    GoodsDetail goodsDetail
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record GoodsDetail(
-            String goodsCode,
-            String goodsName,
-            String goodsImgB,
-            String brandCode,
-            String brandName,
-            String brandIconImg,
-            String category1Seq,
-            long salePrice,
-            long realPrice,
-            int limitDay,
-            String content,
-            String goodsStateCd
+        String goodsCode,
+        String goodsName,
+        String goodsImgB,
+        String brandCode,
+        String brandName,
+        String brandIconImg,
+        String category1Seq,
+        long salePrice,
+        long realPrice,
+        int limitDay,
+        String content,
+        String goodsStateCd
     ) {
     }
 }

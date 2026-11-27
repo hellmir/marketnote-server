@@ -31,12 +31,12 @@ class GetFulfillmentDeliveryStatusesUseCaseTest {
     void shouldReturnDeliveryStatusesResultFromPort() {
         // given
         GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("token")
-                .startDate("2026-01-01")
-                .endDate("2026-01-31")
-                .releaseType("OUT_DIV")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("token")
+            .startDate("2026-01-01")
+            .endDate("2026-01-31")
+            .releaseType("OUT_DIV")
+            .build();
         GetFulfillmentDeliveryStatusesResult expectedResult = GetFulfillmentDeliveryStatusesResult.of(0, List.of());
         when(getFulfillmentDeliveryStatusesPort.getDeliveryStatuses(any())).thenReturn(expectedResult);
 

@@ -3,9 +3,9 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageHistoryExternalPort.AligoMessageHistoryResult;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,8 +46,8 @@ class AligoMessageHistoryExternalAdapterTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoMessageHistoryExternalAdapter(aligoHttpClient, properties);
     }
@@ -61,20 +61,20 @@ class AligoMessageHistoryExternalAdapterTest {
         void shouldNotIncludeDatesWhenNull() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "total": 0,
-                        "list": null
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "total": 0,
+                    "list": null
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/history/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("page=1")))
-                    .andExpect(content().string(Matchers.containsString("limit=10")))
-                    .andExpect(content().string(Matchers.not(Matchers.containsString("startdate"))))
-                    .andExpect(content().string(Matchers.not(Matchers.containsString("enddate"))))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("page=1")))
+                .andExpect(content().string(Matchers.containsString("limit=10")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("startdate"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("enddate"))))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             AligoMessageHistoryResult result = adapter.getMessageHistory(1, 10, null, null);
@@ -90,18 +90,18 @@ class AligoMessageHistoryExternalAdapterTest {
         void shouldReturnEmptySummariesWhenListEmpty() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "total": 0,
-                        "list": null
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "total": 0,
+                    "list": null
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/history/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("startdate=20260101")))
-                    .andExpect(content().string(Matchers.containsString("enddate=20260131")))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("startdate=20260101")))
+                .andExpect(content().string(Matchers.containsString("enddate=20260131")))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             AligoMessageHistoryResult result = adapter.getMessageHistory(1, 10, "20260101", "20260131");

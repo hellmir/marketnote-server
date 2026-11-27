@@ -52,33 +52,33 @@ public class SagaPersistenceAdapter implements SaveSagaPort, FindSagaPort, Updat
     @Override
     public Optional<SagaInstance> findBySagaId(String sagaId) {
         return sagaInstanceJpaRepository.findBySagaId(sagaId)
-                .map(SagaInstanceJpaEntityToDomainMapper::toDomain);
+            .map(SagaInstanceJpaEntityToDomainMapper::toDomain);
     }
 
     @Override
     public List<SagaStep> findStepsBySagaInstanceId(Long sagaInstanceId) {
         List<SagaStepJpaEntity> entities = sagaStepJpaRepository
-                .findBySagaInstanceIdOrderByStepIndexAsc(sagaInstanceId);
+            .findBySagaInstanceIdOrderByStepIndexAsc(sagaInstanceId);
         return SagaStepJpaEntityToDomainMapper.toDomainList(entities);
     }
 
     @Override
     public void update(SagaInstance instance) {
         SagaInstanceJpaEntity entity = sagaInstanceJpaRepository.findById(instance.getId())
-                .orElseThrow(() -> {
-                    log.warn("SagaInstance를 찾을 수 없습니다. sagaInstanceId={}", instance.getId());
-                    return new SagaInstanceNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("SagaInstance를 찾을 수 없습니다. sagaInstanceId={}", instance.getId());
+                return new SagaInstanceNotFoundException();
+            });
         entity.updateFrom(instance);
     }
 
     @Override
     public void updateStep(SagaStep step) {
         SagaStepJpaEntity entity = sagaStepJpaRepository.findById(step.getId())
-                .orElseThrow(() -> {
-                    log.warn("SagaStep을 찾을 수 없습니다. sagaStepId={}", step.getId());
-                    return new SagaStepNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("SagaStep을 찾을 수 없습니다. sagaStepId={}", step.getId());
+                return new SagaStepNotFoundException();
+            });
         entity.updateFrom(step);
     }
 
@@ -86,19 +86,19 @@ public class SagaPersistenceAdapter implements SaveSagaPort, FindSagaPort, Updat
     public List<SagaInstance> findTimedOutProcessingInstances(LocalDateTime cutoff) {
         PageRequest pageRequest = PageRequest.of(0, TIMEOUT_BATCH_SIZE);
         return sagaInstanceJpaRepository
-                .findByStatusAndModifiedAtBefore(SagaStatus.PROCESSING, cutoff, pageRequest)
-                .stream()
-                .map(SagaInstanceJpaEntityToDomainMapper::toDomain)
-                .toList();
+            .findByStatusAndModifiedAtBefore(SagaStatus.PROCESSING, cutoff, pageRequest)
+            .stream()
+            .map(SagaInstanceJpaEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public List<SagaInstance> findTimedOutCompensatingInstances(LocalDateTime cutoff) {
         PageRequest pageRequest = PageRequest.of(0, TIMEOUT_BATCH_SIZE);
         return sagaInstanceJpaRepository
-                .findByStatusAndModifiedAtBefore(SagaStatus.COMPENSATING, cutoff, pageRequest)
-                .stream()
-                .map(SagaInstanceJpaEntityToDomainMapper::toDomain)
-                .toList();
+            .findByStatusAndModifiedAtBefore(SagaStatus.COMPENSATING, cutoff, pageRequest)
+            .stream()
+            .map(SagaInstanceJpaEntityToDomainMapper::toDomain)
+            .toList();
     }
 }

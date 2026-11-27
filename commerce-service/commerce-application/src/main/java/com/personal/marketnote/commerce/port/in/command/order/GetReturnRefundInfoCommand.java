@@ -7,9 +7,9 @@ import java.util.List;
 
 @Builder
 public record GetReturnRefundInfoCommand(
-        Long orderId,
-        Long buyerId,
-        OrderStatusReasonCategory reasonCategory,
-        List<Long> returnPricePolicyIds
+    Long orderId,
+    Long buyerId,
+    OrderStatusReasonCategory reasonCategory,
+    List<Long> returnPricePolicyIds
 ) {
 }

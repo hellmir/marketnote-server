@@ -35,62 +35,62 @@ public class Product extends BaseDomain {
 
     @JsonCreator
     private static Product jsonCreator(
-            @JsonProperty("id") Long id,
-            @JsonProperty("productKey") UUID productKey,
-            @JsonProperty("sellerId") Long sellerId,
-            @JsonProperty("name") String name,
-            @JsonProperty("brandName") String brandName,
-            @JsonProperty("detail") String detail,
-            @JsonProperty("defaultPricePolicy") PricePolicy defaultPricePolicy,
-            @JsonProperty("sales") Integer sales,
-            @JsonProperty("viewCount") Long viewCount,
-            @JsonProperty("popularity") Long popularity,
-            @JsonProperty("findAllOptionsYn") boolean findAllOptionsYn,
-            @JsonProperty("productTags") List<ProductTag> productTags,
-            @JsonProperty("orderNum") Long orderNum,
-            @JsonProperty("status") EntityStatus status,
-            @JsonProperty("fasstoProductCode") String fasstoProductCode
+        @JsonProperty("id") Long id,
+        @JsonProperty("productKey") UUID productKey,
+        @JsonProperty("sellerId") Long sellerId,
+        @JsonProperty("name") String name,
+        @JsonProperty("brandName") String brandName,
+        @JsonProperty("detail") String detail,
+        @JsonProperty("defaultPricePolicy") PricePolicy defaultPricePolicy,
+        @JsonProperty("sales") Integer sales,
+        @JsonProperty("viewCount") Long viewCount,
+        @JsonProperty("popularity") Long popularity,
+        @JsonProperty("findAllOptionsYn") boolean findAllOptionsYn,
+        @JsonProperty("productTags") List<ProductTag> productTags,
+        @JsonProperty("orderNum") Long orderNum,
+        @JsonProperty("status") EntityStatus status,
+        @JsonProperty("fasstoProductCode") String fasstoProductCode
     ) {
         return from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(sellerId)
-                        .name(name)
-                        .brandName(brandName)
-                        .detail(detail)
-                        .defaultPricePolicy(defaultPricePolicy)
-                        .sales(sales)
-                        .viewCount(viewCount)
-                        .popularity(popularity)
-                        .findAllOptionsYn(findAllOptionsYn)
-                        .productTags(productTags)
-                        .orderNum(orderNum)
-                        .status(status)
-                        .fasstoProductCode(fasstoProductCode)
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(sellerId)
+                .name(name)
+                .brandName(brandName)
+                .detail(detail)
+                .defaultPricePolicy(defaultPricePolicy)
+                .sales(sales)
+                .viewCount(viewCount)
+                .popularity(popularity)
+                .findAllOptionsYn(findAllOptionsYn)
+                .productTags(productTags)
+                .orderNum(orderNum)
+                .status(status)
+                .fasstoProductCode(fasstoProductCode)
+                .build()
         );
     }
 
     public static Product from(ProductCreateState state) {
         List<ProductTag> tags = FormatValidator.hasValue(state.getTags())
-                ? state.getTags()
-                .stream()
-                .map(ProductTag::from)
-                .collect(Collectors.toList())
-                : List.of();
+            ? state.getTags()
+            .stream()
+            .map(ProductTag::from)
+            .collect(Collectors.toList())
+            : List.of();
 
         UUID productKey = RandomCodeGenerator.generateProductKey();
         return Product.builder()
-                .productKey(productKey)
-                .sellerId(state.getSellerId())
-                .name(state.getName())
-                .brandName(state.getBrandName())
-                .detail(state.getDetail())
-                .findAllOptionsYn(state.isFindAllOptionsYn())
-                .productTags(tags)
-                .fasstoProductCode(resolveFasstoProductCodeOnCreate(state, productKey))
-                .build();
+            .productKey(productKey)
+            .sellerId(state.getSellerId())
+            .name(state.getName())
+            .brandName(state.getBrandName())
+            .detail(state.getDetail())
+            .findAllOptionsYn(state.isFindAllOptionsYn())
+            .productTags(tags)
+            .fasstoProductCode(resolveFasstoProductCodeOnCreate(state, productKey))
+            .build();
     }
 
     private static String resolveFasstoProductCodeOnCreate(ProductCreateState state, UUID productKey) {
@@ -102,21 +102,21 @@ public class Product extends BaseDomain {
 
     public static Product from(ProductSnapshotState state) {
         Product product = Product.builder()
-                .id(state.getId())
-                .productKey(state.getProductKey())
-                .sellerId(state.getSellerId())
-                .name(state.getName())
-                .brandName(state.getBrandName())
-                .detail(state.getDetail())
-                .defaultPricePolicy(state.getDefaultPricePolicy())
-                .sales(state.getSales())
-                .viewCount(state.getViewCount())
-                .popularity(state.getPopularity())
-                .findAllOptionsYn(state.isFindAllOptionsYn())
-                .productTags(state.getProductTags())
-                .orderNum(state.getOrderNum())
-                .fasstoProductCode(state.getFasstoProductCode())
-                .build();
+            .id(state.getId())
+            .productKey(state.getProductKey())
+            .sellerId(state.getSellerId())
+            .name(state.getName())
+            .brandName(state.getBrandName())
+            .detail(state.getDetail())
+            .defaultPricePolicy(state.getDefaultPricePolicy())
+            .sales(state.getSales())
+            .viewCount(state.getViewCount())
+            .popularity(state.getPopularity())
+            .findAllOptionsYn(state.isFindAllOptionsYn())
+            .productTags(state.getProductTags())
+            .orderNum(state.getOrderNum())
+            .fasstoProductCode(state.getFasstoProductCode())
+            .build();
         product.status = state.getStatus();
 
         if (FormatValidator.hasValue(state.getDefaultPricePolicy())) {
@@ -132,13 +132,13 @@ public class Product extends BaseDomain {
         this.detail = detail;
         findAllOptionsYn = isFindAllOptions;
         productTags = tags.stream()
-                .map(tag -> ProductTag.from(
-                        ProductTagCreateState.builder()
-                                .productId(id)
-                                .name(tag)
-                                .build()
-                ))
-                .toList();
+            .map(tag -> ProductTag.from(
+                ProductTagCreateState.builder()
+                    .productId(id)
+                    .name(tag)
+                    .build()
+            ))
+            .toList();
     }
 
     public void delete() {

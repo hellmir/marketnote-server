@@ -1,7 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryMapper;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentReturnDeliveryItemCommand;
@@ -19,24 +19,24 @@ class FasstoReturnDeliveryCommandToRequestMapperTest {
 
     private static RegisterFulfillmentReturnDeliveryItemCommand buildItem(List<RegisterFulfillmentDeliveryGoodsCommand> products) {
         return RegisterFulfillmentReturnDeliveryItemCommand.builder()
-                .orderDate("20260420")
-                .orderNumber("ORD001")
-                .courierCode("CJ")
-                .invoiceNumber("INV001")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
-                .recipientAddress("서울시 강남구")
-                .returnReceiverName("김철수")
-                .returnReceiverPhoneNumber("010-8765-4321")
-                .returnZipCode("06000")
-                .returnAddress1("서울시 송파구")
-                .returnAddress2("101동 1001호")
-                .returnType("01")
-                .returnReason("단순변심")
-                .returnDetailReason("색상이 마음에 들지 않음")
-                .returnShippingRequest("문 앞에 두세요")
-                .products(products)
-                .build();
+            .orderDate("20260420")
+            .orderNumber("ORD001")
+            .courierCode("CJ")
+            .invoiceNumber("INV001")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("010-1234-5678")
+            .recipientAddress("서울시 강남구")
+            .returnReceiverName("김철수")
+            .returnReceiverPhoneNumber("010-8765-4321")
+            .returnZipCode("06000")
+            .returnAddress1("서울시 송파구")
+            .returnAddress2("101동 1001호")
+            .returnType("01")
+            .returnReason("단순변심")
+            .returnDetailReason("색상이 마음에 들지 않음")
+            .returnShippingRequest("문 앞에 두세요")
+            .products(products)
+            .build();
     }
 
     @Nested
@@ -49,10 +49,10 @@ class FasstoReturnDeliveryCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", encoded, "20261231", 1
+                productKey, "GOD001", encoded, "20261231", 1
             );
             RegisterFulfillmentReturnDeliveryCommand command = RegisterFulfillmentReturnDeliveryCommand.of(
-                    "CUST001", "token", List.of(buildItem(List.of(goods)))
+                "CUST001", "token", List.of(buildItem(List.of(goods)))
             );
 
             FulfillmentReturnDeliveryMapper mapper = FasstoReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);

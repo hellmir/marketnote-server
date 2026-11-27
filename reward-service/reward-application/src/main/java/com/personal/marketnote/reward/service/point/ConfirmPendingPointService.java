@@ -36,12 +36,12 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
     @Override
     public UpdateUserPointResult confirmPending(ConfirmPendingPointCommand command) {
         List<UserPointHistory> pendingHistories = findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                command.userId(), command.sourceType(), command.sourceId()
+            command.userId(), command.sourceType(), command.sourceId()
         );
 
         if (pendingHistories.isEmpty()) {
             log.info("이미 확정 처리된 적립 예정 포인트 (멱등 처리). userId={}, sourceType={}, sourceId={}",
-                    command.userId(), command.sourceType(), command.sourceId());
+                command.userId(), command.sourceType(), command.sourceId());
             UserPoint userPoint = getUserPointUseCase.getUserPoint(command.userId());
             return UpdateUserPointResult.from(userPoint);
         }
@@ -56,7 +56,7 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
         UserPoint updatedPoint = updateUserPointPort.update(userPoint);
 
         int updatedCount = updateUserPointHistoryPort.markAsReflected(
-                command.userId(), command.sourceType(), command.sourceId()
+            command.userId(), command.sourceType(), command.sourceId()
         );
         validateReflectionCount(pendingHistories.size(), updatedCount);
 
@@ -80,16 +80,16 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
     }
 
     private void saveConfirmedHistory(
-            ConfirmPendingPointCommand command,
-            Long totalAmount,
-            UserPoint updatedPoint
+        ConfirmPendingPointCommand command,
+        Long totalAmount,
+        UserPoint updatedPoint
     ) {
         saveUserPointHistoryPort.save(
-                UserPointHistory.from(
-                        RewardCommandToStateMapper.mapToConfirmedPointHistoryCreateState(
-                                command, totalAmount, updatedPoint.getUserId(), updatedPoint.getModifiedAt()
-                        )
+            UserPointHistory.from(
+                RewardCommandToStateMapper.mapToConfirmedPointHistoryCreateState(
+                    command, totalAmount, updatedPoint.getUserId(), updatedPoint.getModifiedAt()
                 )
+            )
         );
     }
 }

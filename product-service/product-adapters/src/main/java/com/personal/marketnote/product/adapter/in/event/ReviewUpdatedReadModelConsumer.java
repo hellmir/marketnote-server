@@ -21,12 +21,12 @@ public class ReviewUpdatedReadModelConsumer {
     private final SaveReviewAggregateReadModelPort saveReviewAggregateReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.REVIEW_UPDATED,
-            groupId = "product-review-aggregate-read-model"
+        topics = KafkaTopicConstants.REVIEW_UPDATED,
+        groupId = "product-review-aggregate-read-model"
     )
     public void handleReviewUpdatedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -43,13 +43,13 @@ public class ReviewUpdatedReadModelConsumer {
         ReviewUpdatedEvent payload = envelope.getPayloadAs(ReviewUpdatedEvent.class, objectMapper);
 
         log.info("리뷰 수정 Read Model 이벤트 수신. eventId={}, reviewId={}, productId={}, totalCount={}, averageRating={}",
-                envelope.eventId(), payload.reviewId(), payload.productId(),
-                payload.totalCount(), payload.averageRating()
+            envelope.eventId(), payload.reviewId(), payload.productId(),
+            payload.totalCount(), payload.averageRating()
         );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("reviewId", payload.reviewId()),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+            EventPayloadValidator.id("reviewId", payload.reviewId()),
+            EventPayloadValidator.id("productId", payload.productId()))) {
             acknowledgment.acknowledge();
             return;
         }

@@ -49,11 +49,11 @@ class Oauth2LoginUseCaseTest {
         AuthVendor authVendor = AuthVendor.KAKAO;
         String oidcId = "oidc-123";
         GrantedTokenInfo tokenInfo = GrantedTokenInfo.builder()
-                .accessToken("access-token")
-                .refreshToken("refresh-token")
-                .id(oidcId)
-                .authVendor(authVendor)
-                .build();
+            .accessToken("access-token")
+            .refreshToken("refresh-token")
+            .id(oidcId)
+            .authVendor(authVendor)
+            .build();
         User user = mock(User.class);
 
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
@@ -85,16 +85,16 @@ class Oauth2LoginUseCaseTest {
         AuthVendor authVendor = AuthVendor.GOOGLE;
         String oidcId = "oidc-999";
         OAuth2UserInfo userInfo = OAuth2UserInfo.builder()
-                .id(oidcId)
-                .name("new-user")
-                .build();
+            .id(oidcId)
+            .name("new-user")
+            .build();
         GrantedTokenInfo tokenInfo = GrantedTokenInfo.builder()
-                .accessToken("access-token")
-                .refreshToken("refresh-token")
-                .id(oidcId)
-                .authVendor(authVendor)
-                .userInfo(userInfo)
-                .build();
+            .accessToken("access-token")
+            .refreshToken("refresh-token")
+            .id(oidcId)
+            .authVendor(authVendor)
+            .userInfo(userInfo)
+            .build();
 
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.empty());
@@ -122,19 +122,19 @@ class Oauth2LoginUseCaseTest {
         AuthVendor authVendor = AuthVendor.APPLE;
         String oidcId = "oidc-404";
         GrantedTokenInfo tokenInfo = GrantedTokenInfo.builder()
-                .accessToken("access-token")
-                .refreshToken("refresh-token")
-                .id(oidcId)
-                .authVendor(authVendor)
-                .userInfo(null)
-                .build();
+            .accessToken("access-token")
+            .refreshToken("refresh-token")
+            .id(oidcId)
+            .authVendor(authVendor)
+            .userInfo(null)
+            .build();
 
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.empty());
 
         // expect
         assertThatThrownBy(() -> oauth2LoginService.loginByOAuth2(code, redirectUri, authVendor))
-                .isInstanceOf(OauthTokenNoValueException.class);
+            .isInstanceOf(OauthTokenNoValueException.class);
 
         verify(tokenSupport).grantToken(code, redirectUri, authVendor);
         verify(findUserPort).findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId);
@@ -154,7 +154,7 @@ class Oauth2LoginUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> oauth2LoginService.loginByOAuth2(code, redirectUri, authVendor))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(tokenSupport).grantToken(code, redirectUri, authVendor);
         verifyNoInteractions(findUserPort);
@@ -170,8 +170,8 @@ class Oauth2LoginUseCaseTest {
             // expect
             Transactional classTransactional = Oauth2LoginService.class.getAnnotation(Transactional.class);
             assertThat(classTransactional)
-                    .as("외부 OAuth2 서버 호출이 DB 트랜잭션 경계 안에서 수행되지 않도록 클래스 레벨 @Transactional 은 제거되어야 한다")
-                    .isNull();
+                .as("외부 OAuth2 서버 호출이 DB 트랜잭션 경계 안에서 수행되지 않도록 클래스 레벨 @Transactional 은 제거되어야 한다")
+                .isNull();
         }
 
         @Test
@@ -179,14 +179,14 @@ class Oauth2LoginUseCaseTest {
         void loginByOAuth2_hasNoMethodLevelTransactional() throws NoSuchMethodException {
             // given
             Method method = Oauth2LoginService.class.getMethod(
-                    "loginByOAuth2", String.class, String.class, AuthVendor.class
+                "loginByOAuth2", String.class, String.class, AuthVendor.class
             );
 
             // expect
             Transactional methodTransactional = method.getAnnotation(Transactional.class);
             assertThat(methodTransactional)
-                    .as("DB 커넥션 점유 위험을 제거하기 위해 메서드 레벨 @Transactional 도 존재하지 않아야 한다")
-                    .isNull();
+                .as("DB 커넥션 점유 위험을 제거하기 위해 메서드 레벨 @Transactional 도 존재하지 않아야 한다")
+                .isNull();
         }
 
         @Test
@@ -195,17 +195,17 @@ class Oauth2LoginUseCaseTest {
             // given
             Transactional interfaceClassTransactional = Oauth2LoginUseCase.class.getAnnotation(Transactional.class);
             Method interfaceMethod = Oauth2LoginUseCase.class.getMethod(
-                    "loginByOAuth2", String.class, String.class, AuthVendor.class
+                "loginByOAuth2", String.class, String.class, AuthVendor.class
             );
             Transactional interfaceMethodTransactional = interfaceMethod.getAnnotation(Transactional.class);
 
             // expect
             assertThat(interfaceClassTransactional)
-                    .as("인터페이스 레벨에도 @Transactional 이 없어야 Spring AOP 가 트랜잭션 경계를 적용하지 않는다")
-                    .isNull();
+                .as("인터페이스 레벨에도 @Transactional 이 없어야 Spring AOP 가 트랜잭션 경계를 적용하지 않는다")
+                .isNull();
             assertThat(interfaceMethodTransactional)
-                    .as("인터페이스 메서드에도 @Transactional 이 없어야 Spring AOP 가 트랜잭션 경계를 적용하지 않는다")
-                    .isNull();
+                .as("인터페이스 메서드에도 @Transactional 이 없어야 Spring AOP 가 트랜잭션 경계를 적용하지 않는다")
+                .isNull();
         }
 
         @Test
@@ -217,11 +217,11 @@ class Oauth2LoginUseCaseTest {
             AuthVendor authVendor = AuthVendor.KAKAO;
             String oidcId = "oidc-tx-1";
             GrantedTokenInfo tokenInfo = GrantedTokenInfo.builder()
-                    .accessToken("access-token")
-                    .refreshToken("refresh-token")
-                    .id(oidcId)
-                    .authVendor(authVendor)
-                    .build();
+                .accessToken("access-token")
+                .refreshToken("refresh-token")
+                .id(oidcId)
+                .authVendor(authVendor)
+                .build();
             AtomicBoolean txActiveDuringGrantToken = new AtomicBoolean(true);
 
             when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenAnswer(invocation -> {
@@ -232,12 +232,12 @@ class Oauth2LoginUseCaseTest {
 
             // when
             assertThatThrownBy(() -> oauth2LoginService.loginByOAuth2(code, redirectUri, authVendor))
-                    .isInstanceOf(OauthTokenNoValueException.class);
+                .isInstanceOf(OauthTokenNoValueException.class);
 
             // then
             assertThat(txActiveDuringGrantToken.get())
-                    .as("외부 OAuth2 서버 호출 시점에는 DB 트랜잭션이 활성화되어 있지 않아야 한다 (커넥션 풀 고갈 방지)")
-                    .isFalse();
+                .as("외부 OAuth2 서버 호출 시점에는 DB 트랜잭션이 활성화되어 있지 않아야 한다 (커넥션 풀 고갈 방지)")
+                .isFalse();
         }
 
         @Test
@@ -249,16 +249,16 @@ class Oauth2LoginUseCaseTest {
             AuthVendor authVendor = AuthVendor.GOOGLE;
             String oidcId = "oidc-tx-2";
             OAuth2UserInfo userInfo = OAuth2UserInfo.builder()
-                    .id(oidcId)
-                    .name("tx-user")
-                    .build();
+                .id(oidcId)
+                .name("tx-user")
+                .build();
             GrantedTokenInfo tokenInfo = GrantedTokenInfo.builder()
-                    .accessToken("access-token")
-                    .refreshToken("refresh-token")
-                    .id(oidcId)
-                    .authVendor(authVendor)
-                    .userInfo(userInfo)
-                    .build();
+                .accessToken("access-token")
+                .refreshToken("refresh-token")
+                .id(oidcId)
+                .authVendor(authVendor)
+                .userInfo(userInfo)
+                .build();
             AtomicBoolean txActiveDuringFindUser = new AtomicBoolean(true);
 
             when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
@@ -273,8 +273,8 @@ class Oauth2LoginUseCaseTest {
             // then
             assertThat(result.isNewUser()).isTrue();
             assertThat(txActiveDuringFindUser.get())
-                    .as("서비스 레벨 @Transactional 이 제거되었으므로, 어댑터 진입 이전에는 활성 트랜잭션이 없어야 한다")
-                    .isFalse();
+                .as("서비스 레벨 @Transactional 이 제거되었으므로, 어댑터 진입 이전에는 활성 트랜잭션이 없어야 한다")
+                .isFalse();
         }
     }
 }

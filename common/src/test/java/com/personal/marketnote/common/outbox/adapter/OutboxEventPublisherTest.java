@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("OutboxEventPublisher 테스트")
 class OutboxEventPublisherTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks
@@ -62,7 +62,7 @@ class OutboxEventPublisherTest {
         OutboxEventJpaEntity entity = createPendingEntity("event-1", "commerce.payment.approved", "order-123", "{\"orderId\":123}");
 
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         Object deserializedPayload = new Object();
         when(objectMapper.readValue("{\"orderId\":123}", Object.class)).thenReturn(deserializedPayload);
@@ -87,7 +87,7 @@ class OutboxEventPublisherTest {
     void publishPendingEvents_noPendingEvents_doesNotPublish() {
         // given
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
-                .thenReturn(Collections.emptyList());
+            .thenReturn(Collections.emptyList());
 
         // when
         outboxEventPublisher.publishPendingEvents();
@@ -104,7 +104,7 @@ class OutboxEventPublisherTest {
         OutboxEventJpaEntity entity = createPendingEntity("event-1", "commerce.payment.approved", "order-123", "{}");
 
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         when(objectMapper.readValue("{}", Object.class)).thenReturn(new Object());
 
@@ -134,7 +134,7 @@ class OutboxEventPublisherTest {
         }
 
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         when(objectMapper.readValue("{}", Object.class)).thenReturn(new Object());
 
@@ -154,7 +154,7 @@ class OutboxEventPublisherTest {
         verify(outboxEventJpaRepository).save(entity);
         verify(outboxMetricsCollector).incrementFailedCount("commerce.payment.approved");
         verify(outboxAuditLogger).logFailed(
-                eq("commerce.payment.approved"), eq("event-1"), eq(5), any(Throwable.class));
+            eq("commerce.payment.approved"), eq("event-1"), eq(5), any(Throwable.class));
     }
 
     @Test
@@ -164,11 +164,11 @@ class OutboxEventPublisherTest {
         OutboxEventJpaEntity entity = createPendingEntity("event-1", "commerce.payment.approved", "order-123", "invalid-json");
 
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         when(objectMapper.readValue("invalid-json", Object.class))
-                .thenThrow(new JsonProcessingException("parse error") {
-                });
+            .thenThrow(new JsonProcessingException("parse error") {
+            });
 
         when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
         when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
@@ -191,7 +191,7 @@ class OutboxEventPublisherTest {
         OutboxEventJpaEntity failEntity = createPendingEntity("event-2", "commerce.payment.cancelled", "order-2", "{\"orderId\":2}");
 
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
-                .thenReturn(List.of(successEntity, failEntity));
+            .thenReturn(List.of(successEntity, failEntity));
 
         Object successPayload = new Object();
         when(objectMapper.readValue("{\"orderId\":1}", Object.class)).thenReturn(successPayload);
@@ -221,7 +221,7 @@ class OutboxEventPublisherTest {
 
     private OutboxEventJpaEntity createPendingEntity(String eventId, String topic, String partitionKey, String payload) {
         com.personal.marketnote.common.outbox.OutboxEvent domainEvent = com.personal.marketnote.common.outbox.OutboxEvent.of(
-                eventId, topic, partitionKey, "TestEvent", "test-service", payload, FIXED_CLOCK
+            eventId, topic, partitionKey, "TestEvent", "test-service", payload, FIXED_CLOCK
         );
         return OutboxEventJpaEntity.from(domainEvent);
     }

@@ -18,8 +18,8 @@ public enum OwnerType {
 
     public static OwnerType from(String targetValue) throws IllegalArgumentException {
         return Arrays.stream(OwnerType.values())
-                .filter(ownerType -> FormatValidator.equals(ownerType.name(), targetValue))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid owner type: " + targetValue));
+            .filter(ownerType -> FormatValidator.equals(ownerType.name(), targetValue))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Invalid owner type: " + targetValue));
     }
 }

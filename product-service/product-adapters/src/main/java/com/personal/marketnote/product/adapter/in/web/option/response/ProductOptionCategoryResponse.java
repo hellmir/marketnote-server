@@ -21,17 +21,17 @@ public class ProductOptionCategoryResponse {
 
     public static ProductOptionCategoryResponse from(ProductOptionCategoryItemResult result) {
         return ProductOptionCategoryResponse.builder()
-                .id(result.id())
-                .name(result.name())
-                .orderNum(result.orderNum())
-                .status(result.status())
-                .options(
-                        result.options()
-                                .stream()
-                                .map(ProductOptionResponse::from)
-                                .collect(Collectors.toList())
-                )
-                .build();
+            .id(result.id())
+            .name(result.name())
+            .orderNum(result.orderNum())
+            .status(result.status())
+            .options(
+                result.options()
+                    .stream()
+                    .map(ProductOptionResponse::from)
+                    .collect(Collectors.toList())
+            )
+            .build();
     }
 }
 

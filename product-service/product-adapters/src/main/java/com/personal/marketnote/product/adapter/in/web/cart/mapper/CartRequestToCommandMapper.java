@@ -13,27 +13,27 @@ import java.util.List;
 public class CartRequestToCommandMapper {
     public static AddCartProductCommand mapToCommand(Long userId, AddCartProductRequest request) {
         return AddCartProductCommand.builder()
-                .userId(userId)
-                .sharerKey(request.sharerKey())
-                .pricePolicyId(request.pricePolicyId())
-                .imageUrl(request.imageUrl())
-                .quantity(request.quantity())
-                .build();
+            .userId(userId)
+            .sharerKey(request.sharerKey())
+            .pricePolicyId(request.pricePolicyId())
+            .imageUrl(request.imageUrl())
+            .quantity(request.quantity())
+            .build();
     }
 
     public static UpdateCartProductQuantityCommand mapToCommand(Long userId, UpdateCartProductQuantityRequest request) {
         return UpdateCartProductQuantityCommand.of(
-                userId,
-                request.pricePolicyId(),
-                request.newQuantity()
+            userId,
+            request.pricePolicyId(),
+            request.newQuantity()
         );
     }
 
     public static UpdateCartProductOptionCommand mapToCommand(Long userId, UpdateCartProductOptionsRequest request) {
         return UpdateCartProductOptionCommand.of(
-                userId,
-                request.pricePolicyId(),
-                request.newOptionIds()
+            userId,
+            request.pricePolicyId(),
+            request.newOptionIds()
         );
     }
 

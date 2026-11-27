@@ -42,8 +42,8 @@ class KafkaTopicConfigTest {
     void shouldRegisterAllConstantsAsNewTopics() {
         List<NewTopic> registered = kafkaTopicConfig.buildAllTopics();
         Set<String> registeredNames = registered.stream()
-                .map(NewTopic::name)
-                .collect(Collectors.toSet());
+            .map(NewTopic::name)
+            .collect(Collectors.toSet());
 
         assertThat(registeredNames).containsAll(KafkaTopicConstants.getAllTopics());
     }
@@ -53,8 +53,8 @@ class KafkaTopicConfigTest {
     void shouldRegisterAllDltTopicsAsNewTopics() {
         List<NewTopic> registered = kafkaTopicConfig.buildAllTopics();
         Set<String> registeredNames = registered.stream()
-                .map(NewTopic::name)
-                .collect(Collectors.toSet());
+            .map(NewTopic::name)
+            .collect(Collectors.toSet());
 
         assertThat(registeredNames).containsAll(DltTopicRegistry.getAllDltTopics());
     }
@@ -75,9 +75,9 @@ class KafkaTopicConfigTest {
         List<NewTopic> registered = kafkaTopicConfig.buildAllTopics();
 
         long distinctCount = registered.stream()
-                .map(NewTopic::name)
-                .distinct()
-                .count();
+            .map(NewTopic::name)
+            .distinct()
+            .count();
 
         assertThat(distinctCount).isEqualTo(registered.size());
     }
@@ -88,8 +88,8 @@ class KafkaTopicConfigTest {
         List<NewTopic> registered = kafkaTopicConfig.buildAllTopics();
 
         assertThat(registered)
-                .extracting(NewTopic::name)
-                .doesNotContain(KafkaTopicConstants.DLT_SUFFIX);
+            .extracting(NewTopic::name)
+            .doesNotContain(KafkaTopicConstants.DLT_SUFFIX);
     }
 
     @Test
@@ -98,7 +98,7 @@ class KafkaTopicConfigTest {
         List<NewTopic> registered = kafkaTopicConfig.buildAllTopics();
 
         assertThat(registered)
-                .allSatisfy(topic -> assertThat(topic.numPartitions()).isEqualTo(EXPECTED_PARTITIONS));
+            .allSatisfy(topic -> assertThat(topic.numPartitions()).isEqualTo(EXPECTED_PARTITIONS));
     }
 
     @Test
@@ -107,7 +107,7 @@ class KafkaTopicConfigTest {
         List<NewTopic> registered = kafkaTopicConfig.buildAllTopics();
 
         assertThat(registered)
-                .allSatisfy(topic -> assertThat(topic.replicationFactor()).isEqualTo(EXPECTED_REPLICATION_FACTOR));
+            .allSatisfy(topic -> assertThat(topic.replicationFactor()).isEqualTo(EXPECTED_REPLICATION_FACTOR));
     }
 
     @Test
@@ -128,8 +128,8 @@ class KafkaTopicConfigTest {
         Set<String> dltTopicNames = Set.copyOf(DltTopicRegistry.getAllDltTopics());
 
         List<NewTopic> dltTopics = registered.stream()
-                .filter(topic -> dltTopicNames.contains(topic.name()))
-                .toList();
+            .filter(topic -> dltTopicNames.contains(topic.name()))
+            .toList();
 
         assertThat(dltTopics).hasSize(dltTopicNames.size());
         assertThat(dltTopics).allSatisfy(topic -> {
@@ -150,7 +150,7 @@ class KafkaTopicConfigTest {
 
         assertThat(admin).isNotNull();
         assertThat(admin.getConfigurationProperties())
-                .containsEntry(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092");
+            .containsEntry(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092");
     }
 
     @Test
@@ -186,7 +186,7 @@ class KafkaTopicConfigTest {
         assertThat(configMap).containsEntry(SaslConfigs.SASL_MECHANISM, "SCRAM-SHA-256");
         assertThat(configMap).containsKey(SaslConfigs.SASL_JAAS_CONFIG);
         assertThat(configMap.get(SaslConfigs.SASL_JAAS_CONFIG).toString())
-                .contains("username=\"test-user\"")
-                .contains("ScramLoginModule");
+            .contains("username=\"test-user\"")
+            .contains("ScramLoginModule");
     }
 }

@@ -29,20 +29,20 @@ public class FulfillmentInventorySyncedEventOutboxAdapter implements PublishFulf
         String topic = KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED;
         String partitionKey = "fulfillment-inventory-sync";
         EventEnvelope<FulfillmentInventorySyncedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
+            topic,
+            EVENT_SOURCE,
+            event,
+            clock
         );
         String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(),
-                topic,
-                partitionKey,
-                FulfillmentInventorySyncedEvent.class.getSimpleName(),
-                EVENT_SOURCE,
-                payload,
-                clock
+            envelope.eventId(),
+            topic,
+            partitionKey,
+            FulfillmentInventorySyncedEvent.class.getSimpleName(),
+            EVENT_SOURCE,
+            payload,
+            clock
         );
         saveOutboxEventPort.save(outboxEvent);
     }
@@ -52,7 +52,7 @@ public class FulfillmentInventorySyncedEventOutboxAdapter implements PublishFulf
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new FulfillmentInventorySyncedEventSerializationException(
-                    envelope.eventType(), partitionKey, envelope.eventId(), e
+                envelope.eventType(), partitionKey, envelope.eventId(), e
             );
         }
     }

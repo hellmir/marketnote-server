@@ -66,14 +66,14 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     private final Sleeper sleeper;
 
     public FulfillmentSettlementClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -121,10 +121,10 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -132,12 +132,12 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -165,22 +165,22 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
             String exception = isSuccess ? null : resolveDailyCostListException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -196,9 +196,9 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
             }
 
             log.warn("Fulfillment settlement daily costs request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -216,9 +216,9 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     private URI buildSettlementDailyCostUri(String yearMonth, String whCd, String customerCode) {
         validateSettlementDailyCostProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getSettlementDailyCostPath())
-                .buildAndExpand(yearMonth, whCd, customerCode)
-                .toUri();
+            .path(properties.getSettlementDailyCostPath())
+            .buildAndExpand(yearMonth, whCd, customerCode)
+            .toUri();
     }
 
     private void validateSettlementDailyCostProperties() {
@@ -264,14 +264,14 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
 
     private boolean isDailyCostListSuccess(ResponseEntity<String> response, FulfillmentSettlementDailyCostListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveDailyCostListException(
-            ResponseEntity<String> response,
-            FulfillmentSettlementDailyCostListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentSettlementDailyCostListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -328,28 +328,28 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
 
     private GetFulfillmentSettlementDailyCostsResult mapDailyCostListResult(FulfillmentSettlementDailyCostListResponse response) {
         List<FulfillmentSettlementDailyCostInfoResult> dailyCosts = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapDailyCostInfo).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapDailyCostInfo).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentSettlementDailyCostsResult.of(dataCount, dailyCosts);
     }
 
     private FulfillmentSettlementDailyCostInfoResult mapDailyCostInfo(FulfillmentSettlementDailyCostItemResponse item) {
         return FulfillmentSettlementDailyCostInfoResult.builder()
-                .closeDate(item.cloDt())
-                .warehouseCode(item.whCd())
-                .customerCode(item.cstCd())
-                .inboundAmount(item.inpAmt())
-                .outboundAmount(item.outAmt())
-                .outboundCarAmount(item.outcarAmt())
-                .outboundAirAmount(item.outairAmt())
-                .storageAmount(item.keepAmt())
-                .returnAmount(item.retAmt())
-                .cashAmount(item.cashAmt())
-                .foundationAmount(item.founAmt())
-                .otherAmount(item.othAmt())
-                .totalAmount(item.totAmt())
-                .build();
+            .closeDate(item.cloDt())
+            .warehouseCode(item.whCd())
+            .customerCode(item.cstCd())
+            .inboundAmount(item.inpAmt())
+            .outboundAmount(item.outAmt())
+            .outboundCarAmount(item.outcarAmt())
+            .outboundAirAmount(item.outairAmt())
+            .storageAmount(item.keepAmt())
+            .returnAmount(item.retAmt())
+            .cashAmount(item.cashAmt())
+            .foundationAmount(item.founAmt())
+            .otherAmount(item.othAmt())
+            .totalAmount(item.totAmt())
+            .build();
     }
 
     private String maskValue(String value) {
@@ -413,8 +413,8 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -424,8 +424,8 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

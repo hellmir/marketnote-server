@@ -22,65 +22,65 @@ public class ProductCommandToStateMapper {
 
     public static ProductCreateState mapToState(RegisterProductCommand command) {
         return ProductCreateState.builder()
-                .sellerId(command.sellerId())
-                .name(command.name())
-                .brandName(command.brandName())
-                .detail(command.detail())
-                .findAllOptionsYn(Boolean.TRUE.equals(command.isFindAllOptions()))
-                .tags(
-                        command.tags()
-                                .stream()
-                                .map(tag -> ProductTagCreateState.builder().name(tag).build())
-                                .toList()
-                )
-                .fasstoProductCode(command.fasstoProductCode())
-                .build();
+            .sellerId(command.sellerId())
+            .name(command.name())
+            .brandName(command.brandName())
+            .detail(command.detail())
+            .findAllOptionsYn(Boolean.TRUE.equals(command.isFindAllOptions()))
+            .tags(
+                command.tags()
+                    .stream()
+                    .map(tag -> ProductTagCreateState.builder().name(tag).build())
+                    .toList()
+            )
+            .fasstoProductCode(command.fasstoProductCode())
+            .build();
     }
 
     public static ProductOptionCategoryCreateState mapToState(
-            Product product, RegisterProductOptionsCommand registerProductOptionsCommand
+        Product product, RegisterProductOptionsCommand registerProductOptionsCommand
     ) {
         return
-                ProductOptionCategoryCreateState.builder()
-                        .product(product)
-                        .name(registerProductOptionsCommand.categoryName())
-                        .optionStates(
-                                registerProductOptionsCommand.options()
-                                        .stream()
-                                        .map(ProductCommandToStateMapper::mapToState)
-                                        .collect(Collectors.toList())
-                        )
-                        .build();
+            ProductOptionCategoryCreateState.builder()
+                .product(product)
+                .name(registerProductOptionsCommand.categoryName())
+                .optionStates(
+                    registerProductOptionsCommand.options()
+                        .stream()
+                        .map(ProductCommandToStateMapper::mapToState)
+                        .collect(Collectors.toList())
+                )
+                .build();
     }
 
     public static ProductOptionCreateState mapToState(RegisterProductOptionsCommand.OptionItem optionItem) {
         return ProductOptionCreateState.builder()
-                .content(optionItem.content())
-                .build();
+            .content(optionItem.content())
+            .build();
     }
 
     public static PricePolicyCreateState mapToState(
-            Product product, RegisterPricePolicyCommand command
+        Product product, RegisterPricePolicyCommand command
     ) {
         BigDecimal price = BigDecimal.valueOf(command.price());
         BigDecimal discountPrice = BigDecimal.valueOf(command.discountPrice());
 
         BigDecimal discountRate = calculateDiscountRate(price, discountPrice);
         BigDecimal accumulationRate = calculateAccumulationRate(
-                BigDecimal.valueOf(command.accumulatedPoint()), discountPrice
+            BigDecimal.valueOf(command.accumulatedPoint()), discountPrice
         );
 
         return
-                PricePolicyCreateState.builder()
-                        .product(product)
-                        .price(command.price())
-                        .discountPrice(command.discountPrice())
-                        .discountRate(Rate.of(discountRate))
-                        .accumulatedPoint(command.accumulatedPoint())
-                        .accumulationRate(Rate.of(accumulationRate))
-                        .status(EntityStatus.ACTIVE)
-                        .optionIds(command.optionIds())
-                        .build();
+            PricePolicyCreateState.builder()
+                .product(product)
+                .price(command.price())
+                .discountPrice(command.discountPrice())
+                .discountRate(Rate.of(discountRate))
+                .accumulatedPoint(command.accumulatedPoint())
+                .accumulationRate(Rate.of(accumulationRate))
+                .status(EntityStatus.ACTIVE)
+                .optionIds(command.optionIds())
+                .build();
     }
 
     private static BigDecimal calculateDiscountRate(BigDecimal price, BigDecimal discountPrice) {
@@ -88,9 +88,9 @@ public class ProductCommandToStateMapper {
             return BigDecimal.ZERO;
         }
         return price.subtract(discountPrice)
-                .divide(price, 3, RoundingMode.HALF_UP)
-                .multiply(HUNDRED)
-                .setScale(1, RoundingMode.HALF_UP);
+            .divide(price, 3, RoundingMode.HALF_UP)
+            .multiply(HUNDRED)
+            .setScale(1, RoundingMode.HALF_UP);
     }
 
     private static BigDecimal calculateAccumulationRate(BigDecimal accumulatedPoint, BigDecimal discountPrice) {
@@ -98,8 +98,8 @@ public class ProductCommandToStateMapper {
             return BigDecimal.ZERO;
         }
         return accumulatedPoint
-                .divide(discountPrice, 3, RoundingMode.HALF_UP)
-                .multiply(HUNDRED)
-                .setScale(1, RoundingMode.HALF_UP);
+            .divide(discountPrice, 3, RoundingMode.HALF_UP)
+            .multiply(HUNDRED)
+            .setScale(1, RoundingMode.HALF_UP);
     }
 }

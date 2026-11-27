@@ -14,21 +14,21 @@ public class ProductReviewAggregateJpaEntityToDomainMapper {
         }
 
         return Optional.of(
-                ProductReviewAggregate.from(
-                        ProductReviewAggregateSnapshotState.builder()
-                                .productId(entity.getProductId())
-                                .totalCount(entity.getTotalCount())
-                                .fivePointCount(entity.getFivePointCount())
-                                .fourPointCount(entity.getFourPointCount())
-                                .threePointCount(entity.getThreePointCount())
-                                .twoPointCount(entity.getTwoPointCount())
-                                .onePointCount(entity.getOnePointCount())
-                                .totalRating(entity.getTotalRating())
-                                .averageRating(entity.getAverageRating())
-                                .createdAt(entity.getCreatedAt())
-                                .modifiedAt(entity.getModifiedAt())
-                                .build()
-                )
+            ProductReviewAggregate.from(
+                ProductReviewAggregateSnapshotState.builder()
+                    .productId(entity.getProductId())
+                    .totalCount(entity.getTotalCount())
+                    .fivePointCount(entity.getFivePointCount())
+                    .fourPointCount(entity.getFourPointCount())
+                    .threePointCount(entity.getThreePointCount())
+                    .twoPointCount(entity.getTwoPointCount())
+                    .onePointCount(entity.getOnePointCount())
+                    .totalRating(entity.getTotalRating())
+                    .averageRating(entity.getAverageRating())
+                    .createdAt(entity.getCreatedAt())
+                    .modifiedAt(entity.getModifiedAt())
+                    .build()
+            )
         );
     }
 }

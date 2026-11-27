@@ -26,8 +26,8 @@ class OutboxMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("outbox.events.failed.total")
-                .tag("topic", "commerce.payment.approved")
-                .counter();
+            .tag("topic", "commerce.payment.approved")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(2.0);
     }
@@ -44,9 +44,9 @@ class OutboxMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("outbox.events.resolved.total")
-                .tag("topic", "commerce.payment.approved")
-                .tag("action", "retry")
-                .counter();
+            .tag("topic", "commerce.payment.approved")
+            .tag("action", "retry")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }

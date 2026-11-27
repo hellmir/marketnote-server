@@ -15,10 +15,10 @@ public class KafkaMdcProducerInterceptor implements ProducerInterceptor<String, 
     public ProducerRecord<String, Object> onSend(ProducerRecord<String, Object> record) {
         attachHeaderIfAbsent(record, TraceIdMdcFilter.REQUEST_ID_HEADER, MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
         attachHeaderIfAbsent(
-                record, TraceIdMdcFilter.CORRELATION_ID_HEADER, MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)
+            record, TraceIdMdcFilter.CORRELATION_ID_HEADER, MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)
         );
         attachHeaderIfAbsent(
-                record, TraceIdMdcFilter.CAUSATION_ID_HEADER, MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)
+            record, TraceIdMdcFilter.CAUSATION_ID_HEADER, MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)
         );
         return record;
     }

@@ -21,9 +21,9 @@ public class RewardRecordVendorCommunicationHistoryService implements RewardReco
     @Override
     public RewardVendorCommunicationHistory record(RewardVendorCommunicationHistoryCommand command) {
         return saveVendorCommunicationHistoryPort.save(
-                RewardVendorCommunicationHistory.from(
-                        RewardVendorCommunicationHistoryCommandToStateMapper.mapToCreateState(command)
-                )
+            RewardVendorCommunicationHistory.from(
+                RewardVendorCommunicationHistoryCommandToStateMapper.mapToCreateState(command)
+            )
         );
     }
 }

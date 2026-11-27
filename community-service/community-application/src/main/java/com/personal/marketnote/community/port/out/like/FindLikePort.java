@@ -35,5 +35,5 @@ public interface FindLikePort {
      * @Description 좋아요 대상 유형을 조회합니다.
      */
     Optional<Like> findByTargetAndUser(LikeTargetType targetType, Long targetId, Long userId)
-            throws LikeNotFoundException;
+        throws LikeNotFoundException;
 }

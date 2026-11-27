@@ -56,9 +56,9 @@ class OrderPaymentLedgerSagaConsumerTest {
     @BeforeEach
     void setUp() throws Exception {
         actionPayload = objectMapper.writeValueAsString(
-                java.util.Map.of("orderId", 1L, "paymentAmount", 50000L));
+            java.util.Map.of("orderId", 1L, "paymentAmount", 50000L));
         compensationPayload = objectMapper.writeValueAsString(
-                java.util.Map.of("orderId", 1L, "cancelAmount", 50000L, "idempotencyKey", "SAGA_COMP:1"));
+            java.util.Map.of("orderId", 1L, "cancelAmount", 50000L, "idempotencyKey", "SAGA_COMP:1"));
     }
 
     @Nested
@@ -70,7 +70,7 @@ class OrderPaymentLedgerSagaConsumerTest {
         void shouldPublishSuccessOnLedgerRecord() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             // when
@@ -79,7 +79,7 @@ class OrderPaymentLedgerSagaConsumerTest {
             // then
             verify(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -88,19 +88,19 @@ class OrderPaymentLedgerSagaConsumerTest {
         void shouldPublishSuccessOnDuplicateLedger() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new DuplicateLedgerTransactionException("PG_SETTLEMENT:1"))
-                    .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+                .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
 
             // when
             consumer.handleLedgerStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("idempotent"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("idempotent"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -109,18 +109,18 @@ class OrderPaymentLedgerSagaConsumerTest {
         void shouldPublishFailureOnLedgerError() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("분개 처리 실패"))
-                    .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+                .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
 
             // when
             consumer.handleLedgerStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "분개 처리 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "분개 처리 실패");
             // 도메인 수준 메시지 검증 (e.getMessage() 대신 고정 메시지)
             verify(acknowledgment).acknowledge();
         }
@@ -135,7 +135,7 @@ class OrderPaymentLedgerSagaConsumerTest {
         void shouldPublishSuccessOnLedgerReverse() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             // when
@@ -144,7 +144,7 @@ class OrderPaymentLedgerSagaConsumerTest {
             // then
             verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_COMP:1");
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -153,19 +153,19 @@ class OrderPaymentLedgerSagaConsumerTest {
         void shouldPublishSuccessOnDuplicateReverse() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new DuplicateLedgerTransactionException("SAGA_COMP:1"))
-                    .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_COMP:1");
+                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_COMP:1");
 
             // when
             consumer.handleLedgerStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("idempotent"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("idempotent"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -174,18 +174,18 @@ class OrderPaymentLedgerSagaConsumerTest {
         void shouldPublishFailureOnReverseError() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("역분개 실패"))
-                    .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_COMP:1");
+                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_COMP:1");
 
             // when
             consumer.handleLedgerStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "역분개 처리 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "역분개 처리 실패");
             verify(acknowledgment).acknowledge();
         }
     }
@@ -193,12 +193,12 @@ class OrderPaymentLedgerSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-03-27T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT.RECORD_LEDGER.action", "saga-orchestrator", stepMessage, clock);
+            "saga.ORDER_PAYMENT.RECORD_LEDGER.action", "saga-orchestrator", stepMessage, clock);
 
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>("saga.order-payment.ledger", 0, 0, SAGA_ID,
-                        (EventEnvelope<?>) (EventEnvelope) envelope);
+            new ConsumerRecord<>("saga.order-payment.ledger", 0, 0, SAGA_ID,
+                (EventEnvelope<?>) (EventEnvelope) envelope);
         return record;
     }
 }

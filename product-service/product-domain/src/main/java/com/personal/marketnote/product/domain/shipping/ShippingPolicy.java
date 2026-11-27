@@ -32,36 +32,36 @@ public class ShippingPolicy extends BaseDomain {
         validateIslandSurcharge(resolvedIslandSurcharge);
 
         ShippingPolicy policy = ShippingPolicy.builder()
-                .sellerId(state.getSellerId())
-                .deliveryCompany(state.getDeliveryCompany())
-                .shippingFee(Money.of(state.getShippingFee()))
-                .freeShippingThreshold(Money.of(state.getFreeShippingThreshold()))
-                .jejuSurcharge(Money.of(resolvedJejuSurcharge))
-                .islandSurcharge(Money.of(resolvedIslandSurcharge))
-                .build();
+            .sellerId(state.getSellerId())
+            .deliveryCompany(state.getDeliveryCompany())
+            .shippingFee(Money.of(state.getShippingFee()))
+            .freeShippingThreshold(Money.of(state.getFreeShippingThreshold()))
+            .jejuSurcharge(Money.of(resolvedJejuSurcharge))
+            .islandSurcharge(Money.of(resolvedIslandSurcharge))
+            .build();
         policy.activate();
         return policy;
     }
 
     public static ShippingPolicy from(ShippingPolicySnapshotState state) {
         ShippingPolicy policy = ShippingPolicy.builder()
-                .id(state.getId())
-                .sellerId(state.getSellerId())
-                .deliveryCompany(state.getDeliveryCompany())
-                .shippingFee(Money.of(state.getShippingFee()))
-                .freeShippingThreshold(Money.of(state.getFreeShippingThreshold()))
-                .jejuSurcharge(resolveDefaultMoneyFromSnapshot(state.getJejuSurcharge()))
-                .islandSurcharge(resolveDefaultMoneyFromSnapshot(state.getIslandSurcharge()))
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .sellerId(state.getSellerId())
+            .deliveryCompany(state.getDeliveryCompany())
+            .shippingFee(Money.of(state.getShippingFee()))
+            .freeShippingThreshold(Money.of(state.getFreeShippingThreshold()))
+            .jejuSurcharge(resolveDefaultMoneyFromSnapshot(state.getJejuSurcharge()))
+            .islandSurcharge(resolveDefaultMoneyFromSnapshot(state.getIslandSurcharge()))
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         policy.status = state.getStatus();
         return policy;
     }
 
     public void update(
-            String deliveryCompany, Long shippingFee, Long freeShippingThreshold,
-            Long jejuSurcharge, Long islandSurcharge
+        String deliveryCompany, Long shippingFee, Long freeShippingThreshold,
+        Long jejuSurcharge, Long islandSurcharge
     ) {
         validateShippingFee(shippingFee);
         validateFreeShippingThreshold(freeShippingThreshold);

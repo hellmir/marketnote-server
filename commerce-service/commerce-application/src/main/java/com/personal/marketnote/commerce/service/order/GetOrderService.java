@@ -54,14 +54,14 @@ public class GetOrderService implements GetOrderUseCase {
 
     private GetOrderResult getOrderAndOrderProductsInternal(Order order) {
         Map<Long, ProductInfoResult> orderedProductsByPricePolicyId = Optional.ofNullable(
-                        findProductByPricePolicyPort.findByPricePolicyIds(
-                                order.getOrderProducts()
-                                        .stream()
-                                        .map(OrderProduct::getPricePolicyId)
-                                        .toList()
-                        )
+                findProductByPricePolicyPort.findByPricePolicyIds(
+                    order.getOrderProducts()
+                        .stream()
+                        .map(OrderProduct::getPricePolicyId)
+                        .toList()
                 )
-                .orElse(Map.of());
+            )
+            .orElse(Map.of());
 
         return GetOrderResult.from(order, orderedProductsByPricePolicyId);
     }
@@ -69,10 +69,10 @@ public class GetOrderService implements GetOrderUseCase {
     @Override
     public Order getOrder(Long id) {
         return findOrderPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("주문을 찾을 수 없습니다. orderId={}", id);
-                    return new OrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문을 찾을 수 없습니다. orderId={}", id);
+                return new OrderNotFoundException();
+            });
     }
 
     @Override
@@ -84,8 +84,8 @@ public class GetOrderService implements GetOrderUseCase {
         }
 
         return GetBuyerOrdersResult.of(
-                buyerOrdersAndProductsResult.orders(),
-                buyerOrdersAndProductsResult.orderedProductsByPricePolicyId()
+            buyerOrdersAndProductsResult.orders(),
+            buyerOrdersAndProductsResult.orderedProductsByPricePolicyId()
         );
     }
 
@@ -106,22 +106,22 @@ public class GetOrderService implements GetOrderUseCase {
 
         LocalDateTime reviewDeadlineNow = LocalDateTime.now(clock);
         Predicate<OrderProduct> orderProductFilter = orderProduct
-                -> orderProduct.isConfirmed()
-                && orderProduct.isWithinReviewDeadline(reviewDeadlineNow)
-                && query.matchesReviewStatus(orderProduct.getIsReviewed());
+            -> orderProduct.isConfirmed()
+            && orderProduct.isWithinReviewDeadline(reviewDeadlineNow)
+            && query.matchesReviewStatus(orderProduct.getIsReviewed());
         Map<Long, ProductInfoResult> orderedProductsByPricePolicyId
-                = findOrderedProductsByPricePolicyId(orders, orderProductFilter);
+            = findOrderedProductsByPricePolicyId(orders, orderProductFilter);
 
         List<GetBuyerOrderProductResult> orderProducts = orders.stream()
-                .flatMap(order -> order.getOrderProducts().stream()
-                        .filter(orderProductFilter)
-                        .map(orderProduct -> GetBuyerOrderProductResult.from(
-                                order,
-                                orderProduct,
-                                orderedProductsByPricePolicyId.get(orderProduct.getPricePolicyId())
-                        ))
-                )
-                .toList();
+            .flatMap(order -> order.getOrderProducts().stream()
+                .filter(orderProductFilter)
+                .map(orderProduct -> GetBuyerOrderProductResult.from(
+                    order,
+                    orderProduct,
+                    orderedProductsByPricePolicyId.get(orderProduct.getPricePolicyId())
+                ))
+            )
+            .toList();
 
         return GetBuyerOrderProductsResult.of(orderProducts);
     }
@@ -143,22 +143,22 @@ public class GetOrderService implements GetOrderUseCase {
     @Override
     public OrderProduct getOrderProduct(Long orderId, Long pricePolicyId) {
         return findOrderProductPort.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
-                .orElseThrow(() -> {
-                    log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
-                    return new OrderProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+                return new OrderProductNotFoundException();
+            });
     }
 
     @Override
     public GetOrderProductKeyResult getOrderProductKey(Long orderId, Long pricePolicyId, Long buyerId) {
         Order order = getOrderAndVerifyOwner(orderId, buyerId);
         OrderProduct orderProduct = order.getOrderProducts().stream()
-                .filter(op -> pricePolicyId.equals(op.getPricePolicyId()))
-                .findFirst()
-                .orElseThrow(() -> {
-                    log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
-                    return new OrderProductNotFoundException();
-                });
+            .filter(op -> pricePolicyId.equals(op.getPricePolicyId()))
+            .findFirst()
+            .orElseThrow(() -> {
+                log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+                return new OrderProductNotFoundException();
+            });
 
         return GetOrderProductKeyResult.from(orderProduct);
     }
@@ -175,14 +175,14 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     private BuyerOrdersAndProductsResult findBuyerOrders(
-            GetBuyerOrderHistoryQuery query, boolean includeProductDetails
+        GetBuyerOrderHistoryQuery query, boolean includeProductDetails
     ) {
         LocalDate today = now();
         List<Order> orders = findOrderPort.findByBuyerId(
-                query.buyerId(),
-                query.calculateStartDate(today),
-                query.calculateEndDate(today),
-                query.resolveStatuses()
+            query.buyerId(),
+            query.calculateStartDate(today),
+            query.calculateEndDate(today),
+            query.resolveStatuses()
         );
 
         if (FormatValidator.hasNoValue(orders)) {
@@ -193,13 +193,13 @@ public class GetOrderService implements GetOrderUseCase {
         boolean needProductDetails = includeProductDetails || FormatValidator.hasValue(productNameKeyword);
 
         Map<Long, ProductInfoResult> orderedProductsByPricePolicyId = needProductDetails
-                ? findOrderedProductsByPricePolicyId(orders)
-                : Map.of();
+            ? findOrderedProductsByPricePolicyId(orders)
+            : Map.of();
 
         List<Order> filteredOrders = filterOrdersByProductName(
-                orders,
-                orderedProductsByPricePolicyId,
-                productNameKeyword
+            orders,
+            orderedProductsByPricePolicyId,
+            productNameKeyword
         );
 
         return BuyerOrdersAndProductsResult.of(filteredOrders, orderedProductsByPricePolicyId);
@@ -210,29 +210,29 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     private Map<Long, ProductInfoResult> findOrderedProductsByPricePolicyId(
-            List<Order> orders,
-            Predicate<OrderProduct> orderProductFilter
+        List<Order> orders,
+        Predicate<OrderProduct> orderProductFilter
     ) {
         List<Long> pricePolicyIds = orders.stream()
-                .flatMap(order -> order.getOrderProducts().stream())
-                .filter(orderProductFilter)
-                .map(OrderProduct::getPricePolicyId)
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .flatMap(order -> order.getOrderProducts().stream())
+            .filter(orderProductFilter)
+            .map(OrderProduct::getPricePolicyId)
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
 
         if (FormatValidator.hasNoValue(pricePolicyIds)) {
             return Map.of();
         }
 
         return Optional.ofNullable(findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds))
-                .orElse(Map.of());
+            .orElse(Map.of());
     }
 
     private List<Order> filterOrdersByProductName(
-            List<Order> orders,
-            Map<Long, ProductInfoResult> orderedProductsByPricePolicyId,
-            String productNameKeyword
+        List<Order> orders,
+        Map<Long, ProductInfoResult> orderedProductsByPricePolicyId,
+        String productNameKeyword
     ) {
         if (FormatValidator.hasNoValue(productNameKeyword)) {
             return orders;
@@ -245,16 +245,16 @@ public class GetOrderService implements GetOrderUseCase {
         String keyword = productNameKeyword.toLowerCase();
 
         return orders.stream()
-                .filter(order -> order.getOrderProducts().stream()
-                        .anyMatch(orderProduct -> {
-                            ProductInfoResult productInfo
-                                    = orderedProductsByPricePolicyId.get(orderProduct.getPricePolicyId());
+            .filter(order -> order.getOrderProducts().stream()
+                .anyMatch(orderProduct -> {
+                    ProductInfoResult productInfo
+                        = orderedProductsByPricePolicyId.get(orderProduct.getPricePolicyId());
 
-                            return FormatValidator.hasValue(productInfo)
-                                    && FormatValidator.hasValue(productInfo.name())
-                                    && FormatValidator.containsKeyword(productInfo.name(), keyword);
-                        })
-                )
-                .toList();
+                    return FormatValidator.hasValue(productInfo)
+                        && FormatValidator.hasValue(productInfo.name())
+                        && FormatValidator.containsKeyword(productInfo.name(), keyword);
+                })
+            )
+            .toList();
     }
 }

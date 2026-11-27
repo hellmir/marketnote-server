@@ -17,11 +17,11 @@ public final class HmacSignatureGenerator {
     }
 
     public static String generate(
-            String secretKey,
-            String timestamp,
-            String nonce,
-            String httpMethod,
-            String requestPath
+        String secretKey,
+        String timestamp,
+        String nonce,
+        String httpMethod,
+        String requestPath
     ) {
         String signingInput = buildSigningInput(timestamp, nonce, httpMethod, requestPath);
         return computeHmacSha256(secretKey, signingInput);
@@ -36,9 +36,9 @@ public final class HmacSignatureGenerator {
 
     static String buildSigningInput(String timestamp, String nonce, String httpMethod, String requestPath) {
         return timestamp
-                + SIGNING_INPUT_DELIMITER + nonce
-                + SIGNING_INPUT_DELIMITER + httpMethod
-                + SIGNING_INPUT_DELIMITER + requestPath;
+            + SIGNING_INPUT_DELIMITER + nonce
+            + SIGNING_INPUT_DELIMITER + httpMethod
+            + SIGNING_INPUT_DELIMITER + requestPath;
     }
 
     private static String computeHmacSha256(String secretKey, String data) {

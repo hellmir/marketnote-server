@@ -42,7 +42,7 @@ class ProductTagPersistenceAdapterTest {
             ProductTagJpaEntity tag1 = buildTagEntity(1L, "태그1");
             ProductTagJpaEntity tag2 = buildTagEntity(2L, "태그2");
             when(productTagJpaRepository.findAllByProductJpaEntityIdAndIdIn(eq(10L), anyList()))
-                    .thenReturn(List.of(tag1, tag2));
+                .thenReturn(List.of(tag1, tag2));
 
             Map<Long, Long> orderMap = new LinkedHashMap<>();
             orderMap.put(1L, 100L);
@@ -61,7 +61,7 @@ class ProductTagPersistenceAdapterTest {
             ProductTagJpaEntity tag1 = buildTagEntity(1L, "태그1");
             tag1.changeOrderNum(999L);
             when(productTagJpaRepository.findAllByProductJpaEntityIdAndIdIn(eq(10L), anyList()))
-                    .thenReturn(List.of(tag1));
+                .thenReturn(List.of(tag1));
 
             adapter.updateOrderNums(10L, Map.of(1L, 100L));
 
@@ -72,7 +72,7 @@ class ProductTagPersistenceAdapterTest {
         @DisplayName("빈 맵을 전달하면 repository 조회만 하고 아무것도 변경하지 않는다")
         void doesNothingForEmptyMap() {
             when(productTagJpaRepository.findAllByProductJpaEntityIdAndIdIn(eq(10L), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             adapter.updateOrderNums(10L, Map.of());
 

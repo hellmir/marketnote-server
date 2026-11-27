@@ -22,7 +22,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class AligoBrandTalkTemplateExternalAdapter
-        implements RegisterBrandTalkTemplateExternalPort, GetBrandTalkTemplateListExternalPort {
+    implements RegisterBrandTalkTemplateExternalPort, GetBrandTalkTemplateListExternalPort {
 
     private static final String CREATE_BRAND_TALK_TEMPLATE_OPERATION = "createBrandTalkTemplate";
     private static final String GET_BRAND_TALK_TEMPLATE_LIST_OPERATION = "getBrandTalkTemplateList";
@@ -33,8 +33,8 @@ public class AligoBrandTalkTemplateExternalAdapter
 
     @Override
     public void registerTemplate(
-            AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName,
-            List<byte[]> carouselItemImageFiles, List<String> carouselItemImageFileNames
+        AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName,
+        List<byte[]> carouselItemImageFiles, List<String> carouselItemImageFileNames
     ) {
         MultiValueMap<String, Object> params = buildTemplateParams(template);
 
@@ -60,14 +60,14 @@ public class AligoBrandTalkTemplateExternalAdapter
         }
 
         aligoHttpClient.postMultipart(
-                CREATE_BRAND_TALK_TEMPLATE_OPERATION, aligoProperties.getApi().getBrandTalkTemplateCreatePath(),
-                params, AligoApiResponse.class
+            CREATE_BRAND_TALK_TEMPLATE_OPERATION, aligoProperties.getApi().getBrandTalkTemplateCreatePath(),
+            params, AligoApiResponse.class
         );
     }
 
     @Override
     public GetBrandTalkTemplateListResult.ExternalListResponse getTemplateList(
-            String senderKey, int page, int pageSize
+        String senderKey, int page, int pageSize
     ) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("senderkey", senderKey);
@@ -75,24 +75,24 @@ public class AligoBrandTalkTemplateExternalAdapter
         params.add("pagesize", String.valueOf(pageSize));
 
         AligoBrandTalkTemplateListApiResponse response = aligoHttpClient.post(
-                GET_BRAND_TALK_TEMPLATE_LIST_OPERATION, aligoProperties.getApi().getBrandTalkTemplateListPath(),
-                params, AligoBrandTalkTemplateListApiResponse.class
+            GET_BRAND_TALK_TEMPLATE_LIST_OPERATION, aligoProperties.getApi().getBrandTalkTemplateListPath(),
+            params, AligoBrandTalkTemplateListApiResponse.class
         );
 
         GetBrandTalkTemplateListResult.PageInfo pageInfo = new GetBrandTalkTemplateListResult.PageInfo(
-                response.info().currentPage(), response.info().pageSize(), response.info().total()
+            response.info().currentPage(), response.info().pageSize(), response.info().total()
         );
 
         List<AligoBrandTalkTemplateListApiResponse.TemplateItem> items =
-                FormatValidator.hasValue(response.list()) ? response.list() : List.of();
+            FormatValidator.hasValue(response.list()) ? response.list() : List.of();
 
         List<GetBrandTalkTemplateListResult.ExternalTemplateItem> templates = items.stream()
-                .map(item -> new GetBrandTalkTemplateListResult.ExternalTemplateItem(
-                        item.tplCode(), item.tplName(), item.tplType(), item.tplStatus(),
-                        FormatValidator.hasValue(item.sendVariable()) ? item.sendVariable() : List.of(),
-                        item.createAt()
-                ))
-                .toList();
+            .map(item -> new GetBrandTalkTemplateListResult.ExternalTemplateItem(
+                item.tplCode(), item.tplName(), item.tplType(), item.tplStatus(),
+                FormatValidator.hasValue(item.sendVariable()) ? item.sendVariable() : List.of(),
+                item.createAt()
+            ))
+            .toList();
 
         return new GetBrandTalkTemplateListResult.ExternalListResponse(pageInfo, templates);
     }
@@ -123,8 +123,8 @@ public class AligoBrandTalkTemplateExternalAdapter
 
     private String serializeButtons(List<BrandTalkButton> buttons) {
         List<Map<String, String>> buttonList = buttons.stream()
-                .map(this::buttonToMap)
-                .toList();
+            .map(this::buttonToMap)
+            .toList();
 
         try {
             return objectMapper.writeValueAsString(Map.of("button", buttonList));
@@ -179,8 +179,8 @@ public class AligoBrandTalkTemplateExternalAdapter
     }
 
     private void addWideItemListParams(
-            MultiValueMap<String, Object> params, AligoBrandTalkTemplate template,
-            byte[] imageFile, String imageFileName
+        MultiValueMap<String, Object> params, AligoBrandTalkTemplate template,
+        byte[] imageFile, String imageFileName
     ) {
         if (FormatValidator.hasValue(template.getTemplateHeader())) {
             params.add("template_header", template.getTemplateHeader());
@@ -225,9 +225,9 @@ public class AligoBrandTalkTemplateExternalAdapter
     }
 
     private void addCarouselParams(
-            MultiValueMap<String, Object> params, AligoBrandTalkTemplate template,
-            byte[] headerImageFile, String headerImageFileName,
-            List<byte[]> itemImageFiles, List<String> itemImageFileNames
+        MultiValueMap<String, Object> params, AligoBrandTalkTemplate template,
+        byte[] headerImageFile, String headerImageFileName,
+        List<byte[]> itemImageFiles, List<String> itemImageFileNames
     ) {
         if (FormatValidator.hasValue(template.getCarouselHeader())) {
             params.add("carousel_header", template.getCarouselHeader());

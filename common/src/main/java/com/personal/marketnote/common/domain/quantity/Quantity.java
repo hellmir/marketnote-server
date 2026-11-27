@@ -41,7 +41,7 @@ public final class Quantity {
         int result = Math.subtractExact(this.value, other.value);
         if (result < 1) {
             throw new InvalidQuantityException(
-                    String.format(SUBTRACT_BELOW_ONE_MESSAGE, this.value, other.value)
+                String.format(SUBTRACT_BELOW_ONE_MESSAGE, this.value, other.value)
             );
         }
         return new Quantity(result);
@@ -51,7 +51,7 @@ public final class Quantity {
         int result = Math.multiplyExact(this.value, multiplier);
         if (result < 1) {
             throw new InvalidQuantityException(
-                    String.format(MULTIPLY_BELOW_ONE_MESSAGE, this.value, multiplier)
+                String.format(MULTIPLY_BELOW_ONE_MESSAGE, this.value, multiplier)
             );
         }
         return new Quantity(result);

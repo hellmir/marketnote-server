@@ -17,14 +17,14 @@ public class BrandTalkWideItemCommandToStateMapper {
             return null;
         }
         return BrandTalkWideItem.from(
-                BrandTalkWideItemCreateState.builder()
-                        .title(command.title())
-                        .imageUrl(command.imageUrl())
-                        .linkM(command.linkM())
-                        .linkP(command.linkP())
-                        .linkI(command.linkI())
-                        .linkA(command.linkA())
-                        .build()
+            BrandTalkWideItemCreateState.builder()
+                .title(command.title())
+                .imageUrl(command.imageUrl())
+                .linkM(command.linkM())
+                .linkP(command.linkP())
+                .linkI(command.linkI())
+                .linkA(command.linkA())
+                .build()
         );
     }
 
@@ -33,7 +33,7 @@ public class BrandTalkWideItemCommandToStateMapper {
             return List.of();
         }
         return commands.stream()
-                .map(BrandTalkWideItemCommandToStateMapper::mapWideItem)
-                .toList();
+            .map(BrandTalkWideItemCommandToStateMapper::mapWideItem)
+            .toList();
     }
 }

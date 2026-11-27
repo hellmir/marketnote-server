@@ -40,8 +40,8 @@ class OrderCancelFailedNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderCancelFailedEvent event = new OrderCancelFailedEvent(orderId, buyerId);
         EventEnvelope<OrderCancelFailedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.cancel-failed", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 14, 0), event
+            "test-event-id", "commerce.order.cancel-failed", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 14, 0), event
         );
         return new ConsumerRecord<>("commerce.order.cancel-failed", 0, 0L, "key-1", envelope);
     }
@@ -74,7 +74,7 @@ class OrderCancelFailedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancel-failed", 0, 0L, "1", null
+            "commerce.order.cancel-failed", 0, 0L, "1", null
         );
 
         // when
@@ -91,11 +91,11 @@ class OrderCancelFailedNotificationConsumerTest {
         // given
         OrderCancelFailedEvent event = new OrderCancelFailedEvent(100L, 1L);
         EventEnvelope<OrderCancelFailedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 14, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 14, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancel-failed", 0, 0L, "key-1", envelope
+            "commerce.order.cancel-failed", 0, 0L, "key-1", envelope
         );
 
         // when

@@ -60,33 +60,33 @@ public class CommerceServiceCommunicationHistoryJpaEntity {
     private LocalDateTime createdAt;
 
     public static CommerceServiceCommunicationHistoryJpaEntity from(
-            CommerceServiceCommunicationHistory history, JsonNode payloadJson) {
+        CommerceServiceCommunicationHistory history, JsonNode payloadJson) {
         return CommerceServiceCommunicationHistoryJpaEntity.builder()
-                .id(history.getId())
-                .targetType(history.getTargetType())
-                .targetId(history.getTargetId())
-                .communicationType(history.getCommunicationType())
-                .sender(history.getSender())
-                .exception(history.getException())
-                .payload(history.getPayload())
-                .payloadJson(payloadJson)
-                .createdAt(history.getCreatedAt())
-                .build();
+            .id(history.getId())
+            .targetType(history.getTargetType())
+            .targetId(history.getTargetId())
+            .communicationType(history.getCommunicationType())
+            .sender(history.getSender())
+            .exception(history.getException())
+            .payload(history.getPayload())
+            .payloadJson(payloadJson)
+            .createdAt(history.getCreatedAt())
+            .build();
     }
 
     public CommerceServiceCommunicationHistory toDomain() {
         return CommerceServiceCommunicationHistory.from(
-                CommerceServiceCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
-                        .createdAt(createdAt)
-                        .build()
+            CommerceServiceCommunicationHistorySnapshotState.builder()
+                .id(id)
+                .targetType(targetType)
+                .targetId(targetId)
+                .communicationType(communicationType)
+                .sender(sender)
+                .exception(exception)
+                .payload(payload)
+                .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
+                .createdAt(createdAt)
+                .build()
         );
     }
 

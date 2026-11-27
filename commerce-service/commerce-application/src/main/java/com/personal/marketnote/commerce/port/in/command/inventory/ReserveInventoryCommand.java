@@ -8,26 +8,26 @@ import java.util.List;
 
 @Builder
 public record ReserveInventoryCommand(
-        Long orderId,
-        List<OrderProductItem> orderProducts
+    Long orderId,
+    List<OrderProductItem> orderProducts
 ) {
     @Builder
     public record OrderProductItem(
-            Long pricePolicyId,
-            int quantity
+        Long pricePolicyId,
+        int quantity
     ) {
         public static OrderProductItem from(OrderProduct orderProduct) {
             return new OrderProductItem(
-                    orderProduct.getPricePolicyId(),
-                    orderProduct.getQuantity().getValue()
+                orderProduct.getPricePolicyId(),
+                orderProduct.getQuantity().getValue()
             );
         }
     }
 
     public static ReserveInventoryCommand from(Order order) {
         List<OrderProductItem> items = order.getOrderProducts().stream()
-                .map(OrderProductItem::from)
-                .toList();
+            .map(OrderProductItem::from)
+            .toList();
         return new ReserveInventoryCommand(order.getId(), items);
     }
 }

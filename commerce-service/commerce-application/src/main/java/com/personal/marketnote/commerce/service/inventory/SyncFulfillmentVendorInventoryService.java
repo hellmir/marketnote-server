@@ -47,55 +47,55 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
         validateProductKeys(items);
 
         Set<UUID> productKeys = items.stream()
-                .map(SyncFulfillmentVendorInventoryItemCommand::productKey)
-                .collect(Collectors.toSet());
+            .map(SyncFulfillmentVendorInventoryItemCommand::productKey)
+            .collect(Collectors.toSet());
         Set<Inventory> inventories = findInventoryPort.findByProductKeys(productKeys);
         validateInventoryExistsByProductKey(productKeys, inventories);
 
         Map<Long, Integer> stocksByProductId = resolveStocksByProductId(inventories, items);
 
         Set<Long> pricePolicyIds = inventories.stream()
-                .map(Inventory::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(Inventory::getPricePolicyId)
+            .collect(Collectors.toSet());
         inventoryLockPort.executeWithLock(pricePolicyIds, () -> {
             Set<Inventory> lockedInventories = findInventoryPort.findByPricePolicyIds(pricePolicyIds);
             Set<Inventory> updatedInventories = lockedInventories.stream()
-                    .filter(inventory -> stocksByProductId.containsKey(inventory.getProductId()))
-                    .map(inventory -> Inventory.of(
-                            inventory.getProductId(),
-                            inventory.getPricePolicyId(),
-                            stocksByProductId.get(inventory.getProductId()),
-                            inventory.getVersion()
-                    ))
-                    .collect(Collectors.toSet());
+                .filter(inventory -> stocksByProductId.containsKey(inventory.getProductId()))
+                .map(inventory -> Inventory.of(
+                    inventory.getProductId(),
+                    inventory.getPricePolicyId(),
+                    stocksByProductId.get(inventory.getProductId()),
+                    inventory.getVersion()
+                ))
+                .collect(Collectors.toSet());
 
             updateInventoryPort.update(updatedInventories);
             saveCacheStockPort.save(updatedInventories);
 
             updatedInventories.forEach(inventory ->
-                    publishInventoryEventPort.publishInventoryChangedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            inventory.getStockValue(), InventoryChangeAction.UPDATED
-                    )
+                publishInventoryEventPort.publishInventoryChangedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    inventory.getStockValue(), InventoryChangeAction.UPDATED
+                )
             );
         });
     }
 
     private void validateProductKeys(List<SyncFulfillmentVendorInventoryItemCommand> items) {
         boolean hasInvalidItem = items.stream()
-                .anyMatch(item -> FormatValidator.hasNoValue(item.productKey()));
+            .anyMatch(item -> FormatValidator.hasNoValue(item.productKey()));
         if (hasInvalidItem) {
             throw new InvalidFulfillmentSyncCommandException();
         }
     }
 
     private Map<Long, Integer> resolveStocksByProductId(
-            Set<Inventory> inventories,
-            List<SyncFulfillmentVendorInventoryItemCommand> items
+        Set<Inventory> inventories,
+        List<SyncFulfillmentVendorInventoryItemCommand> items
     ) {
         Map<UUID, Long> productIdByProductKey = inventories.stream()
-                .filter(Inventory::hasProductKey)
-                .collect(Collectors.toMap(Inventory::getProductKey, Inventory::getProductId, (a, b) -> a));
+            .filter(Inventory::hasProductKey)
+            .collect(Collectors.toMap(Inventory::getProductKey, Inventory::getProductId, (a, b) -> a));
 
         Map<Long, Integer> stocksByProductId = new LinkedHashMap<>();
         for (SyncFulfillmentVendorInventoryItemCommand item : items) {
@@ -111,14 +111,14 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
 
     private void validateInventoryExistsByProductKey(Set<UUID> productKeys, Set<Inventory> inventories) {
         Set<UUID> foundProductKeys = inventories.stream()
-                .filter(Inventory::hasProductKey)
-                .map(Inventory::getProductKey)
-                .collect(Collectors.toSet());
+            .filter(Inventory::hasProductKey)
+            .map(Inventory::getProductKey)
+            .collect(Collectors.toSet());
 
         UUID missingProductKey = productKeys.stream()
-                .filter(productKey -> !foundProductKeys.contains(productKey))
-                .findFirst()
-                .orElse(null);
+            .filter(productKey -> !foundProductKeys.contains(productKey))
+            .findFirst()
+            .orElse(null);
 
         if (FormatValidator.hasValue(missingProductKey)) {
             log.warn("재고 동기화 대상 상품 키를 찾지 못했습니다. productKey={}", missingProductKey);

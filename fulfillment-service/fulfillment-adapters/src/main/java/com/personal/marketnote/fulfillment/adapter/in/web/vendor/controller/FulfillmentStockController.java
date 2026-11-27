@@ -51,23 +51,23 @@ public class FulfillmentStockController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentStocksApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentStocksResponse>> getStocks(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @RequestParam(required = false) String outOfStockYn,
-            @RequestParam(required = false) String whCd
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @RequestParam(required = false) String outOfStockYn,
+        @RequestParam(required = false) String whCd
     ) {
         GetFulfillmentStocksResult result = getFulfillmentStocksUseCase.getStocks(
-                FulfillmentStockRequestToCommandMapper.mapToStocksCommand(customerCode, accessToken, outOfStockYn, whCd)
+            FulfillmentStockRequestToCommandMapper.mapToStocksCommand(customerCode, accessToken, outOfStockYn, whCd)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentStocksResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 재고 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentStocksResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 재고 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -86,23 +86,23 @@ public class FulfillmentStockController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentStockDetailApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentStocksResponse>> getStockDetail(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @RequestParam("cstGodCd") String cstGodCd,
-            @RequestParam(required = false) String outOfStockYn
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @RequestParam("cstGodCd") String cstGodCd,
+        @RequestParam(required = false) String outOfStockYn
     ) {
         GetFulfillmentStocksResult result = getFulfillmentStockDetailUseCase.getStockDetail(
-                FulfillmentStockRequestToCommandMapper.mapToStockDetailCommand(customerCode, accessToken, cstGodCd, outOfStockYn)
+            FulfillmentStockRequestToCommandMapper.mapToStockDetailCommand(customerCode, accessToken, cstGodCd, outOfStockYn)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentStocksResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 단일 상품 재고 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentStocksResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 단일 상품 재고 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -119,21 +119,21 @@ public class FulfillmentStockController {
     @PreAuthorize(ADMIN_POINTCUT)
     @SyncFulfillmentAllStocksApiDocs
     public ResponseEntity<BaseResponse<Void>> syncAllStocks(
-            @PathVariable String customerCode,
-            @RequestParam(required = false) String whCd
+        @PathVariable String customerCode,
+        @RequestParam(required = false) String whCd
     ) {
         syncFulfillmentAllStockUseCase.syncAll(
-                FulfillmentStockRequestToCommandMapper.mapToSyncAllCommand(customerCode, whCd)
+            FulfillmentStockRequestToCommandMapper.mapToSyncAllCommand(customerCode, whCd)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "전체 상품 재고 동기화 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "전체 상품 재고 동기화 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

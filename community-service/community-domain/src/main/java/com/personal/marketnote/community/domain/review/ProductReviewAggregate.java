@@ -28,26 +28,26 @@ public class ProductReviewAggregate {
 
     public static ProductReviewAggregate from(ProductReviewAggregateSnapshotState state) {
         return ProductReviewAggregate.builder()
-                .productId(state.getProductId())
-                .totalCount(state.getTotalCount())
-                .fivePointCount(state.getFivePointCount())
-                .fourPointCount(state.getFourPointCount())
-                .threePointCount(state.getThreePointCount())
-                .twoPointCount(state.getTwoPointCount())
-                .onePointCount(state.getOnePointCount())
-                .totalRating(state.getTotalRating())
-                .averageRating(state.getAverageRating())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .productId(state.getProductId())
+            .totalCount(state.getTotalCount())
+            .fivePointCount(state.getFivePointCount())
+            .fourPointCount(state.getFourPointCount())
+            .threePointCount(state.getThreePointCount())
+            .twoPointCount(state.getTwoPointCount())
+            .onePointCount(state.getOnePointCount())
+            .totalRating(state.getTotalRating())
+            .averageRating(state.getAverageRating())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public static ProductReviewAggregate from(Review review) {
         ProductReviewAggregate productReviewAggregate = ProductReviewAggregate.builder()
-                .productId(review.getProductId())
-                .totalRating(0L)
-                .averageRating(BigDecimal.ZERO)
-                .build();
+            .productId(review.getProductId())
+            .totalRating(0L)
+            .averageRating(BigDecimal.ZERO)
+            .build();
         productReviewAggregate.addReview(review.getRating());
 
         return productReviewAggregate;
@@ -146,6 +146,6 @@ public class ProductReviewAggregate {
             return;
         }
         averageRating = BigDecimal.valueOf(totalRating)
-                .divide(BigDecimal.valueOf(totalCount), AVERAGE_RATING_SCALE, RoundingMode.HALF_UP);
+            .divide(BigDecimal.valueOf(totalCount), AVERAGE_RATING_SCALE, RoundingMode.HALF_UP);
     }
 }

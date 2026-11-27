@@ -17,15 +17,15 @@ public class FulfillmentWarehousingGoodsMapper {
     private Integer ordQty;
 
     public static FulfillmentWarehousingGoodsMapper of(
-            String cstGodCd,
-            String distTermDt,
-            Integer ordQty
+        String cstGodCd,
+        String distTermDt,
+        Integer ordQty
     ) {
         FulfillmentWarehousingGoodsMapper mapper = FulfillmentWarehousingGoodsMapper.builder()
-                .cstGodCd(cstGodCd)
-                .distTermDt(distTermDt)
-                .ordQty(ordQty)
-                .build();
+            .cstGodCd(cstGodCd)
+            .distTermDt(distTermDt)
+            .ordQty(ordQty)
+            .build();
         mapper.validate();
         return mapper;
     }

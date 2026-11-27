@@ -89,8 +89,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
             currentFiles.forEach(file -> file.validateOwner(requesterId, ownerKey));
             List<ResizedFile> existingResizedFiles = getFileUseCase.getResizedFiles(currentFiles);
             List<ResizedFile> activeResizedFiles = existingResizedFiles.stream()
-                    .filter(ResizedFile::isActive)
-                    .toList();
+                .filter(ResizedFile::isActive)
+                .toList();
             List<ImageEventCommand> deletedEvents = buildImageEventCommands(currentFiles, activeResizedFiles);
             currentFiles.forEach(FileDomain::delete);
             existingResizedFiles.forEach(ResizedFile::delete);
@@ -101,9 +101,9 @@ public class UpdateFilesService implements UpdateFileUseCase {
         List<FileDomain> newFiles = FileCommandToDomainMapper.mapToDomain(updateFilesCommand);
 
         List<MultipartFile> originals = updateFilesCommand.fileInfo()
-                .stream()
-                .map(UpdateFileCommand::file)
-                .toList();
+            .stream()
+            .map(UpdateFileCommand::file)
+            .toList();
 
         // 트랜잭션 롤백 시 S3 orphan 보상 정리를 위한 누적 URL 컨테이너.
         // 첫 업로드 직후 즉시 publishEvent 1회 호출하여, 이후 saveFilesPort/saveResizedFilesPort/Outbox 직렬화 등
@@ -112,9 +112,9 @@ public class UpdateFilesService implements UpdateFileUseCase {
         List<String> uploadedStorageUrls = new ArrayList<>();
 
         List<String> storageUrls = uploadFilesPort.uploadFiles(
-                originals,
-                OwnerType.from(updateFilesCommand.ownerType()),
-                updateFilesCommand.ownerId()
+            originals,
+            OwnerType.from(updateFilesCommand.ownerType()),
+            updateFilesCommand.ownerId()
         );
         uploadedStorageUrls.addAll(storageUrls);
 
@@ -135,9 +135,9 @@ public class UpdateFilesService implements UpdateFileUseCase {
 
         if (FormatValidator.hasValue(resizedToUpload)) {
             List<String> resizedStorageUrls = uploadFilesPort.uploadFiles(
-                    resizedToUpload,
-                    OwnerType.from(updateFilesCommand.ownerType()),
-                    updateFilesCommand.ownerId()
+                resizedToUpload,
+                OwnerType.from(updateFilesCommand.ownerType()),
+                updateFilesCommand.ownerId()
             );
             uploadedStorageUrls.addAll(resizedStorageUrls);
 
@@ -158,8 +158,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
 
     private List<ImageEventCommand> buildImageEventCommands(List<FileDomain> files, List<ResizedFile> resizedFiles) {
         return files.stream()
-                .map(file -> ImageEventCommand.from(file, resizedFiles))
-                .toList();
+            .map(file -> ImageEventCommand.from(file, resizedFiles))
+            .toList();
     }
 
     private boolean isAdminOrSeller(String role) {
@@ -189,8 +189,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
     }
 
     private void resize(
-            FileDomain savedFile, MultipartFile originalFile,
-            List<MultipartFile> resizedToUpload, List<ResizedFile> resizedToSave
+        FileDomain savedFile, MultipartFile originalFile,
+        List<MultipartFile> resizedToUpload, List<ResizedFile> resizedToSave
     ) {
         FileSort sort = savedFile.getSort();
 
@@ -199,14 +199,14 @@ public class UpdateFilesService implements UpdateFileUseCase {
 
             try {
                 MultipartFile resizedFile = resizeSquare(
-                        originalFile, size, appendSizeToFilename(originalFile.getOriginalFilename(), size + "x" + size)
+                    originalFile, size, appendSizeToFilename(originalFile.getOriginalFilename(), size + "x" + size)
                 );
                 resizedToUpload.add(resizedFile);
                 resizedToSave.add(ResizedFile.of(savedFile.getId(), size + "x" + size));
             } catch (IOException ioe) {
                 log.warn(
-                        "fallback applied: 카탈로그 이미지 리사이즈 실패 — 원본만 저장. fileId={}, originalFilename={}, fileSort={}",
-                        savedFile.getId(), originalFile.getOriginalFilename(), sort, ioe
+                    "fallback applied: 카탈로그 이미지 리사이즈 실패 — 원본만 저장. fileId={}, originalFilename={}, fileSort={}",
+                    savedFile.getId(), originalFile.getOriginalFilename(), sort, ioe
                 );
             }
 
@@ -218,15 +218,15 @@ public class UpdateFilesService implements UpdateFileUseCase {
             for (int width : widths) {
                 try {
                     MultipartFile resized = resizeByWidth(
-                            originalFile, width,
-                            appendSizeToFilename(originalFile.getOriginalFilename(), String.valueOf(width))
+                        originalFile, width,
+                        appendSizeToFilename(originalFile.getOriginalFilename(), String.valueOf(width))
                     );
                     resizedToUpload.add(resized);
                     resizedToSave.add(ResizedFile.of(savedFile.getId(), String.valueOf(width)));
                 } catch (IOException ioe) {
                     log.warn(
-                            "fallback applied: 대표 이미지 리사이즈 실패 — 원본만 저장. fileId={}, originalFilename={}, width={}",
-                            savedFile.getId(), originalFile.getOriginalFilename(), width, ioe
+                        "fallback applied: 대표 이미지 리사이즈 실패 — 원본만 저장. fileId={}, originalFilename={}, width={}",
+                        savedFile.getId(), originalFile.getOriginalFilename(), width, ioe
                     );
                 }
             }
@@ -249,7 +249,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
     }
 
     private MultipartFile resize(
-            int targetWidth, int targetHeight, BufferedImage source, String newOriginalFilename
+        int targetWidth, int targetHeight, BufferedImage source, String newOriginalFilename
     ) throws IOException {
         String extension = getExtension(newOriginalFilename, "png");
         String format = normalizeFormat(extension);
@@ -272,10 +272,10 @@ public class UpdateFilesService implements UpdateFileUseCase {
         }
 
         return new InMemoryMultipartFile(
-                "file",
-                newOriginalFilename,
-                contentTypeFor(format),
-                byteArrayOutputStream.toByteArray()
+            "file",
+            newOriginalFilename,
+            contentTypeFor(format),
+            byteArrayOutputStream.toByteArray()
         );
     }
 
@@ -330,9 +330,9 @@ public class UpdateFilesService implements UpdateFileUseCase {
 
     private int detectBomOffset(byte[] bytes) {
         if (bytes.length >= 3
-                && (bytes[0] & 0xFF) == 0xEF
-                && (bytes[1] & 0xFF) == 0xBB
-                && (bytes[2] & 0xFF) == 0xBF) {
+            && (bytes[0] & 0xFF) == 0xEF
+            && (bytes[1] & 0xFF) == 0xBB
+            && (bytes[2] & 0xFF) == 0xBF) {
             return 3;
         }
         return 0;

@@ -40,7 +40,7 @@ class GlobalExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleDomainNotFoundException(
-                new DomainNotFoundException("ERR_TEST_NF::대상 없음")
+            new DomainNotFoundException("ERR_TEST_NF::대상 없음")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -55,7 +55,7 @@ class GlobalExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleIllegalArgumentException(
-                new IllegalArgumentException("ERR_TEST_BAD::잘못된 인자")
+            new IllegalArgumentException("ERR_TEST_BAD::잘못된 인자")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -89,7 +89,7 @@ class GlobalExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleAccessDeniedException(
-                new AccessDeniedException("denied")
+            new AccessDeniedException("denied")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -104,7 +104,7 @@ class GlobalExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleException(
-                new BadCredentialsException("bad creds wrapped as generic")
+            new BadCredentialsException("bad creds wrapped as generic")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -116,7 +116,7 @@ class GlobalExceptionHandlerTraceIdTest {
     @DisplayName("MDC에 requestId가 없을 때 응답 body의 traceId는 null이다")
     void responseTraceIdIsNullWhenMdcEmpty() {
         ResponseEntity<ErrorResponse> response = handler.handleDomainNotFoundException(
-                new DomainNotFoundException("ERR_TEST_NF::대상 없음")
+            new DomainNotFoundException("ERR_TEST_NF::대상 없음")
         );
 
         assertThat(response.getBody()).isNotNull();
@@ -129,7 +129,7 @@ class GlobalExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "trace-async");
 
         ResponseEntity<Void> response = handler.handleAsyncRequestNotUsableException(
-                new AsyncRequestNotUsableException("client closed")
+            new AsyncRequestNotUsableException("client closed")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);

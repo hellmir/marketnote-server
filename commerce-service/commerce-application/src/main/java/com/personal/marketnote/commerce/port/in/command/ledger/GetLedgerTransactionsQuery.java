@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 @Builder
 public record GetLedgerTransactionsQuery(
-        LocalDateTime startDate,
-        LocalDateTime endDate,
-        LedgerTransactionType transactionType
+    LocalDateTime startDate,
+    LocalDateTime endDate,
+    LedgerTransactionType transactionType
 ) {
 }

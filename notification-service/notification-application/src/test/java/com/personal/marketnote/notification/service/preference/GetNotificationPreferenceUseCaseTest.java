@@ -37,37 +37,37 @@ class GetNotificationPreferenceUseCaseTest {
         LocalDateTime consentedAt = LocalDateTime.of(2026, 4, 9, 10, 0, 0);
 
         NotificationPreference preference1 = NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(1L)
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .enabled(true)
-                        .consentedAt(consentedAt)
-                        .status(ACTIVE)
-                        .createdAt(consentedAt)
-                        .modifiedAt(consentedAt)
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(1L)
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .enabled(true)
+                .consentedAt(consentedAt)
+                .status(ACTIVE)
+                .createdAt(consentedAt)
+                .modifiedAt(consentedAt)
+                .build()
         );
 
         NotificationPreference preference2 = NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(2L)
-                        .userId(userId)
-                        .notificationType(NotificationType.SHIPPING_STARTED)
-                        .enabled(false)
-                        .consentedAt(null)
-                        .status(ACTIVE)
-                        .createdAt(consentedAt)
-                        .modifiedAt(consentedAt)
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(2L)
+                .userId(userId)
+                .notificationType(NotificationType.SHIPPING_STARTED)
+                .enabled(false)
+                .consentedAt(null)
+                .status(ACTIVE)
+                .createdAt(consentedAt)
+                .modifiedAt(consentedAt)
+                .build()
         );
 
         when(findNotificationPreferencePort.findAllByUserId(userId))
-                .thenReturn(List.of(preference1, preference2));
+            .thenReturn(List.of(preference1, preference2));
 
         // when
         List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(
-                userId
+            userId
         );
 
         // then
@@ -96,24 +96,24 @@ class GetNotificationPreferenceUseCaseTest {
         LocalDateTime createdAt = LocalDateTime.of(2026, 4, 22, 10, 0, 0);
 
         NotificationPreference marketingPreference = NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(10L)
-                        .userId(userId)
-                        .notificationType(NotificationType.MARKETING)
-                        .enabled(false)
-                        .consentedAt(null)
-                        .status(ACTIVE)
-                        .createdAt(createdAt)
-                        .modifiedAt(createdAt)
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(10L)
+                .userId(userId)
+                .notificationType(NotificationType.MARKETING)
+                .enabled(false)
+                .consentedAt(null)
+                .status(ACTIVE)
+                .createdAt(createdAt)
+                .modifiedAt(createdAt)
+                .build()
         );
 
         when(findNotificationPreferencePort.findAllByUserId(userId))
-                .thenReturn(List.of(marketingPreference));
+            .thenReturn(List.of(marketingPreference));
 
         // when
         List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(
-                userId
+            userId
         );
 
         // then
@@ -132,11 +132,11 @@ class GetNotificationPreferenceUseCaseTest {
         Long userId = 200L;
 
         when(findNotificationPreferencePort.findAllByUserId(userId))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(
-                userId
+            userId
         );
 
         // then

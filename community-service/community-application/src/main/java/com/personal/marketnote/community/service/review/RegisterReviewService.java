@@ -43,14 +43,14 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         Long productId = command.productId();
         Long pricePolicyId = command.pricePolicyId();
         Review savedReview = saveReviewPort.save(
-                Review.from(ReviewCommandToStateMapper.mapToState(command))
+            Review.from(ReviewCommandToStateMapper.mapToState(command))
         );
 
         // 리뷰 버전 기록 저장
         ReviewVersionHistoryCreateState reviewVersionHistoryCreateState
-                = ReviewCommandToStateMapper.mapToVersionHistoryState(savedReview.getId(), command);
+            = ReviewCommandToStateMapper.mapToVersionHistoryState(savedReview.getId(), command);
         saveReviewPort.saveVersionHistory(
-                ReviewVersionHistory.from(reviewVersionHistoryCreateState)
+            ReviewVersionHistory.from(reviewVersionHistoryCreateState)
         );
 
         // 상품 평점 집계
@@ -68,9 +68,9 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         // Outbox 이벤트 저장 (트랜잭션 내)
         // [#929][#1038] 주문상품 리뷰 상태 업데이트는 Kafka Consumer(ReviewRegisteredCommerceConsumer)로 전환 완료
         publishReviewEventPort.publishReviewRegisteredEvent(
-                orderId, pricePolicyId, productId,
-                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating(),
-                command.reviewerId(), savedReview.getId()
+            orderId, pricePolicyId, productId,
+            productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating(),
+            command.reviewerId(), savedReview.getId()
         );
 
         return RegisterReviewResult.from(savedReview);

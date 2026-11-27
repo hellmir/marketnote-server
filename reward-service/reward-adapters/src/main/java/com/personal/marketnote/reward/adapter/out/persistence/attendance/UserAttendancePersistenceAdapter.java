@@ -23,24 +23,24 @@ public class UserAttendancePersistenceAdapter implements SaveUserAttendancePort,
     @Override
     public UserAttendance save(UserAttendance attendance) {
         UserAttendanceJpaEntity saved = java.util.Objects.requireNonNull(
-                repository.save(UserAttendanceJpaEntity.from(attendance)),
-                "user_attendance 저장에 실패했습니다."
+            repository.save(UserAttendanceJpaEntity.from(attendance)),
+            "user_attendance 저장에 실패했습니다."
         );
         return saved.toDomain(loadHistories(saved.getId()));
     }
 
     @Override
     public Optional<UserAttendance> findByUserIdAndYearAndMonth(
-            Long userId, com.personal.marketnote.common.domain.calendar.Year year, com.personal.marketnote.common.domain.calendar.Month month
+        Long userId, com.personal.marketnote.common.domain.calendar.Year year, com.personal.marketnote.common.domain.calendar.Month month
     ) {
         return repository.findTop1ByUserIdAndYearAndMonth(userId, year, month)
-                .map(entity -> entity.toDomain(loadHistories(entity.getId())));
+            .map(entity -> entity.toDomain(loadHistories(entity.getId())));
     }
 
     private List<UserAttendanceHistory> loadHistories(Long userAttendanceId) {
         return historyRepository.findAllByUserAttendanceIdOrderByAttendedAtAsc(userAttendanceId).stream()
-                .map(UserAttendanceHistoryJpaEntity::toDomain)
-                .toList();
+            .map(UserAttendanceHistoryJpaEntity::toDomain)
+            .toList();
     }
 }
 

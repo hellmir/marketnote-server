@@ -18,7 +18,7 @@ public class GetAdminGifticonCategoriesService implements GetAdminGifticonCatego
     @Override
     public GetAdminGifticonCategoriesResult getAdminGifticonCategories() {
         return GetAdminGifticonCategoriesResult.from(
-                findGifticonCategoryPort.findAllOrderByOrderNumAsc()
+            findGifticonCategoryPort.findAllOrderByOrderNumAsc()
         );
     }
 }

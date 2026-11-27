@@ -12,11 +12,11 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "product_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_product_read_model_price_policy_id",
-                columnNames = "price_policy_id"
-        )
+    name = "product_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_product_read_model_price_policy_id",
+        columnNames = "price_policy_id"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,27 +52,27 @@ public class ProductReadModelJpaEntity extends BaseGeneralEntity {
     private Long accumulatedPoint;
 
     public static ProductReadModelJpaEntity of(
-            Long pricePolicyId, Long productId, UUID productKey, Long sellerId,
-            String name, String brandName,
-            Long price, Long discountPrice, Long accumulatedPoint
+        Long pricePolicyId, Long productId, UUID productKey, Long sellerId,
+        String name, String brandName,
+        Long price, Long discountPrice, Long accumulatedPoint
     ) {
         return ProductReadModelJpaEntity.builder()
-                .pricePolicyId(pricePolicyId)
-                .productId(productId)
-                .productKey(productKey)
-                .sellerId(sellerId)
-                .name(name)
-                .brandName(brandName)
-                .price(price)
-                .discountPrice(discountPrice)
-                .accumulatedPoint(accumulatedPoint)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .productId(productId)
+            .productKey(productKey)
+            .sellerId(sellerId)
+            .name(name)
+            .brandName(brandName)
+            .price(price)
+            .discountPrice(discountPrice)
+            .accumulatedPoint(accumulatedPoint)
+            .build();
     }
 
     public void updateFrom(
-            UUID productKey,
-            String name, String brandName,
-            Long price, Long discountPrice, Long accumulatedPoint
+        UUID productKey,
+        String name, String brandName,
+        Long price, Long discountPrice, Long accumulatedPoint
     ) {
         if (FormatValidator.hasValue(productKey)) {
             this.productKey = productKey;

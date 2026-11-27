@@ -72,7 +72,7 @@ class DeviceTokenJpaRepositoryTest {
 
         // when
         List<DeviceTokenJpaEntity> result = repository.findByUserIdInAndStatus(
-                List.of(100L, 200L), EntityStatus.ACTIVE
+            List.of(100L, 200L), EntityStatus.ACTIVE
         );
 
         // then
@@ -85,14 +85,14 @@ class DeviceTokenJpaRepositoryTest {
         // given
         persistToken(100L, "device-stale", "token-stale");
         entityManager.createNativeQuery(
-                "UPDATE device_token SET last_used_at = :oldDate WHERE device_id = 'device-stale'"
+            "UPDATE device_token SET last_used_at = :oldDate WHERE device_id = 'device-stale'"
         ).setParameter("oldDate", LocalDateTime.of(2025, 1, 1, 0, 0)).executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
         // when
         int deactivated = repository.deactivateStaleTokens(
-                LocalDateTime.of(2026, 1, 1, 0, 0), EntityStatus.ACTIVE, EntityStatus.INACTIVE
+            LocalDateTime.of(2026, 1, 1, 0, 0), EntityStatus.ACTIVE, EntityStatus.INACTIVE
         );
 
         // then
@@ -101,13 +101,13 @@ class DeviceTokenJpaRepositoryTest {
 
     private DeviceTokenJpaEntity persistToken(Long userId, String deviceId, String token) {
         DeviceToken domain = DeviceToken.from(
-                DeviceTokenCreateState.builder()
-                        .userId(userId)
-                        .token(token)
-                        .platform(Platform.ANDROID)
-                        .deviceId(deviceId)
-                        .lastUsedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                        .build()
+            DeviceTokenCreateState.builder()
+                .userId(userId)
+                .token(token)
+                .platform(Platform.ANDROID)
+                .deviceId(deviceId)
+                .lastUsedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+                .build()
         );
         DeviceTokenJpaEntity entity = DeviceTokenJpaEntity.from(domain);
         DeviceTokenJpaEntity saved = repository.saveAndFlush(entity);

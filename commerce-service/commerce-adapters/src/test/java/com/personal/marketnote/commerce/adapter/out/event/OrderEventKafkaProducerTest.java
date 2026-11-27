@@ -52,24 +52,24 @@ class OrderEventKafkaProducerTest {
 
     private List<OrderProduct> createOrderProducts() {
         OrderProduct product1 = OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
-                .quantity(2)
-                .unitAmount(30000L)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+            .quantity(2)
+            .unitAmount(30000L)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
         OrderProduct product2 = OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(101L)
-                .quantity(1)
-                .unitAmount(20000L)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(101L)
+            .quantity(1)
+            .unitAmount(20000L)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
         return List.of(product1, product2);
     }
 
@@ -84,7 +84,7 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                1L, 50L, 80000L, 5000L, null, orderProducts, 1500L
+            1L, 50L, 80000L, 5000L, null, orderProducts, 1500L
         );
 
         // then
@@ -110,7 +110,7 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                10L, 50L, 80000L, 5000L, null, orderProducts, 1500L
+            10L, 50L, 80000L, 5000L, null, orderProducts, 1500L
         );
 
         // then
@@ -147,15 +147,15 @@ class OrderEventKafkaProducerTest {
 
     private List<OrderProduct> createCancelProducts() {
         OrderProduct cancelProduct = OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
-                .quantity(2)
-                .unitAmount(30000L)
-                .orderStatus(OrderStatus.CANCELLED)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+            .quantity(2)
+            .unitAmount(30000L)
+            .orderStatus(OrderStatus.CANCELLED)
+            .accumulatedPoint(0L)
+            .build());
         return List.of(cancelProduct);
     }
 
@@ -171,10 +171,10 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderCancelledEvent(
-                1L, "order-key-001", 50L,
-                60000L, 80000L, 5000L, 3000L,
-                false, 0L,
-                orderProducts, cancelProducts, "cancel-id-partial-1"
+            1L, "order-key-001", 50L,
+            60000L, 80000L, 5000L, 3000L,
+            false, 0L,
+            orderProducts, cancelProducts, "cancel-id-partial-1"
         );
 
         // then
@@ -201,10 +201,10 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderCancelledEvent(
-                10L, "order-key-002", 50L,
-                60000L, 80000L, 5000L, 3000L,
-                true, 20000L,
-                orderProducts, cancelProducts, null
+            10L, "order-key-002", 50L,
+            60000L, 80000L, 5000L, 3000L,
+            true, 20000L,
+            orderProducts, cancelProducts, null
         );
 
         // then
@@ -351,12 +351,12 @@ class OrderEventKafkaProducerTest {
         setUpClock("2026-10-18T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         doThrow(new RuntimeException("DB connection failed"))
-                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+            .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         // when & then
         assertThatThrownBy(() -> orderEventKafkaProducer.publishOrderCancelFailedEvent(1L, 50L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB connection failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("DB connection failed");
     }
 
     @Test
@@ -365,11 +365,11 @@ class OrderEventKafkaProducerTest {
         // given
         setUpClock("2026-10-18T10:00:00Z");
         when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+            .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         // when & then
         assertThatThrownBy(() -> orderEventKafkaProducer.publishOrderCancelFailedEvent(1L, 50L))
-                .isInstanceOf(OrderEventSerializationException.class);
+            .isInstanceOf(OrderEventSerializationException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 

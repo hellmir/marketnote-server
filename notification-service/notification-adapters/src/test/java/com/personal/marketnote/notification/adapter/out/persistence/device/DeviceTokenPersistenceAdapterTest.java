@@ -41,7 +41,7 @@ class DeviceTokenPersistenceAdapterTest {
             // given
             DeviceTokenJpaEntity entity = createMockEntity(1L, 100L, "device-1");
             when(deviceTokenJpaRepository.findByUserIdAndStatus(100L, EntityStatus.ACTIVE))
-                    .thenReturn(List.of(entity));
+                .thenReturn(List.of(entity));
 
             // when
             List<DeviceToken> result = adapter.findActiveByUserId(100L);
@@ -55,7 +55,7 @@ class DeviceTokenPersistenceAdapterTest {
         void returnsEmptyListWhenNone() {
             // given
             when(deviceTokenJpaRepository.findByUserIdAndStatus(100L, EntityStatus.ACTIVE))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             List<DeviceToken> result = adapter.findActiveByUserId(100L);
@@ -75,7 +75,7 @@ class DeviceTokenPersistenceAdapterTest {
             // given
             DeviceTokenJpaEntity entity = createMockEntity(1L, 100L, "device-1");
             when(deviceTokenJpaRepository.findByDeviceIdAndStatus("device-1", EntityStatus.ACTIVE))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             // when
             Optional<DeviceToken> result = adapter.findActiveByDeviceId("device-1");
@@ -89,7 +89,7 @@ class DeviceTokenPersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(deviceTokenJpaRepository.findByDeviceIdAndStatus("unknown", EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<DeviceToken> result = adapter.findActiveByDeviceId("unknown");
@@ -125,11 +125,11 @@ class DeviceTokenPersistenceAdapterTest {
             // given
             DeviceToken token = createDomainToken();
             when(deviceTokenJpaRepository.save(any(DeviceTokenJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("duplicate"));
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(token))
-                    .isInstanceOf(DuplicateDeviceTokenException.class);
+                .isInstanceOf(DuplicateDeviceTokenException.class);
         }
     }
 
@@ -163,7 +163,7 @@ class DeviceTokenPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(token))
-                    .isInstanceOf(DeviceTokenNotFoundException.class);
+                .isInstanceOf(DeviceTokenNotFoundException.class);
         }
     }
 
@@ -177,7 +177,7 @@ class DeviceTokenPersistenceAdapterTest {
             // given
             LocalDateTime threshold = LocalDateTime.of(2026, 1, 1, 0, 0);
             when(deviceTokenJpaRepository.deactivateStaleTokens(threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE))
-                    .thenReturn(5);
+                .thenReturn(5);
 
             // when
             int count = adapter.deactivateStaleTokens(threshold);
@@ -217,26 +217,26 @@ class DeviceTokenPersistenceAdapterTest {
 
     private DeviceToken createDomainToken() {
         return DeviceToken.from(
-                DeviceTokenCreateState.builder()
-                        .userId(100L)
-                        .token("fcm-token-123")
-                        .platform(Platform.ANDROID)
-                        .deviceId("device-1")
-                        .build()
+            DeviceTokenCreateState.builder()
+                .userId(100L)
+                .token("fcm-token-123")
+                .platform(Platform.ANDROID)
+                .deviceId("device-1")
+                .build()
         );
     }
 
     private DeviceToken createDomainTokenWithId(Long id) {
         return DeviceToken.from(
-                DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(100L)
-                        .token("fcm-token-123")
-                        .platform(Platform.ANDROID)
-                        .deviceId("device-1")
-                        .lastUsedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            DeviceTokenSnapshotState.builder()
+                .id(id)
+                .userId(100L)
+                .token("fcm-token-123")
+                .platform(Platform.ANDROID)
+                .deviceId("device-1")
+                .lastUsedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

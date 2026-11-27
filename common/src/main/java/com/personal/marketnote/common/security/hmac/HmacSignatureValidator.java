@@ -14,13 +14,13 @@ public final class HmacSignatureValidator {
     }
 
     public static void validate(
-            String secretKey,
-            String timestamp,
-            String nonce,
-            String httpMethod,
-            String requestPath,
-            String signature,
-            Clock clock
+        String secretKey,
+        String timestamp,
+        String nonce,
+        String httpMethod,
+        String requestPath,
+        String signature,
+        Clock clock
     ) {
         validateTimestamp(timestamp, clock);
         validateSignature(secretKey, timestamp, nonce, httpMethod, requestPath, signature);
@@ -41,12 +41,12 @@ public final class HmacSignatureValidator {
     }
 
     static void validateSignature(
-            String secretKey,
-            String timestamp,
-            String nonce,
-            String httpMethod,
-            String requestPath,
-            String signature
+        String secretKey,
+        String timestamp,
+        String nonce,
+        String httpMethod,
+        String requestPath,
+        String signature
     ) {
         String expected = HmacSignatureGenerator.generate(secretKey, timestamp, nonce, httpMethod, requestPath);
         if (!HmacSignatureGenerator.constantTimeEquals(expected, signature)) {

@@ -42,34 +42,34 @@ class UpdateTermsUseCaseTest {
         Long userId = 1L;
         User user = mock(User.class);
         Terms terms1 = TermsTestObjectFactory.createTerms(
-                1L,
-                "required-terms",
-                true,
-                LocalDateTime.of(2024, 5, 1, 0, 0),
-                LocalDateTime.of(2024, 5, 2, 0, 0),
-                EntityStatus.ACTIVE
+            1L,
+            "required-terms",
+            true,
+            LocalDateTime.of(2024, 5, 1, 0, 0),
+            LocalDateTime.of(2024, 5, 2, 0, 0),
+            EntityStatus.ACTIVE
         );
         Terms terms2 = TermsTestObjectFactory.createTerms(
-                2L,
-                "optional-terms",
-                false,
-                LocalDateTime.of(2024, 6, 1, 0, 0),
-                LocalDateTime.of(2024, 6, 2, 0, 0),
-                EntityStatus.ACTIVE
+            2L,
+            "optional-terms",
+            false,
+            LocalDateTime.of(2024, 6, 1, 0, 0),
+            LocalDateTime.of(2024, 6, 2, 0, 0),
+            EntityStatus.ACTIVE
         );
         UserTerms userTerms1 = TermsTestObjectFactory.createUserTerms(
-                user,
-                terms1,
-                true,
-                LocalDateTime.of(2024, 5, 1, 0, 0),
-                LocalDateTime.of(2024, 5, 2, 0, 0)
+            user,
+            terms1,
+            true,
+            LocalDateTime.of(2024, 5, 1, 0, 0),
+            LocalDateTime.of(2024, 5, 2, 0, 0)
         );
         UserTerms userTerms2 = TermsTestObjectFactory.createUserTerms(
-                user,
-                terms2,
-                false,
-                LocalDateTime.of(2024, 6, 1, 0, 0),
-                LocalDateTime.of(2024, 6, 2, 0, 0)
+            user,
+            terms2,
+            false,
+            LocalDateTime.of(2024, 6, 1, 0, 0),
+            LocalDateTime.of(2024, 6, 2, 0, 0)
         );
         AcceptOrCancelTermsCommand command = AcceptOrCancelTermsCommand.of(List.of(1L, 2L));
 
@@ -108,8 +108,8 @@ class UpdateTermsUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> updateTermsService.acceptOrCancelTerms(userId, command))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId));
 
         verify(findUserPort).findById(userId);
         verifyNoMoreInteractions(findUserPort);

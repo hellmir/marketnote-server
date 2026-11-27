@@ -64,29 +64,29 @@ public class NotificationController {
     @GetNotificationHistoryApiDocs
     @RateLimited(key = "my-notifications", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetNotificationHistoryResponse>> getNotificationHistory(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize,
-            @RequestParam(value = "category", required = false) NotificationDisplayCategory category
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(value = "cursor", required = false) Long cursor,
+        @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize,
+        @RequestParam(value = "category", required = false) NotificationDisplayCategory category
     ) {
         GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(
-                ElementExtractor.extractUserId(principal),
-                cursor,
-                pageSize,
-                category
+            ElementExtractor.extractUserId(principal),
+            cursor,
+            pageSize,
+            category
         );
 
         GetNotificationHistoryResult result = getNotificationHistoryUseCase.getNotificationHistory(command);
         GetNotificationHistoryResponse response = GetNotificationHistoryResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        response,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 이력 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                response,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 이력 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -94,23 +94,23 @@ public class NotificationController {
     @MarkNotificationAsReadApiDocs
     @RateLimited(key = "notifications-read", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<Void>> markNotificationAsRead(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @PathVariable("id") Long id
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @PathVariable("id") Long id
     ) {
         MarkNotificationAsReadCommand command = new MarkNotificationAsReadCommand(
-                id,
-                ElementExtractor.extractUserId(principal)
+            id,
+            ElementExtractor.extractUserId(principal)
         );
         markNotificationAsReadUseCase.markAsRead(command);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 읽음 처리 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 읽음 처리 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -118,18 +118,18 @@ public class NotificationController {
     @MarkAllNotificationAsReadApiDocs
     @RateLimited(key = "notifications-read-all", maxRequests = 10, windowSeconds = 60)
     public ResponseEntity<BaseResponse<Void>> markAllNotificationAsRead(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         markAllNotificationAsReadUseCase.markAllAsRead(ElementExtractor.extractUserId(principal));
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 전체 읽음 처리 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 전체 읽음 처리 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -137,20 +137,20 @@ public class NotificationController {
     @GetUnreadNotificationCountApiDocs
     @RateLimited(key = "notifications-unread-count", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetUnreadNotificationCountResult>> getUnreadNotificationCount(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetUnreadNotificationCountResult result = getUnreadNotificationCountUseCase.getUnreadCount(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        result,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "미읽음 알림 수 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                result,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "미읽음 알림 수 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

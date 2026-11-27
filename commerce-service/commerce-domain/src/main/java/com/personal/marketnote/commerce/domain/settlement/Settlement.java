@@ -28,11 +28,11 @@ public class Settlement {
     public static Settlement from(SettlementCreateState state) {
         if (FormatValidator.hasNoValue(state.getTotalAllocatedAmount()) || state.getTotalAllocatedAmount() <= 0) {
             throw new InvalidSettlementAmountException(
-                    "총 배분 금액은 0보다 커야 합니다. totalAllocatedAmount=" + state.getTotalAllocatedAmount());
+                "총 배분 금액은 0보다 커야 합니다. totalAllocatedAmount=" + state.getTotalAllocatedAmount());
         }
         if (FormatValidator.hasNoValue(state.getSellerPayoutAmount()) || state.getSellerPayoutAmount() <= 0) {
             throw new InvalidSettlementAmountException(
-                    "판매자 지급액은 0보다 커야 합니다. sellerPayoutAmount=" + state.getSellerPayoutAmount());
+                "판매자 지급액은 0보다 커야 합니다. sellerPayoutAmount=" + state.getSellerPayoutAmount());
         }
         long shippingFee = FormatValidator.hasValue(state.getShippingFee()) ? state.getShippingFee() : 0L;
         long pgFee = FormatValidator.hasValue(state.getPgFeeAmount()) ? state.getPgFeeAmount() : 0L;
@@ -40,56 +40,56 @@ public class Settlement {
 
         if (shippingFee < 0) {
             throw new InvalidSettlementAmountException(
-                    "배송비는 음수일 수 없습니다. shippingFee=" + shippingFee);
+                "배송비는 음수일 수 없습니다. shippingFee=" + shippingFee);
         }
         if (pgFee < 0) {
             throw new InvalidSettlementAmountException(
-                    "PG 수수료는 음수일 수 없습니다. pgFeeAmount=" + pgFee);
+                "PG 수수료는 음수일 수 없습니다. pgFeeAmount=" + pgFee);
         }
         if (platformFee < 0) {
             throw new InvalidSettlementAmountException(
-                    "플랫폼 수수료는 음수일 수 없습니다. platformFeeAmount=" + platformFee);
+                "플랫폼 수수료는 음수일 수 없습니다. platformFeeAmount=" + platformFee);
         }
 
         long feeBase = Math.addExact(state.getTotalAllocatedAmount(), shippingFee);
         long expectedPayout = feeBase - pgFee - platformFee;
         if (expectedPayout != state.getSellerPayoutAmount()) {
             throw new InvalidSettlementAmountException(
-                    "정산 금액 정합성 불일치: (totalAllocatedAmount(" + state.getTotalAllocatedAmount()
-                            + ") + shippingFee(" + shippingFee
-                            + ")) - pgFeeAmount(" + pgFee + ") - platformFeeAmount(" + platformFee
-                            + ") != sellerPayoutAmount(" + state.getSellerPayoutAmount() + ")");
+                "정산 금액 정합성 불일치: (totalAllocatedAmount(" + state.getTotalAllocatedAmount()
+                    + ") + shippingFee(" + shippingFee
+                    + ")) - pgFeeAmount(" + pgFee + ") - platformFeeAmount(" + platformFee
+                    + ") != sellerPayoutAmount(" + state.getSellerPayoutAmount() + ")");
         }
 
         return Settlement.builder()
-                .sellerId(state.getSellerId())
-                .year(state.getYear())
-                .month(state.getMonth())
-                .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
-                .shippingFee(Money.of(shippingFee))
-                .pgFeeAmount(Money.of(pgFee))
-                .platformFeeAmount(Money.of(platformFee))
-                .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
-                .status(SettlementStatus.PENDING)
-                .build();
+            .sellerId(state.getSellerId())
+            .year(state.getYear())
+            .month(state.getMonth())
+            .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
+            .shippingFee(Money.of(shippingFee))
+            .pgFeeAmount(Money.of(pgFee))
+            .platformFeeAmount(Money.of(platformFee))
+            .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
+            .status(SettlementStatus.PENDING)
+            .build();
     }
 
     public static Settlement from(SettlementSnapshotState state) {
         return Settlement.builder()
-                .id(state.getId())
-                .sellerId(state.getSellerId())
-                .year(state.getYear())
-                .month(state.getMonth())
-                .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
-                .shippingFee(Money.of(state.getShippingFee()))
-                .pgFeeAmount(Money.of(state.getPgFeeAmount()))
-                .platformFeeAmount(Money.of(state.getPlatformFeeAmount()))
-                .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
-                .status(state.getStatus())
-                .version(state.getVersion())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .sellerId(state.getSellerId())
+            .year(state.getYear())
+            .month(state.getMonth())
+            .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
+            .shippingFee(Money.of(state.getShippingFee()))
+            .pgFeeAmount(Money.of(state.getPgFeeAmount()))
+            .platformFeeAmount(Money.of(state.getPlatformFeeAmount()))
+            .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
+            .status(state.getStatus())
+            .version(state.getVersion())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public boolean isPending() {

@@ -50,20 +50,20 @@ class OrderPaymentCompletedAlimTalkConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, String recipientPhoneNumber, String recipientName
+        Long orderId, Long buyerId, String recipientPhoneNumber, String recipientName
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, 0L,
-                recipientName, recipientPhoneNumber,
-                "12345", "서울시 강남구", "101동 202호", "문 앞에 놓아주세요",
-                List.of(), 500L
+            orderId, buyerId, 50000L, 0L,
+            recipientName, recipientPhoneNumber,
+            "12345", "서울시 강남구", "101동 202호", "문 앞에 놓아주세요",
+            List.of(), 500L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L,
-                String.valueOf(orderId), envelope);
+            String.valueOf(orderId), envelope);
     }
 
     @Test
@@ -71,7 +71,7 @@ class OrderPaymentCompletedAlimTalkConsumerTest {
     void shouldSendAlimTalkAndAcknowledge() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, 1L, "01012345678", "홍길동"
+            100L, 1L, "01012345678", "홍길동"
         );
 
         // when
@@ -98,7 +98,7 @@ class OrderPaymentCompletedAlimTalkConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", null
+            "commerce.order.payment-completed", 0, 0L, "1", null
         );
 
         // when
@@ -114,17 +114,17 @@ class OrderPaymentCompletedAlimTalkConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                100L, 1L, 50000L, 0L,
-                "홍길동", "01012345678",
-                "12345", "서울시 강남구", "101동 202호", null,
-                List.of(), 500L
+            100L, 1L, 50000L, 0L,
+            "홍길동", "01012345678",
+            "12345", "서울시 강남구", "101동 202호", null,
+            List.of(), 500L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "100", envelope
+            "commerce.order.payment-completed", 0, 0L, "100", envelope
         );
 
         // when
@@ -182,10 +182,10 @@ class OrderPaymentCompletedAlimTalkConsumerTest {
     void shouldLogAndAcknowledgeWhenAlimTalkFails() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, 1L, "01012345678", "홍길동"
+            100L, 1L, "01012345678", "홍길동"
         );
         org.mockito.Mockito.doThrow(new RuntimeException("알리고 API 호출 실패"))
-                .when(sendAligoAlimTalkUseCase).sendAlimTalk(org.mockito.ArgumentMatchers.any());
+            .when(sendAligoAlimTalkUseCase).sendAlimTalk(org.mockito.ArgumentMatchers.any());
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);

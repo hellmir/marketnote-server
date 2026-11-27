@@ -34,26 +34,26 @@ public class UserPenaltyHistoryJpaEntity extends BaseEntity {
 
     public static UserPenaltyHistoryJpaEntity from(UserPenaltyHistory history) {
         return UserPenaltyHistoryJpaEntity.builder()
-                .id(history.getId())
-                .userId(history.getUserId())
-                .previousCount(history.getPreviousCount())
-                .currentCount(history.getCurrentCount())
-                .reason(history.getReason())
-                .createdBy(history.getCreatedBy())
-                .build();
+            .id(history.getId())
+            .userId(history.getUserId())
+            .previousCount(history.getPreviousCount())
+            .currentCount(history.getCurrentCount())
+            .reason(history.getReason())
+            .createdBy(history.getCreatedBy())
+            .build();
     }
 
     public UserPenaltyHistory toDomain() {
         return UserPenaltyHistory.from(
-                UserPenaltyHistorySnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .previousCount(previousCount)
-                        .currentCount(currentCount)
-                        .reason(reason)
-                        .createdBy(createdBy)
-                        .createdAt(getCreatedAt())
-                        .build()
+            UserPenaltyHistorySnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .previousCount(previousCount)
+                .currentCount(currentCount)
+                .reason(reason)
+                .createdBy(createdBy)
+                .createdAt(getCreatedAt())
+                .build()
         );
     }
 }

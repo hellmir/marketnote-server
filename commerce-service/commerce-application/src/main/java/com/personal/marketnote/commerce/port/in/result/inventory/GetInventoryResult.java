@@ -6,13 +6,13 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetInventoryResult(
-        Long pricePolicyId,
-        Integer stock
+    Long pricePolicyId,
+    Integer stock
 ) {
     public static GetInventoryResult from(Inventory inventory) {
         return GetInventoryResult.builder()
-                .pricePolicyId(inventory.getPricePolicyId())
-                .stock(inventory.getStockValue())
-                .build();
+            .pricePolicyId(inventory.getPricePolicyId())
+            .stock(inventory.getStockValue())
+            .build();
     }
 }

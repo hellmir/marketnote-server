@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-09-17T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-17T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks
@@ -43,18 +43,18 @@ class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
     private Acknowledgment acknowledgment;
 
     private EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> createEnvelope(
-            FulfillmentDeliveryWorkStatusChangedEvent payload) {
+        FulfillmentDeliveryWorkStatusChangedEvent payload) {
         return EventEnvelope.of(
-                KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
-                "fulfillment-service",
-                payload,
-                FIXED_CLOCK
+            KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
+            "fulfillment-service",
+            payload,
+            FIXED_CLOCK
         );
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED, 0, 0, "1", envelope
+            KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED, 0, 0, "1", envelope
         );
     }
 
@@ -63,7 +63,7 @@ class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
     void nullEnvelope_acknowledgesWithoutUpsert() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED, 0, 0, "1", null
+            KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED, 0, 0, "1", null
         );
 
         // when
@@ -79,13 +79,13 @@ class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
     void eventTypeMismatch_acknowledgesWithoutUpsert() {
         // given
         FulfillmentDeliveryWorkStatusChangedEvent payload =
-                new FulfillmentDeliveryWorkStatusChangedEvent(100L, "PICKING");
+            new FulfillmentDeliveryWorkStatusChangedEvent(100L, "PICKING");
         EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "fulfillment-service",
-                java.time.LocalDateTime.now(FIXED_CLOCK),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "fulfillment-service",
+            java.time.LocalDateTime.now(FIXED_CLOCK),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -102,7 +102,7 @@ class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
     void nullOrderId_acknowledgesWithoutUpsert() {
         // given
         FulfillmentDeliveryWorkStatusChangedEvent payload =
-                new FulfillmentDeliveryWorkStatusChangedEvent(null, "PICKING");
+            new FulfillmentDeliveryWorkStatusChangedEvent(null, "PICKING");
         EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -119,7 +119,7 @@ class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
     void nullWorkStatus_acknowledgesWithoutUpsert() {
         // given
         FulfillmentDeliveryWorkStatusChangedEvent payload =
-                new FulfillmentDeliveryWorkStatusChangedEvent(100L, null);
+            new FulfillmentDeliveryWorkStatusChangedEvent(100L, null);
         EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -136,7 +136,7 @@ class FulfillmentDeliveryWorkStatusChangedReadModelConsumerTest {
     void validEvent_upsertsAndAcknowledges() {
         // given
         FulfillmentDeliveryWorkStatusChangedEvent payload =
-                new FulfillmentDeliveryWorkStatusChangedEvent(100L, "PICKING");
+            new FulfillmentDeliveryWorkStatusChangedEvent(100L, "PICKING");
         EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

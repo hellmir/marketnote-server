@@ -47,7 +47,7 @@ class AligoHttpClientMultipartTest {
         ObjectMapper objectMapper = new ObjectMapper();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
         aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties, externalCallLogger
+            restClient, objectMapper, properties, externalCallLogger
         );
     }
 
@@ -57,9 +57,9 @@ class AligoHttpClientMultipartTest {
         // given
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/brandtalk/template/"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("senderkey", "test-sender-key");
@@ -73,7 +73,7 @@ class AligoHttpClientMultipartTest {
 
         // when
         AligoApiResponse response = aligoHttpClient.postMultipart(
-                "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
+            "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
         );
 
         // then
@@ -88,16 +88,16 @@ class AligoHttpClientMultipartTest {
         // given
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/brandtalk/template/"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("senderkey", "test-sender-key");
 
         // when
         AligoApiResponse response = aligoHttpClient.postMultipart(
-                "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
+            "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
         );
 
         // then
@@ -110,20 +110,20 @@ class AligoHttpClientMultipartTest {
     void shouldRetryOnServerError() {
         // given
         mockServer.expect(times(2), requestTo("http://localhost/brandtalk/template/"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withServerError());
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withServerError());
 
         String successResponse = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/brandtalk/template/"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(successResponse, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(successResponse, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("senderkey", "test-sender-key");
 
         // when
         AligoApiResponse response = aligoHttpClient.postMultipart(
-                "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
+            "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
         );
 
         // then

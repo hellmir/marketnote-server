@@ -47,7 +47,7 @@ public final class Rate {
     private static void validateScale(BigDecimal value) {
         if (value.stripTrailingZeros().scale() > MAX_SCALE) {
             throw new InvalidRateException(
-                    String.format("비율 값의 소수 자리는 최대 %d자리입니다. value=%s", MAX_SCALE, value.toPlainString())
+                String.format("비율 값의 소수 자리는 최대 %d자리입니다. value=%s", MAX_SCALE, value.toPlainString())
             );
         }
     }
@@ -55,9 +55,9 @@ public final class Rate {
     private static void validateRange(BigDecimal value) {
         if (value.compareTo(MIN_VALUE) < 0 || value.compareTo(MAX_VALUE) > 0) {
             throw new InvalidRateException(
-                    String.format("비율 값은 %s 이상 %s 이하여야 합니다. value=%s",
-                            MIN_VALUE.toPlainString(), MAX_VALUE.toPlainString(), value.toPlainString()
-                    )
+                String.format("비율 값은 %s 이상 %s 이하여야 합니다. value=%s",
+                    MIN_VALUE.toPlainString(), MAX_VALUE.toPlainString(), value.toPlainString()
+                )
             );
         }
     }

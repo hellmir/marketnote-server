@@ -24,28 +24,28 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class DeviceTokenPersistenceAdapter
-        implements FindDeviceTokenPort, SaveDeviceTokenPort, UpdateDeviceTokenPort, DeleteDeviceTokenPort {
+    implements FindDeviceTokenPort, SaveDeviceTokenPort, UpdateDeviceTokenPort, DeleteDeviceTokenPort {
 
     private final DeviceTokenJpaRepository deviceTokenJpaRepository;
 
     @Override
     public List<DeviceToken> findActiveByUserId(Long userId) {
         return deviceTokenJpaRepository.findByUserIdAndStatus(userId, EntityStatus.ACTIVE).stream()
-                .flatMap(entity -> DeviceTokenJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                .toList();
+            .flatMap(entity -> DeviceTokenJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
     public List<DeviceToken> findActiveByUserIds(List<Long> userIds) {
         return deviceTokenJpaRepository.findByUserIdInAndStatus(userIds, EntityStatus.ACTIVE).stream()
-                .flatMap(entity -> DeviceTokenJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                .toList();
+            .flatMap(entity -> DeviceTokenJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
     public Optional<DeviceToken> findActiveByDeviceId(String deviceId) {
         return deviceTokenJpaRepository.findByDeviceIdAndStatus(deviceId, EntityStatus.ACTIVE)
-                .flatMap(DeviceTokenJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(DeviceTokenJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
@@ -56,8 +56,8 @@ public class DeviceTokenPersistenceAdapter
             return saved.getId();
         } catch (DataIntegrityViolationException dive) {
             log.warn(
-                    "이미 등록된 디바이스 ID입니다. deviceId={}",
-                    deviceToken.getDeviceId(), dive
+                "이미 등록된 디바이스 ID입니다. deviceId={}",
+                deviceToken.getDeviceId(), dive
             );
             throw new DuplicateDeviceTokenException(dive);
         }
@@ -66,10 +66,10 @@ public class DeviceTokenPersistenceAdapter
     @Override
     public Long update(DeviceToken deviceToken) {
         DeviceTokenJpaEntity entity = deviceTokenJpaRepository.findById(deviceToken.getId())
-                .orElseThrow(() -> {
-                    log.warn("디바이스 토큰을 찾을 수 없습니다. deviceTokenId={}", deviceToken.getId());
-                    return new DeviceTokenNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("디바이스 토큰을 찾을 수 없습니다. deviceTokenId={}", deviceToken.getId());
+                return new DeviceTokenNotFoundException();
+            });
         entity.updateFrom(deviceToken);
         return entity.getId();
     }

@@ -99,7 +99,7 @@ class GetAligoTemplateListUseCaseTest {
         AligoTemplate localExisting = createTemplate(1L, "TPL001", "REQ", AligoTemplateStatus.R);
 
         when(getAligoTemplateListExternalPort.getTemplateList(senderKey))
-                .thenReturn(List.of(externalNew, externalExisting));
+            .thenReturn(List.of(externalNew, externalExisting));
         when(findAligoTemplateListPort.findAllBySenderKey(senderKey)).thenReturn(List.of(localExisting));
         when(saveAligoTemplatePort.save(any(AligoTemplate.class))).thenReturn(externalNew);
 
@@ -109,8 +109,8 @@ class GetAligoTemplateListUseCaseTest {
         // then
         assertThat(result.templates()).hasSize(2);
         assertThat(result.templates())
-                .extracting(GetAligoTemplateListResult.AligoTemplateResult::templateCode)
-                .containsExactly("TPL002", "TPL001");
+            .extracting(GetAligoTemplateListResult.AligoTemplateResult::templateCode)
+            .containsExactly("TPL002", "TPL001");
 
         ArgumentCaptor<AligoTemplate> saveCaptor = ArgumentCaptor.forClass(AligoTemplate.class);
         verify(saveAligoTemplatePort).save(saveCaptor.capture());
@@ -136,20 +136,20 @@ class GetAligoTemplateListUseCaseTest {
     }
 
     private AligoTemplate createTemplate(
-            Long id, String templateCode, String inspStatus, AligoTemplateStatus templateStatus
+        Long id, String templateCode, String inspStatus, AligoTemplateStatus templateStatus
     ) {
         return AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(id)
-                .senderKey("sender-key-1")
-                .templateCode(templateCode)
-                .templateName("테스트 템플릿 " + templateCode)
-                .templateContent("안녕하세요 #{이름}님")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus(inspStatus)
-                .templateStatus(templateStatus)
-                .status(EntityStatus.ACTIVE)
-                .buttons(List.of())
-                .build());
+            .id(id)
+            .senderKey("sender-key-1")
+            .templateCode(templateCode)
+            .templateName("테스트 템플릿 " + templateCode)
+            .templateContent("안녕하세요 #{이름}님")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus(inspStatus)
+            .templateStatus(templateStatus)
+            .status(EntityStatus.ACTIVE)
+            .buttons(List.of())
+            .build());
     }
 }

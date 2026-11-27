@@ -17,34 +17,34 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(classes = UserApplicationContextTest.TestConfig.class)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
-        "spring.autoconfigure.exclude="
-                + "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
+    "spring.autoconfigure.exclude="
+        + "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration,"
+        + "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,"
+        + "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
 })
 class UserApplicationContextTest {
 
     @Configuration
     @EnableAutoConfiguration(exclude = {
-            OAuth2ResourceServerAutoConfiguration.class,
-            KafkaAutoConfiguration.class,
-            BatchAutoConfiguration.class
+        OAuth2ResourceServerAutoConfiguration.class,
+        KafkaAutoConfiguration.class,
+        BatchAutoConfiguration.class
     })
     @ComponentScan(
-            basePackages = "com.personal.marketnote",
-            excludeFilters = {
-                    @ComponentScan.Filter(
-                            type = FilterType.ANNOTATION,
-                            classes = SpringBootApplication.class
-                    ),
-                    @ComponentScan.Filter(
-                            type = FilterType.REGEX,
-                            pattern = {
-                                    "com\\.personal\\.shop\\.common\\.security\\..*",
-                                    "com\\.personal\\.shop\\.common\\.configuration\\.security\\..*"
-                            }
-                    )
-            }
+        basePackages = "com.personal.marketnote",
+        excludeFilters = {
+            @ComponentScan.Filter(
+                type = FilterType.ANNOTATION,
+                classes = SpringBootApplication.class
+            ),
+            @ComponentScan.Filter(
+                type = FilterType.REGEX,
+                pattern = {
+                    "com\\.personal\\.shop\\.common\\.security\\..*",
+                    "com\\.personal\\.shop\\.common\\.configuration\\.security\\..*"
+                }
+            )
+        }
     )
     static class TestConfig {
     }

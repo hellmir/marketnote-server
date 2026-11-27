@@ -11,15 +11,11 @@ import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGe
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
-import org.mockito.Mockito;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -28,9 +24,7 @@ import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -99,8 +93,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
 
         client = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger,
-                vendorCommunicationRecorder, payloadGenerator, resolver
+            properties, builder.build(), objectMapper, externalCallLogger,
+            vendorCommunicationRecorder, payloadGenerator, resolver
         );
 
         giftishowLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.GIFTISHOW.loggerName());
@@ -129,8 +123,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("상품 리스트 조회 성공 시 product.list success Timer가 기록된다")
         void shouldRecordSuccessForProductList() {
             mockServer.expect(requestTo(BASE_URL + PRODUCT_LIST_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getProductList(0, 20);
 
@@ -142,9 +136,9 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("상품 상세 조회 성공 시 product.detail success Timer와 goods_code 태그가 로그에 포함된다")
         void shouldRecordSuccessForProductDetail() {
             mockServer.expect(requestTo(BASE_URL + PRODUCT_DETAIL_PATH + "/" + GOODS_CODE))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getProductDetail(GOODS_CODE);
 
@@ -156,8 +150,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("브랜드 리스트 조회 성공 시 brand.list success Timer가 기록된다")
         void shouldRecordSuccessForBrandList() {
             mockServer.expect(requestTo(BASE_URL + BRAND_LIST_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getBrandList();
 
@@ -168,9 +162,9 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("브랜드 상세 조회 성공 시 brand.detail success Timer와 brand_code 태그가 로그에 포함된다")
         void shouldRecordSuccessForBrandDetail() {
             mockServer.expect(requestTo(BASE_URL + BRAND_DETAIL_PATH + "/" + BRAND_CODE))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getBrandDetail(BRAND_CODE);
 
@@ -182,8 +176,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("쿠폰 발송 성공 시 coupon.send success Timer와 tr_id/goods_code/user_id 태그가 로그에 포함된다")
         void shouldRecordSuccessForCouponSend() {
             mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
@@ -197,8 +191,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("쿠폰 상세 조회 성공 시 coupon.detail success Timer와 tr_id 태그가 로그에 포함된다")
         void shouldRecordSuccessForCouponDetail() {
             mockServer.expect(requestTo(BASE_URL + COUPON_DETAIL_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getCouponDetail(TR_ID);
 
@@ -210,8 +204,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("쿠폰 취소 성공 시 coupon.cancel success Timer와 tr_id/user_id 태그가 로그에 포함된다")
         void shouldRecordSuccessForCouponCancel() {
             mockServer.expect(requestTo(BASE_URL + COUPON_CANCEL_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.cancelCoupon(TR_ID, USER_ID);
 
@@ -224,8 +218,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("쿠폰 재전송 성공 시 coupon.resend success Timer와 tr_id 태그가 로그에 포함된다")
         void shouldRecordSuccessForCouponResend() {
             mockServer.expect(requestTo(BASE_URL + COUPON_RESEND_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.resendCoupon(TR_ID, PHONE_NO);
 
@@ -237,8 +231,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("비즈머니 잔액 조회 성공 시 bizmoney.balance success Timer와 user_id 태그가 로그에 포함된다")
         void shouldRecordSuccessForBizMoneyBalance() {
             mockServer.expect(requestTo(BASE_URL + BIZMONEY_BALANCE_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getBizMoneyBalance(USER_ID);
 
@@ -250,8 +244,8 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("발송실패 취소 성공 시 coupon.sendFailCancel success Timer와 tr_id/user_id 태그가 로그에 포함된다")
         void shouldRecordSuccessForCouponSendFailCancel() {
             mockServer.expect(requestTo(BASE_URL + COUPON_SEND_FAIL_CANCEL_PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.cancelSendFailedCoupon(TR_ID, USER_ID);
 
@@ -269,10 +263,10 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("상품 리스트 5xx 응답 시 product.list failure Timer가 기록되고 동일 예외를 rethrow한다")
         void shouldRecordFailureWhenProductListFails() {
             mockServer.expect(requestTo(BASE_URL + PRODUCT_LIST_PATH))
-                    .andRespond(withServerError());
+                .andRespond(withServerError());
 
             assertThatThrownBy(() -> client.getProductList(0, 20))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             assertFailureTimerExists("product.list");
             assertErrorOperationInLog("product.list");
@@ -282,10 +276,10 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("쿠폰 발송 응답 본문이 비어 GiftishowCommunicationException 발생 시 coupon.send failure Timer가 기록된다")
         void shouldRecordFailureOnEmptyCouponSendResponse() {
             mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> client.sendCoupon(
-                    TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null
+                TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null
             )).isInstanceOf(GiftishowCommunicationException.class);
 
             assertFailureTimerExists("coupon.send");
@@ -302,7 +296,7 @@ class GiftishowApiClientExternalCallLoggerTest {
             String mmsMsg = "VERY-SECRET-MMS-MSG";
             String mmsTitle = "VERY-SECRET-MMS-TITLE";
             mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, mmsMsg, mmsTitle, null);
 
@@ -314,7 +308,7 @@ class GiftishowApiClientExternalCallLoggerTest {
         @DisplayName("인증 파라미터(custom_auth_code/custom_auth_token)가 외부 호출 로그에 포함되지 않는다")
         void shouldNotIncludeAuthParamsInLog() {
             mockServer.expect(requestTo(BASE_URL + COUPON_DETAIL_PATH))
-                    .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getCouponDetail(TR_ID);
 
@@ -325,51 +319,51 @@ class GiftishowApiClientExternalCallLoggerTest {
 
     private void assertSuccessTimerExists(String operation) {
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", ExternalSystem.GIFTISHOW.metricTag(),
-                        "operation", operation,
-                        "outcome", "success"
-                )
-                .timer();
+            .tags("system", ExternalSystem.GIFTISHOW.metricTag(),
+                "operation", operation,
+                "outcome", "success"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
 
     private void assertFailureTimerExists(String operation) {
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", ExternalSystem.GIFTISHOW.metricTag(),
-                        "operation", operation,
-                        "outcome", "failure"
-                )
-                .timer();
+            .tags("system", ExternalSystem.GIFTISHOW.metricTag(),
+                "operation", operation,
+                "outcome", "failure"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
 
     private void assertOperationInDebugLog(String operation) {
         boolean found = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(operation));
+            .anyMatch(event -> event.getFormattedMessage().contains(operation));
         assertThat(found).as("expected operation '%s' in debug log", operation).isTrue();
     }
 
     private void assertErrorOperationInLog(String operation) {
         boolean found = appender.list.stream()
-                .anyMatch(event -> event.getLevel() == Level.ERROR
-                        && event.getFormattedMessage().contains(operation));
+            .anyMatch(event -> event.getLevel() == Level.ERROR
+                && event.getFormattedMessage().contains(operation));
         assertThat(found).as("expected ERROR log for operation '%s'", operation).isTrue();
     }
 
     private void assertTagInDebugLog(String tagKey, String tagValue) {
         boolean foundKey = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(tagKey));
+            .anyMatch(event -> event.getFormattedMessage().contains(tagKey));
         boolean foundValue = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(tagValue));
+            .anyMatch(event -> event.getFormattedMessage().contains(tagValue));
         assertThat(foundKey).as("expected tag key '%s' in debug log", tagKey).isTrue();
         assertThat(foundValue).as("expected tag value '%s' in debug log", tagValue).isTrue();
     }
 
     private void assertNoLogContains(String forbidden) {
         boolean leaked = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(forbidden));
+            .anyMatch(event -> event.getFormattedMessage().contains(forbidden));
         assertThat(leaked).as("sensitive value '%s' must not appear in log", forbidden).isFalse();
     }
 }

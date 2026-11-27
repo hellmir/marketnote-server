@@ -33,43 +33,43 @@ public class FulfillmentReturnDeliveryItemMapper {
     private List<FulfillmentDeliveryGoodsMapper> godCds;
 
     public static FulfillmentReturnDeliveryItemMapper of(
-            String ordDt,
-            String ordNo,
-            String parcelCd,
-            String invoiceNo,
-            String custNm,
-            String custTelNo,
-            String custAddr,
-            String rtnEmpNm,
-            String rtnTelNo,
-            String rtnZipCd,
-            String rtnAddr1,
-            String rtnAddr2,
-            String rtnGubun,
-            String rtnReason,
-            String getRtnDetailReason,
-            String rtnShipReqTerm,
-            List<FulfillmentDeliveryGoodsMapper> godCds
+        String ordDt,
+        String ordNo,
+        String parcelCd,
+        String invoiceNo,
+        String custNm,
+        String custTelNo,
+        String custAddr,
+        String rtnEmpNm,
+        String rtnTelNo,
+        String rtnZipCd,
+        String rtnAddr1,
+        String rtnAddr2,
+        String rtnGubun,
+        String rtnReason,
+        String getRtnDetailReason,
+        String rtnShipReqTerm,
+        List<FulfillmentDeliveryGoodsMapper> godCds
     ) {
         FulfillmentReturnDeliveryItemMapper mapper = FulfillmentReturnDeliveryItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .parcelCd(parcelCd)
-                .invoiceNo(invoiceNo)
-                .custNm(custNm)
-                .custTelNo(custTelNo)
-                .custAddr(custAddr)
-                .rtnEmpNm(rtnEmpNm)
-                .rtnTelNo(rtnTelNo)
-                .rtnZipCd(rtnZipCd)
-                .rtnAddr1(rtnAddr1)
-                .rtnAddr2(rtnAddr2)
-                .rtnGubun(rtnGubun)
-                .rtnReason(rtnReason)
-                .getRtnDetailReason(getRtnDetailReason)
-                .rtnShipReqTerm(rtnShipReqTerm)
-                .godCds(godCds)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .parcelCd(parcelCd)
+            .invoiceNo(invoiceNo)
+            .custNm(custNm)
+            .custTelNo(custTelNo)
+            .custAddr(custAddr)
+            .rtnEmpNm(rtnEmpNm)
+            .rtnTelNo(rtnTelNo)
+            .rtnZipCd(rtnZipCd)
+            .rtnAddr1(rtnAddr1)
+            .rtnAddr2(rtnAddr2)
+            .rtnGubun(rtnGubun)
+            .rtnReason(rtnReason)
+            .getRtnDetailReason(getRtnDetailReason)
+            .rtnShipReqTerm(rtnShipReqTerm)
+            .godCds(godCds)
+            .build();
         mapper.validate();
         return mapper;
     }
@@ -94,8 +94,8 @@ public class FulfillmentReturnDeliveryItemMapper {
         putIfHasValue(payload, "rtnShipReqTerm", rtnShipReqTerm);
         if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
-                    .map(FulfillmentDeliveryGoodsMapper::toPayload)
-                    .toList());
+                .map(FulfillmentDeliveryGoodsMapper::toPayload)
+                .toList());
         }
         return payload;
     }

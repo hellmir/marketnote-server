@@ -35,14 +35,14 @@ class QuantityTest {
         @DisplayName("수량이 0이면 InvalidQuantityException을 던진다")
         void shouldThrowExceptionWhenValueIsZero() {
             assertThatThrownBy(() -> Quantity.of(0))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
 
         @Test
         @DisplayName("수량이 음수이면 InvalidQuantityException을 던진다")
         void shouldThrowExceptionWhenValueIsNegative() {
             assertThatThrownBy(() -> Quantity.of(-1))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -62,21 +62,21 @@ class QuantityTest {
         @DisplayName("null이면 QuantityNoValueException을 던진다")
         void shouldThrowExceptionWhenValueIsNull() {
             assertThatThrownBy(() -> Quantity.of((Integer) null))
-                    .isInstanceOf(QuantityNoValueException.class);
+                .isInstanceOf(QuantityNoValueException.class);
         }
 
         @Test
         @DisplayName("Integer 값이 0이면 InvalidQuantityException을 던진다")
         void shouldThrowExceptionWhenIntegerIsZero() {
             assertThatThrownBy(() -> Quantity.of(Integer.valueOf(0)))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
 
         @Test
         @DisplayName("Integer 값이 음수이면 InvalidQuantityException을 던진다")
         void shouldThrowExceptionWhenIntegerIsNegative() {
             assertThatThrownBy(() -> Quantity.of(Integer.valueOf(-10)))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -103,7 +103,7 @@ class QuantityTest {
             Quantity quantity2 = Quantity.of(1);
 
             assertThatThrownBy(() -> quantity1.add(quantity2))
-                    .isInstanceOf(ArithmeticException.class);
+                .isInstanceOf(ArithmeticException.class);
         }
     }
 
@@ -129,7 +129,7 @@ class QuantityTest {
             Quantity quantity2 = Quantity.of(5);
 
             assertThatThrownBy(() -> quantity1.subtract(quantity2))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
 
         @Test
@@ -139,7 +139,7 @@ class QuantityTest {
             Quantity quantity2 = Quantity.of(5);
 
             assertThatThrownBy(() -> quantity1.subtract(quantity2))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -163,7 +163,7 @@ class QuantityTest {
             Quantity quantity = Quantity.of(Integer.MAX_VALUE);
 
             assertThatThrownBy(() -> quantity.multiply(2))
-                    .isInstanceOf(ArithmeticException.class);
+                .isInstanceOf(ArithmeticException.class);
         }
 
         @Test
@@ -172,7 +172,7 @@ class QuantityTest {
             Quantity quantity = Quantity.of(5);
 
             assertThatThrownBy(() -> quantity.multiply(0))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 

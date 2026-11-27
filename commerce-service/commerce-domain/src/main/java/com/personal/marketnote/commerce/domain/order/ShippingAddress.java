@@ -24,34 +24,34 @@ public class ShippingAddress {
 
     public static ShippingAddress from(ShippingAddressCreateState state) {
         return ShippingAddress.builder()
-                .recipientName(toNullableRecipientName(state.getRecipientName()))
-                .recipientPhoneNumber(toNullablePhoneNumber(state.getRecipientPhoneNumber()))
-                .zipCode(state.getZipCode())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .deliveryRequestType(state.getDeliveryRequestType())
-                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
-                .build();
+            .recipientName(toNullableRecipientName(state.getRecipientName()))
+            .recipientPhoneNumber(toNullablePhoneNumber(state.getRecipientPhoneNumber()))
+            .zipCode(state.getZipCode())
+            .address(state.getAddress())
+            .addressDetail(state.getAddressDetail())
+            .deliveryRequestType(state.getDeliveryRequestType())
+            .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
+            .build();
     }
 
     public static ShippingAddress ofPickup(
-            String recipientName,
-            String recipientPhoneNumber,
-            String zipCode,
-            String address,
-            String addressDetail,
-            PickupRequestType pickupRequestType,
-            String pickupRequestMessage
+        String recipientName,
+        String recipientPhoneNumber,
+        String zipCode,
+        String address,
+        String addressDetail,
+        PickupRequestType pickupRequestType,
+        String pickupRequestMessage
     ) {
         return ShippingAddress.builder()
-                .recipientName(toNullableRecipientName(recipientName))
-                .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
-                .zipCode(zipCode)
-                .address(address)
-                .addressDetail(addressDetail)
-                .pickupRequestType(pickupRequestType)
-                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(pickupRequestMessage))
-                .build();
+            .recipientName(toNullableRecipientName(recipientName))
+            .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
+            .zipCode(zipCode)
+            .address(address)
+            .addressDetail(addressDetail)
+            .pickupRequestType(pickupRequestType)
+            .deliveryRequestMessage(toDeliveryRequestMessageOrNull(pickupRequestMessage))
+            .build();
     }
 
     private static PhoneNumber toNullablePhoneNumber(String value) {
@@ -87,11 +87,11 @@ public class ShippingAddress {
 
     public ShippingAddress withoutDeliveryRequest() {
         return ShippingAddress.builder()
-                .recipientName(recipientName)
-                .recipientPhoneNumber(recipientPhoneNumber)
-                .zipCode(zipCode)
-                .address(address)
-                .addressDetail(addressDetail)
-                .build();
+            .recipientName(recipientName)
+            .recipientPhoneNumber(recipientPhoneNumber)
+            .zipCode(zipCode)
+            .address(address)
+            .addressDetail(addressDetail)
+            .build();
     }
 }

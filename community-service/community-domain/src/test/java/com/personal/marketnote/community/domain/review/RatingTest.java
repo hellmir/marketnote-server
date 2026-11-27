@@ -24,21 +24,21 @@ class RatingTest {
     @DisplayName("0으로 생성 시 InvalidRatingPointException 발생한다")
     void throwsExceptionWhenRatingIsZero() {
         assertThatThrownBy(() -> Rating.of(0.0f))
-                .isInstanceOf(InvalidRatingPointException.class);
+            .isInstanceOf(InvalidRatingPointException.class);
     }
 
     @Test
     @DisplayName("6으로 생성 시 InvalidRatingPointException 발생한다")
     void throwsExceptionWhenRatingIsSix() {
         assertThatThrownBy(() -> Rating.of(6.0f))
-                .isInstanceOf(InvalidRatingPointException.class);
+            .isInstanceOf(InvalidRatingPointException.class);
     }
 
     @Test
     @DisplayName("소수(3.5)로 생성 시 InvalidRatingPointException 발생한다")
     void throwsExceptionWhenRatingIsFractional() {
         assertThatThrownBy(() -> Rating.of(3.5f))
-                .isInstanceOf(InvalidRatingPointException.class);
+            .isInstanceOf(InvalidRatingPointException.class);
     }
 
     @Test

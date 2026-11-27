@@ -7,28 +7,28 @@ import com.personal.marketnote.notification.domain.template.NotificationType;
 import java.time.LocalDateTime;
 
 public record GetNotificationTemplateResult(
-        Long id,
-        String templateCode,
-        NotificationType notificationType,
-        NotificationCategory notificationCategory,
-        String title,
-        String bodyTemplate,
-        String urlTemplate,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt
+    Long id,
+    String templateCode,
+    NotificationType notificationType,
+    NotificationCategory notificationCategory,
+    String title,
+    String bodyTemplate,
+    String urlTemplate,
+    LocalDateTime createdAt,
+    LocalDateTime modifiedAt
 ) {
 
     public static GetNotificationTemplateResult from(NotificationTemplate template) {
         return new GetNotificationTemplateResult(
-                template.getId(),
-                template.getTemplateCode(),
-                template.getNotificationType(),
-                template.getNotificationCategory(),
-                template.getTitle(),
-                template.getBodyTemplate(),
-                template.getUrlTemplate(),
-                template.getCreatedAt(),
-                template.getModifiedAt()
+            template.getId(),
+            template.getTemplateCode(),
+            template.getNotificationType(),
+            template.getNotificationCategory(),
+            template.getTitle(),
+            template.getBodyTemplate(),
+            template.getUrlTemplate(),
+            template.getCreatedAt(),
+            template.getModifiedAt()
         );
     }
 }

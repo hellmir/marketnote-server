@@ -39,7 +39,7 @@ class DeliveryFailureSlackAlertAdapterTest {
 
             // when
             adapter.sendDeliveryFailureAlert(
-                    1L, "1234567890", "CJ", LocalDateTime.of(2026, 4, 14, 10, 0)
+                1L, "1234567890", "CJ", LocalDateTime.of(2026, 4, 14, 10, 0)
             );
 
             // then
@@ -54,7 +54,7 @@ class DeliveryFailureSlackAlertAdapterTest {
 
             // when
             adapter.sendDeliveryFailureAlert(
-                    1L, "1234567890", "CJ", LocalDateTime.of(2026, 4, 14, 10, 0)
+                1L, "1234567890", "CJ", LocalDateTime.of(2026, 4, 14, 10, 0)
             );
 
             // then

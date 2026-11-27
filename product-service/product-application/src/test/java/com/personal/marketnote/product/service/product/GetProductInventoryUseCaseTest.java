@@ -54,10 +54,10 @@ class GetProductInventoryUseCaseTest {
 
         when(findCacheStockPort.findByPricePolicyIds(pricePolicyIds)).thenReturn(cacheInventories);
         when(findStockPort.findByPricePolicyIds(List.of(2L, 3L)))
-                .thenReturn(Set.of(
-                        GetInventoryResult.of(2L, 7),
-                        GetInventoryResult.of(3L, 0)
-                ));
+            .thenReturn(Set.of(
+                GetInventoryResult.of(2L, 7),
+                GetInventoryResult.of(3L, 0)
+            ));
 
         Map<Long, Integer> result = getProductInventoryService.getProductStocks(pricePolicyIds);
 
@@ -111,7 +111,7 @@ class GetProductInventoryUseCaseTest {
         when(findCacheStockPort.findByPricePolicyIds(pricePolicyIds)).thenThrow(exception);
 
         assertThatThrownBy(() -> getProductInventoryService.getProductStocks(pricePolicyIds))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(findStockPort);
     }
@@ -127,7 +127,7 @@ class GetProductInventoryUseCaseTest {
         when(findStockPort.findByPricePolicyIds(List.of(2L))).thenThrow(new RuntimeException("rest fail"));
 
         assertThatThrownBy(() -> getProductInventoryService.getProductStocks(pricePolicyIds))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("rest fail");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("rest fail");
     }
 }

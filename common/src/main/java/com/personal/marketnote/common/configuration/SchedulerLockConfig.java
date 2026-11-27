@@ -24,8 +24,8 @@ public class SchedulerLockConfig {
     @ConditionalOnProperty(prefix = "shedlock", name = "provider", havingValue = "redis", matchIfMissing = true)
     @ConditionalOnBean(RedisConnectionFactory.class)
     public LockProvider lockProvider(
-            RedisConnectionFactory redisConnectionFactory,
-            @Value("${spring.profiles.active:default}") String activeProfile
+        RedisConnectionFactory redisConnectionFactory,
+        @Value("${spring.profiles.active:default}") String activeProfile
     ) {
         return new RedisLockProvider(redisConnectionFactory, activeProfile, LOCK_KEY_PREFIX);
     }

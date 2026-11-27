@@ -28,29 +28,29 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public ShippingAddressInfoResult findByIdAndUserId(Long shippingAddressId, Long userId) {
         ShippingAddressReadModelJpaEntity entity = shippingAddressReadModelJpaRepository
-                .findByShippingAddressIdAndUserIdAndStatus(shippingAddressId, userId, EntityStatus.ACTIVE)
-                .orElseThrow(() -> {
-                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
-                    return new ShippingAddressNotFoundException();
-                });
+            .findByShippingAddressIdAndUserIdAndStatus(shippingAddressId, userId, EntityStatus.ACTIVE)
+            .orElseThrow(() -> {
+                log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                return new ShippingAddressNotFoundException();
+            });
 
         return new ShippingAddressInfoResult(
-                entity.getRecipientName(),
-                entity.getRecipientPhoneNumber(),
-                entity.getAddress(),
-                entity.getAddressDetail(),
-                entity.getRegionType()
+            entity.getRecipientName(),
+            entity.getRecipientPhoneNumber(),
+            entity.getAddress(),
+            entity.getAddressDetail(),
+            entity.getRegionType()
         );
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long shippingAddressId, Long userId, String recipientName,
-            String recipientPhoneNumber, String address, String addressDetail, String regionType
+        Long shippingAddressId, Long userId, String recipientName,
+        String recipientPhoneNumber, String address, String addressDetail, String regionType
     ) {
         Optional<ShippingAddressReadModelJpaEntity> existing =
-                shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId);
+            shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(recipientName, recipientPhoneNumber, address, addressDetail, regionType);
@@ -59,16 +59,16 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
 
         try {
             ShippingAddressReadModelJpaEntity entity = ShippingAddressReadModelJpaEntity.of(
-                    shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType
+                shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType
             );
             shippingAddressReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("배송지 Read Model 중복 저장 (멱등 처리). shippingAddressId={}", shippingAddressId);
             shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId)
-                    .ifPresent(entity -> entity.updateFrom(
-                            recipientName, recipientPhoneNumber, address, addressDetail, regionType
-                    ));
+                .ifPresent(entity -> entity.updateFrom(
+                    recipientName, recipientPhoneNumber, address, addressDetail, regionType
+                ));
         }
     }
 
@@ -76,6 +76,6 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
     @Transactional(isolation = READ_COMMITTED)
     public void deactivateByShippingAddressId(Long shippingAddressId) {
         shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId)
-                .ifPresent(ShippingAddressReadModelJpaEntity::markInactive);
+            .ifPresent(ShippingAddressReadModelJpaEntity::markInactive);
     }
 }

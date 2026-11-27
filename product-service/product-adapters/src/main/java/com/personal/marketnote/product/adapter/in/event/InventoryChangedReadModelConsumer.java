@@ -23,12 +23,12 @@ public class InventoryChangedReadModelConsumer {
     private final SaveInventoryReadModelPort saveInventoryReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.INVENTORY_CHANGED,
-            groupId = "product-inventory-read-model"
+        topics = KafkaTopicConstants.INVENTORY_CHANGED,
+        groupId = "product-inventory-read-model"
     )
     public void handleInventoryChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -45,13 +45,13 @@ public class InventoryChangedReadModelConsumer {
         InventoryChangedEvent payload = envelope.getPayloadAs(InventoryChangedEvent.class, objectMapper);
 
         log.info("재고 변경 이벤트 수신. eventId={}, pricePolicyId={}, productId={}, stockQuantity={}, action={}",
-                envelope.eventId(), payload.pricePolicyId(), payload.productId(),
-                payload.stockQuantity(), payload.action()
+            envelope.eventId(), payload.pricePolicyId(), payload.productId(),
+            payload.stockQuantity(), payload.action()
         );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+            EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()),
+            EventPayloadValidator.id("productId", payload.productId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -64,10 +64,10 @@ public class InventoryChangedReadModelConsumer {
 
         if (payload.action().isCreated() || payload.action().isUpdated()) {
             saveInventoryReadModelPort.upsert(
-                    payload.pricePolicyId(), payload.productId(), payload.stockQuantity()
+                payload.pricePolicyId(), payload.productId(), payload.stockQuantity()
             );
             log.info("재고 Read Model 저장 완료. pricePolicyId={}, productId={}",
-                    payload.pricePolicyId(), payload.productId()
+                payload.pricePolicyId(), payload.productId()
             );
         }
 

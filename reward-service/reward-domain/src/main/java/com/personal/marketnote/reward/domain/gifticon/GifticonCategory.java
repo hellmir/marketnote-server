@@ -22,25 +22,25 @@ public class GifticonCategory {
 
     public static GifticonCategory from(GifticonCategoryCreateState state) {
         return GifticonCategory.builder()
-                .categoryCode(CategoryCode.of(state.getCategoryCode()))
-                .categoryName(state.getCategoryName())
-                .exposed(false)
-                .orderNum(null)
-                .build();
+            .categoryCode(CategoryCode.of(state.getCategoryCode()))
+            .categoryName(state.getCategoryName())
+            .exposed(false)
+            .orderNum(null)
+            .build();
     }
 
     public static GifticonCategory from(GifticonCategorySnapshotState state) {
         return GifticonCategory.builder()
-                .id(state.getId())
-                .categoryCode(CategoryCode.fromSnapshot(state.getCategoryCode()))
-                .categoryName(state.getCategoryName())
-                .displayName(state.getDisplayName())
-                .iconUrl(state.getIconUrl())
-                .exposed(state.isExposed())
-                .orderNum(state.getOrderNum())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .categoryCode(CategoryCode.fromSnapshot(state.getCategoryCode()))
+            .categoryName(state.getCategoryName())
+            .displayName(state.getDisplayName())
+            .iconUrl(state.getIconUrl())
+            .exposed(state.isExposed())
+            .orderNum(state.getOrderNum())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public String getEffectiveDisplayName() {

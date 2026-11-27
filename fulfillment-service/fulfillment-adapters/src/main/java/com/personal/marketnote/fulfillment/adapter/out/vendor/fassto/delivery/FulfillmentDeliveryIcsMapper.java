@@ -17,23 +17,23 @@ public class FulfillmentDeliveryIcsMapper {
     private List<FulfillmentDeliveryIcsItemMapper> deliveryRequests;
 
     public static FulfillmentDeliveryIcsMapper register(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentDeliveryIcsItemMapper> deliveryRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentDeliveryIcsItemMapper> deliveryRequests
     ) {
         FulfillmentDeliveryIcsMapper mapper = FulfillmentDeliveryIcsMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .deliveryRequests(deliveryRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .deliveryRequests(deliveryRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public List<Map<String, Object>> toPayload() {
         return deliveryRequests.stream()
-                .map(FulfillmentDeliveryIcsItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentDeliveryIcsItemMapper::toPayload)
+            .toList();
     }
 
     public String getOrdNo() {

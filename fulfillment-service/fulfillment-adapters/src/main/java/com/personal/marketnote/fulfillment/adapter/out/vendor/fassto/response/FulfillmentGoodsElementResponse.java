@@ -6,10 +6,10 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentGoodsElementResponse(
-        String godCd,
-        String cstGodCd,
-        String godNm,
-        String useYn,
-        List<FulfillmentGoodsElementItemResponse> elementList
+    String godCd,
+    String cstGodCd,
+    String godNm,
+    String useYn,
+    List<FulfillmentGoodsElementItemResponse> elementList
 ) {
 }

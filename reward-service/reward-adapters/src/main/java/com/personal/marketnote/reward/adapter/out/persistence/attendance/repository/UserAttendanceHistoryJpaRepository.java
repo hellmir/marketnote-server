@@ -11,9 +11,9 @@ public interface UserAttendanceHistoryJpaRepository extends JpaRepository<UserAt
     Optional<UserAttendanceHistoryJpaEntity> findTop1ByUserAttendanceIdOrderByAttendedAtDesc(Long userAttendanceId);
 
     boolean existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-            Long userAttendanceId,
-            LocalDateTime startInclusive,
-            LocalDateTime endExclusive
+        Long userAttendanceId,
+        LocalDateTime startInclusive,
+        LocalDateTime endExclusive
     );
 
     List<UserAttendanceHistoryJpaEntity> findAllByUserAttendanceIdOrderByAttendedAtAsc(Long userAttendanceId);

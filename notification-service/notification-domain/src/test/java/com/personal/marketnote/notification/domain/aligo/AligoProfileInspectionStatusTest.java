@@ -12,11 +12,11 @@ class AligoProfileInspectionStatusTest {
 
     @ParameterizedTest
     @CsvSource({
-            "A, 승인",
-            "C, 신청",
-            "B, 차단",
-            "E, 삭제",
-            "D, 거부"
+        "A, 승인",
+        "C, 신청",
+        "B, 차단",
+        "E, 삭제",
+        "D, 거부"
     })
     @DisplayName("AligoProfileInspectionStatus.from — 유효 코드(A/C/B/E/D)를 Enum으로 변환한다")
     void shouldConvertValidCodes(String code, String expectedDescription) {
@@ -32,8 +32,8 @@ class AligoProfileInspectionStatusTest {
     @DisplayName("AligoProfileInspectionStatus.from — 무효 코드 시 InvalidAligoSenderProfileException이 발생한다")
     void shouldThrowExceptionForInvalidCode() {
         assertThatThrownBy(() -> AligoProfileInspectionStatus.from("X"))
-                .isInstanceOf(InvalidAligoSenderProfileException.class)
-                .hasMessageContaining("알 수 없는 profileInspectionStatus");
+            .isInstanceOf(InvalidAligoSenderProfileException.class)
+            .hasMessageContaining("알 수 없는 profileInspectionStatus");
     }
 
     @Test

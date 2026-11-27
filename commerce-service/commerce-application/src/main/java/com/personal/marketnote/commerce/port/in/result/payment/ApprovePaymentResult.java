@@ -6,23 +6,23 @@ import lombok.Builder;
 
 @Builder
 public record ApprovePaymentResult(
-        Long orderId,
-        String orderKey,
-        String pgPaymentKey,
-        Long amount,
-        String resultCode,
-        String resultMessage,
-        String payMethod
+    Long orderId,
+    String orderKey,
+    String pgPaymentKey,
+    Long amount,
+    String resultCode,
+    String resultMessage,
+    String payMethod
 ) {
     public static ApprovePaymentResult of(Payment payment, PaymentApprovalVendorResult vendorResult) {
         return new ApprovePaymentResult(
-                payment.getOrderId(),
-                payment.getOrderKey().toString(),
-                vendorResult.transactionId(),
-                payment.getPaymentAmount().getValue(),
-                vendorResult.resultCode(),
-                vendorResult.resultMessage(),
-                vendorResult.payMethod()
+            payment.getOrderId(),
+            payment.getOrderKey().toString(),
+            vendorResult.transactionId(),
+            payment.getPaymentAmount().getValue(),
+            vendorResult.resultCode(),
+            vendorResult.resultMessage(),
+            vendorResult.payMethod()
         );
     }
 }

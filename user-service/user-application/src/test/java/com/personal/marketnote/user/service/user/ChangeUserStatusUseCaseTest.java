@@ -55,7 +55,7 @@ class ChangeUserStatusUseCaseTest {
 
         LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 5, 13, 0, 0);
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                USER_ID, ADMIN_ID, UserStatusAction.DEACTIVATE.name(), "욕설 사용", deactivatedUntil
+            USER_ID, ADMIN_ID, UserStatusAction.DEACTIVATE.name(), "욕설 사용", deactivatedUntil
         );
 
         UserStatusHistory savedHistory = createSavedHistory(1L, UserStatusAction.DEACTIVATE, deactivatedUntil);
@@ -92,7 +92,7 @@ class ChangeUserStatusUseCaseTest {
         when(getUserUseCase.getAllStatusUser(USER_ID)).thenReturn(activeUser);
 
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                USER_ID, ADMIN_ID, UserStatusAction.DEACTIVATE.name(), "영구 정지", null
+            USER_ID, ADMIN_ID, UserStatusAction.DEACTIVATE.name(), "영구 정지", null
         );
 
         UserStatusHistory savedHistory = createSavedHistory(2L, UserStatusAction.DEACTIVATE, null);
@@ -117,7 +117,7 @@ class ChangeUserStatusUseCaseTest {
         when(getUserUseCase.getAllStatusUser(USER_ID)).thenReturn(inactiveUser);
 
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                USER_ID, ADMIN_ID, UserStatusAction.ACTIVATE.name(), "정지 해제", null
+            USER_ID, ADMIN_ID, UserStatusAction.ACTIVATE.name(), "정지 해제", null
         );
 
         UserStatusHistory savedHistory = createSavedHistory(3L, UserStatusAction.ACTIVATE, null);
@@ -143,12 +143,12 @@ class ChangeUserStatusUseCaseTest {
         when(getUserUseCase.getAllStatusUser(USER_ID)).thenReturn(activeUser);
 
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                USER_ID, ADMIN_ID, UserStatusAction.ACTIVATE.name(), "정지 해제", null
+            USER_ID, ADMIN_ID, UserStatusAction.ACTIVATE.name(), "정지 해제", null
         );
 
         // when & then
         assertThatThrownBy(() -> changeUserStatusService.changeStatus(command))
-                .isInstanceOf(InvalidUserStatusTransitionException.class);
+            .isInstanceOf(InvalidUserStatusTransitionException.class);
 
         verifyNoInteractions(updateUserPort);
         verifyNoInteractions(saveUserStatusHistoryPort);
@@ -162,12 +162,12 @@ class ChangeUserStatusUseCaseTest {
         when(getUserUseCase.getAllStatusUser(USER_ID)).thenReturn(inactiveUser);
 
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                USER_ID, ADMIN_ID, UserStatusAction.DEACTIVATE.name(), "추가 정지", null
+            USER_ID, ADMIN_ID, UserStatusAction.DEACTIVATE.name(), "추가 정지", null
         );
 
         // when & then
         assertThatThrownBy(() -> changeUserStatusService.changeStatus(command))
-                .isInstanceOf(InvalidUserStatusTransitionException.class);
+            .isInstanceOf(InvalidUserStatusTransitionException.class);
 
         verifyNoInteractions(updateUserPort);
         verifyNoInteractions(saveUserStatusHistoryPort);
@@ -179,12 +179,12 @@ class ChangeUserStatusUseCaseTest {
         // given
         Long sameId = 100L;
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                sameId, sameId, UserStatusAction.DEACTIVATE.name(), "자기 정지", null
+            sameId, sameId, UserStatusAction.DEACTIVATE.name(), "자기 정지", null
         );
 
         // when & then
         assertThatThrownBy(() -> changeUserStatusService.changeStatus(command))
-                .isInstanceOf(AdminSelfDeactivationException.class);
+            .isInstanceOf(AdminSelfDeactivationException.class);
 
         verifyNoInteractions(getUserUseCase);
         verifyNoInteractions(updateUserPort);
@@ -196,26 +196,26 @@ class ChangeUserStatusUseCaseTest {
     void shouldThrowExceptionWhenActivatingWithdrawnUser() {
         // given
         User withdrawnUser = User.from(
-                UserSnapshotState.builder()
-                        .id(USER_ID)
-                        .nickname(Nickname.of("withdrawn"))
-                        .status(EntityStatus.INACTIVE)
-                        .penaltyCount(0)
-                        .withdrawalYn(true)
-                        .userAuthProviders(List.of())
-                        .userTerms(List.of())
-                        .lastLoggedInAt(LocalDateTime.now())
-                        .build()
+            UserSnapshotState.builder()
+                .id(USER_ID)
+                .nickname(Nickname.of("withdrawn"))
+                .status(EntityStatus.INACTIVE)
+                .penaltyCount(0)
+                .withdrawalYn(true)
+                .userAuthProviders(List.of())
+                .userTerms(List.of())
+                .lastLoggedInAt(LocalDateTime.now())
+                .build()
         );
         when(getUserUseCase.getAllStatusUser(USER_ID)).thenReturn(withdrawnUser);
 
         ChangeUserStatusCommand command = new ChangeUserStatusCommand(
-                USER_ID, ADMIN_ID, UserStatusAction.ACTIVATE.name(), "정지 해제 시도", null
+            USER_ID, ADMIN_ID, UserStatusAction.ACTIVATE.name(), "정지 해제 시도", null
         );
 
         // when & then
         assertThatThrownBy(() -> changeUserStatusService.changeStatus(command))
-                .isInstanceOf(InvalidUserStatusTransitionException.class);
+            .isInstanceOf(InvalidUserStatusTransitionException.class);
 
         verifyNoInteractions(updateUserPort);
         verifyNoInteractions(saveUserStatusHistoryPort);
@@ -223,30 +223,30 @@ class ChangeUserStatusUseCaseTest {
 
     private User createUserWithStatus(EntityStatus status) {
         return User.from(
-                UserSnapshotState.builder()
-                        .id(USER_ID)
-                        .nickname(Nickname.of("testuser"))
-                        .status(status)
-                        .penaltyCount(0)
-                        .userAuthProviders(List.of())
-                        .userTerms(List.of())
-                        .lastLoggedInAt(LocalDateTime.now())
-                        .build()
+            UserSnapshotState.builder()
+                .id(USER_ID)
+                .nickname(Nickname.of("testuser"))
+                .status(status)
+                .penaltyCount(0)
+                .userAuthProviders(List.of())
+                .userTerms(List.of())
+                .lastLoggedInAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private UserStatusHistory createSavedHistory(Long id, UserStatusAction action, LocalDateTime deactivatedUntil) {
         return UserStatusHistory.from(
-                UserStatusHistorySnapshotState.builder()
-                        .id(id)
-                        .userId(USER_ID)
-                        .statusAction(action)
-                        .reason("테스트 사유")
-                        .deactivatedUntil(deactivatedUntil)
-                        .actor(UserStatusActor.ADMIN)
-                        .createdBy(ADMIN_ID)
-                        .createdAt(LocalDateTime.now())
-                        .build()
+            UserStatusHistorySnapshotState.builder()
+                .id(id)
+                .userId(USER_ID)
+                .statusAction(action)
+                .reason("테스트 사유")
+                .deactivatedUntil(deactivatedUntil)
+                .actor(UserStatusActor.ADMIN)
+                .createdBy(ADMIN_ID)
+                .createdAt(LocalDateTime.now())
+                .build()
         );
     }
 }

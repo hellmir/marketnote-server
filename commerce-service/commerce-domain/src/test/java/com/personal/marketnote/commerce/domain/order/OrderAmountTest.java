@@ -50,11 +50,11 @@ class OrderAmountTest {
         @DisplayName("CreateState에 paidAmount가 없으면 Money.zero()로 초기화된다")
         void shouldInitializePaidAmountAsZeroWhenCreateStateHasNoPaidAmount() {
             OrderAmountCreateState state = OrderAmountCreateState.builder()
-                    .totalAmount(50000L)
-                    .couponAmount(3000L)
-                    .pointAmount(2000L)
-                    .shippingFee(3000L)
-                    .build();
+                .totalAmount(50000L)
+                .couponAmount(3000L)
+                .pointAmount(2000L)
+                .shippingFee(3000L)
+                .build();
 
             OrderAmount orderAmount = OrderAmount.from(state);
 
@@ -69,12 +69,12 @@ class OrderAmountTest {
         @DisplayName("CreateState에 paidAmount가 있으면 Money로 변환되어 설정된다")
         void shouldConvertPaidAmountToMoneyWhenCreateStateHasPaidAmount() {
             OrderAmountCreateState state = OrderAmountCreateState.builder()
-                    .totalAmount(50000L)
-                    .paidAmount(45000L)
-                    .couponAmount(3000L)
-                    .pointAmount(2000L)
-                    .shippingFee(3000L)
-                    .build();
+                .totalAmount(50000L)
+                .paidAmount(45000L)
+                .couponAmount(3000L)
+                .pointAmount(2000L)
+                .shippingFee(3000L)
+                .build();
 
             OrderAmount orderAmount = OrderAmount.from(state);
 
@@ -90,12 +90,12 @@ class OrderAmountTest {
         @DisplayName("SnapshotState에 paidAmount가 null이면 Money.zero()로 복원된다")
         void shouldRestorePaidAmountAsZeroWhenSnapshotStateHasNullPaidAmount() {
             OrderAmountSnapshotState state = OrderAmountSnapshotState.builder()
-                    .totalAmount(50000L)
-                    .paidAmount(null)
-                    .couponAmount(3000L)
-                    .pointAmount(2000L)
-                    .shippingFee(3000L)
-                    .build();
+                .totalAmount(50000L)
+                .paidAmount(null)
+                .couponAmount(3000L)
+                .pointAmount(2000L)
+                .shippingFee(3000L)
+                .build();
 
             OrderAmount orderAmount = OrderAmount.from(state);
 
@@ -106,12 +106,12 @@ class OrderAmountTest {
         @DisplayName("SnapshotState에 paidAmount가 있으면 Money로 변환되어 복원된다")
         void shouldRestorePaidAmountAsMoneyWhenSnapshotStateHasPaidAmount() {
             OrderAmountSnapshotState state = OrderAmountSnapshotState.builder()
-                    .totalAmount(50000L)
-                    .paidAmount(45000L)
-                    .couponAmount(3000L)
-                    .pointAmount(2000L)
-                    .shippingFee(3000L)
-                    .build();
+                .totalAmount(50000L)
+                .paidAmount(45000L)
+                .couponAmount(3000L)
+                .pointAmount(2000L)
+                .shippingFee(3000L)
+                .build();
 
             OrderAmount orderAmount = OrderAmount.from(state);
 
@@ -127,11 +127,11 @@ class OrderAmountTest {
         @DisplayName("withPaidAmount는 원본 OrderAmount를 변경하지 않고 paidAmount만 변경된 새 인스턴스를 반환한다")
         void shouldReturnNewInstanceWithUpdatedPaidAmountAndKeepOriginalUnchanged() {
             OrderAmount original = OrderAmount.from(OrderAmountCreateState.builder()
-                    .totalAmount(50000L)
-                    .couponAmount(3000L)
-                    .pointAmount(2000L)
-                    .shippingFee(3000L)
-                    .build()
+                .totalAmount(50000L)
+                .couponAmount(3000L)
+                .pointAmount(2000L)
+                .shippingFee(3000L)
+                .build()
             );
 
             OrderAmount updated = original.withPaidAmount(Money.of(45000L));

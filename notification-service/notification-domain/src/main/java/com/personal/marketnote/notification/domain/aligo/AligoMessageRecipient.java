@@ -34,26 +34,26 @@ public class AligoMessageRecipient {
             throw new InvalidAligoTemplateException("수신자 전화번호 형식이 올바르지 않습니다.");
         }
         return AligoMessageRecipient.builder()
-                .receiver(state.getReceiver())
-                .recvName(state.getRecvName())
-                .recipientStatus(AligoMessageRecipientStatus.PENDING)
-                .build();
+            .receiver(state.getReceiver())
+            .recvName(state.getRecvName())
+            .recipientStatus(AligoMessageRecipientStatus.PENDING)
+            .build();
     }
 
     public static AligoMessageRecipient from(AligoMessageRecipientSnapshotState state) {
         return AligoMessageRecipient.builder()
-                .id(state.getId())
-                .receiver(state.getReceiver())
-                .recvName(state.getRecvName())
-                .msgId(state.getMsgId())
-                .smid(state.getSmid())
-                .recipientStatus(state.getRecipientStatus())
-                .rslt(state.getRslt())
-                .rsltMessage(state.getRsltMessage())
-                .sentAt(state.getSentAt())
-                .resultAt(state.getResultAt())
-                .reportAt(state.getReportAt())
-                .build();
+            .id(state.getId())
+            .receiver(state.getReceiver())
+            .recvName(state.getRecvName())
+            .msgId(state.getMsgId())
+            .smid(state.getSmid())
+            .recipientStatus(state.getRecipientStatus())
+            .rslt(state.getRslt())
+            .rsltMessage(state.getRsltMessage())
+            .sentAt(state.getSentAt())
+            .resultAt(state.getResultAt())
+            .reportAt(state.getReportAt())
+            .build();
     }
 
     public boolean isPending() {
@@ -88,9 +88,9 @@ public class AligoMessageRecipient {
     }
 
     public void updateResult(
-            AligoMessageRecipientStatus targetStatus, String msgId,
-            String rslt, String rsltMessage,
-            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+        AligoMessageRecipientStatus targetStatus, String msgId,
+        String rslt, String rsltMessage,
+        LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
     ) {
         if (!isPending()) {
             return;

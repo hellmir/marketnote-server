@@ -71,7 +71,7 @@ class GetCartProductUseCaseTest {
         when(findCartProductPort.existsByUserIdAndPolicyId(3L, 300L)).thenThrow(exception);
 
         assertThatThrownBy(() -> getCartProductService.existsByUserIdAndPolicyId(3L, 300L))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -83,7 +83,7 @@ class GetCartProductUseCaseTest {
         CartProduct cartProduct = buildCartProduct(userId, null, pricePolicy, "https://image", (short) 2);
 
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(userId, pricePolicyId))
-                .thenReturn(Optional.of(cartProduct));
+            .thenReturn(Optional.of(cartProduct));
 
         CartProduct result = getCartProductService.getCartProduct(userId, pricePolicyId);
 
@@ -97,11 +97,11 @@ class GetCartProductUseCaseTest {
         Long pricePolicyId = 1100L;
 
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(userId, pricePolicyId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getCartProductService.getCartProduct(userId, pricePolicyId))
-                .isInstanceOf(CartProductNotFoundException.class)
-                .hasMessage("장바구니 상품을 찾을 수 없습니다.");
+            .isInstanceOf(CartProductNotFoundException.class)
+            .hasMessage("장바구니 상품을 찾을 수 없습니다.");
     }
 
     @Test
@@ -112,10 +112,10 @@ class GetCartProductUseCaseTest {
         RuntimeException exception = new RuntimeException("find fail");
 
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(userId, pricePolicyId))
-                .thenThrow(exception);
+            .thenThrow(exception);
 
         assertThatThrownBy(() -> getCartProductService.getCartProduct(userId, pricePolicyId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -133,7 +133,7 @@ class GetCartProductUseCaseTest {
 
         when(findCartProductsPort.findByUserId(userId)).thenReturn(List.of(cart1, cart2));
         when(getProductInventoryUseCase.getProductStocks(List.of(100L, 200L)))
-                .thenReturn(Map.of(100L, 5, 200L, 0));
+            .thenReturn(Map.of(100L, 5, 200L, 0));
 
         GetMyCartProductsResult result = getCartProductService.getMyCartProducts(userId);
 
@@ -199,7 +199,7 @@ class GetCartProductUseCaseTest {
         when(findCartProductsPort.findByUserId(userId)).thenThrow(exception);
 
         assertThatThrownBy(() -> getCartProductService.getMyCartProducts(userId))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(getProductInventoryUseCase);
     }
@@ -217,72 +217,72 @@ class GetCartProductUseCaseTest {
         when(getProductInventoryUseCase.getProductStocks(List.of(400L))).thenThrow(exception);
 
         assertThatThrownBy(() -> getCartProductService.getMyCartProducts(userId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private PricePolicy buildPricePolicy(Long id) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(new BigDecimal("20.0")))
-                        .accumulatedPoint(200L)
-                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(new BigDecimal("20.0")))
+                .accumulatedPoint(200L)
+                .accumulationRate(Rate.of(new BigDecimal("2.5")))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
     private PricePolicy buildPricePolicy(Long id, Product product) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .product(product)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(new BigDecimal("20.0")))
-                        .accumulatedPoint(200L)
-                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .product(product)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(new BigDecimal("20.0")))
+                .accumulatedPoint(200L)
+                .accumulationRate(Rate.of(new BigDecimal("2.5")))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
     private Product buildProduct(Long id) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("상품-" + id)
-                        .brandName("브랜드-" + id)
-                        .detail("설명-" + id)
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("상품-" + id)
+                .brandName("브랜드-" + id)
+                .detail("설명-" + id)
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private CartProduct buildCartProduct(
-            Long userId,
-            UUID sharerKey,
-            PricePolicy pricePolicy,
-            String imageUrl,
-            Short quantity
+        Long userId,
+        UUID sharerKey,
+        PricePolicy pricePolicy,
+        String imageUrl,
+        Short quantity
     ) {
         return CartProduct.from(
-                CartProductSnapshotState.builder()
-                        .userId(userId)
-                        .sharerKey(sharerKey)
-                        .pricePolicy(pricePolicy)
-                        .imageUrl(imageUrl)
-                        .quantity(quantity)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CartProductSnapshotState.builder()
+                .userId(userId)
+                .sharerKey(sharerKey)
+                .pricePolicy(pricePolicy)
+                .imageUrl(imageUrl)
+                .quantity(quantity)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

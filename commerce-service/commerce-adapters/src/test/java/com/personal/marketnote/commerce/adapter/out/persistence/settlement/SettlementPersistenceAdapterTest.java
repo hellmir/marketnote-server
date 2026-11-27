@@ -51,16 +51,16 @@ class SettlementPersistenceAdapterTest {
         long pgFee = 1000L;
         long platformFee = 2000L;
         Settlement settlement = Settlement.from(
-                SettlementCreateState.builder()
-                        .sellerId(sellerId)
-                        .year(year)
-                        .month(month)
-                        .totalAllocatedAmount(totalAllocated)
-                        .shippingFee(shippingFee)
-                        .pgFeeAmount(pgFee)
-                        .platformFeeAmount(platformFee)
-                        .sellerPayoutAmount(totalAllocated + shippingFee - pgFee - platformFee)
-                        .build()
+            SettlementCreateState.builder()
+                .sellerId(sellerId)
+                .year(year)
+                .month(month)
+                .totalAllocatedAmount(totalAllocated)
+                .shippingFee(shippingFee)
+                .pgFeeAmount(pgFee)
+                .platformFeeAmount(platformFee)
+                .sellerPayoutAmount(totalAllocated + shippingFee - pgFee - platformFee)
+                .build()
         );
         return adapter.save(settlement);
     }
@@ -273,21 +273,21 @@ class SettlementPersistenceAdapterTest {
             entityManager.clear();
 
             Settlement toUpdate = Settlement.from(
-                    SettlementSnapshotState.builder()
-                            .id(saved.getId())
-                            .sellerId(saved.getSellerId())
-                            .year(saved.getYear())
-                            .month(saved.getMonth())
-                            .totalAllocatedAmount(saved.getTotalAllocatedAmount().getValue())
-                            .shippingFee(saved.getShippingFee().getValue())
-                            .pgFeeAmount(saved.getPgFeeAmount().getValue())
-                            .platformFeeAmount(saved.getPlatformFeeAmount().getValue())
-                            .sellerPayoutAmount(saved.getSellerPayoutAmount().getValue())
-                            .status(SettlementStatus.COMPLETED)
-                            .version(saved.getVersion())
-                            .createdAt(saved.getCreatedAt())
-                            .modifiedAt(saved.getModifiedAt())
-                            .build()
+                SettlementSnapshotState.builder()
+                    .id(saved.getId())
+                    .sellerId(saved.getSellerId())
+                    .year(saved.getYear())
+                    .month(saved.getMonth())
+                    .totalAllocatedAmount(saved.getTotalAllocatedAmount().getValue())
+                    .shippingFee(saved.getShippingFee().getValue())
+                    .pgFeeAmount(saved.getPgFeeAmount().getValue())
+                    .platformFeeAmount(saved.getPlatformFeeAmount().getValue())
+                    .sellerPayoutAmount(saved.getSellerPayoutAmount().getValue())
+                    .status(SettlementStatus.COMPLETED)
+                    .version(saved.getVersion())
+                    .createdAt(saved.getCreatedAt())
+                    .modifiedAt(saved.getModifiedAt())
+                    .build()
             );
 
             // when

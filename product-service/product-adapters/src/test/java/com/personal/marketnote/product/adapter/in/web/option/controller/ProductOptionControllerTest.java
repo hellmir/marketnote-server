@@ -58,11 +58,11 @@ class ProductOptionControllerTest {
             UpdateProductOptionsRequest request = buildRequest();
             UpdateProductOptionsResult result = new UpdateProductOptionsResult(1L, List.of(10L, 20L));
             when(registerProductOptionsUseCase.registerProductOptions(
-                    eq(100L), anyBoolean(), any(RegisterProductOptionsCommand.class)
+                eq(100L), anyBoolean(), any(RegisterProductOptionsCommand.class)
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<UpsertProductOptionsResponse>> response =
-                    productOptionController.registerProductOptionCategories(1L, request, principal);
+                productOptionController.registerProductOptionCategories(1L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         }
@@ -79,7 +79,7 @@ class ProductOptionControllerTest {
             when(getProductOptionsUseCase.getProductOptions(1L)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductOptionsResponse>> response =
-                    productOptionController.getProductOptions(1L);
+                productOptionController.getProductOptions(1L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getProductOptionsUseCase).getProductOptions(1L);
@@ -97,11 +97,11 @@ class ProductOptionControllerTest {
             UpdateProductOptionsRequest request = buildRequest();
             UpdateProductOptionsResult result = new UpdateProductOptionsResult(1L, List.of(10L, 20L));
             when(updateProductOptionsUseCase.updateProductOptions(
-                    eq(100L), anyBoolean(), any(UpdateProductOptionsCommand.class)
+                eq(100L), anyBoolean(), any(UpdateProductOptionsCommand.class)
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<UpsertProductOptionsResponse>> response =
-                    productOptionController.updateProductOptionCategories(1L, 5L, request, principal);
+                productOptionController.updateProductOptionCategories(1L, 5L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
@@ -117,7 +117,7 @@ class ProductOptionControllerTest {
             OAuth2AuthenticatedPrincipal principal = mockPrincipal();
 
             ResponseEntity<BaseResponse<Void>> response =
-                    productOptionController.deleteProductOptionCategories(1L, 5L, principal);
+                productOptionController.deleteProductOptionCategories(1L, 5L, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(deleteProductOptionsUseCase).deleteProductOptions(eq(100L), anyBoolean(), eq(1L), eq(5L));

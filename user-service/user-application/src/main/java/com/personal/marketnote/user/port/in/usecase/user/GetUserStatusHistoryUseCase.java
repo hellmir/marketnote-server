@@ -25,10 +25,10 @@ public interface GetUserStatusHistoryUseCase {
      * @Description 특정 회원의 상태 변경 내역을 페이징 조회합니다.
      */
     Page<GetUserStatusHistoryResult> getUserStatusHistories(
-            Long userId,
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            UserStatusHistorySortProperty sortProperty
+        Long userId,
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        UserStatusHistorySortProperty sortProperty
     );
 }

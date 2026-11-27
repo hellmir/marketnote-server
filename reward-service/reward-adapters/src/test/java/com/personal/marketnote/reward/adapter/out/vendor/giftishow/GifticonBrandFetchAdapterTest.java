@@ -34,7 +34,7 @@ class GifticonBrandFetchAdapterTest {
         GiftishowBrandItem item = new GiftishowBrandItem("B001", "스타벅스", "http://img.test.com/brand.jpg", "1", "카페/음료");
         GiftishowBrandListResponse vendorResult = new GiftishowBrandListResponse(1, List.of(item));
         given(giftishowApiClient.getBrandList())
-                .willReturn(new GiftishowApiResponse<>("0000", "success", vendorResult));
+            .willReturn(new GiftishowApiResponse<>("0000", "success", vendorResult));
 
         // when
         FetchGifticonBrandResult result = adapter.fetchBrandList();
@@ -57,8 +57,8 @@ class GifticonBrandFetchAdapterTest {
         GiftishowBrandItem item1 = new GiftishowBrandItem("B001", "스타벅스", "img1", "1", "카페/음료");
         GiftishowBrandItem item2 = new GiftishowBrandItem("B002", "베스킨라빈스", "img2", "2", "디저트");
         given(giftishowApiClient.getBrandList())
-                .willReturn(new GiftishowApiResponse<>("0000", "success",
-                        new GiftishowBrandListResponse(2, List.of(item1, item2))));
+            .willReturn(new GiftishowApiResponse<>("0000", "success",
+                new GiftishowBrandListResponse(2, List.of(item1, item2))));
 
         // when
         FetchGifticonBrandResult result = adapter.fetchBrandList();
@@ -73,7 +73,7 @@ class GifticonBrandFetchAdapterTest {
     void shouldReturnEmptyResultWhenVendorRespondsErrorCode() {
         // given
         given(giftishowApiClient.getBrandList())
-                .willReturn(new GiftishowApiResponse<>("9999", "인증 실패", null));
+            .willReturn(new GiftishowApiResponse<>("9999", "인증 실패", null));
 
         // when
         FetchGifticonBrandResult result = adapter.fetchBrandList();

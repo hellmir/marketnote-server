@@ -31,7 +31,7 @@ class VendorVerificationProcessorTest {
 
             // when & then
             assertThatCode(() -> VendorVerificationProcessor.validateSignature(secret, text, signature))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -39,8 +39,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenSignatureMismatch() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature(secret, text, "invalid-sig"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("signed value 검증");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("signed value 검증");
         }
 
         @Test
@@ -48,8 +48,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenSecretIsNull() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature(null, text, "any"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("유효하지 않은 인증키");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("유효하지 않은 인증키");
         }
 
         @Test
@@ -57,8 +57,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenSecretIsBlank() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature("   ", text, "any"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("유효하지 않은 인증키");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("유효하지 않은 인증키");
         }
 
         @Test
@@ -66,8 +66,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenTextIsNull() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature(secret, null, "any"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("유효하지 않은 인증키");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("유효하지 않은 인증키");
         }
 
         @Test
@@ -75,8 +75,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenTextIsBlank() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature(secret, "", "any"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("유효하지 않은 인증키");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("유효하지 않은 인증키");
         }
 
         private String computeHmacMd5(String secret, String text) throws Exception {
@@ -105,7 +105,7 @@ class VendorVerificationProcessorTest {
 
             // when & then
             assertThatCode(() -> VendorVerificationProcessor.validateSignature(text, signature))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -113,8 +113,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenSignatureMismatch() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature(text, "invalid-sig"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("signed value 검증");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("signed value 검증");
         }
 
         @Test
@@ -122,8 +122,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenTextIsNull() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature(null, "any"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("유효하지 않은 인증키");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("유효하지 않은 인증키");
         }
 
         @Test
@@ -131,8 +131,8 @@ class VendorVerificationProcessorTest {
         void throwsException_whenTextIsBlank() {
             // when & then
             assertThatThrownBy(() -> VendorVerificationProcessor.validateSignature("   ", "any"))
-                    .isInstanceOf(VendorVerificationFailedException.class)
-                    .hasMessageContaining("유효하지 않은 인증키");
+                .isInstanceOf(VendorVerificationFailedException.class)
+                .hasMessageContaining("유효하지 않은 인증키");
         }
     }
 }

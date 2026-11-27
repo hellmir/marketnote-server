@@ -52,15 +52,15 @@ class UserPenaltyHistoryTest {
             LocalDateTime now = LocalDateTime.of(2026, 4, 13, 10, 0);
 
             UserPenaltyHistory history = UserPenaltyHistory.from(
-                    UserPenaltyHistorySnapshotState.builder()
-                            .id(10L)
-                            .userId(100L)
-                            .previousCount(2)
-                            .currentCount(3)
-                            .reason("게시글 도배 행위")
-                            .createdBy(99L)
-                            .createdAt(now)
-                            .build()
+                UserPenaltyHistorySnapshotState.builder()
+                    .id(10L)
+                    .userId(100L)
+                    .previousCount(2)
+                    .currentCount(3)
+                    .reason("게시글 도배 행위")
+                    .createdBy(99L)
+                    .createdAt(now)
+                    .build()
             );
 
             assertThat(history.getId()).isEqualTo(10L);

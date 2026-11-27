@@ -26,20 +26,20 @@ public class InventoryReservation {
             throw new IdNoValueException("가격 정책 ID는 필수값입니다.");
         }
         return InventoryReservation.builder()
-                .orderId(state.getOrderId())
-                .pricePolicyId(state.getPricePolicyId())
-                .quantity(Quantity.of(state.getQuantity()))
-                .reservedAt(state.getReservedAt())
-                .build();
+            .orderId(state.getOrderId())
+            .pricePolicyId(state.getPricePolicyId())
+            .quantity(Quantity.of(state.getQuantity()))
+            .reservedAt(state.getReservedAt())
+            .build();
     }
 
     public static InventoryReservation from(InventoryReservationSnapshotState state) {
         return InventoryReservation.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .pricePolicyId(state.getPricePolicyId())
-                .quantity(Quantity.of(state.getQuantity()))
-                .reservedAt(state.getReservedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .pricePolicyId(state.getPricePolicyId())
+            .quantity(Quantity.of(state.getQuantity()))
+            .reservedAt(state.getReservedAt())
+            .build();
     }
 }

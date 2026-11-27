@@ -38,7 +38,7 @@ import static com.personal.marketnote.common.security.token.utility.TokenConstan
 public class WebBasedAuthenticationServiceAdapter {
     private static final long REFRESH_TOKEN_COOKIE_MAX_AGE = 2592000000L;
     private static final Pattern REDIRECTION_DESTINATION_PATTERN
-            = Pattern.compile("^(http|https)://[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*(:\\d{1,5})?$");
+        = Pattern.compile("^(http|https)://[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*(:\\d{1,5})?$");
     private final Oauth2LoginUseCase oauth2LoginUseCase;
     private final TokenSupport tokenSupport;
     private final String serverOrigin;
@@ -51,13 +51,13 @@ public class WebBasedAuthenticationServiceAdapter {
     private Long refreshTokenTtlMillis;
 
     public WebBasedAuthenticationServiceAdapter(
-            Oauth2LoginUseCase oauth2LoginUseCase,
-            TokenSupport tokenSupport,
-            @Value("${server.origin}") String serverOrigin,
-            @Value("${client.origin}") List<String> clientOrigins,
-            HttpCookieUtils httpCookieUtils,
-            JwtUtil jwtUtil,
-            SaveRefreshTokenPort saveRefreshTokenPort
+        Oauth2LoginUseCase oauth2LoginUseCase,
+        TokenSupport tokenSupport,
+        @Value("${server.origin}") String serverOrigin,
+        @Value("${client.origin}") List<String> clientOrigins,
+        HttpCookieUtils httpCookieUtils,
+        JwtUtil jwtUtil,
+        SaveRefreshTokenPort saveRefreshTokenPort
     ) {
         this.oauth2LoginUseCase = oauth2LoginUseCase;
         this.tokenSupport = tokenSupport;
@@ -73,24 +73,24 @@ public class WebBasedAuthenticationServiceAdapter {
         String redirectUri = serverOrigin + servletRequest.getRequestURI();
 
         LoginResult loginResult =
-                oauth2LoginUseCase.loginByOAuth2(oAuth2LoginRequest.code(), redirectUri, AuthVendor.valueOfIgnoreCase(oAuth2LoginRequest.authVendor()));
+            oauth2LoginUseCase.loginByOAuth2(oAuth2LoginRequest.code(), redirectUri, AuthVendor.valueOfIgnoreCase(oAuth2LoginRequest.authVendor()));
 
         String redirectionDestination = getRedirectionDestination(oAuth2LoginRequest.state());
         log.debug("redirectionDestination={}", redirectionDestination);
 
         HttpCookieObject refreshTokenCookie = httpCookieUtils.generateHttpOnlyCookie(
-                HttpCookieName.REFRESH_TOKEN,
-                loginResult.getRefreshToken(),
-                REFRESH_TOKEN_COOKIE_MAX_AGE
+            HttpCookieName.REFRESH_TOKEN,
+            loginResult.getRefreshToken(),
+            REFRESH_TOKEN_COOKIE_MAX_AGE
         );
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.asSetCookieHeaderValue());
 
         headers.add(
-                HttpHeaders.LOCATION, OAuth2WebUtils.buildAfterLoginRedirectionUrl(
-                        redirectionDestination, loginResult, oAuth2LoginRequest.authVendor()
-                )
+            HttpHeaders.LOCATION, OAuth2WebUtils.buildAfterLoginRedirectionUrl(
+                redirectionDestination, loginResult, oAuth2LoginRequest.authVendor()
+            )
         );
 
         log.info("Redirect URI: {}", redirectUri);
@@ -138,9 +138,9 @@ public class WebBasedAuthenticationServiceAdapter {
         }
 
         HttpCookieObject refreshTokenCookie = httpCookieUtils.generateHttpOnlyCookie(
-                HttpCookieName.REFRESH_TOKEN,
-                refreshToken,
-                REFRESH_TOKEN_COOKIE_MAX_AGE
+            HttpCookieName.REFRESH_TOKEN,
+            refreshToken,
+            REFRESH_TOKEN_COOKIE_MAX_AGE
         );
 
         log.debug("refreshTokenCookie: {}", refreshTokenCookie.asSetCookieHeaderValue());

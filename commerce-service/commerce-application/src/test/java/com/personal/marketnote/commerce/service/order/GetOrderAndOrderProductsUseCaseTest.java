@@ -59,16 +59,16 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 2, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 2, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
+                1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -85,20 +85,20 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId2 = 200L;
             Long pricePolicyId3 = 300L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId1, 10L, 1, 30000L),
-                    createOrderProduct(pricePolicyId2, 20L, 2, 50000L),
-                    createOrderProduct(pricePolicyId3, 30L, 3, 70000L)
+                createOrderProduct(pricePolicyId1, 10L, 1, 30000L),
+                createOrderProduct(pricePolicyId2, 20L, 2, 50000L),
+                createOrderProduct(pricePolicyId3, 30L, 3, 70000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Map<Long, ProductInfoResult> productInfoMap = Map.of(
-                    pricePolicyId1, new ProductInfoResult(1L, null, null, "상품1", "브랜드1", null, null, null, List.of()),
-                    pricePolicyId2, new ProductInfoResult(2L, null, null, "상품2", "브랜드2", null, null, null, List.of()),
-                    pricePolicyId3, new ProductInfoResult(3L, null, null, "상품3", "브랜드3", null, null, null, List.of())
+                pricePolicyId1, new ProductInfoResult(1L, null, null, "상품1", "브랜드1", null, null, null, List.of()),
+                pricePolicyId2, new ProductInfoResult(2L, null, null, "상품2", "브랜드2", null, null, null, List.of()),
+                pricePolicyId3, new ProductInfoResult(3L, null, null, "상품3", "브랜드3", null, null, null, List.of())
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(productInfoMap);
+                .thenReturn(productInfoMap);
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -111,12 +111,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -134,34 +134,34 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId1, 10L, 1, 30000L),
-                    createOrderProduct(pricePolicyId2, 20L, 2, 50000L)
+                createOrderProduct(pricePolicyId1, 10L, 1, 30000L),
+                createOrderProduct(pricePolicyId2, 20L, 2, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Map<Long, ProductInfoResult> productInfoMap = new HashMap<>();
             productInfoMap.put(
-                    pricePolicyId1, new ProductInfoResult(1L, null, null, "상품1", "브랜드1", null, null, null, List.of())
+                pricePolicyId1, new ProductInfoResult(1L, null, null, "상품1", "브랜드1", null, null, null, List.of())
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(productInfoMap);
+                .thenReturn(productInfoMap);
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
             assertThat(result.orderProducts()).hasSize(2);
 
             GetOrderProductResult product1 = result.orderProducts().stream()
-                    .filter(p -> p.pricePolicyId().equals(pricePolicyId1))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(p -> p.pricePolicyId().equals(pricePolicyId1))
+                .findFirst()
+                .orElseThrow();
             assertThat(product1.productName()).isEqualTo("상품1");
             assertThat(product1.brandName()).isEqualTo("브랜드1");
 
             GetOrderProductResult product2 = result.orderProducts().stream()
-                    .filter(p -> p.pricePolicyId().equals(pricePolicyId2))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(p -> p.pricePolicyId().equals(pricePolicyId2))
+                .findFirst()
+                .orElseThrow();
             assertThat(product2.productName()).isNull();
             assertThat(product2.brandName()).isNull();
         }
@@ -172,27 +172,27 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             List<ProductOptionInfoResult> options = List.of(
-                    new ProductOptionInfoResult(1L, "색상: 블랙", "ACTIVE"),
-                    new ProductOptionInfoResult(2L, "사이즈: L", "ACTIVE")
+                new ProductOptionInfoResult(1L, "색상: 블랙", "ACTIVE"),
+                new ProductOptionInfoResult(2L, "사이즈: L", "ACTIVE")
             );
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, options
+                1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, options
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
             assertThat(result.orderProducts().get(0).selectedOptions()).hasSize(2);
             assertThat(result.orderProducts().get(0).selectedOptions())
-                    .extracting(ProductOptionInfoResult::content)
-                    .containsExactly("색상: 블랙", "사이즈: L");
+                .extracting(ProductOptionInfoResult::content)
+                .containsExactly("색상: 블랙", "사이즈: L");
         }
 
         @Test
@@ -201,12 +201,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -232,7 +232,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -248,7 +248,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -264,7 +264,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -280,7 +280,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -296,7 +296,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -309,12 +309,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             String reason = "단순 변심으로 인한 취소";
             Order order = createOrderWithStatusChangeReason(
-                    orderId, OrderStatusReasonCategory.CANCEL_ORDER, reason, List.of()
+                orderId, OrderStatusReasonCategory.CANCEL_ORDER, reason, List.of()
             );
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -330,7 +330,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -346,7 +346,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -362,7 +362,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -378,7 +378,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -393,7 +393,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -419,12 +419,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             Long sellerId = 55L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithSellerId(pricePolicyId, sellerId, 1, 50000L)
+                createOrderProductWithSellerId(pricePolicyId, sellerId, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -437,12 +437,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 777L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -456,12 +456,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             UUID sharerKey = UUID.fromString("00000000-0000-0000-0000-000000000033");
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithSharerKey(pricePolicyId, 10L, sharerKey, 1, 50000L)
+                createOrderProductWithSharerKey(pricePolicyId, 10L, sharerKey, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -474,12 +474,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithSharerKey(pricePolicyId, 10L, null, 1, 50000L)
+                createOrderProductWithSharerKey(pricePolicyId, 10L, null, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -493,12 +493,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             Integer quantity = 5;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, quantity, 50000L)
+                createOrderProduct(pricePolicyId, 10L, quantity, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -512,12 +512,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             Long unitAmount = 75000L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, unitAmount)
+                createOrderProduct(pricePolicyId, 10L, 1, unitAmount)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -531,12 +531,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             String imageUrl = "https://marketnote.example.com/images/product-123.png";
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithImageUrl(pricePolicyId, 10L, 1, 50000L, imageUrl)
+                createOrderProductWithImageUrl(pricePolicyId, 10L, 1, 50000L, imageUrl)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -553,7 +553,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -566,12 +566,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithReviewStatus(pricePolicyId, 10L, 1, 50000L, true)
+                createOrderProductWithReviewStatus(pricePolicyId, 10L, 1, 50000L, true)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -584,12 +584,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithReviewStatus(pricePolicyId, 10L, 1, 50000L, false)
+                createOrderProductWithReviewStatus(pricePolicyId, 10L, 1, 50000L, false)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -612,16 +612,16 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             Long productId = 888L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    productId, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
+                productId, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -635,16 +635,16 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             String productName = "프리미엄 티셔츠";
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, productName, "테스트 브랜드", null, null, null, List.of()
+                1L, null, null, productName, "테스트 브랜드", null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -658,16 +658,16 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId = 100L;
             String brandName = "나이키";
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, "테스트 상품", brandName, null, null, null, List.of()
+                1L, null, null, "테스트 상품", brandName, null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -680,28 +680,28 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             List<ProductOptionInfoResult> options = List.of(
-                    new ProductOptionInfoResult(1L, "색상: 레드", "ACTIVE"),
-                    new ProductOptionInfoResult(2L, "사이즈: M", "ACTIVE"),
-                    new ProductOptionInfoResult(3L, "소재: 면", "ACTIVE")
+                new ProductOptionInfoResult(1L, "색상: 레드", "ACTIVE"),
+                new ProductOptionInfoResult(2L, "사이즈: M", "ACTIVE"),
+                new ProductOptionInfoResult(3L, "소재: 면", "ACTIVE")
             );
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, options
+                1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, options
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
             assertThat(result.orderProducts().get(0).selectedOptions()).hasSize(3);
             assertThat(result.orderProducts().get(0).selectedOptions())
-                    .extracting(ProductOptionInfoResult::content)
-                    .containsExactly("색상: 레드", "사이즈: M", "소재: 면");
+                .extracting(ProductOptionInfoResult::content)
+                .containsExactly("색상: 레드", "사이즈: M", "소재: 면");
         }
 
         @Test
@@ -710,12 +710,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -739,8 +739,8 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId))
-                    .isInstanceOf(OrderNotFoundException.class)
-                    .hasMessageContaining("주문을 찾을 수 없습니다");
+                .isInstanceOf(OrderNotFoundException.class)
+                .hasMessageContaining("주문을 찾을 수 없습니다");
         }
 
         @Test
@@ -751,7 +751,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId))
-                    .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class);
 
             verifyNoInteractions(findProductByPricePolicyPort);
         }
@@ -774,7 +774,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenThrow(exception);
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(findProductByPricePolicyPort);
         }
@@ -785,16 +785,16 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
             RuntimeException exception = new RuntimeException("상품 서비스 연결 실패");
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenThrow(exception);
+                .thenThrow(exception);
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
     }
 
@@ -812,12 +812,12 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 50000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -835,7 +835,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -849,13 +849,13 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId1, 10L, 1, 30000L),
-                    createOrderProduct(pricePolicyId2, 20L, 2, 50000L)
+                createOrderProduct(pricePolicyId1, 10L, 1, 30000L),
+                createOrderProduct(pricePolicyId2, 20L, 2, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -879,7 +879,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -894,7 +894,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -909,7 +909,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -924,7 +924,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -939,7 +939,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -952,17 +952,17 @@ class GetOrderAndOrderProductsUseCaseTest {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProduct(pricePolicyId, 10L, 1, 30000L),
-                    createOrderProduct(pricePolicyId, 10L, 2, 30000L)
+                createOrderProduct(pricePolicyId, 10L, 1, 30000L),
+                createOrderProduct(pricePolicyId, 10L, 2, 30000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
+                1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -978,7 +978,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -993,7 +993,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
@@ -1007,271 +1007,271 @@ class GetOrderAndOrderProductsUseCaseTest {
 
     private Order createOrder(Long orderId, List<OrderProduct> orderProducts) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(orderProducts.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(orderProducts.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithBuyerId(Long orderId, Long buyerId, List<OrderProduct> orderProducts) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(orderProducts.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(orderProducts.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithOrderNumber(Long orderId, String orderNumber, List<OrderProduct> orderProducts) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of(orderNumber))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(orderProducts.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of(orderNumber))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(orderProducts.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithStatus(Long orderId, OrderStatus status, List<OrderProduct> orderProducts) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(orderProducts.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(orderProducts.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithStatusChangeReason(
-            Long orderId,
-            OrderStatusReasonCategory reasonCategory,
-            String reason,
-            List<OrderProduct> orderProducts
+        Long orderId,
+        OrderStatusReasonCategory reasonCategory,
+        String reason,
+        List<OrderProduct> orderProducts
     ) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.CANCELLED)
-                .statusChangeReasonCategory(reasonCategory)
-                .statusChangeReason(reason)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(orderProducts.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.CANCELLED)
+            .statusChangeReasonCategory(reasonCategory)
+            .statusChangeReason(reason)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(orderProducts.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithAmounts(
-            Long orderId,
-            Long totalAmount,
-            Long paidAmount,
-            Long couponAmount,
-            Long pointAmount,
-            List<OrderProduct> orderProducts
+        Long orderId,
+        Long totalAmount,
+        Long paidAmount,
+        Long couponAmount,
+        Long pointAmount,
+        List<OrderProduct> orderProducts
     ) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(paidAmount).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(orderProducts.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(paidAmount).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(orderProducts.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithProductStatus(Long orderId, Long pricePolicyId, OrderStatus productStatus) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(orderId)
-                                .sellerId(10L)
-                                .pricePolicyId(pricePolicyId)
-                                .quantity(1)
-                                .unitAmount(50000L)
-                                .orderStatus(productStatus)
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(orderId)
+                    .sellerId(10L)
+                    .pricePolicyId(pricePolicyId)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .orderStatus(productStatus)
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithVariousProductStatuses(Long orderId) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PARTIALLY_RETURNED)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(300000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(orderId)
-                                .sellerId(10L)
-                                .pricePolicyId(100L)
-                                .quantity(1)
-                                .unitAmount(100000L)
-                                .orderStatus(OrderStatus.CONFIRMED)
-                                .accumulatedPoint(0L)
-                                .build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(orderId)
-                                .sellerId(20L)
-                                .pricePolicyId(200L)
-                                .quantity(1)
-                                .unitAmount(100000L)
-                                .orderStatus(OrderStatus.RETURNED)
-                                .accumulatedPoint(0L)
-                                .build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(orderId)
-                                .sellerId(30L)
-                                .pricePolicyId(300L)
-                                .quantity(1)
-                                .unitAmount(100000L)
-                                .orderStatus(OrderStatus.SHIPPING)
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PARTIALLY_RETURNED)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(300000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(orderId)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(100000L)
+                    .orderStatus(OrderStatus.CONFIRMED)
+                    .accumulatedPoint(0L)
+                    .build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(orderId)
+                    .sellerId(20L)
+                    .pricePolicyId(200L)
+                    .quantity(1)
+                    .unitAmount(100000L)
+                    .orderStatus(OrderStatus.RETURNED)
+                    .accumulatedPoint(0L)
+                    .build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(orderId)
+                    .sellerId(30L)
+                    .pricePolicyId(300L)
+                    .quantity(1)
+                    .unitAmount(100000L)
+                    .orderStatus(OrderStatus.SHIPPING)
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private OrderProduct createOrderProduct(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(sellerId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .unitAmount(unitAmount)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(sellerId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .unitAmount(unitAmount)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
     }
 
     private OrderProduct createOrderProductWithSellerId(
-            Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount
+        Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount
     ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(sellerId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .unitAmount(unitAmount)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(sellerId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .unitAmount(unitAmount)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
     }
 
     private OrderProduct createOrderProductWithSharerKey(
-            Long pricePolicyId, Long sellerId, UUID sharerKey, Integer quantity, Long unitAmount
+        Long pricePolicyId, Long sellerId, UUID sharerKey, Integer quantity, Long unitAmount
     ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(sellerId)
-                .pricePolicyId(pricePolicyId)
-                .sharerKey(sharerKey)
-                .quantity(quantity)
-                .unitAmount(unitAmount)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(sellerId)
+            .pricePolicyId(pricePolicyId)
+            .sharerKey(sharerKey)
+            .quantity(quantity)
+            .unitAmount(unitAmount)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
     }
 
     private OrderProduct createOrderProductWithImageUrl(
-            Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, String imageUrl
+        Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, String imageUrl
     ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(sellerId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .unitAmount(unitAmount)
-                .imageUrl(imageUrl)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(sellerId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .unitAmount(unitAmount)
+            .imageUrl(imageUrl)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
     }
 
     private OrderProduct createOrderProductWithReviewStatus(
-            Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, Boolean isReviewed
+        Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, Boolean isReviewed
     ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(sellerId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .unitAmount(unitAmount)
-                .orderStatus(OrderStatus.CONFIRMED)
-                .isReviewed(isReviewed)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(sellerId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .unitAmount(unitAmount)
+            .orderStatus(OrderStatus.CONFIRMED)
+            .isReviewed(isReviewed)
+            .accumulatedPoint(0L)
+            .build());
     }
 
     private OrderProductSnapshotState toSnapshotState(OrderProduct orderProduct) {
         return OrderProductSnapshotState.builder()
-                .orderId(orderProduct.getOrderId())
-                .sellerId(orderProduct.getSellerId())
-                .pricePolicyId(orderProduct.getPricePolicyId())
-                .sharerKey(orderProduct.getSharerKey())
-                .quantity(orderProduct.getQuantity().getValue())
-                .unitAmount(orderProduct.getUnitAmount().getValue())
-                .imageUrl(orderProduct.getImageUrl())
-                .orderStatus(orderProduct.getOrderStatus())
-                .isReviewed(orderProduct.getIsReviewed())
-                .accumulatedPoint(0L)
-                .build();
+            .orderId(orderProduct.getOrderId())
+            .sellerId(orderProduct.getSellerId())
+            .pricePolicyId(orderProduct.getPricePolicyId())
+            .sharerKey(orderProduct.getSharerKey())
+            .quantity(orderProduct.getQuantity().getValue())
+            .unitAmount(orderProduct.getUnitAmount().getValue())
+            .imageUrl(orderProduct.getImageUrl())
+            .orderStatus(orderProduct.getOrderStatus())
+            .isReviewed(orderProduct.getIsReviewed())
+            .accumulatedPoint(0L)
+            .build();
     }
 }

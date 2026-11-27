@@ -14,9 +14,9 @@ public class FulfillmentGoodsQuery {
 
     public static FulfillmentGoodsQuery of(String customerCode, String accessToken) {
         FulfillmentGoodsQuery query = FulfillmentGoodsQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .build();
         query.validate();
         return query;
     }

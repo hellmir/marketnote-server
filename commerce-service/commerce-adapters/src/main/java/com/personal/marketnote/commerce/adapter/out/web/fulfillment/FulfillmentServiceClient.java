@@ -31,9 +31,9 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
 
     public FulfillmentServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${fulfillment-service.base-url}") String fulfillmentServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
+        RestClient.Builder restClientBuilder,
+        @Value("${fulfillment-service.base-url}") String fulfillmentServiceBaseUrl,
+        HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
     ) {
         this.restClient = restClientBuilder.build();
         this.fulfillmentServiceBaseUrl = fulfillmentServiceBaseUrl;
@@ -42,7 +42,7 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
     @Override
     public RegisterFulfillmentReturnDeliveryResult registerReturnDelivery(
-            RegisterFulfillmentReturnDeliveryCommand command
+        RegisterFulfillmentReturnDeliveryCommand command
     ) {
         URI uri = buildReturnDeliveryUri();
 
@@ -51,12 +51,12 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
         ResponseEntity<JsonNode> responseEntity;
         try {
             responseEntity = restClient.post()
-                    .uri(uri)
-                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .toEntity(JsonNode.class);
+                .uri(uri)
+                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toEntity(JsonNode.class);
         } catch (RestClientException rce) {
             log.error("풀필먼트 반품 등록 실패 - orderId: {}", command.orderId(), rce);
             throw new FulfillmentServiceRequestFailedException(new IOException(rce));
@@ -64,22 +64,22 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
         if (responseEntity.getStatusCode().isError()) {
             throw new FulfillmentServiceRequestFailedException(
-                    new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
+                new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
         }
 
         if (responseEntity.getStatusCode().is2xxSuccessful()
-                && FormatValidator.hasValue(responseEntity.getBody())) {
+            && FormatValidator.hasValue(responseEntity.getBody())) {
             JsonNode content = responseEntity.getBody().path("content");
             return RegisterFulfillmentReturnDeliveryResult.of(
-                    content.path("orderId").asLong(),
-                    content.path("returnSlipNumber").asText(null),
-                    content.path("registered").asBoolean(),
-                    content.path("message").asText(null)
+                content.path("orderId").asLong(),
+                content.path("returnSlipNumber").asText(null),
+                content.path("registered").asBoolean(),
+                content.path("message").asText(null)
             );
         }
 
         throw new FulfillmentServiceRequestFailedException(
-                new IOException("풀필먼트 반품 등록 비정상 응답 - orderId: " + command.orderId()));
+            new IOException("풀필먼트 반품 등록 비정상 응답 - orderId: " + command.orderId()));
     }
 
     @Override
@@ -89,10 +89,10 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
         ResponseEntity<JsonNode> responseEntity;
         try {
             responseEntity = restClient.get()
-                    .uri(uri)
-                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
-                    .retrieve()
-                    .toEntity(JsonNode.class);
+                .uri(uri)
+                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                .retrieve()
+                .toEntity(JsonNode.class);
         } catch (RestClientException rce) {
             log.error("풀필먼트 반품 검수 상태 조회 실패 - returnSlipNumbers: {}", returnSlipNumbers, rce);
             throw new FulfillmentServiceRequestFailedException(new IOException(rce));
@@ -100,16 +100,16 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
         if (responseEntity.getStatusCode().isError()) {
             throw new FulfillmentServiceRequestFailedException(
-                    new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
+                new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
         }
 
         if (responseEntity.getStatusCode().is2xxSuccessful()
-                && FormatValidator.hasValue(responseEntity.getBody())) {
+            && FormatValidator.hasValue(responseEntity.getBody())) {
             return parseReturnGodDetailResponse(responseEntity.getBody().path("content"));
         }
 
         throw new FulfillmentServiceRequestFailedException(
-                new IOException("풀필먼트 반품 검수 상태 조회 비정상 응답"));
+            new IOException("풀필먼트 반품 검수 상태 조회 비정상 응답"));
     }
 
     private ReturnInspectionResult parseReturnGodDetailResponse(JsonNode content) {
@@ -124,17 +124,17 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
                 if (productsNode.isArray()) {
                     for (JsonNode goodsNode : productsNode) {
                         goods.add(new ReturnInspectionGoodsItem(
-                                goodsNode.path("customerProductCode").asText(null),
-                                goodsNode.path("productName").asText(null),
-                                goodsNode.path("returnProductCheckStatus").asText(null),
-                                goodsNode.path("returnProductCheckStatusName").asText(null)
+                            goodsNode.path("customerProductCode").asText(null),
+                            goodsNode.path("productName").asText(null),
+                            goodsNode.path("returnProductCheckStatus").asText(null),
+                            goodsNode.path("returnProductCheckStatusName").asText(null)
                         ));
                     }
                 }
                 items.add(new ReturnInspectionResultItem(
-                        infoNode.path("orderNumber").asText(null),
-                        infoNode.path("inboundOrderSlipNumber").asText(null),
-                        goods
+                    infoNode.path("orderNumber").asText(null),
+                    infoNode.path("inboundOrderSlipNumber").asText(null),
+                    goods
                 ));
             }
         }
@@ -144,10 +144,10 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
     private URI buildReturnGodDetailUri(String returnSlipNumbers) {
         return UriComponentsBuilder.fromHttpUrl(fulfillmentServiceBaseUrl)
-                .path("/api/v1/internal/fulfillment/deliveries/return-god-detail")
-                .queryParam("return-slip-numbers", returnSlipNumbers)
-                .build()
-                .toUri();
+            .path("/api/v1/internal/fulfillment/deliveries/return-god-detail")
+            .queryParam("return-slip-numbers", returnSlipNumbers)
+            .build()
+            .toUri();
     }
 
     private Map<String, Object> buildReturnDeliveryBody(RegisterFulfillmentReturnDeliveryCommand command) {
@@ -168,13 +168,13 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
         if (FormatValidator.hasValue(command.products())) {
             List<Map<String, Object>> products = command.products().stream()
-                    .map(item -> {
-                        Map<String, Object> productMap = new LinkedHashMap<>();
-                        productMap.put("productCode", item.productCode());
-                        productMap.put("quantity", item.quantity());
-                        return productMap;
-                    })
-                    .toList();
+                .map(item -> {
+                    Map<String, Object> productMap = new LinkedHashMap<>();
+                    productMap.put("productCode", item.productCode());
+                    productMap.put("quantity", item.quantity());
+                    return productMap;
+                })
+                .toList();
             body.put("products", products);
         }
 
@@ -183,8 +183,8 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
     private URI buildReturnDeliveryUri() {
         return UriComponentsBuilder.fromHttpUrl(fulfillmentServiceBaseUrl)
-                .path("/api/v1/internal/fulfillment/deliveries/return")
-                .build()
-                .toUri();
+            .path("/api/v1/internal/fulfillment/deliveries/return")
+            .build()
+            .toUri();
     }
 }

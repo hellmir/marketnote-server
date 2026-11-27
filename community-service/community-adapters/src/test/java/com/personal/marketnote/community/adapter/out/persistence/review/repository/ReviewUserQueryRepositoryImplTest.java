@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @Import({
-        AuditConfig.class, QuerydslConfig.class,
-        ReviewProductQueryRepositoryImpl.class,
-        ReviewUserQueryRepositoryImpl.class,
-        ReviewStatsQueryRepositoryImpl.class
+    AuditConfig.class, QuerydslConfig.class,
+    ReviewProductQueryRepositoryImpl.class,
+    ReviewUserQueryRepositoryImpl.class,
+    ReviewStatsQueryRepositoryImpl.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ReviewUserQueryRepositoryImplTest {
@@ -60,12 +60,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "id", true
+                USER_ID, null, DEFAULT_PAGEABLE, "id", true
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(a.getId(), b.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(a.getId(), b.getId());
         }
 
         @Test
@@ -76,12 +76,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "id", false
+                USER_ID, null, DEFAULT_PAGEABLE, "id", false
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(b.getId(), a.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(b.getId(), a.getId());
         }
 
         @Test
@@ -93,12 +93,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "id", false
+                USER_ID, null, DEFAULT_PAGEABLE, "id", false
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(active.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(active.getId());
         }
     }
 
@@ -114,12 +114,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "orderNum", true
+                USER_ID, null, DEFAULT_PAGEABLE, "orderNum", true
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(a.getId(), b.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(a.getId(), b.getId());
         }
 
         @Test
@@ -130,12 +130,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "orderNum", false
+                USER_ID, null, DEFAULT_PAGEABLE, "orderNum", false
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(b.getId(), a.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(b.getId(), a.getId());
         }
     }
 
@@ -151,12 +151,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "rating", true
+                USER_ID, null, DEFAULT_PAGEABLE, "rating", true
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(r1.getId(), r5.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(r1.getId(), r5.getId());
         }
 
         @Test
@@ -168,12 +168,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "rating", false
+                USER_ID, null, DEFAULT_PAGEABLE, "rating", false
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(r5b.getId(), r5a.getId(), r1.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(r5b.getId(), r5a.getId(), r1.getId());
         }
     }
 
@@ -191,12 +191,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "likeCount", false
+                USER_ID, null, DEFAULT_PAGEABLE, "likeCount", false
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(top.getId(), bot.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(top.getId(), bot.getId());
         }
 
         @Test
@@ -208,12 +208,12 @@ class ReviewUserQueryRepositoryImplTest {
             flushAndClear();
 
             List<ReviewJpaEntity> results = reviewRepository.findUserReviewsByCursor(
-                    USER_ID, null, DEFAULT_PAGEABLE, "likeCount", true
+                USER_ID, null, DEFAULT_PAGEABLE, "likeCount", true
             );
 
             assertThat(results)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(bot.getId(), top.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(bot.getId(), top.getId());
         }
     }
 
@@ -233,17 +233,17 @@ class ReviewUserQueryRepositoryImplTest {
             List<ReviewJpaEntity> firstPage = reviewRepository.findUserReviewsByOffset(USER_ID, pageOf2Desc);
 
             assertThat(firstPage)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(c.getId(), b.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(c.getId(), b.getId());
 
             Pageable pageOf2DescSecond = PageRequest.of(1, 2, Sort.by(Sort.Direction.DESC, "id"));
             List<ReviewJpaEntity> secondPage = reviewRepository.findUserReviewsByOffset(
-                    USER_ID, pageOf2DescSecond
+                USER_ID, pageOf2DescSecond
             );
 
             assertThat(secondPage)
-                    .extracting(ReviewJpaEntity::getId)
-                    .containsExactly(a.getId());
+                .extracting(ReviewJpaEntity::getId)
+                .containsExactly(a.getId());
         }
     }
 
@@ -251,18 +251,18 @@ class ReviewUserQueryRepositoryImplTest {
         Long orderId = System.nanoTime();
         Long pricePolicyId = System.nanoTime();
         Review review = Review.from(ReviewCreateState.builder()
-                .reviewerId(reviewerId)
-                .orderId(orderId)
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .productImageUrl("https://example.com/image.jpg")
-                .selectedOptions("옵션")
-                .quantity(1)
-                .reviewerName("테스트사용자")
-                .rating(Rating.of(rating))
-                .content("테스트 리뷰 내용입니다")
-                .isPhoto(isPhoto)
-                .build());
+            .reviewerId(reviewerId)
+            .orderId(orderId)
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .productImageUrl("https://example.com/image.jpg")
+            .selectedOptions("옵션")
+            .quantity(1)
+            .reviewerName("테스트사용자")
+            .rating(Rating.of(rating))
+            .content("테스트 리뷰 내용입니다")
+            .isPhoto(isPhoto)
+            .build());
         ReviewJpaEntity saved = reviewRepository.save(ReviewJpaEntity.from(review));
         saved.setIdToOrderNum();
         return saved;
@@ -272,19 +272,19 @@ class ReviewUserQueryRepositoryImplTest {
         for (int i = 0; i < count; i++) {
             long userId = (long) (i + 1) * 1000L + reviewId;
             Like like = Like.from(LikeCreateState.builder()
-                    .targetType(LikeTargetType.REVIEW)
-                    .targetId(reviewId)
-                    .userId(userId)
-                    .build());
+                .targetType(LikeTargetType.REVIEW)
+                .targetId(reviewId)
+                .userId(userId)
+                .build());
             entityManager.persist(LikeJpaEntity.from(like));
         }
     }
 
     private void deactivate(Long reviewId) {
         entityManager.createQuery("UPDATE ReviewJpaEntity r SET r.status = :status WHERE r.id = :id")
-                .setParameter("status", com.personal.marketnote.common.domain.EntityStatus.INACTIVE)
-                .setParameter("id", reviewId)
-                .executeUpdate();
+            .setParameter("status", com.personal.marketnote.common.domain.EntityStatus.INACTIVE)
+            .setParameter("id", reviewId)
+            .executeUpdate();
     }
 
     private void flushAndClear() {

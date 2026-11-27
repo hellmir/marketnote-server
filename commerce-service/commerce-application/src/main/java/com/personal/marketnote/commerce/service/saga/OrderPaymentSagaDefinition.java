@@ -40,53 +40,53 @@ public class OrderPaymentSagaDefinition implements SagaDefinition<OrderPaymentSa
     @Override
     public List<SagaStepDefinition<OrderPaymentSagaContext>> getSteps() {
         return List.of(
-                new SagaStepDefinition<>(
-                        STEP_DEDUCT_INVENTORY,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY,
-                        this::buildInventoryDeductionAction,
-                        this::buildInventoryRestorationCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_RECORD_LEDGER,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_LEDGER,
-                        this::buildLedgerRecordAction,
-                        this::buildLedgerReverseCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_PUBLISH_PAYMENT_COMPLETED,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
-                        this::buildPaymentCompletedAction,
-                        null
-                )
+            new SagaStepDefinition<>(
+                STEP_DEDUCT_INVENTORY,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY,
+                this::buildInventoryDeductionAction,
+                this::buildInventoryRestorationCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_RECORD_LEDGER,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_LEDGER,
+                this::buildLedgerRecordAction,
+                this::buildLedgerReverseCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_PUBLISH_PAYMENT_COMPLETED,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
+                this::buildPaymentCompletedAction,
+                null
+            )
         );
     }
 
     private String buildInventoryDeductionAction(OrderPaymentSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "orderProducts", context.orderProducts()
+            "orderId", context.orderId(),
+            "orderProducts", context.orderProducts()
         ));
     }
 
     private String buildInventoryRestorationCompensation(OrderPaymentSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "orderProducts", context.orderProducts()
+            "orderId", context.orderId(),
+            "orderProducts", context.orderProducts()
         ));
     }
 
     private String buildLedgerRecordAction(OrderPaymentSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "paymentAmount", context.paymentAmount()
+            "orderId", context.orderId(),
+            "paymentAmount", context.paymentAmount()
         ));
     }
 
     private String buildLedgerReverseCompensation(OrderPaymentSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "cancelAmount", context.paymentAmount(),
-                "idempotencyKey", "SAGA_COMP:" + context.orderId()
+            "orderId", context.orderId(),
+            "cancelAmount", context.paymentAmount(),
+            "idempotencyKey", "SAGA_COMP:" + context.orderId()
         ));
     }
 

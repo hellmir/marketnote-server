@@ -25,18 +25,18 @@ public class FulfillmentGoodsElementReadModelJpaEntity extends BaseGeneralEntity
     private Integer quantity;
 
     public static FulfillmentGoodsElementReadModelJpaEntity of(
-            String goodsCode, String customerGoodsCode, String goodsBarcode,
-            String goodsName, String goodsType, String goodsTypeName, Integer quantity
+        String goodsCode, String customerGoodsCode, String goodsBarcode,
+        String goodsName, String goodsType, String goodsTypeName, Integer quantity
     ) {
         return FulfillmentGoodsElementReadModelJpaEntity.builder()
-                .goodsCode(goodsCode)
-                .customerGoodsCode(customerGoodsCode)
-                .goodsBarcode(goodsBarcode)
-                .goodsName(goodsName)
-                .goodsType(goodsType)
-                .goodsTypeName(goodsTypeName)
-                .quantity(quantity)
-                .build();
+            .goodsCode(goodsCode)
+            .customerGoodsCode(customerGoodsCode)
+            .goodsBarcode(goodsBarcode)
+            .goodsName(goodsName)
+            .goodsType(goodsType)
+            .goodsTypeName(goodsTypeName)
+            .quantity(quantity)
+            .build();
     }
 
     public void assignFulfillmentGoods(FulfillmentGoodsReadModelJpaEntity fulfillmentGoods) {

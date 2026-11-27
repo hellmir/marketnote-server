@@ -41,8 +41,8 @@ class RegisterCategoryUseCaseTest {
         when(findCategoryPort.findAllActiveByIds(List.of(10L))).thenReturn(List.of());
 
         assertThatThrownBy(() -> registerCategoryService.registerCategory(command))
-                .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessage("존재하지 않는 카테고리입니다.");
+            .isInstanceOf(CategoryNotFoundException.class)
+            .hasMessage("존재하지 않는 카테고리입니다.");
 
         verify(findCategoryPort).findAllActiveByIds(List.of(10L));
         verifyNoInteractions(saveCategoryPort);
@@ -97,7 +97,7 @@ class RegisterCategoryUseCaseTest {
         when(findCategoryPort.findAllActiveByIds(List.of(12L))).thenThrow(exception);
 
         assertThatThrownBy(() -> registerCategoryService.registerCategory(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(saveCategoryPort);
     }
@@ -113,17 +113,17 @@ class RegisterCategoryUseCaseTest {
         when(saveCategoryPort.save(any(Category.class))).thenThrow(exception);
 
         assertThatThrownBy(() -> registerCategoryService.registerCategory(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private Category buildCategory(Long id, Long parentId, String name) {
         return Category.from(
-                CategorySnapshotState.builder()
-                        .id(id)
-                        .parentCategoryId(parentId)
-                        .name(name)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CategorySnapshotState.builder()
+                .id(id)
+                .parentCategoryId(parentId)
+                .name(name)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

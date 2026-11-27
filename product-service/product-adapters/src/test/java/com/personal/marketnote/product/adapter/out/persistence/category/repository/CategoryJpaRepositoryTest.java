@@ -45,7 +45,7 @@ class CategoryJpaRepositoryTest {
             List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(-1L);
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
-                    .containsExactly(root1.getId(), root2.getId());
+                .containsExactly(root1.getId(), root2.getId());
         }
 
         @Test
@@ -61,7 +61,7 @@ class CategoryJpaRepositoryTest {
             List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(root.getId());
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
-                    .containsExactly(child1.getId(), child2.getId());
+                .containsExactly(child1.getId(), child2.getId());
         }
 
         @Test
@@ -70,15 +70,15 @@ class CategoryJpaRepositoryTest {
             CategoryJpaEntity active = saveCategory(null, "활성");
             CategoryJpaEntity inactive = saveCategory(null, "비활성");
             entityManager.createNativeQuery("UPDATE category SET status = 'INACTIVE' WHERE id = :id")
-                    .setParameter("id", inactive.getId())
-                    .executeUpdate();
+                .setParameter("id", inactive.getId())
+                .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(-1L);
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
-                    .containsExactly(active.getId());
+                .containsExactly(active.getId());
         }
 
         @Test
@@ -93,7 +93,7 @@ class CategoryJpaRepositoryTest {
             List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(-1L);
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
-                    .containsExactly(c1.getId(), c2.getId(), c3.getId());
+                .containsExactly(c1.getId(), c2.getId(), c3.getId());
         }
     }
 
@@ -110,11 +110,11 @@ class CategoryJpaRepositoryTest {
             entityManager.clear();
 
             List<CategoryJpaEntity> results = categoryJpaRepository.findAllByIdInAndStatus(
-                    List.of(active1.getId(), active2.getId()), EntityStatus.ACTIVE
+                List.of(active1.getId(), active2.getId()), EntityStatus.ACTIVE
             );
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
-                    .containsExactlyInAnyOrder(active1.getId(), active2.getId());
+                .containsExactlyInAnyOrder(active1.getId(), active2.getId());
         }
 
         @Test
@@ -123,13 +123,13 @@ class CategoryJpaRepositoryTest {
             CategoryJpaEntity active = saveCategory(null, "활성");
             CategoryJpaEntity inactive = saveCategory(null, "비활성");
             entityManager.createNativeQuery("UPDATE category SET status = 'INACTIVE' WHERE id = :id")
-                    .setParameter("id", inactive.getId())
-                    .executeUpdate();
+                .setParameter("id", inactive.getId())
+                .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             List<CategoryJpaEntity> results = categoryJpaRepository.findAllByIdInAndStatus(
-                    List.of(active.getId(), inactive.getId()), EntityStatus.ACTIVE
+                List.of(active.getId(), inactive.getId()), EntityStatus.ACTIVE
             );
 
             assertThat(results).hasSize(1);
@@ -150,7 +150,7 @@ class CategoryJpaRepositoryTest {
             entityManager.clear();
 
             boolean result = categoryJpaRepository
-                    .existsByParentCategoryIdAndStatus(parent.getId(), EntityStatus.ACTIVE);
+                .existsByParentCategoryIdAndStatus(parent.getId(), EntityStatus.ACTIVE);
 
             assertThat(result).isTrue();
         }
@@ -163,7 +163,7 @@ class CategoryJpaRepositoryTest {
             entityManager.clear();
 
             boolean result = categoryJpaRepository
-                    .existsByParentCategoryIdAndStatus(parent.getId(), EntityStatus.ACTIVE);
+                .existsByParentCategoryIdAndStatus(parent.getId(), EntityStatus.ACTIVE);
 
             assertThat(result).isFalse();
         }
@@ -174,13 +174,13 @@ class CategoryJpaRepositoryTest {
             CategoryJpaEntity parent = saveCategory(null, "부모");
             CategoryJpaEntity child = saveCategory(parent.getId(), "자식");
             entityManager.createNativeQuery("UPDATE category SET status = 'INACTIVE' WHERE id = :id")
-                    .setParameter("id", child.getId())
-                    .executeUpdate();
+                .setParameter("id", child.getId())
+                .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             boolean result = categoryJpaRepository
-                    .existsByParentCategoryIdAndStatus(parent.getId(), EntityStatus.ACTIVE);
+                .existsByParentCategoryIdAndStatus(parent.getId(), EntityStatus.ACTIVE);
 
             assertThat(result).isFalse();
         }

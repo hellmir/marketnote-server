@@ -54,14 +54,14 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
         List<Long> sellerIds = extractDistinctSellerIds(orderProducts);
         Map<Long, Long> initialShippingFeeBySellerIdMap = buildInitialShippingFeeMap(command.orderId());
         Map<Long, ShippingPolicyInfoResult> shippingPolicyMap = findShippingPolicyBySellerIdsPort.findBySellerIds(
-                sellerIds
+            sellerIds
         );
 
         ShippingRegionType regionType = order.getShippingRegionType();
 
         long totalReturnShippingFee = calculateTotalReturnShippingFee(
-                faultType, returnType, orderProducts, returnPricePolicyIdSet,
-                initialShippingFeeBySellerIdMap, shippingPolicyMap, regionType
+            faultType, returnType, orderProducts, returnPricePolicyIdSet,
+            initialShippingFeeBySellerIdMap, shippingPolicyMap, regionType
         );
 
         return CalculateReturnShippingFeeResult.of(totalReturnShippingFee);
@@ -78,11 +78,11 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
     }
 
     private Set<Long> resolveReturnPricePolicyIdSet(
-            CalculateReturnShippingFeeCommand command, List<OrderProduct> orderProducts
+        CalculateReturnShippingFeeCommand command, List<OrderProduct> orderProducts
     ) {
         Set<Long> validPricePolicyIds = orderProducts.stream()
-                .map(OrderProduct::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(OrderProduct::getPricePolicyId)
+            .collect(Collectors.toSet());
 
         if (FormatValidator.hasNoValue(command.returnPricePolicyIds())) {
             return validPricePolicyIds;
@@ -102,32 +102,32 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
 
     private List<Long> extractDistinctSellerIds(List<OrderProduct> orderProducts) {
         return orderProducts.stream()
-                .map(OrderProduct::getSellerId)
-                .distinct()
-                .toList();
+            .map(OrderProduct::getSellerId)
+            .distinct()
+            .toList();
     }
 
     private Map<Long, Long> buildInitialShippingFeeMap(Long orderId) {
         List<PaymentAllocation> allocations = findPaymentAllocationPort.findByOrderId(orderId);
         return allocations.stream()
-                .collect(Collectors.toMap(
-                        PaymentAllocation::getSellerId,
-                        allocation -> allocation.getShippingFee().getValue(),
-                        (existing, replacement) -> existing
-                ));
+            .collect(Collectors.toMap(
+                PaymentAllocation::getSellerId,
+                allocation -> allocation.getShippingFee().getValue(),
+                (existing, replacement) -> existing
+            ));
     }
 
     private long calculateTotalReturnShippingFee(
-            FaultType faultType,
-            ReturnType returnType,
-            List<OrderProduct> orderProducts,
-            Set<Long> returnPricePolicyIdSet,
-            Map<Long, Long> initialShippingFeeBySellerIdMap,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicyMap,
-            ShippingRegionType regionType
+        FaultType faultType,
+        ReturnType returnType,
+        List<OrderProduct> orderProducts,
+        Set<Long> returnPricePolicyIdSet,
+        Map<Long, Long> initialShippingFeeBySellerIdMap,
+        Map<Long, ShippingPolicyInfoResult> shippingPolicyMap,
+        ShippingRegionType regionType
     ) {
         Map<Long, List<OrderProduct>> productsBySeller = orderProducts.stream()
-                .collect(Collectors.groupingBy(OrderProduct::getSellerId));
+            .collect(Collectors.groupingBy(OrderProduct::getSellerId));
 
         long totalFee = 0L;
         for (Map.Entry<Long, List<OrderProduct>> entry : productsBySeller.entrySet()) {
@@ -135,7 +135,7 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
             List<OrderProduct> sellerProducts = entry.getValue();
 
             boolean hasReturnTarget = sellerProducts.stream()
-                    .anyMatch(product -> returnPricePolicyIdSet.contains(product.getPricePolicyId()));
+                .anyMatch(product -> returnPricePolicyIdSet.contains(product.getPricePolicyId()));
             if (!hasReturnTarget) {
                 continue;
             }
@@ -156,13 +156,13 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
             long remainingAmount = calculateRemainingAmount(sellerProducts, returnPricePolicyIdSet);
 
             ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.forCalculation(
-                    faultType,
-                    initialShippingType,
-                    sellerReturnType,
-                    Money.of(remainingAmount),
-                    Money.of(freeShippingThreshold),
-                    Money.of(oneWayFee),
-                    Money.of(surcharge)
+                faultType,
+                initialShippingType,
+                sellerReturnType,
+                Money.of(remainingAmount),
+                Money.of(freeShippingThreshold),
+                Money.of(oneWayFee),
+                Money.of(surcharge)
             ));
 
             totalFee = Math.addExact(totalFee, ReturnShippingFeeCalculator.calculate(context).getValue());
@@ -171,16 +171,16 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
     }
 
     private ReturnType resolveSellerReturnType(
-            List<OrderProduct> sellerProducts,
-            Set<Long> returnPricePolicyIdSet,
-            ReturnType orderReturnType
+        List<OrderProduct> sellerProducts,
+        Set<Long> returnPricePolicyIdSet,
+        ReturnType orderReturnType
     ) {
         if (orderReturnType.isFullReturn()) {
             return ReturnType.FULL_RETURN;
         }
 
         boolean allReturned = sellerProducts.stream()
-                .allMatch(product -> returnPricePolicyIdSet.contains(product.getPricePolicyId()));
+            .allMatch(product -> returnPricePolicyIdSet.contains(product.getPricePolicyId()));
         if (allReturned) {
             return ReturnType.FULL_RETURN;
         }
@@ -189,9 +189,9 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
 
     private long calculateRemainingAmount(List<OrderProduct> sellerProducts, Set<Long> returnPricePolicyIdSet) {
         return sellerProducts.stream()
-                .filter(product -> !returnPricePolicyIdSet.contains(product.getPricePolicyId()))
-                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
-                .reduce(0L, Math::addExact);
+            .filter(product -> !returnPricePolicyIdSet.contains(product.getPricePolicyId()))
+            .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
+            .reduce(0L, Math::addExact);
     }
 
     private long resolveSurcharge(ShippingPolicyInfoResult policy, ShippingRegionType regionType) {

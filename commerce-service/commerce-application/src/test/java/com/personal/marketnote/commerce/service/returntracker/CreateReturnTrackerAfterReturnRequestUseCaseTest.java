@@ -42,7 +42,7 @@ class CreateReturnTrackerAfterReturnRequestUseCaseTest {
             String returnSlipNumber = "RS-2026041100001";
             RegisterFulfillmentReturnDeliveryCommand command = createCommand(orderId);
             RegisterFulfillmentReturnDeliveryResult result = RegisterFulfillmentReturnDeliveryResult.of(
-                    orderId, returnSlipNumber, true, "성공");
+                orderId, returnSlipNumber, true, "성공");
             when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command)).thenReturn(result);
 
             // when
@@ -60,7 +60,7 @@ class CreateReturnTrackerAfterReturnRequestUseCaseTest {
             String returnSlipNumber = "RS-CUSTOM-12345";
             RegisterFulfillmentReturnDeliveryCommand command = createCommand(orderId);
             RegisterFulfillmentReturnDeliveryResult result = RegisterFulfillmentReturnDeliveryResult.of(
-                    orderId, returnSlipNumber, true, "��공");
+                orderId, returnSlipNumber, true, "��공");
             when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command)).thenReturn(result);
 
             // when
@@ -83,7 +83,7 @@ class CreateReturnTrackerAfterReturnRequestUseCaseTest {
             Long orderId = 1L;
             RegisterFulfillmentReturnDeliveryCommand command = createCommand(orderId);
             when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command))
-                    .thenThrow(new FulfillmentServiceRequestFailedException(new IOException("풀필먼트 서비스 요청 실패")));
+                .thenThrow(new FulfillmentServiceRequestFailedException(new IOException("풀필먼트 서비스 요청 실패")));
 
             // when
             createReturnTrackerAfterReturnRequestService.createReturnTracker(command);
@@ -105,14 +105,14 @@ class CreateReturnTrackerAfterReturnRequestUseCaseTest {
             String returnSlipNumber = "RS-2026041100001";
             RegisterFulfillmentReturnDeliveryCommand command = createCommand(orderId);
             RegisterFulfillmentReturnDeliveryResult result = RegisterFulfillmentReturnDeliveryResult.of(
-                    orderId, returnSlipNumber, true, "성공");
+                orderId, returnSlipNumber, true, "성공");
             when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command)).thenReturn(result);
             doThrow(new DataIntegrityViolationException("Unique constraint violation"))
-                    .when(returnTrackerPersistenceService).saveReturnTracker(orderId, returnSlipNumber);
+                .when(returnTrackerPersistenceService).saveReturnTracker(orderId, returnSlipNumber);
 
             // when & then
             assertThatCode(() -> createReturnTrackerAfterReturnRequestService.createReturnTracker(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -123,14 +123,14 @@ class CreateReturnTrackerAfterReturnRequestUseCaseTest {
             String returnSlipNumber = "RS-2026041100001";
             RegisterFulfillmentReturnDeliveryCommand command = createCommand(orderId);
             RegisterFulfillmentReturnDeliveryResult result = RegisterFulfillmentReturnDeliveryResult.of(
-                    orderId, returnSlipNumber, true, "성공");
+                orderId, returnSlipNumber, true, "성공");
             when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command)).thenReturn(result);
             doThrow(new DataAccessResourceFailureException("DB connection failed"))
-                    .when(returnTrackerPersistenceService).saveReturnTracker(orderId, returnSlipNumber);
+                .when(returnTrackerPersistenceService).saveReturnTracker(orderId, returnSlipNumber);
 
             // when & then
             assertThatCode(() -> createReturnTrackerAfterReturnRequestService.createReturnTracker(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -140,22 +140,22 @@ class CreateReturnTrackerAfterReturnRequestUseCaseTest {
 
     private RegisterFulfillmentReturnDeliveryCommand createCommand(Long orderId) {
         return RegisterFulfillmentReturnDeliveryCommand.builder()
-                .orderId(orderId)
-                .orderDate("2026-09-17")
-                .recipientName("수령인")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구 테헤란로 123")
-                .pickupRecipientName("회수인")
-                .pickupRecipientPhoneNumber("01098765432")
-                .pickupZipCode("12345")
-                .pickupAddress("서울시 서초구")
-                .pickupAddressDetail("상세주소")
-                .returnReason("단순 변심")
-                .returnDetailReason("사이즈 맞지 않음")
-                .returnShippingRequest("부재 시 경비실에 맡겨주세요")
-                .products(List.of(
-                        RegisterFulfillmentReturnDeliveryCommand.ProductItem.of("PROD-001", 1)
-                ))
-                .build();
+            .orderId(orderId)
+            .orderDate("2026-09-17")
+            .recipientName("수령인")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구 테헤란로 123")
+            .pickupRecipientName("회수인")
+            .pickupRecipientPhoneNumber("01098765432")
+            .pickupZipCode("12345")
+            .pickupAddress("서울시 서초구")
+            .pickupAddressDetail("상세주소")
+            .returnReason("단순 변심")
+            .returnDetailReason("사이즈 맞지 않음")
+            .returnShippingRequest("부재 시 경비실에 맡겨주세요")
+            .products(List.of(
+                RegisterFulfillmentReturnDeliveryCommand.ProductItem.of("PROD-001", 1)
+            ))
+            .build();
     }
 }

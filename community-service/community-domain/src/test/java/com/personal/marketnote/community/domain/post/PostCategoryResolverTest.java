@@ -14,21 +14,21 @@ class PostCategoryResolverTest {
     @DisplayName("board가 null이면 BoardOrCategoryNoValueException이 발생한다")
     void shouldThrowExceptionWhenBoardIsNull() {
         assertThatThrownBy(() -> PostCategoryResolver.resolve(null, "ANNOUNCEMENT"))
-                .isInstanceOf(BoardOrCategoryNoValueException.class);
+            .isInstanceOf(BoardOrCategoryNoValueException.class);
     }
 
     @Test
     @DisplayName("categoryCode가 null이면 BoardOrCategoryNoValueException이 발생한다")
     void shouldThrowExceptionWhenCategoryCodeIsNull() {
         assertThatThrownBy(() -> PostCategoryResolver.resolve(Board.NOTICE, null))
-                .isInstanceOf(BoardOrCategoryNoValueException.class);
+            .isInstanceOf(BoardOrCategoryNoValueException.class);
     }
 
     @Test
     @DisplayName("categoryCode가 빈 문자열이면 BoardOrCategoryNoValueException이 발생한다")
     void shouldThrowExceptionWhenCategoryCodeIsEmpty() {
         assertThatThrownBy(() -> PostCategoryResolver.resolve(Board.NOTICE, ""))
-                .isInstanceOf(BoardOrCategoryNoValueException.class);
+            .isInstanceOf(BoardOrCategoryNoValueException.class);
     }
 
     @Test
@@ -43,6 +43,6 @@ class PostCategoryResolverTest {
     @DisplayName("유효한 board에 잘못된 categoryCode이면 InvalidPostCategoryForBoardException이 발생한다")
     void shouldThrowExceptionWhenCategoryCodeIsInvalidForBoard() {
         assertThatThrownBy(() -> PostCategoryResolver.resolve(Board.NOTICE, "INVALID_CODE"))
-                .isInstanceOf(InvalidPostCategoryForBoardException.class);
+            .isInstanceOf(InvalidPostCategoryForBoardException.class);
     }
 }

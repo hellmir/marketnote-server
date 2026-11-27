@@ -32,10 +32,10 @@ class CompleteFulfillmentDeliveryIcsUseCaseTest {
     void shouldReturnCompleteDeliveryIcsResultFromPort() {
         // given
         CompleteFulfillmentDeliveryIcsItemCommand itemCommand = CompleteFulfillmentDeliveryIcsItemCommand.of(
-                List.of("ORD001")
+            List.of("ORD001")
         );
         CompleteFulfillmentDeliveryIcsCommand command = CompleteFulfillmentDeliveryIcsCommand.of(
-                "CUST001", "token", List.of(itemCommand)
+            "CUST001", "token", List.of(itemCommand)
         );
         CompleteFulfillmentDeliveryIcsResult expectedResult = CompleteFulfillmentDeliveryIcsResult.of(0, List.of());
         when(completeFulfillmentDeliveryIcsPort.completeDeliveryIcs(any())).thenReturn(expectedResult);

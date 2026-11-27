@@ -23,8 +23,8 @@ import static org.mockito.Mockito.when;
 
 class FileSwaggerConfigTest {
     private final FileSwaggerConfig fileSwaggerConfig = new FileSwaggerConfig(
-            mock(Environment.class),
-            new SwaggerOrigin("https", "marketnote.store")
+        mock(Environment.class),
+        new SwaggerOrigin("https", "marketnote.store")
     );
 
     @Nested

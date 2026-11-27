@@ -51,10 +51,10 @@ class GetBrandTalkTemplateListUseCaseTest {
     @BeforeEach
     void setUp() {
         lenient().when(transactionTemplate.execute(any()))
-                .thenAnswer(invocation -> {
-                    TransactionCallback<?> callback = invocation.getArgument(0);
-                    return callback.doInTransaction(null);
-                });
+            .thenAnswer(invocation -> {
+                TransactionCallback<?> callback = invocation.getArgument(0);
+                return callback.doInTransaction(null);
+            });
     }
 
     @Test
@@ -62,12 +62,12 @@ class GetBrandTalkTemplateListUseCaseTest {
     void shouldReturnExternalApiResult() {
         // given
         GetBrandTalkTemplateListResult.ExternalListResponse externalResponse =
-                new GetBrandTalkTemplateListResult.ExternalListResponse(
-                        new GetBrandTalkTemplateListResult.PageInfo(1, 10, 1),
-                        List.of(new GetBrandTalkTemplateListResult.ExternalTemplateItem(
-                                "TPL001", "주문 안내", "TEXT", "O", List.of("#{name}"), "2026-10-11 12:00:00"
-                        ))
-                );
+            new GetBrandTalkTemplateListResult.ExternalListResponse(
+                new GetBrandTalkTemplateListResult.PageInfo(1, 10, 1),
+                List.of(new GetBrandTalkTemplateListResult.ExternalTemplateItem(
+                    "TPL001", "주문 안내", "TEXT", "O", List.of("#{name}"), "2026-10-11 12:00:00"
+                ))
+            );
         when(getTemplateListExternalPort.getTemplateList(SENDER_KEY, 1, 10)).thenReturn(externalResponse);
 
         AligoBrandTalkTemplate localTemplate = createTemplate("TPL001", BrandTalkTemplateStatus.NORMAL);
@@ -91,12 +91,12 @@ class GetBrandTalkTemplateListUseCaseTest {
     void shouldSaveNewTemplateWhenNotExistsLocally() {
         // given
         GetBrandTalkTemplateListResult.ExternalListResponse externalResponse =
-                new GetBrandTalkTemplateListResult.ExternalListResponse(
-                        new GetBrandTalkTemplateListResult.PageInfo(1, 10, 1),
-                        List.of(new GetBrandTalkTemplateListResult.ExternalTemplateItem(
-                                "TPL_NEW", "신규 템플릿", "TEXT", "O", List.of(), "2026-10-11 12:00:00"
-                        ))
-                );
+            new GetBrandTalkTemplateListResult.ExternalListResponse(
+                new GetBrandTalkTemplateListResult.PageInfo(1, 10, 1),
+                List.of(new GetBrandTalkTemplateListResult.ExternalTemplateItem(
+                    "TPL_NEW", "신규 템플릿", "TEXT", "O", List.of(), "2026-10-11 12:00:00"
+                ))
+            );
         when(getTemplateListExternalPort.getTemplateList(SENDER_KEY, 1, 10)).thenReturn(externalResponse);
         when(findBrandTalkTemplateListPort.findAllBySenderKey(SENDER_KEY)).thenReturn(List.of());
         when(saveBrandTalkTemplatePort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -114,12 +114,12 @@ class GetBrandTalkTemplateListUseCaseTest {
     void shouldUpdateTemplateStatusWhenChanged() {
         // given
         GetBrandTalkTemplateListResult.ExternalListResponse externalResponse =
-                new GetBrandTalkTemplateListResult.ExternalListResponse(
-                        new GetBrandTalkTemplateListResult.PageInfo(1, 10, 1),
-                        List.of(new GetBrandTalkTemplateListResult.ExternalTemplateItem(
-                                "TPL001", "주문 안내", "TEXT", "S", List.of(), "2026-10-11 12:00:00"
-                        ))
-                );
+            new GetBrandTalkTemplateListResult.ExternalListResponse(
+                new GetBrandTalkTemplateListResult.PageInfo(1, 10, 1),
+                List.of(new GetBrandTalkTemplateListResult.ExternalTemplateItem(
+                    "TPL001", "주문 안내", "TEXT", "S", List.of(), "2026-10-11 12:00:00"
+                ))
+            );
         when(getTemplateListExternalPort.getTemplateList(SENDER_KEY, 1, 10)).thenReturn(externalResponse);
 
         AligoBrandTalkTemplate localTemplate = createTemplate("TPL001", BrandTalkTemplateStatus.NORMAL);
@@ -139,10 +139,10 @@ class GetBrandTalkTemplateListUseCaseTest {
     void shouldPassPagingParametersCorrectly() {
         // given
         GetBrandTalkTemplateListResult.ExternalListResponse externalResponse =
-                new GetBrandTalkTemplateListResult.ExternalListResponse(
-                        new GetBrandTalkTemplateListResult.PageInfo(3, 5, 25),
-                        List.of()
-                );
+            new GetBrandTalkTemplateListResult.ExternalListResponse(
+                new GetBrandTalkTemplateListResult.PageInfo(3, 5, 25),
+                List.of()
+            );
         when(getTemplateListExternalPort.getTemplateList(SENDER_KEY, 3, 5)).thenReturn(externalResponse);
         when(findBrandTalkTemplateListPort.findAllBySenderKey(SENDER_KEY)).thenReturn(List.of());
 
@@ -159,15 +159,15 @@ class GetBrandTalkTemplateListUseCaseTest {
 
     private AligoBrandTalkTemplate createTemplate(String templateCode, BrandTalkTemplateStatus templateStatus) {
         return AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateSnapshotState.builder()
-                        .id(1L)
-                        .senderKey(SENDER_KEY)
-                        .templateCode(templateCode)
-                        .templateName("테스트 템플릿")
-                        .templateType(BrandTalkTemplateType.TEXT)
-                        .templateContent("테스트 내용")
-                        .templateStatus(templateStatus)
-                        .build()
+            AligoBrandTalkTemplateSnapshotState.builder()
+                .id(1L)
+                .senderKey(SENDER_KEY)
+                .templateCode(templateCode)
+                .templateName("테스트 템플릿")
+                .templateType(BrandTalkTemplateType.TEXT)
+                .templateContent("테스트 내용")
+                .templateStatus(templateStatus)
+                .build()
         );
     }
 }

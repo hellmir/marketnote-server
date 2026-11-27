@@ -22,14 +22,14 @@ class NotificationTest {
         void shouldCreateNotificationWithValidValues() {
             // given
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title("주문이 완료되었습니다")
-                    .body("테스트 상품 외 1건이 결제되었습니다.")
-                    .data("{\"orderId\":123}")
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .landingUrl("/order/123")
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("주문이 완료되었습니다")
+                .body("테스트 상품 외 1건이 결제되었습니다.")
+                .data("{\"orderId\":123}")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .landingUrl("/order/123")
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -53,13 +53,13 @@ class NotificationTest {
             // given
             LocalDateTime scheduledAt = LocalDateTime.of(2026, 4, 10, 9, 0);
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.PURCHASE_CONFIRMATION_REQUEST)
-                    .title("구매 확정 요청")
-                    .body("구매 확정을 해주세요.")
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .scheduledAt(scheduledAt)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.PURCHASE_CONFIRMATION_REQUEST)
+                .title("구매 확정 요청")
+                .body("구매 확정을 해주세요.")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .scheduledAt(scheduledAt)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -74,16 +74,16 @@ class NotificationTest {
         void shouldThrowExceptionWhenUserIdIsNull() {
             // given
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(null)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title("제목")
-                    .body("본문")
-                    .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                    .build();
+                .userId(null)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("제목")
+                .body("본문")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Notification.from(state))
-                    .isInstanceOf(InvalidNotificationException.class);
+                .isInstanceOf(InvalidNotificationException.class);
         }
 
         @Test
@@ -91,16 +91,16 @@ class NotificationTest {
         void shouldThrowExceptionWhenNotificationTypeIsNull() {
             // given
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(null)
-                    .title("제목")
-                    .body("본문")
-                    .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                    .build();
+                .userId(1L)
+                .notificationType(null)
+                .title("제목")
+                .body("본문")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Notification.from(state))
-                    .isInstanceOf(InvalidNotificationException.class);
+                .isInstanceOf(InvalidNotificationException.class);
         }
 
         @Test
@@ -108,16 +108,16 @@ class NotificationTest {
         void shouldThrowExceptionWhenDeliveryChannelIsNull() {
             // given
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title("제목")
-                    .body("본문")
-                    .deliveryChannel(null)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("제목")
+                .body("본문")
+                .deliveryChannel(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Notification.from(state))
-                    .isInstanceOf(InvalidNotificationException.class);
+                .isInstanceOf(InvalidNotificationException.class);
         }
 
         @Test
@@ -127,12 +127,12 @@ class NotificationTest {
             String longTitle = "가".repeat(250);
             String expectedTitle = "가".repeat(200);
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title(longTitle)
-                    .body("본문")
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title(longTitle)
+                .body("본문")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -148,12 +148,12 @@ class NotificationTest {
             // given
             String exactTitle = "나".repeat(200);
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title(exactTitle)
-                    .body("본문")
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title(exactTitle)
+                .body("본문")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -169,12 +169,12 @@ class NotificationTest {
             String longBody = "다".repeat(600);
             String expectedBody = "다".repeat(500);
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title("제목")
-                    .body(longBody)
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("제목")
+                .body(longBody)
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -190,12 +190,12 @@ class NotificationTest {
             // given
             String exactBody = "라".repeat(500);
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title("제목")
-                    .body(exactBody)
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("제목")
+                .body(exactBody)
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -209,12 +209,12 @@ class NotificationTest {
         void shouldNotThrowWhenTitleAndBodyAreNull() {
             // given
             NotificationCreateState state = NotificationCreateState.builder()
-                    .userId(1L)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .title(null)
-                    .body(null)
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .build();
+                .userId(1L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title(null)
+                .body(null)
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -235,21 +235,21 @@ class NotificationTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 12, 0);
             NotificationSnapshotState state = NotificationSnapshotState.builder()
-                    .id(10L)
-                    .userId(1L)
-                    .notificationType(NotificationType.SHIPPING_STARTED)
-                    .title("배송이 시작되었습니다")
-                    .body("테스트 상품이 발송되었습니다.")
-                    .data("{\"orderId\":456}")
-                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                    .isRead(true)
-                    .landingUrl("/order/456")
-                    .sendStatus(SendStatus.SENT)
-                    .scheduledAt(null)
-                    .status(EntityStatus.ACTIVE)
-                    .createdAt(now)
-                    .modifiedAt(now)
-                    .build();
+                .id(10L)
+                .userId(1L)
+                .notificationType(NotificationType.SHIPPING_STARTED)
+                .title("배송이 시작되었습니다")
+                .body("테스트 상품이 발송되었습니다.")
+                .data("{\"orderId\":456}")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .isRead(true)
+                .landingUrl("/order/456")
+                .sendStatus(SendStatus.SENT)
+                .scheduledAt(null)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -270,18 +270,18 @@ class NotificationTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 12, 0);
             NotificationSnapshotState state = NotificationSnapshotState.builder()
-                    .id(20L)
-                    .userId(1L)
-                    .notificationType(NotificationType.NOTICE)
-                    .title("공지사항")
-                    .body("본문")
-                    .deliveryChannel(DeliveryChannel.IN_APP_ONLY)
-                    .isRead(false)
-                    .sendStatus(SendStatus.SENT)
-                    .status(EntityStatus.INACTIVE)
-                    .createdAt(now)
-                    .modifiedAt(now)
-                    .build();
+                .id(20L)
+                .userId(1L)
+                .notificationType(NotificationType.NOTICE)
+                .title("공지사항")
+                .body("본문")
+                .deliveryChannel(DeliveryChannel.IN_APP_ONLY)
+                .isRead(false)
+                .sendStatus(SendStatus.SENT)
+                .status(EntityStatus.INACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build();
 
             // when
             Notification notification = Notification.from(state);
@@ -339,13 +339,13 @@ class NotificationTest {
 
     private Notification createDefaultNotification() {
         NotificationCreateState state = NotificationCreateState.builder()
-                .userId(1L)
-                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                .title("주문이 완료되었습니다")
-                .body("테스트 상품 외 1건이 결제되었습니다.")
-                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                .landingUrl("/order/123")
-                .build();
+            .userId(1L)
+            .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+            .title("주문이 완료되었습니다")
+            .body("테스트 상품 외 1건이 결제되었습니다.")
+            .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+            .landingUrl("/order/123")
+            .build();
         return Notification.from(state);
     }
 }

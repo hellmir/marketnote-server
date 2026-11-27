@@ -14,16 +14,16 @@ public class LikeJpaEntityToDomainMapper {
         }
 
         return Optional.of(
-                Like.from(
-                        LikeSnapshotState.builder()
-                                .targetType(entity.getId().getTargetType())
-                                .targetId(entity.getId().getTargetId())
-                                .userId(entity.getId().getUserId())
-                                .status(entity.getStatus())
-                                .createdAt(entity.getCreatedAt())
-                                .modifiedAt(entity.getModifiedAt())
-                                .build()
-                )
+            Like.from(
+                LikeSnapshotState.builder()
+                    .targetType(entity.getId().getTargetType())
+                    .targetId(entity.getId().getTargetId())
+                    .userId(entity.getId().getUserId())
+                    .status(entity.getStatus())
+                    .createdAt(entity.getCreatedAt())
+                    .modifiedAt(entity.getModifiedAt())
+                    .build()
+            )
         );
     }
 }

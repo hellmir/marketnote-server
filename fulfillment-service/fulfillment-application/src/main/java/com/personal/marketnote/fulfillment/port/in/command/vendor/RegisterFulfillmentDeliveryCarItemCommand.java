@@ -6,12 +6,12 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentDeliveryCarItemCommand(
-        String orderDate,
-        String orderNumber,
-        String slipNumber,
-        String releaseMethod,
-        String shopCode,
-        List<RegisterFulfillmentDeliveryGoodsCommand> products,
-        String remark
+    String orderDate,
+    String orderNumber,
+    String slipNumber,
+    String releaseMethod,
+    String shopCode,
+    List<RegisterFulfillmentDeliveryGoodsCommand> products,
+    String remark
 ) {
 }

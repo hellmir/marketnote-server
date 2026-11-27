@@ -30,7 +30,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ProductCatalogReadModelPersistenceAdapter
-        implements FindProductCatalogReadModelPort, SaveProductCatalogReadModelPort {
+    implements FindProductCatalogReadModelPort, SaveProductCatalogReadModelPort {
 
     private final ProductCatalogReadModelJpaRepository repository;
     private final ObjectMapper objectMapper;
@@ -38,36 +38,36 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     @Cacheable(
-            value = "product:list:first",
-            key = "#categoryId + ':' + (#pricePolicyIds == null ? 'null' : #pricePolicyIds.stream().distinct().sorted().toList()) + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget",
-            condition = "#cursor != null and #cursor == -1L and #searchKeyword == null"
+        value = "product:list:first",
+        key = "#categoryId + ':' + (#pricePolicyIds == null ? 'null' : #pricePolicyIds.stream().distinct().sorted().toList()) + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget",
+        condition = "#cursor != null and #cursor == -1L and #searchKeyword == null"
     )
     public List<ProductCatalogItemResult> findCatalogItems(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            Long cursor,
-            int pageSize,
-            boolean isAsc,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        List<Long> pricePolicyIds,
+        Long cursor,
+        int pageSize,
+        boolean isAsc,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     ) {
         List<ProductCatalogReadModelJpaEntity> entities = repository.findCatalogItems(
-                categoryId, pricePolicyIds, cursor, pageSize, isAsc, sortProperty, searchTarget, searchKeyword
+            categoryId, pricePolicyIds, cursor, pageSize, isAsc, sortProperty, searchTarget, searchKeyword
         );
         // ArrayList 명시 변환: stream().toList() 는 ImmutableCollections$ListN(final) 반환.
         // CacheConfig NON_FINAL 정책에서 final 컬렉션은 type info 미부여로 wrapper 없이 직렬화 → 역직렬화 시 type id 부재로 MismatchedInputException (#4886).
         return entities.stream()
-                .map(entity -> ProductCatalogReadModelJpaEntityToResultMapper.mapToResult(entity, objectMapper))
-                .collect(Collectors.toCollection(ArrayList::new));
+            .map(entity -> ProductCatalogReadModelJpaEntityToResultMapper.mapToResult(entity, objectMapper))
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     @Cacheable(
-            value = "product:list:first",
-            key = "'count:' + #categoryId + ':' + #searchTarget",
-            condition = "#searchKeyword == null"
+        value = "product:list:first",
+        key = "'count:' + #categoryId + ':' + #searchTarget",
+        condition = "#searchKeyword == null"
     )
     public long countCatalogItems(Long categoryId, ProductSearchTarget searchTarget, String searchKeyword) {
         return repository.countCatalogItems(categoryId, searchTarget, searchKeyword);
@@ -76,77 +76,77 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsertCatalog(
-            Long pricePolicyId,
-            Long productId,
-            Long sellerId,
-            Long primaryCategoryId,
-            String name,
-            String brandName,
-            Long price,
-            Long discountPrice,
-            BigDecimal discountRate,
-            Long accumulatedPoint,
-            BigDecimal accumulatedPointRate,
-            Long orderNum,
-            Long popularity,
-            Long sales,
-            String productTagsJson,
-            String selectedOptionsJson
+        Long pricePolicyId,
+        Long productId,
+        Long sellerId,
+        Long primaryCategoryId,
+        String name,
+        String brandName,
+        Long price,
+        Long discountPrice,
+        BigDecimal discountRate,
+        Long accumulatedPoint,
+        BigDecimal accumulatedPointRate,
+        Long orderNum,
+        Long popularity,
+        Long sales,
+        String productTagsJson,
+        String selectedOptionsJson
     ) {
         Long safeSales = FormatValidator.hasValue(sales) ? sales : 0L;
         Optional<ProductCatalogReadModelJpaEntity> existing = repository.findByPricePolicyId(pricePolicyId);
 
         if (existing.isPresent()) {
             applyUpdates(
-                    existing.get(), name, brandName, primaryCategoryId, price, discountPrice, discountRate,
-                    accumulatedPoint, accumulatedPointRate, orderNum, popularity,
-                    safeSales, productTagsJson, selectedOptionsJson
+                existing.get(), name, brandName, primaryCategoryId, price, discountPrice, discountRate,
+                accumulatedPoint, accumulatedPointRate, orderNum, popularity,
+                safeSales, productTagsJson, selectedOptionsJson
             );
             return;
         }
 
         if (FormatValidator.hasNoValue(name)) {
             log.warn(
-                    "상품 카탈로그 Read Model 신규 저장 skip — 필수 필드(name) 누락. pricePolicyId={}, productId={}",
-                    pricePolicyId, productId
+                "상품 카탈로그 Read Model 신규 저장 skip — 필수 필드(name) 누락. pricePolicyId={}, productId={}",
+                pricePolicyId, productId
             );
             return;
         }
 
         try {
             ProductCatalogReadModelJpaEntity entity = ProductCatalogReadModelJpaEntity.of(
-                    pricePolicyId, productId, sellerId, primaryCategoryId,
-                    name, brandName,
-                    zeroIfNull(price),
-                    zeroIfNull(discountPrice),
-                    zeroIfNull(discountRate),
-                    zeroIfNull(accumulatedPoint),
-                    zeroIfNull(accumulatedPointRate),
-                    zeroIfNull(orderNum),
-                    zeroIfNull(popularity),
-                    safeSales, productTagsJson, selectedOptionsJson
+                pricePolicyId, productId, sellerId, primaryCategoryId,
+                name, brandName,
+                zeroIfNull(price),
+                zeroIfNull(discountPrice),
+                zeroIfNull(discountRate),
+                zeroIfNull(accumulatedPoint),
+                zeroIfNull(accumulatedPointRate),
+                zeroIfNull(orderNum),
+                zeroIfNull(popularity),
+                safeSales, productTagsJson, selectedOptionsJson
             );
             repository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회로 복원, 미존재 시 원본 예외 재throw
             ProductCatalogReadModelJpaEntity entity = repository.findByPricePolicyId(pricePolicyId)
-                    .orElseThrow(() -> e);
+                .orElseThrow(() -> e);
             log.info("상품 카탈로그 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             applyUpdates(
-                    entity, name, brandName, primaryCategoryId, price, discountPrice, discountRate,
-                    accumulatedPoint, accumulatedPointRate, orderNum, popularity,
-                    safeSales, productTagsJson, selectedOptionsJson
+                entity, name, brandName, primaryCategoryId, price, discountPrice, discountRate,
+                accumulatedPoint, accumulatedPointRate, orderNum, popularity,
+                safeSales, productTagsJson, selectedOptionsJson
             );
         }
     }
 
     private void applyUpdates(
-            ProductCatalogReadModelJpaEntity entity,
-            String name, String brandName, Long primaryCategoryId,
-            Long price, Long discountPrice, BigDecimal discountRate,
-            Long accumulatedPoint, BigDecimal accumulatedPointRate,
-            Long orderNum, Long popularity,
-            Long safeSales, String productTagsJson, String selectedOptionsJson
+        ProductCatalogReadModelJpaEntity entity,
+        String name, String brandName, Long primaryCategoryId,
+        Long price, Long discountPrice, BigDecimal discountRate,
+        Long accumulatedPoint, BigDecimal accumulatedPointRate,
+        Long orderNum, Long popularity,
+        Long safeSales, String productTagsJson, String selectedOptionsJson
     ) {
         entity.updateProductInfo(name, brandName, primaryCategoryId);
         entity.updatePricing(price, discountPrice, discountRate, accumulatedPoint, accumulatedPointRate);
@@ -197,7 +197,7 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public void updateStockQuantity(Long pricePolicyId, Integer stockQuantity) {
         repository.findByPricePolicyId(pricePolicyId)
-                .ifPresent(entity -> entity.updateStockQuantity(stockQuantity));
+            .ifPresent(entity -> entity.updateStockQuantity(stockQuantity));
     }
 
     @Override
@@ -225,7 +225,7 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public void deleteByPricePolicyId(Long pricePolicyId) {
         repository.findByPricePolicyId(pricePolicyId)
-                .ifPresent(entity -> repository.delete(entity));
+            .ifPresent(entity -> repository.delete(entity));
     }
 
     @Override

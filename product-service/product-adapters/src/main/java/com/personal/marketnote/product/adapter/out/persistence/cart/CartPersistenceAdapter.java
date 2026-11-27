@@ -25,9 +25,9 @@ public class CartPersistenceAdapter implements SaveCartProductPort, FindCartProd
     @Override
     public CartProduct save(CartProduct cartProduct) {
         PricePolicyJpaEntity pricePolicyJpaEntity
-                = pricePolicyJpaRepository.getReferenceById(cartProduct.getPricePolicy().getId());
+            = pricePolicyJpaRepository.getReferenceById(cartProduct.getPricePolicy().getId());
         CartProductJpaEntity savedEntity
-                = cartJpaRepository.save(CartProductJpaEntity.from(cartProduct, pricePolicyJpaEntity));
+            = cartJpaRepository.save(CartProductJpaEntity.from(cartProduct, pricePolicyJpaEntity));
 
         return CartJpaEntityToDomainMapper.mapToDomain(savedEntity).orElse(null);
     }
@@ -36,16 +36,16 @@ public class CartPersistenceAdapter implements SaveCartProductPort, FindCartProd
     public List<CartProduct> findByUserId(Long userId) {
         List<CartProductJpaEntity> cartProductJpaEntities = cartJpaRepository.findByIdUserId(userId);
         return cartProductJpaEntities.stream()
-                .map(CartJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(CartJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
     public Optional<CartProduct> findCartProductByUserIdAndPricePolicyId(Long userId, Long pricePolicyId) {
         return CartJpaEntityToDomainMapper.mapToDomain(
-                cartJpaRepository.findByIdUserIdAndPricePolicyId(userId, pricePolicyId).orElse(null)
+            cartJpaRepository.findByIdUserIdAndPricePolicyId(userId, pricePolicyId).orElse(null)
         );
     }
 
@@ -57,8 +57,8 @@ public class CartPersistenceAdapter implements SaveCartProductPort, FindCartProd
     @Override
     public void update(CartProduct cartProduct, Long originalPricePolicyId) throws CartProductNotFoundException {
         CartProductJpaEntity entity = findCartProductEntity(
-                cartProduct.getUserId(),
-                originalPricePolicyId
+            cartProduct.getUserId(),
+            originalPricePolicyId
         );
 
         Long newPricePolicyId = cartProduct.getPricePolicy().getId();
@@ -75,12 +75,12 @@ public class CartPersistenceAdapter implements SaveCartProductPort, FindCartProd
     }
 
     private CartProductJpaEntity findCartProductEntity(Long userId, Long pricePolicyId)
-            throws CartProductNotFoundException {
+        throws CartProductNotFoundException {
         return cartJpaRepository.findByIdUserIdAndPricePolicyId(userId, pricePolicyId)
-                .orElseThrow(() -> {
-                    log.warn("장바구니 상품을 찾을 수 없습니다. userId={}, pricePolicyId={}", userId, pricePolicyId);
-                    return new CartProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("장바구니 상품을 찾을 수 없습니다. userId={}, pricePolicyId={}", userId, pricePolicyId);
+                return new CartProductNotFoundException();
+            });
     }
 
     @Override

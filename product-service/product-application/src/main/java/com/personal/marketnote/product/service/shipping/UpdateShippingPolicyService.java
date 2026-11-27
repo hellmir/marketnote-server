@@ -31,19 +31,19 @@ public class UpdateShippingPolicyService implements UpdateShippingPolicyUseCase 
         ShippingPolicy shippingPolicy = findShippingPolicy(sellerId);
 
         shippingPolicy.update(
-                command.deliveryCompany(),
-                command.shippingFee(),
-                command.freeShippingThreshold(),
-                command.jejuSurcharge(),
-                command.islandSurcharge()
+            command.deliveryCompany(),
+            command.shippingFee(),
+            command.freeShippingThreshold(),
+            command.jejuSurcharge(),
+            command.islandSurcharge()
         );
 
         updateShippingPolicyPort.update(shippingPolicy);
 
         publishShippingPolicyEventPort.publishShippingPolicyChangedEvent(
-                sellerId, shippingPolicy.getShippingFee().getValue(), shippingPolicy.getFreeShippingThreshold().getValue(),
-                shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(),
-                ShippingPolicyChangeAction.UPDATED
+            sellerId, shippingPolicy.getShippingFee().getValue(), shippingPolicy.getFreeShippingThreshold().getValue(),
+            shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(),
+            ShippingPolicyChangeAction.UPDATED
         );
 
         return UpdateShippingPolicyResult.from(shippingPolicy);
@@ -51,9 +51,9 @@ public class UpdateShippingPolicyService implements UpdateShippingPolicyUseCase 
 
     private ShippingPolicy findShippingPolicy(Long sellerId) {
         return findShippingPolicyPort.findActiveBySellerId(sellerId)
-                .orElseThrow(() -> {
-                    log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", sellerId);
-                    return new ShippingPolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", sellerId);
+                return new ShippingPolicyNotFoundException();
+            });
     }
 }

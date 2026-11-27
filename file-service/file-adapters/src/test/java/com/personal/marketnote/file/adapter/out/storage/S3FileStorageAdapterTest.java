@@ -9,22 +9,14 @@ import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.file.adapter.out.exception.S3UploadFailedException;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.awscore.AwsResponseMetadata;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.services.s3.model.S3ResponseMetadata;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -34,11 +26,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("S3FileStorageAdapter 테스트")
 class S3FileStorageAdapterTest {
@@ -150,7 +138,7 @@ class S3FileStorageAdapterTest {
             }
 
             assertThatThrownBy(() -> s3FileStorageAdapter.uploadFiles(List.of(file), OwnerType.PRODUCT, 1L))
-                    .isInstanceOf(S3UploadFailedException.class);
+                .isInstanceOf(S3UploadFailedException.class);
         }
     }
 
@@ -199,7 +187,7 @@ class S3FileStorageAdapterTest {
             MockMultipartFile file = new MockMultipartFile("file", "image.jpg", "image/jpeg", "abcd".getBytes());
 
             assertThatThrownBy(() -> s3FileStorageAdapter.uploadFiles(List.of(file), OwnerType.PRODUCT, 7L))
-                    .isSameAs(cause);
+                .isSameAs(cause);
 
             ILoggingEvent errorEvent = findEvent("External call failure: operation=upload");
             assertThat(errorEvent.getLevel()).isEqualTo(Level.ERROR);
@@ -232,7 +220,7 @@ class S3FileStorageAdapterTest {
         @DisplayName("URL prefix가 일치하면 deleteObject를 호출한다")
         void callsDeleteObjectWhenPrefixMatches() {
             when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
-                    .thenReturn(DeleteObjectResponse.builder().build());
+                .thenReturn(DeleteObjectResponse.builder().build());
             String url = "https://" + BUCKET + ".s3.amazonaws.com/product/1/file.jpg";
 
             s3FileStorageAdapter.deleteFiles(List.of(url));
@@ -267,8 +255,8 @@ class S3FileStorageAdapterTest {
         @DisplayName("S3 deleteObject 실패 시 후속 cleanup이 계속 진행된다")
         void continuesCleanupWhenSingleDeleteFails() {
             when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
-                    .thenThrow(new RuntimeException("first fail"))
-                    .thenReturn(DeleteObjectResponse.builder().build());
+                .thenThrow(new RuntimeException("first fail"))
+                .thenReturn(DeleteObjectResponse.builder().build());
             String url1 = "https://" + BUCKET + ".s3.amazonaws.com/product/1/a.jpg";
             String url2 = "https://" + BUCKET + ".s3.amazonaws.com/product/2/b.jpg";
 
@@ -293,7 +281,7 @@ class S3FileStorageAdapterTest {
             s3FileStorageAdapter.uploadFiles(List.of(file), OwnerType.PRODUCT, 7L);
 
             boolean hasMetaLog = appender.list.stream()
-                    .anyMatch(event -> event.getFormattedMessage().contains("S3 putObject response"));
+                .anyMatch(event -> event.getFormattedMessage().contains("S3 putObject response"));
             assertThat(hasMetaLog).isFalse();
         }
     }
@@ -301,23 +289,24 @@ class S3FileStorageAdapterTest {
     private void stubPutObject(String etag, String requestId) {
         Map<String, String> headers = new HashMap<>();
         headers.put("x-amz-request-id", requestId);
-        AwsResponseMetadata awsMetadata = new AwsResponseMetadata(headers) {};
+        AwsResponseMetadata awsMetadata = new AwsResponseMetadata(headers) {
+        };
         S3ResponseMetadata s3Metadata = S3ResponseMetadata.create(awsMetadata);
         PutObjectResponse response = (PutObjectResponse) PutObjectResponse.builder()
-                .eTag(etag)
-                .build()
-                .toBuilder()
-                .responseMetadata(s3Metadata)
-                .build();
+            .eTag(etag)
+            .build()
+            .toBuilder()
+            .responseMetadata(s3Metadata)
+            .build();
         when(s3Client.putObject(any(PutObjectRequest.class), any(Path.class))).thenReturn(response);
     }
 
     private ILoggingEvent findEvent(String partialMessage) {
         return appender.list.stream()
-                .filter(event -> event.getFormattedMessage().contains(partialMessage))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError(
-                        "Expected log message containing: " + partialMessage + " but got " + appender.list
-                ));
+            .filter(event -> event.getFormattedMessage().contains(partialMessage))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError(
+                "Expected log message containing: " + partialMessage + " but got " + appender.list
+            ));
     }
 }

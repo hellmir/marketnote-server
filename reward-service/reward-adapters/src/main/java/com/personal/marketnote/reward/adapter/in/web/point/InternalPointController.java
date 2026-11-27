@@ -31,8 +31,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/internal/users")
 @Tag(
-        name = "내부 포인트 API",
-        description = "서비스 간 통신용 포인트 API"
+    name = "내부 포인트 API",
+    description = "서비스 간 통신용 포인트 API"
 )
 @RequiredArgsConstructor
 @Slf4j
@@ -51,19 +51,19 @@ public class InternalPointController {
      */
     @GetMapping("/{userId}/points")
     public ResponseEntity<BaseResponse<GetUserPointByIdResponse>> getUserPoint(
-            @PathVariable("userId") Long userId
+        @PathVariable("userId") Long userId
     ) {
         GetUserPointResult result = GetUserPointResult.from(
-                getUserPointUseCase.getUserPoint(userId)
+            getUserPointUseCase.getUserPoint(userId)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetUserPointByIdResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 포인트 정보 조회 성공"
-                )
+            BaseResponse.of(
+                GetUserPointByIdResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 포인트 정보 조회 성공"
+            )
         );
     }
 
@@ -76,20 +76,20 @@ public class InternalPointController {
      */
     @PatchMapping("/{userId}/points")
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyUserPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid ModifyUserPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid ModifyUserPointRequest request
     ) {
         UpdateUserPointResult result = modifyUserPointUseCase.modify(
-                PointRequestToCommandMapper.mapToModifyUserPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToModifyUserPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 포인트 수정 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 포인트 수정 성공"
+            )
         );
     }
 
@@ -102,20 +102,20 @@ public class InternalPointController {
      */
     @PatchMapping("/{userId}/points/pending")
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyPendingPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid ModifyPendingPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid ModifyPendingPointRequest request
     ) {
         UpdateUserPointResult result = modifyPendingPointUseCase.modifyPending(
-                PointRequestToCommandMapper.mapToModifyPendingPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToModifyPendingPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "적립 예정 포인트 수정 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "적립 예정 포인트 수정 성공"
+            )
         );
     }
 
@@ -128,20 +128,20 @@ public class InternalPointController {
      */
     @PostMapping("/{userId}/points/pending/confirm")
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> confirmPendingPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid ConfirmPendingPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid ConfirmPendingPointRequest request
     ) {
         UpdateUserPointResult result = confirmPendingPointUseCase.confirmPending(
-                PointRequestToCommandMapper.mapToConfirmPendingPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToConfirmPendingPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "적립 예정 포인트 확정 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "적립 예정 포인트 확정 성공"
+            )
         );
     }
 
@@ -154,20 +154,20 @@ public class InternalPointController {
      */
     @PostMapping("/{userId}/points/pending/cancel")
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> cancelPendingPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid CancelPendingPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid CancelPendingPointRequest request
     ) {
         UpdateUserPointResult result = cancelPendingPointUseCase.cancelPending(
-                PointRequestToCommandMapper.mapToCancelPendingPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToCancelPendingPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "적립 예정 포인트 취소 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "적립 예정 포인트 취소 성공"
+            )
         );
     }
 }

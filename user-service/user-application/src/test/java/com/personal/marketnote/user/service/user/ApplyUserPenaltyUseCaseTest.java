@@ -127,7 +127,7 @@ class ApplyUserPenaltyUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> applyUserPenaltyService.applyPenalty(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getUserUseCase).getAllStatusUser(userId);
         verifyNoMoreInteractions(getUserUseCase);
@@ -180,30 +180,30 @@ class ApplyUserPenaltyUseCaseTest {
 
     private static User createUser(Long id, int penaltyCount) {
         return User.from(UserSnapshotState.builder()
-                .id(id)
-                .userKey(UUID.randomUUID())
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .penaltyCount(penaltyCount)
-                .build());
+            .id(id)
+            .userKey(UUID.randomUUID())
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .penaltyCount(penaltyCount)
+            .build());
     }
 
     private static Answer<UserPenaltyHistory> restoreWithId(Long historyId) {
         return invocation -> {
             UserPenaltyHistory argument = invocation.getArgument(0);
             return UserPenaltyHistory.from(
-                    UserPenaltyHistorySnapshotState.builder()
-                            .id(historyId)
-                            .userId(argument.getUserId())
-                            .previousCount(argument.getPreviousCount())
-                            .currentCount(argument.getCurrentCount())
-                            .reason(argument.getReason())
-                            .createdBy(argument.getCreatedBy())
-                            .createdAt(LocalDateTime.now())
-                            .build()
+                UserPenaltyHistorySnapshotState.builder()
+                    .id(historyId)
+                    .userId(argument.getUserId())
+                    .previousCount(argument.getPreviousCount())
+                    .currentCount(argument.getCurrentCount())
+                    .reason(argument.getReason())
+                    .createdBy(argument.getCreatedBy())
+                    .createdAt(LocalDateTime.now())
+                    .build()
             );
         };
     }

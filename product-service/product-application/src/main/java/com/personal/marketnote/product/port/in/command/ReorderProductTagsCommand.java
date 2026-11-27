@@ -6,8 +6,8 @@ import java.util.List;
 
 @Builder
 public record ReorderProductTagsCommand(
-        Long productId,
-        List<TagOrderItem> tagOrders
+    Long productId,
+    List<TagOrderItem> tagOrders
 ) {
     @Builder
     public record TagOrderItem(Long tagId, Long orderNum) {

@@ -19,37 +19,37 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class PaymentAllocationPersistenceAdapter
-        implements SavePaymentAllocationPort, FindPaymentAllocationPort, UpdatePaymentAllocationPort,
-        DeletePaymentAllocationPort {
+    implements SavePaymentAllocationPort, FindPaymentAllocationPort, UpdatePaymentAllocationPort,
+    DeletePaymentAllocationPort {
     private final PaymentAllocationJpaRepository paymentAllocationJpaRepository;
 
     @Override
     public void saveAll(List<PaymentAllocation> allocations) {
         List<PaymentAllocationJpaEntity> entities = allocations.stream()
-                .map(PaymentAllocationJpaEntity::from)
-                .toList();
+            .map(PaymentAllocationJpaEntity::from)
+            .toList();
         paymentAllocationJpaRepository.saveAll(entities);
     }
 
     @Override
     public List<PaymentAllocation> findUnsettledAllocations(Integer year, Integer month) {
         return paymentAllocationJpaRepository.findAllUnsettledByPeriod(year, month).stream()
-                .map(PaymentAllocationEntityToDomainMapper::toDomain)
-                .toList();
+            .map(PaymentAllocationEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public List<PaymentAllocation> findBySettlementId(Long settlementId) {
         return paymentAllocationJpaRepository.findAllBySettlementId(settlementId).stream()
-                .map(PaymentAllocationEntityToDomainMapper::toDomain)
-                .toList();
+            .map(PaymentAllocationEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public List<PaymentAllocation> findByOrderId(Long orderId) {
         return paymentAllocationJpaRepository.findAllByOrderId(orderId).stream()
-                .map(PaymentAllocationEntityToDomainMapper::toDomain)
-                .toList();
+            .map(PaymentAllocationEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override

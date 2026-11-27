@@ -31,7 +31,7 @@ public class AddCartProductService implements AddCartProductUseCase {
         PricePolicy pricePolicy = getPricePolicyUseCase.getPricePolicy(command.pricePolicyId());
 
         Optional<CartProduct> existingCartProduct
-                = findCartProductPort.findCartProductByUserIdAndPricePolicyId(command.userId(), command.pricePolicyId());
+            = findCartProductPort.findCartProductByUserIdAndPricePolicyId(command.userId(), command.pricePolicyId());
 
         if (existingCartProduct.isPresent()) {
             CartProduct cartProduct = existingCartProduct.get();
@@ -41,7 +41,7 @@ public class AddCartProductService implements AddCartProductUseCase {
         }
 
         saveCartProductPort.save(
-                CartProduct.from(CartProductCommandToStateMapper.mapToState(command, pricePolicy))
+            CartProduct.from(CartProductCommandToStateMapper.mapToState(command, pricePolicy))
         );
     }
 }

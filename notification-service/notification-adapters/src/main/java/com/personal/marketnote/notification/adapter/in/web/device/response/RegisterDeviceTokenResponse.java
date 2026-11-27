@@ -5,12 +5,12 @@ import com.personal.marketnote.notification.port.in.result.device.RegisterDevice
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record RegisterDeviceTokenResponse(
-        @Schema(description = "디바이스 토큰 ID", example = "1")
-        Long id,
+    @Schema(description = "디바이스 토큰 ID", example = "1")
+    Long id,
 
-        @JsonProperty("isNew")
-        @Schema(description = "신규 등록 여부 (true: 신규, false: 기존 토큰 갱신)", example = "true")
-        boolean isNew
+    @JsonProperty("isNew")
+    @Schema(description = "신규 등록 여부 (true: 신규, false: 기존 토큰 갱신)", example = "true")
+    boolean isNew
 ) {
 
     public static RegisterDeviceTokenResponse from(RegisterDeviceTokenResult result) {

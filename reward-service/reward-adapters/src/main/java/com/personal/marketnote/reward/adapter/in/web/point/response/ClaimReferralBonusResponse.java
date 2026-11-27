@@ -8,9 +8,9 @@ import lombok.Builder;
 public record ClaimReferralBonusResponse(int requiredCount, int bonusAmount, String reason) {
     public static ClaimReferralBonusResponse from(ClaimReferralBonusResult result) {
         return ClaimReferralBonusResponse.builder()
-                .requiredCount(result.requiredCount())
-                .bonusAmount(result.bonusAmount())
-                .reason(result.reason())
-                .build();
+            .requiredCount(result.requiredCount())
+            .bonusAmount(result.bonusAmount())
+            .reason(result.reason())
+            .build();
     }
 }

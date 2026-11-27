@@ -21,7 +21,7 @@ class OAuth2WebUtilsTest {
 
             // when
             String url = OAuth2WebUtils.buildAfterLoginRedirectionUrl(
-                    "https://www.example.com", loginResult, "KAKAO"
+                "https://www.example.com", loginResult, "KAKAO"
             );
 
             // then
@@ -42,7 +42,7 @@ class OAuth2WebUtilsTest {
 
             // when
             String url = OAuth2WebUtils.buildAfterLoginRedirectionUrl(
-                    "https://www.example.com", loginResult, "GOOGLE"
+                "https://www.example.com", loginResult, "GOOGLE"
             );
 
             // then
@@ -58,7 +58,7 @@ class OAuth2WebUtilsTest {
 
             // when
             String url = OAuth2WebUtils.buildAfterLoginRedirectionUrl(
-                    "https://www.example.com", loginResult, "APPLE"
+                "https://www.example.com", loginResult, "APPLE"
             );
 
             // then

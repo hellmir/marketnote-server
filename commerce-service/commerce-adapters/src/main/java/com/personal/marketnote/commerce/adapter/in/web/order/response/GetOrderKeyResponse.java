@@ -6,11 +6,11 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetOrderKeyResponse(
-        String orderKey
+    String orderKey
 ) {
     public static GetOrderKeyResponse from(GetOrderKeyResult result) {
         return GetOrderKeyResponse.builder()
-                .orderKey(result.orderKey())
-                .build();
+            .orderKey(result.orderKey())
+            .build();
     }
 }

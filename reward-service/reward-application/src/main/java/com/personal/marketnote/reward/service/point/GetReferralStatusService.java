@@ -28,10 +28,10 @@ public class GetReferralStatusService implements GetReferralStatusUseCase {
         long totalEarnedCash = countReferralPort.sumReferralEarnedAmount(userId);
 
         Map<ReferralBonusTier, Boolean> claimedMap = Arrays.stream(ReferralBonusTier.values())
-                .collect(Collectors.toMap(
-                        tier -> tier,
-                        tier -> checkReferralBonusClaimedPort.isAlreadyClaimed(userId, tier)
-                ));
+            .collect(Collectors.toMap(
+                tier -> tier,
+                tier -> checkReferralBonusClaimedPort.isAlreadyClaimed(userId, tier)
+            ));
 
         return GetReferralStatusResult.of(totalInvitedCount, totalEarnedCash, claimedMap);
     }

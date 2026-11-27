@@ -44,28 +44,28 @@ public class GetUserService implements GetUserUseCase {
     @Override
     public User getUser(Long id) {
         return findUserPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
     public User getUser(AuthVendor authVendor, String oidcId) {
         return findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)
-                .orElseThrow(() -> {
-                    log.warn("{} authVendor={}, oidcId={}", USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, authVendor, oidcId);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} authVendor={}, oidcId={}", USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, authVendor, oidcId);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
     public User getUser(String referredUserCode) {
         return findUserPort.findByReferenceCode(referredUserCode)
-                .orElseThrow(() -> {
-                    log.warn("{} referredUserCode={}", USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} referredUserCode={}", USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
@@ -76,37 +76,37 @@ public class GetUserService implements GetUserUseCase {
     @Override
     public User getAllStatusUser(Long id) {
         return findUserPort.findAllStatusUserById(id)
-                .orElseThrow(() -> {
-                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
     public User getAllStatusUser(String email) throws UserNotFoundException {
         return findUserPort.findAllStatusUserByEmail(email)
-                .orElseThrow(() -> {
-                    log.warn("{} email={}", USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE, email);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} email={}", USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE, email);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
     public User getAllStatusUser(AuthVendor authVendor, String oidcId) {
         return findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)
-                .orElseThrow(() -> {
-                    log.warn("{} authVendor={}, oidcId={}", USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, authVendor, oidcId);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} authVendor={}, oidcId={}", USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, authVendor, oidcId);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
     public UUID getUserKey(Long id) {
         return findUserPort.findUserKeyById(id)
-                .orElseThrow(() -> {
-                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
@@ -121,15 +121,15 @@ public class GetUserService implements GetUserUseCase {
 
     @Override
     public Page<GetUserResult> getAllStatusUsers(
-            int pageSize, int pageNumber,
-            Sort.Direction sortDirection, UserSortProperty sortProperty,
-            UserSearchTarget searchTarget, String searchKeyword
+        int pageSize, int pageNumber,
+        Sort.Direction sortDirection, UserSortProperty sortProperty,
+        UserSearchTarget searchTarget, String searchKeyword
     ) {
         Pageable pageable = PageRequest.of(
-                pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
+            pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
         );
 
         return findUserPort.findAllStatusUsersByPage(pageable, searchTarget, searchKeyword)
-                .map(GetUserResult::from);
+            .map(GetUserResult::from);
     }
 }

@@ -34,8 +34,8 @@ class SagaResponsePublisherTest {
     @BeforeEach
     void setUp() {
         Clock clock = Clock.fixed(
-                Instant.parse("2026-03-27T01:00:00Z"),
-                ZoneId.of("Asia/Seoul")
+            Instant.parse("2026-03-27T01:00:00Z"),
+            ZoneId.of("Asia/Seoul")
         );
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -52,8 +52,8 @@ class SagaResponsePublisherTest {
         void shouldPublishSuccessResponseToOutbox() {
             // when
             sagaResponsePublisher.publishSuccess(
-                    "saga-001", "ORDER_PAYMENT", "DEDUCT_INVENTORY",
-                    SagaStepMessage.ACTION, "{\"success\":true}"
+                "saga-001", "ORDER_PAYMENT", "DEDUCT_INVENTORY",
+                SagaStepMessage.ACTION, "{\"success\":true}"
             );
 
             // then
@@ -79,8 +79,8 @@ class SagaResponsePublisherTest {
         void shouldPublishFailureResponseToOutbox() {
             // when
             sagaResponsePublisher.publishFailure(
-                    "saga-002", "ORDER_PAYMENT", "RECORD_LEDGER",
-                    SagaStepMessage.ACTION, "분개 처리 실패"
+                "saga-002", "ORDER_PAYMENT", "RECORD_LEDGER",
+                SagaStepMessage.ACTION, "분개 처리 실패"
             );
 
             // then
@@ -99,8 +99,8 @@ class SagaResponsePublisherTest {
         void shouldPublishCompensationFailureResponse() {
             // when
             sagaResponsePublisher.publishFailure(
-                    "saga-003", "ORDER_PAYMENT", "DEDUCT_INVENTORY",
-                    SagaStepMessage.COMPENSATION, "재고 복구 실패"
+                "saga-003", "ORDER_PAYMENT", "DEDUCT_INVENTORY",
+                SagaStepMessage.COMPENSATION, "재고 복구 실패"
             );
 
             // then

@@ -22,28 +22,28 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class NotificationTemplatePersistenceAdapter
-        implements FindNotificationTemplatePort, SaveNotificationTemplatePort, UpdateNotificationTemplatePort {
+    implements FindNotificationTemplatePort, SaveNotificationTemplatePort, UpdateNotificationTemplatePort {
 
     private final NotificationTemplateJpaRepository notificationTemplateJpaRepository;
 
     @Override
     public Optional<NotificationTemplate> findActiveById(Long id) {
         return notificationTemplateJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
-                .flatMap(NotificationTemplateJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(NotificationTemplateJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public Optional<NotificationTemplate> findActiveByTemplateCode(String templateCode) {
         return notificationTemplateJpaRepository.findByTemplateCodeAndStatus(templateCode, EntityStatus.ACTIVE)
-                .flatMap(NotificationTemplateJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(NotificationTemplateJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<NotificationTemplate> findAllActive() {
         return notificationTemplateJpaRepository.findAllByStatusOrderByCreatedAtDesc(EntityStatus.ACTIVE)
-                .stream()
-                .flatMap(entity -> NotificationTemplateJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                .toList();
+            .stream()
+            .flatMap(entity -> NotificationTemplateJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
@@ -54,8 +54,8 @@ public class NotificationTemplatePersistenceAdapter
             return saved.getId();
         } catch (DataIntegrityViolationException dive) {
             log.warn(
-                    "이미 존재하는 템플릿 코드입니다. templateCode={}",
-                    notificationTemplate.getTemplateCode(), dive
+                "이미 존재하는 템플릿 코드입니다. templateCode={}",
+                notificationTemplate.getTemplateCode(), dive
             );
             throw new DuplicateNotificationTemplateException(dive);
         }
@@ -64,14 +64,14 @@ public class NotificationTemplatePersistenceAdapter
     @Override
     public void update(NotificationTemplate notificationTemplate) {
         NotificationTemplateJpaEntity entity = notificationTemplateJpaRepository
-                .findById(notificationTemplate.getId())
-                .orElseThrow(() -> {
-                    log.warn(
-                            "알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}",
-                            notificationTemplate.getId()
-                    );
-                    return new NotificationTemplateNotFoundException();
-                });
+            .findById(notificationTemplate.getId())
+            .orElseThrow(() -> {
+                log.warn(
+                    "알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}",
+                    notificationTemplate.getId()
+                );
+                return new NotificationTemplateNotFoundException();
+            });
 
         entity.updateFrom(notificationTemplate);
     }

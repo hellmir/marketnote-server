@@ -12,10 +12,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
  *                   SUCCESS 시 resultCode 비정상이면 {@code RESULT_CODE_X}, 정상이면 {@code null}
  */
 public record AttemptResult(
-        int number,
-        AttemptStatus status,
-        Integer httpStatus,
-        String exception
+    int number,
+    AttemptStatus status,
+    Integer httpStatus,
+    String exception
 ) {
     public static AttemptResult success(int number, String exception) {
         return new AttemptResult(number, AttemptStatus.SUCCESS, null, exception);

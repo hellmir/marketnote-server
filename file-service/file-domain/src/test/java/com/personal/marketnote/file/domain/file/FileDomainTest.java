@@ -22,17 +22,17 @@ class FileDomainTest {
         @DisplayName("ACTIVE 상태의 FileDomain을 SnapshotState로 복원하면 isActive가 true를 반환한다")
         void snapshotState_withActiveStatus_isActiveReturnsTrue() {
             FileDomainSnapshotState state = FileDomainSnapshotState.builder()
-                    .id(1L)
-                    .ownerType(OwnerType.PRODUCT)
-                    .ownerId(10L)
-                    .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                    .extension("jpg")
-                    .name("test-image.jpg")
-                    .storageUrl("https://cdn.example.com/test-image.jpg")
-                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                    .status(EntityStatus.ACTIVE)
-                    .orderNum(1L)
-                    .build();
+                .id(1L)
+                .ownerType(OwnerType.PRODUCT)
+                .ownerId(10L)
+                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+                .extension("jpg")
+                .name("test-image.jpg")
+                .storageUrl("https://cdn.example.com/test-image.jpg")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .orderNum(1L)
+                .build();
 
             FileDomain fileDomain = FileDomain.from(state);
 
@@ -49,17 +49,17 @@ class FileDomainTest {
         @DisplayName("delete()를 호출하면 status가 INACTIVE로 전이되고 isInactive가 true를 반환한다")
         void delete_changesStatusToInactive() {
             FileDomainSnapshotState state = FileDomainSnapshotState.builder()
-                    .id(1L)
-                    .ownerType(OwnerType.PRODUCT)
-                    .ownerId(10L)
-                    .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                    .extension("jpg")
-                    .name("test-image.jpg")
-                    .storageUrl("https://cdn.example.com/test-image.jpg")
-                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                    .status(EntityStatus.ACTIVE)
-                    .orderNum(1L)
-                    .build();
+                .id(1L)
+                .ownerType(OwnerType.PRODUCT)
+                .ownerId(10L)
+                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+                .extension("jpg")
+                .name("test-image.jpg")
+                .storageUrl("https://cdn.example.com/test-image.jpg")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .orderNum(1L)
+                .build();
             FileDomain fileDomain = FileDomain.from(state);
 
             fileDomain.delete();
@@ -79,7 +79,7 @@ class FileDomainTest {
             FileDomain fileDomain = snapshotFileDomain(100L, "key-abc");
 
             assertThatCode(() -> fileDomain.validateOwner(100L, "key-abc"))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -88,7 +88,7 @@ class FileDomainTest {
             FileDomain fileDomain = snapshotFileDomain(100L, "key-abc");
 
             assertThatThrownBy(() -> fileDomain.validateOwner(999L, "key-abc"))
-                    .isInstanceOf(InvalidFileOwnerException.class);
+                .isInstanceOf(InvalidFileOwnerException.class);
         }
 
         @Test
@@ -97,7 +97,7 @@ class FileDomainTest {
             FileDomain fileDomain = snapshotFileDomain(100L, "key-abc");
 
             assertThatThrownBy(() -> fileDomain.validateOwner(100L, "key-xyz"))
-                    .isInstanceOf(InvalidFileOwnerException.class);
+                .isInstanceOf(InvalidFileOwnerException.class);
         }
 
         @Test
@@ -106,7 +106,7 @@ class FileDomainTest {
             FileDomain fileDomain = snapshotFileDomain(null, "key-abc");
 
             assertThatThrownBy(() -> fileDomain.validateOwner(100L, "key-abc"))
-                    .isInstanceOf(InvalidFileOwnerException.class);
+                .isInstanceOf(InvalidFileOwnerException.class);
         }
 
         @Test
@@ -115,7 +115,7 @@ class FileDomainTest {
             FileDomain fileDomain = snapshotFileDomain(100L, null);
 
             assertThatThrownBy(() -> fileDomain.validateOwner(100L, "key-abc"))
-                    .isInstanceOf(InvalidFileOwnerException.class);
+                .isInstanceOf(InvalidFileOwnerException.class);
         }
     }
 
@@ -127,9 +127,9 @@ class FileDomainTest {
         @DisplayName("userId와 ownerKey가 모두 있으면 정상 생성된다")
         void fromCreateState_withUserIdAndOwnerKey_createsSuccessfully() {
             FileDomainCreateState state = baseCreateStateBuilder()
-                    .userId(100L)
-                    .ownerKey("key-abc")
-                    .build();
+                .userId(100L)
+                .ownerKey("key-abc")
+                .build();
 
             FileDomain fileDomain = FileDomain.from(state);
 
@@ -141,50 +141,50 @@ class FileDomainTest {
         @DisplayName("userId가 null이면 InvalidFileOwnerException을 던진다")
         void fromCreateState_userIdNull_throws() {
             FileDomainCreateState state = baseCreateStateBuilder()
-                    .userId(null)
-                    .ownerKey("key-abc")
-                    .build();
+                .userId(null)
+                .ownerKey("key-abc")
+                .build();
 
             assertThatThrownBy(() -> FileDomain.from(state))
-                    .isInstanceOf(InvalidFileOwnerException.class);
+                .isInstanceOf(InvalidFileOwnerException.class);
         }
 
         @Test
         @DisplayName("ownerKey가 null이면 InvalidFileOwnerException을 던진다")
         void fromCreateState_ownerKeyNull_throws() {
             FileDomainCreateState state = baseCreateStateBuilder()
-                    .userId(100L)
-                    .ownerKey(null)
-                    .build();
+                .userId(100L)
+                .ownerKey(null)
+                .build();
 
             assertThatThrownBy(() -> FileDomain.from(state))
-                    .isInstanceOf(InvalidFileOwnerException.class);
+                .isInstanceOf(InvalidFileOwnerException.class);
         }
 
         private FileDomainCreateState.FileDomainCreateStateBuilder baseCreateStateBuilder() {
             return FileDomainCreateState.builder()
-                    .ownerType(OwnerType.PRODUCT)
-                    .ownerId(10L)
-                    .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                    .extension("jpg")
-                    .name("test-image.jpg");
+                .ownerType(OwnerType.PRODUCT)
+                .ownerId(10L)
+                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+                .extension("jpg")
+                .name("test-image.jpg");
         }
     }
 
     private static FileDomain snapshotFileDomain(Long userId, String ownerKey) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(1L)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(10L)
-                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("jpg")
-                .name("test-image.jpg")
-                .storageUrl("https://cdn.example.com/test-image.jpg")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .userId(userId)
-                .ownerKey(ownerKey)
-                .build());
+            .id(1L)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(10L)
+            .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("jpg")
+            .name("test-image.jpg")
+            .storageUrl("https://cdn.example.com/test-image.jpg")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .userId(userId)
+            .ownerKey(ownerKey)
+            .build());
     }
 }

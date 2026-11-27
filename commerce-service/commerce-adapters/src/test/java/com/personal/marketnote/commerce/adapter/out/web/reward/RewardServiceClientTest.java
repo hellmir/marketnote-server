@@ -44,10 +44,10 @@ class RewardServiceClientTest {
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
         rewardServiceClient = new RewardServiceClient(
-                builder,
-                BASE_URL,
-                SHARE_POINT_RATE,
-                hmacServiceAuthHeaderBuilder
+            builder,
+            BASE_URL,
+            SHARE_POINT_RATE,
+            hmacServiceAuthHeaderBuilder
         );
     }
 
@@ -55,10 +55,10 @@ class RewardServiceClientTest {
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
         return new RewardServiceClient(
-                builder,
-                BASE_URL,
-                rate,
-                hmacServiceAuthHeaderBuilder
+            builder,
+            BASE_URL,
+            rate,
+            hmacServiceAuthHeaderBuilder
         );
     }
 
@@ -71,14 +71,14 @@ class RewardServiceClientTest {
         void shouldReturnAmountWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {
-                                "content": {
-                                    "amount": 5000
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {
+                        "content": {
+                            "amount": 5000
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             Long result = rewardServiceClient.getAvailablePoints(USER_ID);
@@ -94,13 +94,13 @@ class RewardServiceClientTest {
             // given
             for (int i = 0; i < 5; i++) {
                 mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points"))
-                        .andExpect(method(HttpMethod.GET))
-                        .andRespond(withServerError());
+                    .andExpect(method(HttpMethod.GET))
+                    .andRespond(withServerError());
             }
 
             // when & then
             assertThatThrownBy(() -> rewardServiceClient.getAvailablePoints(USER_ID))
-                    .isInstanceOf(RewardServiceRequestFailedException.class);
+                .isInstanceOf(RewardServiceRequestFailedException.class);
 
             mockServer.verify();
         }
@@ -115,8 +115,8 @@ class RewardServiceClientTest {
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.deductOrderPoints(USER_ID, 1000L, ORDER_ID);
@@ -143,8 +143,8 @@ class RewardServiceClientTest {
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.refundOrderPoints(USER_ID, 1000L, ORDER_ID);
@@ -163,8 +163,8 @@ class RewardServiceClientTest {
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.addPendingProductAccumulationPoints(USER_ID, 500L, ORDER_ID);
@@ -183,8 +183,8 @@ class RewardServiceClientTest {
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points/pending/confirm"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.confirmPendingPoints(USER_ID, ORDER_ID);
@@ -203,8 +203,8 @@ class RewardServiceClientTest {
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/1/points/pending/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.revokePendingPoints(USER_ID, ORDER_ID);
@@ -225,10 +225,10 @@ class RewardServiceClientTest {
         void shouldAccrue3000WhenTotalAmountIs30000AndRateIs0_1() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/" + SHARER_KEY + "/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andExpect(jsonPath("$.changeType").value("ACCRUAL"))
-                    .andExpect(jsonPath("$.amount").value(3000))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.changeType").value("ACCRUAL"))
+                .andExpect(jsonPath("$.amount").value(3000))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.addPendingSharedPurchasePoints(List.of(SHARER_KEY), 30000L, ORDER_ID);
@@ -242,9 +242,9 @@ class RewardServiceClientTest {
         void shouldAccrue333WhenTotalAmountIs3333AndRateIs0_1() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/" + SHARER_KEY + "/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andExpect(jsonPath("$.amount").value(333))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.amount").value(333))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.addPendingSharedPurchasePoints(List.of(SHARER_KEY), 3333L, ORDER_ID);
@@ -258,9 +258,9 @@ class RewardServiceClientTest {
         void shouldAccrueBigDecimalHalfUpResultWhenFloatWouldProduceOffByOne() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/" + SHARER_KEY + "/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andExpect(jsonPath("$.amount").value(1677723))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.amount").value(1677723))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.addPendingSharedPurchasePoints(List.of(SHARER_KEY), 16777225L, ORDER_ID);
@@ -301,14 +301,14 @@ class RewardServiceClientTest {
         void shouldDeduct3000WhenFullyCancelledAndRateIs0_1() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/" + SHARER_KEY + "/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andExpect(jsonPath("$.changeType").value("DEDUCTION"))
-                    .andExpect(jsonPath("$.amount").value(3000))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.changeType").value("DEDUCTION"))
+                .andExpect(jsonPath("$.amount").value(3000))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.reducePartialPendingSharedPurchasePoints(
-                    List.of(SHARER_KEY), 30000L, 30000L, ORDER_ID
+                List.of(SHARER_KEY), 30000L, 30000L, ORDER_ID
             );
 
             // then
@@ -320,13 +320,13 @@ class RewardServiceClientTest {
         void shouldDeduct1500WhenHalfCancelledAndRateIs0_1() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/" + SHARER_KEY + "/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andExpect(jsonPath("$.amount").value(1500))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.amount").value(1500))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.reducePartialPendingSharedPurchasePoints(
-                    List.of(SHARER_KEY), 30000L, 15000L, ORDER_ID
+                List.of(SHARER_KEY), 30000L, 15000L, ORDER_ID
             );
 
             // then
@@ -338,13 +338,13 @@ class RewardServiceClientTest {
         void shouldDeduct111WhenPartiallyCancelledWithRounding() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/users/" + SHARER_KEY + "/points/pending"))
-                    .andExpect(method(HttpMethod.PATCH))
-                    .andExpect(jsonPath("$.amount").value(111))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.amount").value(111))
+                .andRespond(withSuccess());
 
             // when
             rewardServiceClient.reducePartialPendingSharedPurchasePoints(
-                    List.of(SHARER_KEY), 3333L, 1111L, ORDER_ID
+                List.of(SHARER_KEY), 3333L, 1111L, ORDER_ID
             );
 
             // then
@@ -356,7 +356,7 @@ class RewardServiceClientTest {
         void shouldNotSendRequestWhenCancelAmountIsZero() {
             // when
             rewardServiceClient.reducePartialPendingSharedPurchasePoints(
-                    List.of(SHARER_KEY), 30000L, 0L, ORDER_ID
+                List.of(SHARER_KEY), 30000L, 0L, ORDER_ID
             );
 
             // then
@@ -368,7 +368,7 @@ class RewardServiceClientTest {
         void shouldNotSendRequestWhenPaymentAmountIsZero() {
             // when
             rewardServiceClient.reducePartialPendingSharedPurchasePoints(
-                    List.of(SHARER_KEY), 0L, 10000L, ORDER_ID
+                List.of(SHARER_KEY), 0L, 10000L, ORDER_ID
             );
 
             // then
@@ -383,7 +383,7 @@ class RewardServiceClientTest {
 
             // when
             client.reducePartialPendingSharedPurchasePoints(
-                    List.of(SHARER_KEY), 4L, 4L, ORDER_ID
+                List.of(SHARER_KEY), 4L, 4L, ORDER_ID
             );
 
             // then

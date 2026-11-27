@@ -35,8 +35,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/shipping-addresses")
 @Tag(
-        name = "배송지 API",
-        description = "배송지 관련 API"
+    name = "배송지 API",
+    description = "배송지 관련 API"
 )
 @RequiredArgsConstructor
 @Slf4j
@@ -58,35 +58,35 @@ public class ShippingAddressController {
     @PostMapping
     @RegisterShippingAddressApiDocs
     public ResponseEntity<BaseResponse<RegisterShippingAddressResult>> registerShippingAddress(
-            @Valid @RequestBody RegisterShippingAddressRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody RegisterShippingAddressRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         RegisterShippingAddressResult result = registerShippingAddressUseCase.registerShippingAddress(
-                RegisterShippingAddressCommand.builder()
-                        .userId(userId)
-                        .addressType(request.getAddressType())
-                        .address(request.getAddress())
-                        .addressDetail(request.getAddressDetail())
-                        .companyName(request.getCompanyName())
-                        .addressAlias(request.getAddressAlias())
-                        .recipientName(request.getRecipientName())
-                        .recipientPhoneNumber(request.getRecipientPhoneNumber())
-                        .deliveryRequestType(request.getDeliveryRequestType())
-                        .deliveryRequestMessage(request.getDeliveryRequestMessage())
-                        .isDefault(request.getIsDefault())
-                        .build()
+            RegisterShippingAddressCommand.builder()
+                .userId(userId)
+                .addressType(request.getAddressType())
+                .address(request.getAddress())
+                .addressDetail(request.getAddressDetail())
+                .companyName(request.getCompanyName())
+                .addressAlias(request.getAddressAlias())
+                .recipientName(request.getRecipientName())
+                .recipientPhoneNumber(request.getRecipientPhoneNumber())
+                .deliveryRequestType(request.getDeliveryRequestType())
+                .deliveryRequestMessage(request.getDeliveryRequestMessage())
+                .isDefault(request.getIsDefault())
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        result,
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "배송지 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                result,
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "배송지 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -100,20 +100,20 @@ public class ShippingAddressController {
     @GetMapping("/{id}")
     @GetShippingAddressApiDocs
     public ResponseEntity<BaseResponse<GetShippingAddressResponse>> getShippingAddress(
-            @PathVariable Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         GetShippingAddressResult result = getShippingAddressUseCase.getShippingAddress(id, userId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetShippingAddressResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "배송지 조회 성공"
-                )
+            BaseResponse.of(
+                GetShippingAddressResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "배송지 조회 성공"
+            )
         );
     }
 
@@ -126,19 +126,19 @@ public class ShippingAddressController {
     @GetMapping("/me")
     @GetMyShippingAddressesApiDocs
     public ResponseEntity<BaseResponse<GetMyShippingAddressesResponse>> getMyShippingAddresses(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         GetMyShippingAddressesResult result = getMyShippingAddressesUseCase.getMyShippingAddresses(userId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetMyShippingAddressesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "내 배송지 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetMyShippingAddressesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "내 배송지 목록 조회 성공"
+            )
         );
     }
 
@@ -152,20 +152,20 @@ public class ShippingAddressController {
     @PatchMapping("/{id}/default")
     @SetDefaultShippingAddressApiDocs
     public ResponseEntity<BaseResponse<Void>> setDefaultShippingAddress(
-            @PathVariable Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         setDefaultShippingAddressUseCase.setDefaultShippingAddress(id, userId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기본 배송지 설정 성공"
-                )
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기본 배송지 설정 성공"
+            )
         );
     }
 
@@ -180,34 +180,34 @@ public class ShippingAddressController {
     @PutMapping("/{id}")
     @UpdateShippingAddressApiDocs
     public ResponseEntity<BaseResponse<Void>> updateShippingAddress(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateShippingAddressRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long id,
+        @Valid @RequestBody UpdateShippingAddressRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         updateShippingAddressUseCase.updateShippingAddress(
-                id,
-                userId,
-                UpdateShippingAddressCommand.builder()
-                        .address(request.getAddress())
-                        .addressDetail(request.getAddressDetail())
-                        .companyName(request.getCompanyName())
-                        .addressAlias(request.getAddressAlias())
-                        .recipientName(request.getRecipientName())
-                        .recipientPhoneNumber(request.getRecipientPhoneNumber())
-                        .deliveryRequestType(request.getDeliveryRequestType())
-                        .deliveryRequestMessage(request.getDeliveryRequestMessage())
-                        .build()
+            id,
+            userId,
+            UpdateShippingAddressCommand.builder()
+                .address(request.getAddress())
+                .addressDetail(request.getAddressDetail())
+                .companyName(request.getCompanyName())
+                .addressAlias(request.getAddressAlias())
+                .recipientName(request.getRecipientName())
+                .recipientPhoneNumber(request.getRecipientPhoneNumber())
+                .deliveryRequestType(request.getDeliveryRequestType())
+                .deliveryRequestMessage(request.getDeliveryRequestMessage())
+                .build()
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "배송지 수정 성공"
-                )
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "배송지 수정 성공"
+            )
         );
     }
 
@@ -221,20 +221,20 @@ public class ShippingAddressController {
     @DeleteMapping("/{id}")
     @DeleteShippingAddressApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteShippingAddress(
-            @PathVariable Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         deleteShippingAddressUseCase.deleteShippingAddress(id, userId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "배송지 삭제 성공"
-                )
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "배송지 삭제 성공"
+            )
         );
     }
 }

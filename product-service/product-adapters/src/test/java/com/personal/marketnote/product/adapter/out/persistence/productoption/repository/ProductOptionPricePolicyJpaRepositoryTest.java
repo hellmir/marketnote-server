@@ -75,7 +75,7 @@ class ProductOptionPricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<Long> results = repository.findExactMatchingPricePolicyIds(
-                    List.of(red.getId(), blue.getId()), 2L
+                List.of(red.getId(), blue.getId()), 2L
             );
 
             assertThat(results).containsExactly(fullPolicy.getId());
@@ -94,7 +94,7 @@ class ProductOptionPricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<Long> results = repository.findExactMatchingPricePolicyIds(
-                    List.of(red.getId(), blue.getId()), 2L
+                List.of(red.getId(), blue.getId()), 2L
             );
 
             assertThat(results).isEmpty();
@@ -116,7 +116,7 @@ class ProductOptionPricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<Long> results = repository.findExactMatchingPricePolicyIds(
-                    List.of(red.getId(), blue.getId()), 2L
+                List.of(red.getId(), blue.getId()), 2L
             );
 
             assertThat(results).isEmpty();
@@ -294,17 +294,17 @@ class ProductOptionPricePolicyJpaRepositoryTest {
     private ProductJpaEntity saveProduct(String name, String brandName) {
         UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName(brandName)
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName(brandName)
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);
         ProductJpaEntity saved = productJpaRepository.save(entity);
@@ -314,13 +314,13 @@ class ProductOptionPricePolicyJpaRepositoryTest {
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(10000L)
-                        .discountPrice(9000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(10000L)
+                .discountPrice(9000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
         PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);
@@ -330,10 +330,10 @@ class ProductOptionPricePolicyJpaRepositoryTest {
 
     private ProductOptionCategoryJpaEntity saveOptionCategory(ProductJpaEntity product, String name) {
         ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
-                .product(null)
-                .name(name)
-                .optionStates(List.of())
-                .build();
+            .product(null)
+            .name(name)
+            .optionStates(List.of())
+            .build();
         ProductOptionCategory category = ProductOptionCategory.from(state);
         ProductOptionCategoryJpaEntity entity = ProductOptionCategoryJpaEntity.from(category, product);
         ProductOptionCategoryJpaEntity saved = productOptionCategoryJpaRepository.save(entity);
@@ -343,9 +343,9 @@ class ProductOptionPricePolicyJpaRepositoryTest {
 
     private ProductOptionJpaEntity saveOption(ProductOptionCategoryJpaEntity category, String content) {
         ProductOptionCreateState state = ProductOptionCreateState.builder()
-                .category(null)
-                .content(content)
-                .build();
+            .category(null)
+            .content(content)
+            .build();
         ProductOption option = ProductOption.from(state);
         ProductOptionJpaEntity entity = ProductOptionJpaEntity.from(category, option);
         entityManager.persist(entity);

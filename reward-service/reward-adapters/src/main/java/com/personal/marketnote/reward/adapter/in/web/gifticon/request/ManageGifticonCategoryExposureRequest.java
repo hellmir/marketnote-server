@@ -27,10 +27,10 @@ public class ManageGifticonCategoryExposureRequest {
 
     public ManageGifticonCategoryExposureCommand toCommand() {
         List<ManageGifticonCategoryExposureCommand.ExposureItem> commandItems = items.stream()
-                .map(item -> new ManageGifticonCategoryExposureCommand.ExposureItem(
-                        item.getCategoryId(), item.getExposed()
-                ))
-                .toList();
+            .map(item -> new ManageGifticonCategoryExposureCommand.ExposureItem(
+                item.getCategoryId(), item.getExposed()
+            ))
+            .toList();
         return new ManageGifticonCategoryExposureCommand(commandItems);
     }
 }

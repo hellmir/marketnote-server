@@ -62,22 +62,22 @@ class ShippingAddressControllerTest {
 
     private OAuth2AuthenticatedPrincipal principalOf(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
     private RegisterShippingAddressResult buildRegisterResult(Long id) {
         return new RegisterShippingAddressResult(
-                id, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL
+            id, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL
         );
     }
 
     private GetShippingAddressResult buildGetResult(Long id) {
         return new GetShippingAddressResult(
-                id, ShippingAddressType.HOME, "서울시 강남구", "101호",
-                null, "집", "홍길동", "01012345678",
-                DeliveryRequestType.LEAVE_AT_DOOR, null, true,
-                ShippingAddressRegionType.NORMAL
+            id, ShippingAddressType.HOME, "서울시 강남구", "101호",
+            null, "집", "홍길동", "01012345678",
+            DeliveryRequestType.LEAVE_AT_DOOR, null, true,
+            ShippingAddressRegionType.NORMAL
         );
     }
 
@@ -97,17 +97,17 @@ class ShippingAddressControllerTest {
             ReflectionTestUtils.setField(request, "recipientPhoneNumber", "01012345678");
             ReflectionTestUtils.setField(request, "isDefault", Boolean.TRUE);
             when(registerShippingAddressUseCase.registerShippingAddress(any(RegisterShippingAddressCommand.class)))
-                    .thenReturn(buildRegisterResult(10L));
+                .thenReturn(buildRegisterResult(10L));
 
             // when
             ResponseEntity<BaseResponse<RegisterShippingAddressResult>> response = controller.registerShippingAddress(
-                    request, principalOf(100L)
+                request, principalOf(100L)
             );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterShippingAddressCommand> captor =
-                    ArgumentCaptor.forClass(RegisterShippingAddressCommand.class);
+                ArgumentCaptor.forClass(RegisterShippingAddressCommand.class);
             verify(registerShippingAddressUseCase).registerShippingAddress(captor.capture());
             RegisterShippingAddressCommand captured = captor.getValue();
             assertThat(captured.userId()).isEqualTo(100L);
@@ -129,7 +129,7 @@ class ShippingAddressControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetShippingAddressResponse>> response = controller.getShippingAddress(
-                    10L, principalOf(100L)
+                10L, principalOf(100L)
             );
 
             // then
@@ -147,11 +147,11 @@ class ShippingAddressControllerTest {
         void returnsEmptyListAsOk() {
             // given
             when(getMyShippingAddressesUseCase.getMyShippingAddresses(100L))
-                    .thenReturn(new GetMyShippingAddressesResult(List.of()));
+                .thenReturn(new GetMyShippingAddressesResult(List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetMyShippingAddressesResponse>> response = controller.getMyShippingAddresses(
-                    principalOf(100L)
+                principalOf(100L)
             );
 
             // then
@@ -193,17 +193,17 @@ class ShippingAddressControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response = controller.updateShippingAddress(
-                    10L, request, principalOf(100L)
+                10L, request, principalOf(100L)
             );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<UpdateShippingAddressCommand> captor =
-                    ArgumentCaptor.forClass(UpdateShippingAddressCommand.class);
+                ArgumentCaptor.forClass(UpdateShippingAddressCommand.class);
             verify(updateShippingAddressUseCase).updateShippingAddress(
-                    org.mockito.ArgumentMatchers.eq(10L),
-                    org.mockito.ArgumentMatchers.eq(100L),
-                    captor.capture()
+                org.mockito.ArgumentMatchers.eq(10L),
+                org.mockito.ArgumentMatchers.eq(100L),
+                captor.capture()
             );
             UpdateShippingAddressCommand captured = captor.getValue();
             assertThat(captured.address()).isEqualTo("서울시 서초구");
@@ -226,9 +226,9 @@ class ShippingAddressControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(deleteShippingAddressUseCase).deleteShippingAddress(10L, 100L);
             verifyNoInteractions(
-                    registerShippingAddressUseCase, getShippingAddressUseCase,
-                    getMyShippingAddressesUseCase, setDefaultShippingAddressUseCase,
-                    updateShippingAddressUseCase
+                registerShippingAddressUseCase, getShippingAddressUseCase,
+                getMyShippingAddressesUseCase, setDefaultShippingAddressUseCase,
+                updateShippingAddressUseCase
             );
         }
     }

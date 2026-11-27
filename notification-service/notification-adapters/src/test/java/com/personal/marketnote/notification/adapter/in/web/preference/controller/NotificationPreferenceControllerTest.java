@@ -40,7 +40,7 @@ class NotificationPreferenceControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -54,14 +54,14 @@ class NotificationPreferenceControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             GetNotificationPreferenceResult result = new GetNotificationPreferenceResult(
-                    "ORDER_PAYMENT_COMPLETED", "주문 결제 완료", true, null
+                "ORDER_PAYMENT_COMPLETED", "주문 결제 완료", true, null
             );
             when(getNotificationPreferenceUseCase.getNotificationPreferences(100L))
-                    .thenReturn(List.of(result));
+                .thenReturn(List.of(result));
 
             // when
             ResponseEntity<BaseResponse<List<GetNotificationPreferenceResponse>>> response =
-                    controller.getNotificationPreferences(principal);
+                controller.getNotificationPreferences(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -79,12 +79,12 @@ class NotificationPreferenceControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             UpdateNotificationPreferenceRequest request = new UpdateNotificationPreferenceRequest(
-                    "ORDER_PAYMENT_COMPLETED", true
+                "ORDER_PAYMENT_COMPLETED", true
             );
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    controller.updateNotificationPreference(request, principal);
+                controller.updateNotificationPreference(request, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

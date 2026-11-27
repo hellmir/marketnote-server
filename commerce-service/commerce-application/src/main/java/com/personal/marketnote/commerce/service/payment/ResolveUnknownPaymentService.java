@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
@@ -45,16 +44,16 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
     @Override
     public ResolveUnknownPaymentResult resolve(ResolveUnknownPaymentCommand command) {
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> {
-                    log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
-                    return new PaymentEventNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                return new PaymentEventNotFoundException();
+            });
 
         Payment payment = findPaymentPort.findByOrderKey(UUID.fromString(command.orderKey()))
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                return new PaymentNotFoundException();
+            });
 
         return switch (command.resolvedStatus()) {
             case RESOLVE_STATUS_COMPLETE -> resolveToComplete(event, payment, command);
@@ -64,16 +63,16 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
     }
 
     private ResolveUnknownPaymentResult resolveToComplete(
-            PspPaymentEvent event, Payment payment, ResolveUnknownPaymentCommand command
+        PspPaymentEvent event, Payment payment, ResolveUnknownPaymentCommand command
     ) {
         PaymentApprovalInfo approvalInfo = PaymentApprovalInfo.builder()
-                .pgPaymentKey(command.pgPaymentKey())
-                .method(event.getMethod())
-                .approvalNumber(command.approvalNumber())
-                .resultCode(command.resultCode())
-                .resultMessage(command.resultMessage())
-                .appTime(appTimeParser.parse(command.appTime()))
-                .build();
+            .pgPaymentKey(command.pgPaymentKey())
+            .method(event.getMethod())
+            .approvalNumber(command.approvalNumber())
+            .resultCode(command.resultCode())
+            .resultMessage(command.resultMessage())
+            .appTime(appTimeParser.parse(command.appTime()))
+            .build();
         event.resolveToComplete(approvalInfo);
         updatePspPaymentEventPort.update(event);
 
@@ -90,7 +89,7 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
     }
 
     private ResolveUnknownPaymentResult resolveToFailed(
-            PspPaymentEvent event, Payment payment, ResolveUnknownPaymentCommand command
+        PspPaymentEvent event, Payment payment, ResolveUnknownPaymentCommand command
     ) {
         event.resolveToFailed(command.resultCode(), command.resultMessage());
         updatePspPaymentEventPort.update(event);

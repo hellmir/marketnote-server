@@ -43,7 +43,7 @@ class UserAttendanceHistoryQueryAdapterTest {
             LocalDate attendedDate = LocalDate.of(2026, 4, 14);
             UserAttendanceHistoryJpaEntity entity = buildEntity(100L, userAttendanceId, attendedDate);
             given(repository.findTop1ByUserAttendanceIdOrderByAttendedAtDesc(userAttendanceId))
-                    .willReturn(Optional.of(entity));
+                .willReturn(Optional.of(entity));
 
             // when
             Optional<UserAttendanceHistory> result = adapter.findLatestByUserAttendanceId(userAttendanceId);
@@ -63,7 +63,7 @@ class UserAttendanceHistoryQueryAdapterTest {
             // given
             Long userAttendanceId = 99L;
             given(repository.findTop1ByUserAttendanceIdOrderByAttendedAtDesc(userAttendanceId))
-                    .willReturn(Optional.empty());
+                .willReturn(Optional.empty());
 
             // when
             Optional<UserAttendanceHistory> result = adapter.findLatestByUserAttendanceId(userAttendanceId);
@@ -87,18 +87,18 @@ class UserAttendanceHistoryQueryAdapterTest {
             LocalDateTime startInclusive = LocalDate.of(2026, 4, 14).atStartOfDay();
             LocalDateTime endExclusive = LocalDate.of(2026, 4, 15).atStartOfDay();
             given(repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                    userAttendanceId, startInclusive, endExclusive
+                userAttendanceId, startInclusive, endExclusive
             )).willReturn(true);
 
             // when
             boolean result = adapter.existsByUserAttendanceIdAndAttendedAtBetween(
-                    userAttendanceId, startInclusive, endExclusive
+                userAttendanceId, startInclusive, endExclusive
             );
 
             // then
             assertThat(result).isTrue();
             verify(repository).existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                    userAttendanceId, startInclusive, endExclusive
+                userAttendanceId, startInclusive, endExclusive
             );
             verifyNoMoreInteractions(repository);
         }
@@ -111,18 +111,18 @@ class UserAttendanceHistoryQueryAdapterTest {
             LocalDateTime startInclusive = LocalDate.of(2026, 4, 14).atStartOfDay();
             LocalDateTime endExclusive = LocalDate.of(2026, 4, 15).atStartOfDay();
             given(repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                    userAttendanceId, startInclusive, endExclusive
+                userAttendanceId, startInclusive, endExclusive
             )).willReturn(false);
 
             // when
             boolean result = adapter.existsByUserAttendanceIdAndAttendedAtBetween(
-                    userAttendanceId, startInclusive, endExclusive
+                userAttendanceId, startInclusive, endExclusive
             );
 
             // then
             assertThat(result).isFalse();
             verify(repository).existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                    userAttendanceId, startInclusive, endExclusive
+                userAttendanceId, startInclusive, endExclusive
             );
             verifyNoMoreInteractions(repository);
         }
@@ -130,16 +130,16 @@ class UserAttendanceHistoryQueryAdapterTest {
 
     private UserAttendanceHistoryJpaEntity buildEntity(Long id, Long userAttendanceId, LocalDate attendedDate) {
         UserAttendanceHistory domain = UserAttendanceHistory.from(UserAttendanceHistorySnapshotState.builder()
-                .id(id)
-                .userAttendanceId(userAttendanceId)
-                .attendancePolicyId((short) 1)
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(50L))
-                .continuousPeriod(ContinuousPeriod.of((short) 1))
-                .rewardYn(Boolean.TRUE)
-                .attendedDate(attendedDate)
-                .attendedAt(attendedDate.atStartOfDay())
-                .build());
+            .id(id)
+            .userAttendanceId(userAttendanceId)
+            .attendancePolicyId((short) 1)
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(50L))
+            .continuousPeriod(ContinuousPeriod.of((short) 1))
+            .rewardYn(Boolean.TRUE)
+            .attendedDate(attendedDate)
+            .attendedAt(attendedDate.atStartOfDay())
+            .build());
         UserAttendanceHistoryJpaEntity entity = UserAttendanceHistoryJpaEntity.from(domain);
         ReflectionTestUtils.setField(entity, "id", id);
         return entity;

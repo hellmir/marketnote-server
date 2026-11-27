@@ -31,8 +31,8 @@ public class BackfillInventoryProductKeyService implements BackfillInventoryProd
         }
 
         Set<Inventory> targets = inventories.stream()
-                .filter(inventory -> !inventory.hasProductKey())
-                .collect(Collectors.toSet());
+            .filter(inventory -> !inventory.hasProductKey())
+            .collect(Collectors.toSet());
         if (targets.isEmpty()) {
             return;
         }

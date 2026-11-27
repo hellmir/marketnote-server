@@ -17,21 +17,21 @@ public class Report {
 
     public static Report from(ReportCreateState state) {
         return Report.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .reporterId(state.getReporterId())
-                .reason(state.getReason())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .reporterId(state.getReporterId())
+            .reason(state.getReason())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     public static Report from(ReportSnapshotState state) {
         return Report.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .reporterId(state.getReporterId())
-                .reason(state.getReason())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .reporterId(state.getReporterId())
+            .reason(state.getReason())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

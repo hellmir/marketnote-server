@@ -22,12 +22,12 @@ public class ReturnInspectionCompletedConsumer {
     private final CompleteReturnUseCase completeReturnUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.RETURN_INSPECTION_COMPLETED,
-            groupId = "commerce-return-inspection-completed"
+        topics = KafkaTopicConstants.RETURN_INSPECTION_COMPLETED,
+        groupId = "commerce-return-inspection-completed"
     )
     public void handleReturnInspectionCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -42,13 +42,13 @@ public class ReturnInspectionCompletedConsumer {
         }
 
         ReturnInspectionCompletedEvent payload = envelope.getPayloadAs(
-                ReturnInspectionCompletedEvent.class, objectMapper
+            ReturnInspectionCompletedEvent.class, objectMapper
         );
 
         log.info("반품 검수 완료 이벤트 수신. eventId={}, orderId={}", envelope.eventId(), payload.orderId());
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;

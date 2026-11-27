@@ -73,12 +73,12 @@ class BoardControllerTest {
         @DisplayName("NOTICE 게시판의 카테고리 목록을 조회해 OK 응답으로 감싸 반환한다")
         void returnsNoticeCategories() {
             GetBoardCategoriesResult result = GetBoardCategoriesResult.from(
-                    com.personal.marketnote.community.domain.post.NoticePostCategory.values()
+                com.personal.marketnote.community.domain.post.NoticePostCategory.values()
             );
             when(getBoardUseCase.getCategories(Board.NOTICE)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetBoardCategoriesResponse>> response =
-                    controller.getCategories(Board.NOTICE);
+                controller.getCategories(Board.NOTICE);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -90,12 +90,12 @@ class BoardControllerTest {
         @DisplayName("FAQ 게시판의 카테고리 목록도 동일하게 위임한다")
         void returnsFaqCategories() {
             GetBoardCategoriesResult result = GetBoardCategoriesResult.from(
-                    com.personal.marketnote.community.domain.post.FaqPostCategory.values()
+                com.personal.marketnote.community.domain.post.FaqPostCategory.values()
             );
             when(getBoardUseCase.getCategories(Board.FAQ)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetBoardCategoriesResponse>> response =
-                    controller.getCategories(Board.FAQ);
+                controller.getCategories(Board.FAQ);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getBoardUseCase).getCategories(Board.FAQ);

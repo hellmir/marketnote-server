@@ -18,7 +18,7 @@ public class GetAttendancePoliciesService implements GetAttendancePoliciesUseCas
     @Override
     public GetAttendancePoliciesResult getAttendancePolicies() {
         return GetAttendancePoliciesResult.from(
-                findAttendancePolicyPort.findAllOrderByOrderNumDesc()
+            findAttendancePolicyPort.findAllOrderByOrderNumDesc()
         );
     }
 }

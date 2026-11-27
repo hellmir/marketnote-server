@@ -4,7 +4,7 @@ import com.personal.marketnote.community.adapter.out.persistence.review.entity.R
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long>,
-        ReviewProductQueryRepository, ReviewUserQueryRepository, ReviewStatsQueryRepository {
+    ReviewProductQueryRepository, ReviewUserQueryRepository, ReviewStatsQueryRepository {
 
     boolean existsByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId);
 

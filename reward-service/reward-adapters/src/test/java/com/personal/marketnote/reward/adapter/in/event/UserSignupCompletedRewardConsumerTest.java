@@ -41,8 +41,8 @@ class UserSignupCompletedRewardConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long userId, String userKey) {
         UserSignupCompletedEvent event = new UserSignupCompletedEvent(userId, userKey, null, null);
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "user.user.signup-completed", "user-service",
-                LocalDateTime.of(2026, 3, 2, 10, 0), event
+            "test-event-id", "user.user.signup-completed", "user-service",
+            LocalDateTime.of(2026, 3, 2, 10, 0), event
         );
         return new ConsumerRecord<>("user.user.signup-completed", 0, 0L, "key-1", envelope);
     }
@@ -100,7 +100,7 @@ class UserSignupCompletedRewardConsumerTest {
     void handleUserSignupCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.signup-completed", 0, 0L, "1", null
+            "user.user.signup-completed", 0, 0L, "1", null
         );
 
         // when
@@ -117,11 +117,11 @@ class UserSignupCompletedRewardConsumerTest {
         // given
         UserSignupCompletedEvent event = new UserSignupCompletedEvent(1L, "user-key-123", null, null);
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "user-service",
-                LocalDateTime.of(2026, 3, 2, 10, 0), event
+            "test-event-id", "wrong.event.type", "user-service",
+            LocalDateTime.of(2026, 3, 2, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.signup-completed", 0, 0L, "key-1", envelope
+            "user.user.signup-completed", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -166,7 +166,7 @@ class UserSignupCompletedRewardConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
         doThrow(new DuplicateUserPointException())
-                .when(registerUserPointUseCase).register(any(RegisterUserPointCommand.class));
+            .when(registerUserPointUseCase).register(any(RegisterUserPointCommand.class));
 
         // when
         userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment);
@@ -182,11 +182,11 @@ class UserSignupCompletedRewardConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(registerUserPointUseCase).register(any(RegisterUserPointCommand.class));
+            .when(registerUserPointUseCase).register(any(RegisterUserPointCommand.class));
 
         // expect
         assertThatThrownBy(() ->
-                userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment)
+            userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment)
         ).isInstanceOf(RuntimeException.class);
 
         verifyNoInteractions(acknowledgment);

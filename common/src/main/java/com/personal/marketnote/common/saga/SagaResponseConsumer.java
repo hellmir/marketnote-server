@@ -24,12 +24,12 @@ public class SagaResponseConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_RESPONSE,
-            groupId = "saga-orchestrator"
+        topics = KafkaTopicConstants.SAGA_RESPONSE,
+        groupId = "saga-orchestrator"
     )
     public void handleSagaResponse(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -47,18 +47,18 @@ public class SagaResponseConsumer {
             SagaResponseMessage responseMessage = envelope.getPayloadAs(SagaResponseMessage.class, objectMapper);
 
             SagaStepLogger.enrich(SagaContext.restore(
-                    responseMessage.sagaId(), responseMessage.sagaType(), responseMessage.stepName()
+                responseMessage.sagaId(), responseMessage.sagaType(), responseMessage.stepName()
             ));
 
             log.info("SAGA 응답 수신. eventId={}, sagaId={}, sagaType={}, stepName={}, messageType={}, success={}",
-                    envelope.eventId(), responseMessage.sagaId(), responseMessage.sagaType(),
-                    responseMessage.stepName(), responseMessage.messageType(), responseMessage.success()
+                envelope.eventId(), responseMessage.sagaId(), responseMessage.sagaType(),
+                responseMessage.stepName(), responseMessage.messageType(), responseMessage.success()
             );
 
             if (responseMessage.isAction()) {
                 sagaOrchestrator.handleStepResponse(
-                        responseMessage.sagaId(), responseMessage.stepName(),
-                        responseMessage.success(), responseMessage.response()
+                    responseMessage.sagaId(), responseMessage.stepName(),
+                    responseMessage.success(), responseMessage.response()
                 );
                 acknowledgment.acknowledge();
                 return;
@@ -66,15 +66,15 @@ public class SagaResponseConsumer {
 
             if (responseMessage.isCompensation()) {
                 sagaOrchestrator.handleCompensationResponse(
-                        responseMessage.sagaId(), responseMessage.stepName(),
-                        responseMessage.success(), responseMessage.response()
+                    responseMessage.sagaId(), responseMessage.stepName(),
+                    responseMessage.success(), responseMessage.response()
                 );
                 acknowledgment.acknowledge();
                 return;
             }
 
             log.warn("알 수 없는 messageType. eventId={}, sagaId={}, messageType={}",
-                    envelope.eventId(), responseMessage.sagaId(), responseMessage.messageType()
+                envelope.eventId(), responseMessage.sagaId(), responseMessage.messageType()
             );
             acknowledgment.acknowledge();
         } finally {

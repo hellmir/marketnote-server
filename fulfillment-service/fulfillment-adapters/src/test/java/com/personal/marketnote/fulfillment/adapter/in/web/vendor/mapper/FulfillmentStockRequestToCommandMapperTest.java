@@ -13,7 +13,7 @@ class FulfillmentStockRequestToCommandMapperTest {
     @DisplayName("mapToStockDetailCommand는 customerProductCode를 fasstoProductCode에도 채운다")
     void shouldFillFasstoProductCodeFromCustomerProductCode() {
         GetFulfillmentStockDetailCommand command = FulfillmentStockRequestToCommandMapper.mapToStockDetailCommand(
-                "CUST001", "token", "GOD001", "Y"
+            "CUST001", "token", "GOD001", "Y"
         );
 
         assertThat(command.customerProductCode()).isEqualTo("GOD001");

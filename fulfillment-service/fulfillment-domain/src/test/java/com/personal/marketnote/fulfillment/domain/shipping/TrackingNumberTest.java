@@ -21,21 +21,21 @@ class TrackingNumberTest {
     @DisplayName("빈 문자열로 생성 시 TrackingNumberNoValueException 발생한다")
     void throwsExceptionWhenTrackingNumberIsEmpty() {
         assertThatThrownBy(() -> TrackingNumber.of(""))
-                .isInstanceOf(TrackingNumberNoValueException.class);
+            .isInstanceOf(TrackingNumberNoValueException.class);
     }
 
     @Test
     @DisplayName("공백만 있는 문자열로 생성 시 TrackingNumberNoValueException 발생한다")
     void throwsExceptionWhenTrackingNumberIsBlank() {
         assertThatThrownBy(() -> TrackingNumber.of("   "))
-                .isInstanceOf(TrackingNumberNoValueException.class);
+            .isInstanceOf(TrackingNumberNoValueException.class);
     }
 
     @Test
     @DisplayName("null로 생성 시 TrackingNumberNoValueException 발생한다")
     void throwsExceptionWhenTrackingNumberIsNull() {
         assertThatThrownBy(() -> TrackingNumber.of(null))
-                .isInstanceOf(TrackingNumberNoValueException.class);
+            .isInstanceOf(TrackingNumberNoValueException.class);
     }
 
     @Test

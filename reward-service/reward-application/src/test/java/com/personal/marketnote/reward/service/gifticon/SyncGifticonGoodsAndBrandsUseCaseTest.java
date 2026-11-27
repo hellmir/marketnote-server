@@ -96,23 +96,23 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
     void shouldSaveNewBrand() {
         // given
         FetchedGifticonBrandItem brandItem = new FetchedGifticonBrandItem(
-                "BR001", "스타벅스", "https://img.com/starbucks.png", "1", "커피"
+            "BR001", "스타벅스", "https://img.com/starbucks.png", "1", "커피"
         );
         when(fetchGifticonBrandPort.fetchBrandList())
-                .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
+            .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
         when(findGifticonBrandPort.findByBrandCode("BR001"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
+            .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
         when(findGifticonCategoryMappingPort.findCategoryIdByGiftishowCategorySeq("1"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(findGifticonCategoryPort.findByCategoryCode("1"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         GifticonCategory savedCategory = createCategory(1L, "1", "커피");
         when(saveGifticonCategoryPort.save(any(GifticonCategory.class)))
-                .thenReturn(savedCategory);
+            .thenReturn(savedCategory);
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -132,20 +132,20 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         // given
         GifticonBrand existingBrand = createBrand(1L, "BR001", "스타벅스(구)", "https://img.com/old.png");
         FetchedGifticonBrandItem brandItem = new FetchedGifticonBrandItem(
-                "BR001", "스타벅스", "https://img.com/new.png", "1", "커피"
+            "BR001", "스타벅스", "https://img.com/new.png", "1", "커피"
         );
         when(fetchGifticonBrandPort.fetchBrandList())
-                .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
+            .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
         when(findGifticonBrandPort.findByBrandCode("BR001"))
-                .thenReturn(Optional.of(existingBrand));
+            .thenReturn(Optional.of(existingBrand));
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
+            .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
         when(findGifticonCategoryMappingPort.findCategoryIdByGiftishowCategorySeq("1"))
-                .thenReturn(Optional.of(1L));
+            .thenReturn(Optional.of(1L));
         when(findGifticonCategoryPort.findById(1L))
-                .thenReturn(Optional.of(createCategory(1L, "1", "커피")));
+            .thenReturn(Optional.of(createCategory(1L, "1", "커피")));
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -162,23 +162,23 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
     void shouldCreateNewCategoryAndMapping() {
         // given
         FetchedGifticonBrandItem brandItem = new FetchedGifticonBrandItem(
-                "BR001", "스타벅스", "https://img.com/sb.png", "1", "커피"
+            "BR001", "스타벅스", "https://img.com/sb.png", "1", "커피"
         );
         when(fetchGifticonBrandPort.fetchBrandList())
-                .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
+            .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
         when(findGifticonBrandPort.findByBrandCode("BR001"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(findGifticonCategoryMappingPort.findCategoryIdByGiftishowCategorySeq("1"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(findGifticonCategoryPort.findByCategoryCode("1"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         GifticonCategory savedCategory = createCategory(10L, "1", "커피");
         when(saveGifticonCategoryPort.save(any(GifticonCategory.class)))
-                .thenReturn(savedCategory);
+            .thenReturn(savedCategory);
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
+            .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -200,20 +200,20 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         // given
         GifticonCategory existingCategory = createCategory(10L, "1", "커피(구)");
         FetchedGifticonBrandItem brandItem = new FetchedGifticonBrandItem(
-                "BR001", "스타벅스", "https://img.com/sb.png", "1", "커피"
+            "BR001", "스타벅스", "https://img.com/sb.png", "1", "커피"
         );
         when(fetchGifticonBrandPort.fetchBrandList())
-                .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
+            .thenReturn(new FetchGifticonBrandResult(1, List.of(brandItem)));
         when(findGifticonBrandPort.findByBrandCode("BR001"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(findGifticonCategoryMappingPort.findCategoryIdByGiftishowCategorySeq("1"))
-                .thenReturn(Optional.of(10L));
+            .thenReturn(Optional.of(10L));
         when(findGifticonCategoryPort.findById(10L))
-                .thenReturn(Optional.of(existingCategory));
+            .thenReturn(Optional.of(existingCategory));
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
+            .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -231,15 +231,15 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         // given
         stubEmptyBrandSync();
         FetchedGifticonGoodsItem goodsItem = createGoodsItem(
-                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                "1", 5000L, 4500L, 30, "맛있는 커피", "SALE"
+            "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+            "1", 5000L, 4500L, 30, "맛있는 커피", "SALE"
         );
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
+            .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -264,15 +264,15 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         stubEmptyBrandSync();
         GifticonGoods existingGoods = createGoods(1L, "GD001", "아메리카노(구)", 4500L, 3500L, "SALE");
         FetchedGifticonGoodsItem goodsItem = createGoodsItem(
-                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                "1", 5000L, 4800L, 30, "맛있는 커피", "SALE"
+            "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+            "1", 5000L, 4800L, 30, "맛있는 커피", "SALE"
         );
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
+            .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001"))
-                .thenReturn(Optional.of(existingGoods));
+            .thenReturn(Optional.of(existingGoods));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of(existingGoods));
+            .thenReturn(List.of(existingGoods));
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -292,9 +292,9 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         stubEmptyBrandSync();
         GifticonGoods missingGoods = createGoods(2L, "GD002", "빙수", 4500L, 4500L, "SALE");
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
+            .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of(missingGoods));
+            .thenReturn(List.of(missingGoods));
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -311,15 +311,15 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         stubEmptyBrandSync();
         GifticonGoods existingGoods = createGoods(1L, "GD001", "아메리카노", 4500L, 4500L, "SALE");
         FetchedGifticonGoodsItem goodsItem = createGoodsItem(
-                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                "1", 5000L, 4500L, 30, "맛있는 커피", "SALE"
+            "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+            "1", 5000L, 4500L, 30, "맛있는 커피", "SALE"
         );
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
+            .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001"))
-                .thenReturn(Optional.of(existingGoods));
+            .thenReturn(Optional.of(existingGoods));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of(existingGoods));
+            .thenReturn(List.of(existingGoods));
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -334,17 +334,17 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         // given
         stubEmptyBrandSync();
         FetchedGifticonGoodsItem item1 = createGoodsItem(
-                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                "1", 5000L, 4500L, 30, "커피", "SALE"
+            "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+            "1", 5000L, 4500L, 30, "커피", "SALE"
         );
         FetchedGifticonGoodsItem item2 = createGoodsItem(
-                "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
-                "1", 6000L, 5500L, 30, "라떼", "SALE"
+            "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+            "1", 6000L, 5500L, 30, "라떼", "SALE"
         );
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(2, List.of(item1)));
+            .thenReturn(new FetchGifticonGoodsResult(2, List.of(item1)));
         when(fetchGifticonGoodsPort.fetchProductList(2, 20))
-                .thenReturn(new FetchGifticonGoodsResult(2, List.of(item2)));
+            .thenReturn(new FetchGifticonGoodsResult(2, List.of(item2)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
         when(findGifticonGoodsPort.findByGoodsCode("GD002")).thenReturn(Optional.empty());
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
@@ -365,9 +365,9 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         stubEmptyBrandSync();
         GifticonGoods susGoods = createGoods(3L, "GD003", "만료상품", 3000L, 3000L, "SUS");
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
+            .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
         when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -403,15 +403,15 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         void shouldIsolateInvalidLimitDayItem() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem normalItem = createGoodsItem(
-                    "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "커피", "SALE"
+                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "커피", "SALE"
             );
             FetchedGifticonGoodsItem invalidItem = createGoodsItem(
-                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+                "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 6000L, 5500L, 0, "라떼", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(2, List.of(normalItem, invalidItem)));
+                .thenReturn(new FetchGifticonGoodsResult(2, List.of(normalItem, invalidItem)));
             when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findByGoodsCode("GD002")).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
@@ -427,15 +427,15 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         void shouldIsolateBlankBrandCodeItem() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem normalItem = createGoodsItem(
-                    "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "커피", "SALE"
+                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "커피", "SALE"
             );
             FetchedGifticonGoodsItem invalidItem = createGoodsItem(
-                    "GD003", "라떼", "", "스타벅스", "https://img.com/sb.png",
-                    "1", 6000L, 5500L, 30, "라떼", "SALE"
+                "GD003", "라떼", "", "스타벅스", "https://img.com/sb.png",
+                "1", 6000L, 5500L, 30, "라떼", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(2, List.of(normalItem, invalidItem)));
+                .thenReturn(new FetchGifticonGoodsResult(2, List.of(normalItem, invalidItem)));
             when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findByGoodsCode("GD003")).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
@@ -444,8 +444,8 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
 
             verify(saveGifticonGoodsPort, times(1)).save(argThat(g -> "GD001".equals(g.getGoodsCode().getValue())));
             boolean hasInvalidWarn = logAppender.list.stream()
-                    .anyMatch(event -> event.getLevel() == Level.WARN
-                            && event.getFormattedMessage().contains("GD003"));
+                .anyMatch(event -> event.getLevel() == Level.WARN
+                    && event.getFormattedMessage().contains("GD003"));
             assertThat(hasInvalidWarn).isTrue();
         }
 
@@ -454,15 +454,15 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         void shouldExecuteSeparateTransactionsForEachStage() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem item1 = createGoodsItem(
-                    "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "커피", "SALE"
+                "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "커피", "SALE"
             );
             FetchedGifticonGoodsItem item2 = createGoodsItem(
-                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 6000L, 5500L, 30, "라떼", "SALE"
+                "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 6000L, 5500L, 30, "라떼", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(2, List.of(item1, item2)));
+                .thenReturn(new FetchGifticonGoodsResult(2, List.of(item1, item2)));
             when(findGifticonGoodsPort.findByGoodsCode(anyString())).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
 
@@ -476,12 +476,12 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         void shouldStillCallSuspendWhenSomeProductSyncFails() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem invalidItem = createGoodsItem(
-                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+                "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 6000L, 5500L, 0, "라떼", "SALE"
             );
             GifticonGoods missingGoods = createGoods(99L, "GD099", "단종후보", 4500L, 4500L, "SALE");
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
+                .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of(missingGoods));
 
             syncGifticonGoodsAndBrandsService.syncAll();
@@ -495,11 +495,11 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         void shouldIncrementInvalidItemMetric() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem invalidItem = createGoodsItem(
-                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+                "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 6000L, 5500L, 0, "라떼", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
+                .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
 
             syncGifticonGoodsAndBrandsService.syncAll();
@@ -513,19 +513,19 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         void shouldLogGoodsCodeAndCauseOnInvalidItem() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem invalidItem = createGoodsItem(
-                    "GD777", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+                "GD777", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 6000L, 5500L, 0, "라떼", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
+                .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
 
             syncGifticonGoodsAndBrandsService.syncAll();
 
             ILoggingEvent warnEvent = logAppender.list.stream()
-                    .filter(event -> event.getLevel() == Level.WARN)
-                    .findFirst()
-                    .orElseThrow();
+                .filter(event -> event.getLevel() == Level.WARN)
+                .findFirst()
+                .orElseThrow();
             String message = warnEvent.getFormattedMessage();
             assertThat(message).contains("GD777");
             assertThat(message).contains("Exception");
@@ -542,9 +542,9 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
             // given
             stubEmptyBrandSync();
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(100, List.of()));
+                .thenReturn(new FetchGifticonGoodsResult(100, List.of()));
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             syncGifticonGoodsAndBrandsService.syncAll();
@@ -560,23 +560,23 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
             // given
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem item1 = createGoodsItem(
-                    "GD001", "1", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "1", "SALE"
+                "GD001", "1", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "1", "SALE"
             );
             FetchedGifticonGoodsItem item2 = createGoodsItem(
-                    "GD002", "2", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "2", "SALE"
+                "GD002", "2", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "2", "SALE"
             );
             FetchedGifticonGoodsItem item3 = createGoodsItem(
-                    "GD003", "3", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "3", "SALE"
+                "GD003", "3", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "3", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(1, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(3, List.of(item1)));
+                .thenReturn(new FetchGifticonGoodsResult(3, List.of(item1)));
             when(fetchGifticonGoodsPort.fetchProductList(2, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(3, List.of(item2)));
+                .thenReturn(new FetchGifticonGoodsResult(3, List.of(item2)));
             when(fetchGifticonGoodsPort.fetchProductList(3, 20))
-                    .thenReturn(new FetchGifticonGoodsResult(3, List.of(item3)));
+                .thenReturn(new FetchGifticonGoodsResult(3, List.of(item3)));
             when(findGifticonGoodsPort.findByGoodsCode(anyString())).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
 
@@ -597,11 +597,11 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
             // given
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem item = createGoodsItem(
-                    "GD_LOOP", "loop", "BR001", "스타벅스", "https://img.com/sb.png",
-                    "1", 5000L, 4500L, 30, "loop", "SALE"
+                "GD_LOOP", "loop", "BR001", "스타벅스", "https://img.com/sb.png",
+                "1", 5000L, 4500L, 30, "loop", "SALE"
             );
             when(fetchGifticonGoodsPort.fetchProductList(anyInt(), eq(20)))
-                    .thenReturn(new FetchGifticonGoodsResult(Integer.MAX_VALUE, List.of(item)));
+                .thenReturn(new FetchGifticonGoodsResult(Integer.MAX_VALUE, List.of(item)));
             when(findGifticonGoodsPort.findByGoodsCode("GD_LOOP")).thenReturn(Optional.empty());
             when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
 
@@ -617,54 +617,54 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
 
     private void stubEmptyBrandSync() {
         when(fetchGifticonBrandPort.fetchBrandList())
-                .thenReturn(new FetchGifticonBrandResult(0, List.of()));
+            .thenReturn(new FetchGifticonBrandResult(0, List.of()));
     }
 
     private GifticonBrand createBrand(Long id, String brandCode, String brandName, String brandImageUrl) {
         return GifticonBrand.from(GifticonBrandSnapshotState.builder()
-                .id(id)
-                .brandCode(brandCode)
-                .brandName(brandName)
-                .brandImageUrl(brandImageUrl)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .id(id)
+            .brandCode(brandCode)
+            .brandName(brandName)
+            .brandImageUrl(brandImageUrl)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 
     private GifticonCategory createCategory(Long id, String categoryCode, String categoryName) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode(categoryCode)
-                .categoryName(categoryName)
-                .exposed(false)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .id(id)
+            .categoryCode(categoryCode)
+            .categoryName(categoryName)
+            .exposed(false)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 
     private GifticonGoods createGoods(Long id, String goodsCode, String goodsName,
                                       Long salePrice, Long cashPrice, String goodsStatus) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(id)
-                .goodsCode(goodsCode)
-                .goodsName(goodsName)
-                .brandCode("BR001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://img.com/sb.png")
-                .categoryCode("1")
-                .realPrice(5000L)
-                .salePrice(salePrice)
-                .cashPrice(cashPrice)
-                .imageUrl("https://img.com/goods.png")
-                .description("설명")
-                .validDays(30)
-                .goodsStatus(GoodsStatus.from(mapDbGoodsStatusToEnumName(goodsStatus)))
-                .exposed(false)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .id(id)
+            .goodsCode(goodsCode)
+            .goodsName(goodsName)
+            .brandCode("BR001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://img.com/sb.png")
+            .categoryCode("1")
+            .realPrice(5000L)
+            .salePrice(salePrice)
+            .cashPrice(cashPrice)
+            .imageUrl("https://img.com/goods.png")
+            .description("설명")
+            .validDays(30)
+            .goodsStatus(GoodsStatus.from(mapDbGoodsStatusToEnumName(goodsStatus)))
+            .exposed(false)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 
@@ -680,10 +680,10 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                                                      String category1Seq, long realPrice, long salePrice,
                                                      int limitDay, String content, String goodsStatus) {
         return new FetchedGifticonGoodsItem(
-                goodsCode, goodsName, "https://img.com/" + goodsCode + ".png",
-                brandCode, brandName, brandIconImg,
-                category1Seq, salePrice, realPrice,
-                limitDay, content, goodsStatus
+            goodsCode, goodsName, "https://img.com/" + goodsCode + ".png",
+            brandCode, brandName, brandIconImg,
+            category1Seq, salePrice, realPrice,
+            limitDay, content, goodsStatus
         );
     }
 }

@@ -51,29 +51,29 @@ public class SyncPricePolicyCreatedService implements SyncPricePolicyCreatedUseC
         String selectedOptionsJson = serializeSelectedOptions(event.selectedOptions(), pricePolicyId);
 
         saveProductCatalogReadModelPort.upsertCatalog(
-                pricePolicyId,
-                productId,
-                event.sellerId(),
-                null,
-                event.productName(),
-                event.brandName(),
-                FormatValidator.hasValue(event.price()) ? event.price() : 0L,
-                FormatValidator.hasValue(event.discountPrice()) ? event.discountPrice() : 0L,
-                BigDecimal.ZERO,
-                FormatValidator.hasValue(event.accumulatedPoint()) ? event.accumulatedPoint() : 0L,
-                BigDecimal.ZERO,
-                0L,
-                0L,
-                FormatValidator.hasValue(event.sales()) ? event.sales() : 0L,
-                productTagsJson,
-                selectedOptionsJson
+            pricePolicyId,
+            productId,
+            event.sellerId(),
+            null,
+            event.productName(),
+            event.brandName(),
+            FormatValidator.hasValue(event.price()) ? event.price() : 0L,
+            FormatValidator.hasValue(event.discountPrice()) ? event.discountPrice() : 0L,
+            BigDecimal.ZERO,
+            FormatValidator.hasValue(event.accumulatedPoint()) ? event.accumulatedPoint() : 0L,
+            BigDecimal.ZERO,
+            0L,
+            0L,
+            FormatValidator.hasValue(event.sales()) ? event.sales() : 0L,
+            productTagsJson,
+            selectedOptionsJson
         );
         log.info("상품 카탈로그 Read Model 가격 정책 생성 동기화 완료. pricePolicyId={}, productId={}",
-                pricePolicyId, productId);
+            pricePolicyId, productId);
     }
 
     private String serializeProductTags(
-            List<PricePolicyCreatedEvent.ProductTagSnapshot> tags, Long pricePolicyId
+        List<PricePolicyCreatedEvent.ProductTagSnapshot> tags, Long pricePolicyId
     ) {
         if (FormatValidator.hasNoValue(tags)) {
             return null;
@@ -87,7 +87,7 @@ public class SyncPricePolicyCreatedService implements SyncPricePolicyCreatedUseC
     }
 
     private String serializeSelectedOptions(
-            List<PricePolicyCreatedEvent.ProductOptionSnapshot> options, Long pricePolicyId
+        List<PricePolicyCreatedEvent.ProductOptionSnapshot> options, Long pricePolicyId
     ) {
         if (FormatValidator.hasNoValue(options)) {
             return null;

@@ -33,9 +33,9 @@ public class UpdateUserPenaltyCountService implements UpdateUserPenaltyCountUseC
         updateUserPort.update(user);
 
         UserPenaltyHistory savedHistory = saveUserPenaltyHistoryPort.save(
-                UserPenaltyHistory.from(
-                        UserPenaltyHistoryCommandToStateMapper.mapToCreateState(command, previousCount, user.getPenaltyCount())
-                )
+            UserPenaltyHistory.from(
+                UserPenaltyHistoryCommandToStateMapper.mapToCreateState(command, previousCount, user.getPenaltyCount())
+            )
         );
 
         return UpdateUserPenaltyCountResult.of(user.getId(), user.getPenaltyCount(), savedHistory.getId());

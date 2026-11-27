@@ -32,7 +32,7 @@ class ValidDaysTest {
     @DisplayName("0으로 생성 시 InvalidValidDaysException이 발생한다")
     void createWithZero() {
         assertThatThrownBy(() -> ValidDays.of(0))
-                .isInstanceOf(InvalidValidDaysException.class);
+            .isInstanceOf(InvalidValidDaysException.class);
     }
 
     @ParameterizedTest
@@ -40,7 +40,7 @@ class ValidDaysTest {
     @DisplayName("음수로 생성 시 InvalidValidDaysException이 발생한다")
     void createWithNegative(int value) {
         assertThatThrownBy(() -> ValidDays.of(value))
-                .isInstanceOf(InvalidValidDaysException.class);
+            .isInstanceOf(InvalidValidDaysException.class);
     }
 
     @ParameterizedTest

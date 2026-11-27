@@ -44,37 +44,37 @@ class FileServiceCommunicationHistoryPersistenceAdapterTest {
             payloadNode.put("key", "value");
             JsonNode payloadJson = payloadNode;
             FileServiceCommunicationHistory history = FileServiceCommunicationHistory.from(
-                    FileServiceCommunicationHistoryCreateState.builder()
-                            .targetType(FileServiceCommunicationTargetType.GENERAL)
-                            .targetId("TARGET-1")
-                            .communicationType(FileServiceCommunicationType.REQUEST)
-                            .sender(FileServiceCommunicationSenderType.COMMERCE)
-                            .exception("ConnectionReset")
-                            .payload("raw-payload")
-                            .payloadJson(payloadJson)
-                            .build()
+                FileServiceCommunicationHistoryCreateState.builder()
+                    .targetType(FileServiceCommunicationTargetType.GENERAL)
+                    .targetId("TARGET-1")
+                    .communicationType(FileServiceCommunicationType.REQUEST)
+                    .sender(FileServiceCommunicationSenderType.COMMERCE)
+                    .exception("ConnectionReset")
+                    .payload("raw-payload")
+                    .payloadJson(payloadJson)
+                    .build()
             );
 
             FileServiceCommunicationHistoryJpaEntity persistedEntity = buildEntity(
-                    100L,
-                    FileServiceCommunicationTargetType.GENERAL,
-                    "TARGET-1",
-                    FileServiceCommunicationType.REQUEST,
-                    FileServiceCommunicationSenderType.COMMERCE,
-                    "ConnectionReset",
-                    "raw-payload",
-                    payloadJson,
-                    LocalDateTime.of(2026, 4, 15, 10, 0)
+                100L,
+                FileServiceCommunicationTargetType.GENERAL,
+                "TARGET-1",
+                FileServiceCommunicationType.REQUEST,
+                FileServiceCommunicationSenderType.COMMERCE,
+                "ConnectionReset",
+                "raw-payload",
+                payloadJson,
+                LocalDateTime.of(2026, 4, 15, 10, 0)
             );
             when(repository.save(any(FileServiceCommunicationHistoryJpaEntity.class)))
-                    .thenReturn(persistedEntity);
+                .thenReturn(persistedEntity);
 
             // when
             FileServiceCommunicationHistory result = adapter.save(history);
 
             // then
             ArgumentCaptor<FileServiceCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(FileServiceCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(FileServiceCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             FileServiceCommunicationHistoryJpaEntity captured = captor.getValue();
             assertThat(captured.getTargetType()).isEqualTo(FileServiceCommunicationTargetType.GENERAL);
@@ -103,30 +103,30 @@ class FileServiceCommunicationHistoryPersistenceAdapterTest {
         void savesEvenWhenOptionalFieldsAreNull() {
             // given
             FileServiceCommunicationHistory history = FileServiceCommunicationHistory.from(
-                    FileServiceCommunicationHistoryCreateState.builder()
-                            .targetType(FileServiceCommunicationTargetType.GENERAL)
-                            .targetId(null)
-                            .communicationType(FileServiceCommunicationType.RESPONSE)
-                            .sender(FileServiceCommunicationSenderType.FILE)
-                            .exception(null)
-                            .payload(null)
-                            .payloadJson(null)
-                            .build()
+                FileServiceCommunicationHistoryCreateState.builder()
+                    .targetType(FileServiceCommunicationTargetType.GENERAL)
+                    .targetId(null)
+                    .communicationType(FileServiceCommunicationType.RESPONSE)
+                    .sender(FileServiceCommunicationSenderType.FILE)
+                    .exception(null)
+                    .payload(null)
+                    .payloadJson(null)
+                    .build()
             );
 
             FileServiceCommunicationHistoryJpaEntity persistedEntity = buildEntity(
-                    200L,
-                    FileServiceCommunicationTargetType.GENERAL,
-                    null,
-                    FileServiceCommunicationType.RESPONSE,
-                    FileServiceCommunicationSenderType.FILE,
-                    null,
-                    null,
-                    null,
-                    LocalDateTime.of(2026, 4, 15, 11, 0)
+                200L,
+                FileServiceCommunicationTargetType.GENERAL,
+                null,
+                FileServiceCommunicationType.RESPONSE,
+                FileServiceCommunicationSenderType.FILE,
+                null,
+                null,
+                null,
+                LocalDateTime.of(2026, 4, 15, 11, 0)
             );
             when(repository.save(any(FileServiceCommunicationHistoryJpaEntity.class)))
-                    .thenReturn(persistedEntity);
+                .thenReturn(persistedEntity);
 
             // when
             FileServiceCommunicationHistory result = adapter.save(history);
@@ -144,30 +144,30 @@ class FileServiceCommunicationHistoryPersistenceAdapterTest {
     }
 
     private FileServiceCommunicationHistoryJpaEntity buildEntity(
-            Long id,
-            FileServiceCommunicationTargetType targetType,
-            String targetId,
-            FileServiceCommunicationType communicationType,
-            FileServiceCommunicationSenderType sender,
-            String exception,
-            String payload,
-            JsonNode payloadJson,
-            LocalDateTime createdAt
+        Long id,
+        FileServiceCommunicationTargetType targetType,
+        String targetId,
+        FileServiceCommunicationType communicationType,
+        FileServiceCommunicationSenderType sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson,
+        LocalDateTime createdAt
     ) {
         FileServiceCommunicationHistoryJpaEntity entity = FileServiceCommunicationHistoryJpaEntity.from(
-                FileServiceCommunicationHistory.from(
-                        FileServiceCommunicationHistorySnapshotState.builder()
-                                .id(id)
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(payloadJson)
-                                .createdAt(createdAt)
-                                .build()
-                )
+            FileServiceCommunicationHistory.from(
+                FileServiceCommunicationHistorySnapshotState.builder()
+                    .id(id)
+                    .targetType(targetType)
+                    .targetId(targetId)
+                    .communicationType(communicationType)
+                    .sender(sender)
+                    .exception(exception)
+                    .payload(payload)
+                    .payloadJson(payloadJson)
+                    .createdAt(createdAt)
+                    .build()
+            )
         );
         ReflectionTestUtils.setField(entity, "id", id);
         ReflectionTestUtils.setField(entity, "createdAt", createdAt);

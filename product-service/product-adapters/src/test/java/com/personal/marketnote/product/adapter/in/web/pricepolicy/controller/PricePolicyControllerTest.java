@@ -53,11 +53,11 @@ class PricePolicyControllerTest {
             RegisterPricePolicyRequest request = buildRequest();
             RegisterPricePolicyResult result = RegisterPricePolicyResult.of(1L);
             when(registerPricePolicyUseCase.registerPricePolicy(
-                    eq(100L), anyBoolean(), any(RegisterPricePolicyCommand.class)
+                eq(100L), anyBoolean(), any(RegisterPricePolicyCommand.class)
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<RegisterPricePolicyResponse>> response =
-                    pricePolicyController.registerPricePolicy(1L, request, principal);
+                pricePolicyController.registerPricePolicy(1L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         }
@@ -74,7 +74,7 @@ class PricePolicyControllerTest {
             when(getPricePoliciesUseCase.getPricePoliciesAndOptions(1L)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetPricePoliciesResponse>> response =
-                    pricePolicyController.getPricePolicies(1L);
+                pricePolicyController.getPricePolicies(1L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getPricePoliciesUseCase).getPricePoliciesAndOptions(1L);
@@ -91,7 +91,7 @@ class PricePolicyControllerTest {
             OAuth2AuthenticatedPrincipal principal = mockPrincipal();
 
             ResponseEntity<BaseResponse<Void>> response =
-                    pricePolicyController.deletePricePolicy(1L, 5L, principal);
+                pricePolicyController.deletePricePolicy(1L, 5L, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(deletePricePolicyUseCase).delete(eq(100L), anyBoolean(), eq(1L), eq(5L));

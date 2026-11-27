@@ -18,15 +18,15 @@ class QuickPaymentCardTest {
     void shouldCreateQuickPaymentCardWithActiveStatus() {
         // given
         QuickPaymentCardCreateState state = QuickPaymentCardCreateState.builder()
-                .userId(1L)
-                .batchKey("batch-key-001")
-                .groupId("group-001")
-                .cardCode("CARD01")
-                .cardName("테스트카드")
-                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                .cardBinType01("CREDIT")
-                .cardBinType02("PERSONAL")
-                .build();
+            .userId(1L)
+            .batchKey("batch-key-001")
+            .groupId("group-001")
+            .cardCode("CARD01")
+            .cardName("테스트카드")
+            .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+            .cardBinType01("CREDIT")
+            .cardBinType02("PERSONAL")
+            .build();
 
         // when
         QuickPaymentCard card = QuickPaymentCard.from(state);
@@ -44,19 +44,19 @@ class QuickPaymentCardTest {
     void shouldRestoreQuickPaymentCardFromSnapshotState() {
         // given
         QuickPaymentCardSnapshotState state = QuickPaymentCardSnapshotState.builder()
-                .id(10L)
-                .userId(1L)
-                .batchKey("batch-key-001")
-                .groupId("group-001")
-                .cardCode("CARD01")
-                .cardName("테스트카드")
-                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                .cardBinType01("CREDIT")
-                .cardBinType02("PERSONAL")
-                .status(EntityStatus.INACTIVE)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build();
+            .id(10L)
+            .userId(1L)
+            .batchKey("batch-key-001")
+            .groupId("group-001")
+            .cardCode("CARD01")
+            .cardName("테스트카드")
+            .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+            .cardBinType01("CREDIT")
+            .cardBinType02("PERSONAL")
+            .status(EntityStatus.INACTIVE)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build();
 
         // when
         QuickPaymentCard card = QuickPaymentCard.from(state);
@@ -73,15 +73,15 @@ class QuickPaymentCardTest {
     void shouldChangeStatusToInactiveWhenDeactivated() {
         // given
         QuickPaymentCard card = QuickPaymentCard.from(QuickPaymentCardCreateState.builder()
-                .userId(1L)
-                .batchKey("batch-key-001")
-                .groupId("group-001")
-                .cardCode("CARD01")
-                .cardName("테스트카드")
-                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                .cardBinType01("CREDIT")
-                .cardBinType02("PERSONAL")
-                .build());
+            .userId(1L)
+            .batchKey("batch-key-001")
+            .groupId("group-001")
+            .cardCode("CARD01")
+            .cardName("테스트카드")
+            .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+            .cardBinType01("CREDIT")
+            .cardBinType02("PERSONAL")
+            .build());
         assertThat(card.isActive()).isTrue();
 
         // when

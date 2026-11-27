@@ -8,18 +8,18 @@ public class PollShippingStatusCommandFactory {
     }
 
     public static GetFulfillmentDeliveryStatusesCommand toDeliveryStatusesCommand(
-            PollShippingStatusCommand command,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String releaseType
+        PollShippingStatusCommand command,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String releaseType
     ) {
         return GetFulfillmentDeliveryStatusesCommand.builder()
-                .customerCode(command.customerCode())
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .releaseType(releaseType)
-                .build();
+            .customerCode(command.customerCode())
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .releaseType(releaseType)
+            .build();
     }
 }

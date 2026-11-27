@@ -22,9 +22,9 @@ class ProductOptionTest {
         void shouldCreateWithActiveStatus() {
             // given
             ProductOptionCreateState state = ProductOptionCreateState.builder()
-                    .category(null)
-                    .content("빨강")
-                    .build();
+                .category(null)
+                .content("빨강")
+                .build();
 
             // when
             ProductOption option = ProductOption.from(state);
@@ -44,11 +44,11 @@ class ProductOptionTest {
         void shouldRestoreAllFieldsFromSnapshotState() {
             // given
             ProductOptionSnapshotState state = ProductOptionSnapshotState.builder()
-                    .id(10L)
-                    .category(null)
-                    .content("파랑")
-                    .status(EntityStatus.INACTIVE)
-                    .build();
+                .id(10L)
+                .category(null)
+                .content("파랑")
+                .status(EntityStatus.INACTIVE)
+                .build();
 
             // when
             ProductOption option = ProductOption.from(state);
@@ -69,10 +69,10 @@ class ProductOptionTest {
         void shouldAddContentWhenIdIsContained() {
             // given
             ProductOption option = ProductOption.from(ProductOptionSnapshotState.builder()
-                    .id(5L)
-                    .content("빨강")
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(5L)
+                .content("빨강")
+                .status(EntityStatus.ACTIVE)
+                .build());
             Set<Long> ids = Set.of(5L, 10L);
             Set<String> contents = new HashSet<>();
 
@@ -88,10 +88,10 @@ class ProductOptionTest {
         void shouldNotAddContentWhenIdIsNotContained() {
             // given
             ProductOption option = ProductOption.from(ProductOptionSnapshotState.builder()
-                    .id(5L)
-                    .content("빨강")
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(5L)
+                .content("빨강")
+                .status(EntityStatus.ACTIVE)
+                .build());
             Set<Long> ids = Set.of(10L, 20L);
             Set<String> contents = new HashSet<>();
 

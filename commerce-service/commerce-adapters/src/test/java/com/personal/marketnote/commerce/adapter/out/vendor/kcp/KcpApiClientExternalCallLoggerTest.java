@@ -5,12 +5,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyDeletionRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyIssuanceRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchPaymentApprovalRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpPaymentApprovalRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpPaymentCancelRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterRequest;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
@@ -18,11 +13,7 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -75,12 +66,12 @@ class KcpApiClientExternalCallLoggerTest {
         RestTemplate restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.bindTo(restTemplate).build();
         RestClient.Builder builder = RestClient.builder()
-                .requestFactory(new org.springframework.http.client.ClientHttpRequestFactory() {
-                    @Override
-                    public org.springframework.http.client.ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
-                        return restTemplate.getRequestFactory().createRequest(uri, httpMethod);
-                    }
-                });
+            .requestFactory(new org.springframework.http.client.ClientHttpRequestFactory() {
+                @Override
+                public org.springframework.http.client.ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
+                    return restTemplate.getRequestFactory().createRequest(uri, httpMethod);
+                }
+            });
 
         ObjectMapper objectMapper = new ObjectMapper();
         meterRegistry = new SimpleMeterRegistry();
@@ -114,20 +105,20 @@ class KcpApiClientExternalCallLoggerTest {
         @DisplayName("거래등록 성공 시 success Timer와 ordrIdxx 태그가 로그에 포함된다")
         void shouldRecordSuccessForTradeRegister() {
             String responseJson = """
-                    {"Code":"0000","Message":"OK","approvalKey":"K","PayUrl":"u","traceNo":"T","paymentMethod":"CARD"}
-                    """;
+                {"Code":"0000","Message":"OK","approvalKey":"K","PayUrl":"u","traceNo":"T","paymentMethod":"CARD"}
+                """;
             mockServer.expect(requestTo(TRADE_REGISTER_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.registerTrade(KcpTradeRegisterRequest.builder()
-                    .siteCd(SITE_CD)
-                    .ordrIdxx(ORDER_KEY)
-                    .goodMny("10000")
-                    .payMethod("CARD")
-                    .goodName("상품")
-                    .retUrl("http://r")
-                    .build()
+                .siteCd(SITE_CD)
+                .ordrIdxx(ORDER_KEY)
+                .goodMny("10000")
+                .payMethod("CARD")
+                .goodName("상품")
+                .retUrl("http://r")
+                .build()
             );
 
             assertSuccessTimerExists("trade.register");
@@ -140,13 +131,13 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldRecordSuccessForPaymentApproval() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(PAYMENT_APPROVAL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.approvePayment(KcpPaymentApprovalRequest.builder()
-                    .siteCd(SITE_CD)
-                    .ordrNo(ORDER_KEY)
-                    .build()
+                .siteCd(SITE_CD)
+                .ordrNo(ORDER_KEY)
+                .build()
             );
 
             assertSuccessTimerExists("payment.approve");
@@ -158,13 +149,13 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldRecordSuccessForPaymentCancel() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(PAYMENT_CANCEL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.cancelPayment(KcpPaymentCancelRequest.builder()
-                    .siteCd(SITE_CD)
-                    .tno(TNO)
-                    .build()
+                .siteCd(SITE_CD)
+                .tno(TNO)
+                .build()
             );
 
             assertSuccessTimerExists("payment.cancel");
@@ -176,12 +167,12 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldRecordSuccessForBatchKeyIssue() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(BATCH_KEY_ISSUANCE_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.issueBatchKey(KcpBatchKeyIssuanceRequest.builder()
-                    .siteCd(SITE_CD)
-                    .build()
+                .siteCd(SITE_CD)
+                .build()
             );
 
             assertSuccessTimerExists("batch.key.issue");
@@ -192,13 +183,13 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldRecordSuccessForBatchPaymentApprove() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(BATCH_PAYMENT_APPROVAL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.approveBatchPayment(KcpBatchPaymentApprovalRequest.builder()
-                    .siteCd(SITE_CD)
-                    .ordrIdxx(ORDER_KEY)
-                    .build()
+                .siteCd(SITE_CD)
+                .ordrIdxx(ORDER_KEY)
+                .build()
             );
 
             assertSuccessTimerExists("batch.payment.approve");
@@ -210,12 +201,12 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldRecordSuccessForBatchKeyDelete() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(BATCH_PAYMENT_APPROVAL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.deleteBatchKey(KcpBatchKeyDeletionRequest.builder()
-                    .siteCd(SITE_CD)
-                    .build()
+                .siteCd(SITE_CD)
+                .build()
             );
 
             assertSuccessTimerExists("batch.key.delete");
@@ -230,24 +221,24 @@ class KcpApiClientExternalCallLoggerTest {
         @DisplayName("결제승인 5xx 응답 시 failure Timer가 기록되고 동일 예외를 rethrow한다")
         void shouldRecordFailureWhenPaymentApprovalFails() {
             mockServer.expect(requestTo(PAYMENT_APPROVAL_URL))
-                    .andRespond(withServerError());
+                .andRespond(withServerError());
 
             assertThatThrownBy(() -> client.approvePayment(
-                    KcpPaymentApprovalRequest.builder().ordrNo(ORDER_KEY).build()
+                KcpPaymentApprovalRequest.builder().ordrNo(ORDER_KEY).build()
             )).isInstanceOf(RuntimeException.class);
 
             Timer timer = meterRegistry.find("external.call")
-                    .tags("system", ExternalSystem.KCP.metricTag(),
-                            "operation", "payment.approve",
-                            "outcome", "failure"
-                    )
-                    .timer();
+                .tags("system", ExternalSystem.KCP.metricTag(),
+                    "operation", "payment.approve",
+                    "outcome", "failure"
+                )
+                .timer();
             assertThat(timer).isNotNull();
             assertThat(timer.count()).isEqualTo(1L);
 
             boolean hasError = appender.list.stream()
-                    .anyMatch(event -> event.getLevel() == Level.ERROR
-                            && event.getFormattedMessage().contains("payment.approve"));
+                .anyMatch(event -> event.getLevel() == Level.ERROR
+                    && event.getFormattedMessage().contains("payment.approve"));
             assertThat(hasError).isTrue();
         }
 
@@ -255,18 +246,18 @@ class KcpApiClientExternalCallLoggerTest {
         @DisplayName("응답 본문이 비어 KcpCommunicationException 발생 시 failure Timer가 기록된다")
         void shouldRecordFailureOnEmptyResponse() {
             mockServer.expect(requestTo(TRADE_REGISTER_URL))
-                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> client.registerTrade(
-                    KcpTradeRegisterRequest.builder().siteCd(SITE_CD).ordrIdxx(ORDER_KEY).build()
+                KcpTradeRegisterRequest.builder().siteCd(SITE_CD).ordrIdxx(ORDER_KEY).build()
             )).isInstanceOf(KcpCommunicationException.class);
 
             Timer timer = meterRegistry.find("external.call")
-                    .tags("system", ExternalSystem.KCP.metricTag(),
-                            "operation", "trade.register",
-                            "outcome", "failure"
-                    )
-                    .timer();
+                .tags("system", ExternalSystem.KCP.metricTag(),
+                    "operation", "trade.register",
+                    "outcome", "failure"
+                )
+                .timer();
             assertThat(timer).isNotNull();
             assertThat(timer.count()).isEqualTo(1L);
         }
@@ -281,15 +272,15 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldNotIncludeSensitivePayloadInPaymentApprovalLog() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(PAYMENT_APPROVAL_URL))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.approvePayment(KcpPaymentApprovalRequest.builder()
-                    .siteCd(SITE_CD)
-                    .ordrNo(ORDER_KEY)
-                    .encData("VERY-SECRET-ENC-DATA")
-                    .encInfo("VERY-SECRET-ENC-INFO")
-                    .kcpCertInfo("VERY-SECRET-CERT")
-                    .build()
+                .siteCd(SITE_CD)
+                .ordrNo(ORDER_KEY)
+                .encData("VERY-SECRET-ENC-DATA")
+                .encInfo("VERY-SECRET-ENC-INFO")
+                .kcpCertInfo("VERY-SECRET-CERT")
+                .build()
             );
 
             assertNoLogContains("VERY-SECRET-ENC-DATA");
@@ -302,14 +293,14 @@ class KcpApiClientExternalCallLoggerTest {
         void shouldNotIncludeSensitivePayloadInPaymentCancelLog() {
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(PAYMENT_CANCEL_URL))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             client.cancelPayment(KcpPaymentCancelRequest.builder()
-                    .siteCd(SITE_CD)
-                    .tno(TNO)
-                    .kcpCertInfo("CERT-CONFIDENTIAL")
-                    .kcpSignData("SIGN-CONFIDENTIAL")
-                    .build()
+                .siteCd(SITE_CD)
+                .tno(TNO)
+                .kcpCertInfo("CERT-CONFIDENTIAL")
+                .kcpSignData("SIGN-CONFIDENTIAL")
+                .build()
             );
 
             assertNoLogContains("CERT-CONFIDENTIAL");
@@ -319,33 +310,33 @@ class KcpApiClientExternalCallLoggerTest {
 
     private void assertSuccessTimerExists(String operation) {
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", ExternalSystem.KCP.metricTag(),
-                        "operation", operation,
-                        "outcome", "success"
-                )
-                .timer();
+            .tags("system", ExternalSystem.KCP.metricTag(),
+                "operation", operation,
+                "outcome", "success"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
 
     private void assertOperationInDebugLog(String operation) {
         boolean found = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(operation));
+            .anyMatch(event -> event.getFormattedMessage().contains(operation));
         assertThat(found).as("expected operation '%s' in debug log", operation).isTrue();
     }
 
     private void assertTagInDebugLog(String tagKey, String tagValue) {
         boolean foundKey = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(tagKey));
+            .anyMatch(event -> event.getFormattedMessage().contains(tagKey));
         boolean foundValue = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(tagValue));
+            .anyMatch(event -> event.getFormattedMessage().contains(tagValue));
         assertThat(foundKey).as("expected tag key '%s' in debug log", tagKey).isTrue();
         assertThat(foundValue).as("expected tag value '%s' in debug log", tagValue).isTrue();
     }
 
     private void assertNoLogContains(String forbidden) {
         boolean leaked = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(forbidden));
+            .anyMatch(event -> event.getFormattedMessage().contains(forbidden));
         assertThat(leaked).as("sensitive value '%s' must not appear in log", forbidden).isFalse();
     }
 }

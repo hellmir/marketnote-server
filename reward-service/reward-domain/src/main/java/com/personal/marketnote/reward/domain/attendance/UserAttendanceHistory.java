@@ -33,31 +33,31 @@ public class UserAttendanceHistory {
 
     public static UserAttendanceHistory from(UserAttendanceHistoryCreateState state) {
         return UserAttendanceHistory.builder()
-                .userAttendanceId(state.getUserAttendanceId())
-                .attendancePolicyId(state.getAttendancePolicyId())
-                .rewardType(state.getRewardType())
-                .rewardQuantity(state.getRewardQuantity())
-                .continuousPeriod(state.getContinuousPeriod())
-                .rewardYn(state.getRewardYn())
-                .attendedDate(state.getAttendedDate())
-                .attendedAt(state.getAttendedAt())
-                .build();
+            .userAttendanceId(state.getUserAttendanceId())
+            .attendancePolicyId(state.getAttendancePolicyId())
+            .rewardType(state.getRewardType())
+            .rewardQuantity(state.getRewardQuantity())
+            .continuousPeriod(state.getContinuousPeriod())
+            .rewardYn(state.getRewardYn())
+            .attendedDate(state.getAttendedDate())
+            .attendedAt(state.getAttendedAt())
+            .build();
     }
 
     public static UserAttendanceHistory from(UserAttendanceHistorySnapshotState state) {
         return UserAttendanceHistory.builder()
-                .id(state.getId())
-                .userAttendanceId(state.getUserAttendanceId())
-                .attendancePolicyId(state.getAttendancePolicyId())
-                .rewardType(state.getRewardType())
-                .rewardQuantity(state.getRewardQuantity())
-                .continuousPeriod(state.getContinuousPeriod())
-                .rewardYn(state.getRewardYn())
-                .attendedDate(state.getAttendedDate())
-                .attendedAt(state.getAttendedAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .userAttendanceId(state.getUserAttendanceId())
+            .attendancePolicyId(state.getAttendancePolicyId())
+            .rewardType(state.getRewardType())
+            .rewardQuantity(state.getRewardQuantity())
+            .continuousPeriod(state.getContinuousPeriod())
+            .rewardYn(state.getRewardYn())
+            .attendedDate(state.getAttendedDate())
+            .attendedAt(state.getAttendedAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 }
 

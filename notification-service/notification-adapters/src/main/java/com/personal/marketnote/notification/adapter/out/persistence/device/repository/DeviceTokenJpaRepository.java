@@ -21,14 +21,14 @@ public interface DeviceTokenJpaRepository extends JpaRepository<DeviceTokenJpaEn
 
     @Modifying
     @Query("""
-            UPDATE DeviceTokenJpaEntity d
-            SET d.status = :inactiveStatus
-            WHERE d.lastUsedAt < :threshold
-              AND d.status = :activeStatus
-            """)
+        UPDATE DeviceTokenJpaEntity d
+        SET d.status = :inactiveStatus
+        WHERE d.lastUsedAt < :threshold
+          AND d.status = :activeStatus
+        """)
     int deactivateStaleTokens(
-            @Param("threshold") LocalDateTime threshold,
-            @Param("activeStatus") EntityStatus activeStatus,
-            @Param("inactiveStatus") EntityStatus inactiveStatus
+        @Param("threshold") LocalDateTime threshold,
+        @Param("activeStatus") EntityStatus activeStatus,
+        @Param("inactiveStatus") EntityStatus inactiveStatus
     );
 }

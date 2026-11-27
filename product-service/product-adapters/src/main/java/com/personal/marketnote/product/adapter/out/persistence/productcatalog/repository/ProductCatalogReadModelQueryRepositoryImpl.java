@@ -22,22 +22,22 @@ import java.util.List;
 public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalogReadModelQueryRepository {
 
     private static final QProductCatalogReadModelJpaEntity catalog =
-            QProductCatalogReadModelJpaEntity.productCatalogReadModelJpaEntity;
+        QProductCatalogReadModelJpaEntity.productCatalogReadModelJpaEntity;
     private static final QProductCategoryJpaEntity productCategory =
-            QProductCategoryJpaEntity.productCategoryJpaEntity;
+        QProductCategoryJpaEntity.productCategoryJpaEntity;
 
     private final JPAQueryFactory queryFactory;
 
     @Override
     public List<ProductCatalogReadModelJpaEntity> findCatalogItems(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            Long cursor,
-            int pageSize,
-            boolean isAsc,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        List<Long> pricePolicyIds,
+        Long cursor,
+        int pageSize,
+        boolean isAsc,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     ) {
         boolean hasExplicitCursor = FormatValidator.hasValue(cursor) && cursor > 0;
         Object cursorSortValue = resolveCursorSortValue(cursor, sortProperty);
@@ -48,34 +48,34 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
         }
 
         return queryFactory
-                .selectFrom(catalog)
-                .where(
-                        catalog.status.eq(EntityStatus.ACTIVE),
-                        categoryIdExists(categoryId),
-                        pricePolicyIdsIn(pricePolicyIds),
-                        searchKeywordLike(searchTarget, searchKeyword),
-                        cursorCondition(sortProperty, cursor, cursorSortValue, isAsc)
-                )
-                .orderBy(sortOrderSpecifiers(sortProperty, isAsc))
-                .limit(pageSize)
-                .fetch();
+            .selectFrom(catalog)
+            .where(
+                catalog.status.eq(EntityStatus.ACTIVE),
+                categoryIdExists(categoryId),
+                pricePolicyIdsIn(pricePolicyIds),
+                searchKeywordLike(searchTarget, searchKeyword),
+                cursorCondition(sortProperty, cursor, cursorSortValue, isAsc)
+            )
+            .orderBy(sortOrderSpecifiers(sortProperty, isAsc))
+            .limit(pageSize)
+            .fetch();
     }
 
     @Override
     public long countCatalogItems(
-            Long categoryId,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     ) {
         Long count = queryFactory
-                .select(catalog.count())
-                .from(catalog)
-                .where(
-                        catalog.status.eq(EntityStatus.ACTIVE),
-                        categoryIdExists(categoryId),
-                        searchKeywordLike(searchTarget, searchKeyword)
-                )
-                .fetchOne();
+            .select(catalog.count())
+            .from(catalog)
+            .where(
+                catalog.status.eq(EntityStatus.ACTIVE),
+                categoryIdExists(categoryId),
+                searchKeywordLike(searchTarget, searchKeyword)
+            )
+            .fetchOne();
         if (FormatValidator.hasNoValue(count)) {
             return 0L;
         }
@@ -87,13 +87,13 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             return null;
         }
         return JPAExpressions
-                .selectOne()
-                .from(productCategory)
-                .where(
-                        productCategory.productId.eq(catalog.productId),
-                        productCategory.categoryId.eq(categoryId)
-                )
-                .exists();
+            .selectOne()
+            .from(productCategory)
+            .where(
+                productCategory.productId.eq(catalog.productId),
+                productCategory.categoryId.eq(categoryId)
+            )
+            .exists();
     }
 
     private BooleanExpression pricePolicyIdsIn(List<Long> pricePolicyIds) {
@@ -112,10 +112,10 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
     }
 
     private BooleanExpression cursorCondition(
-            ProductSortProperty sortProperty,
-            Long cursor,
-            Object cursorSortValue,
-            boolean isAsc
+        ProductSortProperty sortProperty,
+        Long cursor,
+        Object cursorSortValue,
+        boolean isAsc
     ) {
         if (FormatValidator.hasNoValue(cursorSortValue)) {
             return null;
@@ -125,7 +125,7 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             case POPULARITY -> longCursor(catalog.popularity, cursor, (Long) cursorSortValue, isAsc);
             case ACCUMULATED_POINT -> longCursor(catalog.accumulatedPoint, cursor, (Long) cursorSortValue, isAsc);
             case ACCUMULATED_POINT_RATE -> bigDecimalCursor(
-                    catalog.accumulatedPointRate, cursor, (BigDecimal) cursorSortValue, isAsc
+                catalog.accumulatedPointRate, cursor, (BigDecimal) cursorSortValue, isAsc
             );
             case DISCOUNT_PRICE -> longCursor(catalog.discountPrice, cursor, (Long) cursorSortValue, isAsc);
         };
@@ -134,24 +134,24 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
     private BooleanExpression longCursor(NumberPath<Long> sortPath, Long cursor, Long cursorSortValue, boolean isAsc) {
         if (isAsc) {
             return sortPath.gt(cursorSortValue)
-                    .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.gt(cursor)));
+                .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.gt(cursor)));
         }
         return sortPath.lt(cursorSortValue)
-                .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.lt(cursor)));
+            .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.lt(cursor)));
     }
 
     private BooleanExpression bigDecimalCursor(
-            NumberPath<BigDecimal> sortPath,
-            Long cursor,
-            BigDecimal cursorSortValue,
-            boolean isAsc
+        NumberPath<BigDecimal> sortPath,
+        Long cursor,
+        BigDecimal cursorSortValue,
+        boolean isAsc
     ) {
         if (isAsc) {
             return sortPath.gt(cursorSortValue)
-                    .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.gt(cursor)));
+                .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.gt(cursor)));
         }
         return sortPath.lt(cursorSortValue)
-                .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.lt(cursor)));
+            .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.lt(cursor)));
     }
 
     private OrderSpecifier<?>[] sortOrderSpecifiers(ProductSortProperty sortProperty, boolean isAsc) {
@@ -166,7 +166,7 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             case POPULARITY -> isAsc ? catalog.popularity.asc() : catalog.popularity.desc();
             case ACCUMULATED_POINT -> isAsc ? catalog.accumulatedPoint.asc() : catalog.accumulatedPoint.desc();
             case ACCUMULATED_POINT_RATE ->
-                    isAsc ? catalog.accumulatedPointRate.asc() : catalog.accumulatedPointRate.desc();
+                isAsc ? catalog.accumulatedPointRate.asc() : catalog.accumulatedPointRate.desc();
             case DISCOUNT_PRICE -> isAsc ? catalog.discountPrice.asc() : catalog.discountPrice.desc();
         };
     }
@@ -183,9 +183,9 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             return null;
         }
         ProductCatalogReadModelJpaEntity entity = queryFactory
-                .selectFrom(catalog)
-                .where(catalog.pricePolicyId.eq(cursor))
-                .fetchFirst();
+            .selectFrom(catalog)
+            .where(catalog.pricePolicyId.eq(cursor))
+            .fetchFirst();
         if (FormatValidator.hasNoValue(entity)) {
             return null;
         }

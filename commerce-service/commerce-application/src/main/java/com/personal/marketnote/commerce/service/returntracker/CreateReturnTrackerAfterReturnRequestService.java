@@ -28,13 +28,13 @@ public class CreateReturnTrackerAfterReturnRequestService {
     }
 
     private RegisterFulfillmentReturnDeliveryResult registerReturnDelivery(
-            RegisterFulfillmentReturnDeliveryCommand command
+        RegisterFulfillmentReturnDeliveryCommand command
     ) {
         try {
             return registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command);
         } catch (FulfillmentServiceRequestFailedException fsrfe) {
             log.warn("fallback applied: 풀필먼트 반품 등록 실패 — null 반환 (ReturnTracker 미생성). orderId={}",
-                    command.orderId(), fsrfe
+                command.orderId(), fsrfe
             );
             return null;
         }
@@ -48,7 +48,7 @@ public class CreateReturnTrackerAfterReturnRequestService {
             log.info("ReturnTracker 이미 존재 - orderId: {} (멱등 처리)", orderId);
         } catch (DataAccessException dae) {
             log.error("ReturnTracker 저장 실패. orderId={}, returnSlipNumber={}",
-                    orderId, returnSlipNumber, dae
+                orderId, returnSlipNumber, dae
             );
         }
     }

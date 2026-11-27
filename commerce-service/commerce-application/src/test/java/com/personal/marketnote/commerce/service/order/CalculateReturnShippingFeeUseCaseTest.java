@@ -60,15 +60,15 @@ class CalculateReturnShippingFeeUseCaseTest {
             Order order = createOrderWithProducts(SELLER_ID, PRICE_POLICY_ID_1, 20000L, 1);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
-                    .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
+                .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_ID)))
-                    .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
+                .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.PRODUCT_DAMAGE)
-                    .returnPricePolicyIds(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.PRODUCT_DAMAGE)
+                .returnPricePolicyIds(null)
+                .build();
 
             // when
             CalculateReturnShippingFeeResult result = service.calculateReturnShippingFee(command);
@@ -84,15 +84,15 @@ class CalculateReturnShippingFeeUseCaseTest {
             Order order = createOrderWithProducts(SELLER_ID, PRICE_POLICY_ID_1, 20000L, 1);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
-                    .thenReturn(List.of(createPaymentAllocation(SELLER_ID, ONE_WAY_FEE)));
+                .thenReturn(List.of(createPaymentAllocation(SELLER_ID, ONE_WAY_FEE)));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_ID)))
-                    .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
+                .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .returnPricePolicyIds(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .returnPricePolicyIds(null)
+                .build();
 
             // when
             CalculateReturnShippingFeeResult result = service.calculateReturnShippingFee(command);
@@ -108,15 +108,15 @@ class CalculateReturnShippingFeeUseCaseTest {
             Order order = createOrderWithProducts(SELLER_ID, PRICE_POLICY_ID_1, 50000L, 1);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
-                    .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
+                .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_ID)))
-                    .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
+                .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .returnPricePolicyIds(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .returnPricePolicyIds(null)
+                .build();
 
             // when
             CalculateReturnShippingFeeResult result = service.calculateReturnShippingFee(command);
@@ -130,19 +130,19 @@ class CalculateReturnShippingFeeUseCaseTest {
         void shouldReturnRoundTripFeeWhenPartialReturnBelowThreshold() {
             // given
             Order order = createOrderWithTwoProducts(
-                    SELLER_ID, PRICE_POLICY_ID_1, 20000L, 1, PRICE_POLICY_ID_2, 15000L, 1
+                SELLER_ID, PRICE_POLICY_ID_1, 20000L, 1, PRICE_POLICY_ID_2, 15000L, 1
             );
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
-                    .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
+                .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_ID)))
-                    .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
+                .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .returnPricePolicyIds(List.of(PRICE_POLICY_ID_1))
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .returnPricePolicyIds(List.of(PRICE_POLICY_ID_1))
+                .build();
 
             // when
             CalculateReturnShippingFeeResult result = service.calculateReturnShippingFee(command);
@@ -156,19 +156,19 @@ class CalculateReturnShippingFeeUseCaseTest {
         void shouldReturnOneWayFeeWhenPartialReturnMeetsThreshold() {
             // given
             Order order = createOrderWithTwoProducts(
-                    SELLER_ID, PRICE_POLICY_ID_1, 10000L, 1, PRICE_POLICY_ID_2, 35000L, 1
+                SELLER_ID, PRICE_POLICY_ID_1, 10000L, 1, PRICE_POLICY_ID_2, 35000L, 1
             );
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
-                    .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
+                .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_ID)))
-                    .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
+                .thenReturn(Map.of(SELLER_ID, createShippingPolicy(SELLER_ID)));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .returnPricePolicyIds(List.of(PRICE_POLICY_ID_1))
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .returnPricePolicyIds(List.of(PRICE_POLICY_ID_1))
+                .build();
 
             // when
             CalculateReturnShippingFeeResult result = service.calculateReturnShippingFee(command);
@@ -188,23 +188,23 @@ class CalculateReturnShippingFeeUseCaseTest {
 
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
-                    .thenReturn(List.of(
-                            createPaymentAllocation(SELLER_ID, 0L),
-                            createPaymentAllocation(sellerId2, 0L)
-                    ));
+                .thenReturn(List.of(
+                    createPaymentAllocation(SELLER_ID, 0L),
+                    createPaymentAllocation(sellerId2, 0L)
+                ));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                    .thenReturn(Map.of(
-                            SELLER_ID, createShippingPolicy(SELLER_ID),
-                            sellerId2, new ShippingPolicyInfoResult(
-                                    sellerId2, ONE_WAY_FEE, FREE_SHIPPING_THRESHOLD, 0L, 0L
-                            )
-                    ));
+                .thenReturn(Map.of(
+                    SELLER_ID, createShippingPolicy(SELLER_ID),
+                    sellerId2, new ShippingPolicyInfoResult(
+                        sellerId2, ONE_WAY_FEE, FREE_SHIPPING_THRESHOLD, 0L, 0L
+                    )
+                ));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .returnPricePolicyIds(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .returnPricePolicyIds(null)
+                .build();
 
             // when
             CalculateReturnShippingFeeResult result = service.calculateReturnShippingFee(command);
@@ -223,13 +223,13 @@ class CalculateReturnShippingFeeUseCaseTest {
         void shouldThrowWhenReasonCategoryIsNull() {
             // given
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> service.calculateReturnShippingFee(command))
-                    .isInstanceOf(ReasonCategoryNoValueException.class);
+                .isInstanceOf(ReasonCategoryNoValueException.class);
 
             verifyNoInteractions(getOrderUseCase);
             verifyNoInteractions(findPaymentAllocationPort);
@@ -241,13 +241,13 @@ class CalculateReturnShippingFeeUseCaseTest {
         void shouldThrowWhenCancelOnlyReasonCategory() {
             // given
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()
-                    .orderId(ORDER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .build();
+                .orderId(ORDER_ID)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> service.calculateReturnShippingFee(command))
-                    .isInstanceOf(InvalidReasonCategoryException.class);
+                .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(getOrderUseCase);
         }
@@ -263,9 +263,9 @@ class CalculateReturnShippingFeeUseCaseTest {
     }
 
     private Order createOrderWithTwoProducts(
-            Long sellerId,
-            Long pricePolicyId1, Long unitAmount1, int quantity1,
-            Long pricePolicyId2, Long unitAmount2, int quantity2
+        Long sellerId,
+        Long pricePolicyId1, Long unitAmount1, int quantity1,
+        Long pricePolicyId2, Long unitAmount2, int quantity2
     ) {
         OrderProduct product1 = createOrderProduct(sellerId, pricePolicyId1, unitAmount1, quantity1);
         OrderProduct product2 = createOrderProduct(sellerId, pricePolicyId2, unitAmount2, quantity2);
@@ -274,47 +274,47 @@ class CalculateReturnShippingFeeUseCaseTest {
 
     private OrderProduct createOrderProduct(Long sellerId, Long pricePolicyId, Long unitAmount, int quantity) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(ORDER_ID)
-                .sellerId(sellerId)
-                .pricePolicyId(pricePolicyId)
-                .unitAmount(unitAmount)
-                .quantity(quantity)
-                .orderStatus(OrderStatus.DELIVERED)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(ORDER_ID)
+            .sellerId(sellerId)
+            .pricePolicyId(pricePolicyId)
+            .unitAmount(unitAmount)
+            .quantity(quantity)
+            .orderStatus(OrderStatus.DELIVERED)
+            .accumulatedPoint(0L)
+            .build());
     }
 
     private Order createOrderWithProductList(List<OrderProduct> products) {
         return Order.from(OrderSnapshotState.builder()
-                .id(ORDER_ID)
-                .buyerId(1L)
-                .orderStatus(OrderStatus.DELIVERED)
-                .orderProductStates(products.stream()
-                        .map(this::toSnapshotState)
-                        .toList())
-                .build());
+            .id(ORDER_ID)
+            .buyerId(1L)
+            .orderStatus(OrderStatus.DELIVERED)
+            .orderProductStates(products.stream()
+                .map(this::toSnapshotState)
+                .toList())
+            .build());
     }
 
     private OrderProductSnapshotState toSnapshotState(OrderProduct product) {
         return OrderProductSnapshotState.builder()
-                .orderId(product.getOrderId())
-                .sellerId(product.getSellerId())
-                .pricePolicyId(product.getPricePolicyId())
-                .unitAmount(product.getUnitAmount().getValue())
-                .quantity(product.getQuantity().getValue())
-                .orderStatus(product.getOrderStatus())
-                .accumulatedPoint(0L)
-                .build();
+            .orderId(product.getOrderId())
+            .sellerId(product.getSellerId())
+            .pricePolicyId(product.getPricePolicyId())
+            .unitAmount(product.getUnitAmount().getValue())
+            .quantity(product.getQuantity().getValue())
+            .orderStatus(product.getOrderStatus())
+            .accumulatedPoint(0L)
+            .build();
     }
 
     private PaymentAllocation createPaymentAllocation(Long sellerId, Long shippingFee) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(1L)
-                .orderId(ORDER_ID)
-                .sellerId(sellerId)
-                .allocatedAmount(50000L)
-                .shippingFee(shippingFee)
-                .build());
+            .id(1L)
+            .orderId(ORDER_ID)
+            .sellerId(sellerId)
+            .allocatedAmount(50000L)
+            .shippingFee(shippingFee)
+            .build());
     }
 
     private ShippingPolicyInfoResult createShippingPolicy(Long sellerId) {

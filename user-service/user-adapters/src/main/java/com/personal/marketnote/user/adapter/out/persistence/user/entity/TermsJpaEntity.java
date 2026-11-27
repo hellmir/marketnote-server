@@ -21,8 +21,8 @@ public class TermsJpaEntity extends BaseGeneralEntity {
 
     public static TermsJpaEntity from(Terms terms) {
         return TermsJpaEntity.builder()
-                .content(terms.getContent())
-                .requiredYn(terms.getRequiredYn())
-                .build();
+            .content(terms.getContent())
+            .requiredYn(terms.getRequiredYn())
+            .build();
     }
 }

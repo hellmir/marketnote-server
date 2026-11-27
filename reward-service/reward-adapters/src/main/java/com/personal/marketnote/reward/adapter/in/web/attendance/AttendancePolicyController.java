@@ -46,20 +46,20 @@ public class AttendancePolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterAttendancePolicyApiDocs
     public ResponseEntity<BaseResponse<RegisterAttendancePolicyResponse>> registerAttendancePolicy(
-            @Valid @RequestBody RegisterAttendancePolicyRequest request
+        @Valid @RequestBody RegisterAttendancePolicyRequest request
     ) {
         RegisterAttendancePolicyResult result = registerAttendancePolicyUseCase.register(
-                AttendanceRequestToCommandMapper.mapToCommand(request)
+            AttendanceRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterAttendancePolicyResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "출석 정책 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterAttendancePolicyResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "출석 정책 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -78,13 +78,13 @@ public class AttendancePolicyController {
         GetAttendancePoliciesResult result = getAttendancePoliciesUseCase.getAttendancePolicies();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAttendancePoliciesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "출석 정책 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAttendancePoliciesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "출석 정책 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -100,16 +100,16 @@ public class AttendancePolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @DeleteAttendancePolicyApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteAttendancePolicy(
-            @PathVariable("id") Short id
+        @PathVariable("id") Short id
     ) {
         deleteAttendancePolicyUseCase.delete(id);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "출석 정책 삭제 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "출석 정책 삭제 성공"
+            )
         );
     }
 }

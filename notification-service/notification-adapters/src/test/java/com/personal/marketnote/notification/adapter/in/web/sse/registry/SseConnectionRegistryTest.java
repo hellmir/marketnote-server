@@ -101,8 +101,8 @@ class SseConnectionRegistryTest {
         Long userId = 1L;
         sseConnectionRegistry.register(userId, 30000L);
         SseEmitter.SseEventBuilder event = SseEmitter.event()
-                .name("test")
-                .data("test-data");
+            .name("test")
+            .data("test-data");
 
         // when & then
         sseConnectionRegistry.sendToUser(userId, event);
@@ -114,8 +114,8 @@ class SseConnectionRegistryTest {
         // given
         Long userId = 999L;
         SseEmitter.SseEventBuilder event = SseEmitter.event()
-                .name("test")
-                .data("test-data");
+            .name("test")
+            .data("test-data");
 
         // when & then
         sseConnectionRegistry.sendToUser(userId, event);
@@ -140,7 +140,7 @@ class SseConnectionRegistryTest {
 
         // when & then
         assertThatThrownBy(() -> limitedRegistry.register(3L, 30000L))
-                .isInstanceOf(SseConnectionLimitExceededException.class);
+            .isInstanceOf(SseConnectionLimitExceededException.class);
     }
 
     @Test
@@ -169,7 +169,7 @@ class SseConnectionRegistryTest {
 
         // when
         sseConnectionRegistry.sendToUser(
-                userId, SseEmitter.event().name("test").data("data")
+            userId, SseEmitter.event().name("test").data("data")
         );
 
         // then

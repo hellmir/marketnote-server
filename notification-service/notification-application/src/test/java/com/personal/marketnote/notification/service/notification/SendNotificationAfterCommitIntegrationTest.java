@@ -78,9 +78,9 @@ class SendNotificationAfterCommitIntegrationTest {
         @Bean
         DataSource dataSource() {
             return new EmbeddedDatabaseBuilder()
-                    .setType(EmbeddedDatabaseType.H2)
-                    .setName("after-commit-integration-test")
-                    .build();
+                .setType(EmbeddedDatabaseType.H2)
+                .setName("after-commit-integration-test")
+                .build();
         }
 
         @Bean
@@ -91,8 +91,8 @@ class SendNotificationAfterCommitIntegrationTest {
         @Bean
         Clock clock() {
             return Clock.fixed(
-                    Instant.parse("2026-06-03T05:00:00Z"),
-                    ZoneId.of("Asia/Seoul")
+                Instant.parse("2026-06-03T05:00:00Z"),
+                ZoneId.of("Asia/Seoul")
             );
         }
 
@@ -153,47 +153,47 @@ class SendNotificationAfterCommitIntegrationTest {
 
         @Bean
         SendNotificationUseCase sendNotificationService(
-                FindNotificationTemplatePort findNotificationTemplatePort,
-                FindNotificationPreferencePort findNotificationPreferencePort,
-                SaveNotificationPort saveNotificationPort,
-                FindNotificationPort findNotificationPort,
-                PublishSseEventPort publishSseEventPort,
-                org.springframework.context.ApplicationEventPublisher applicationEventPublisher,
-                Clock clock
+            FindNotificationTemplatePort findNotificationTemplatePort,
+            FindNotificationPreferencePort findNotificationPreferencePort,
+            SaveNotificationPort saveNotificationPort,
+            FindNotificationPort findNotificationPort,
+            PublishSseEventPort publishSseEventPort,
+            org.springframework.context.ApplicationEventPublisher applicationEventPublisher,
+            Clock clock
         ) {
             return new SendNotificationService(
-                    findNotificationTemplatePort,
-                    findNotificationPreferencePort,
-                    saveNotificationPort,
-                    findNotificationPort,
-                    publishSseEventPort,
-                    applicationEventPublisher,
-                    clock
+                findNotificationTemplatePort,
+                findNotificationPreferencePort,
+                saveNotificationPort,
+                findNotificationPort,
+                publishSseEventPort,
+                applicationEventPublisher,
+                clock
             );
         }
 
         @Bean
         PushNotificationEventListener pushNotificationEventListener(
-                FindNotificationPort findNotificationPort,
-                FindDeviceTokenPort findDeviceTokenPort,
-                UpdateNotificationPort updateNotificationPort,
-                SendPushNotificationPort sendPushNotificationPort,
-                DeleteDeviceTokenPort deleteDeviceTokenPort,
-                PublishNotificationSentEventPort publishNotificationSentEventPort,
-                PublishSseEventPort publishSseEventPort,
-                VendorCommunicationRecorder vendorCommunicationRecorder,
-                Clock clock
+            FindNotificationPort findNotificationPort,
+            FindDeviceTokenPort findDeviceTokenPort,
+            UpdateNotificationPort updateNotificationPort,
+            SendPushNotificationPort sendPushNotificationPort,
+            DeleteDeviceTokenPort deleteDeviceTokenPort,
+            PublishNotificationSentEventPort publishNotificationSentEventPort,
+            PublishSseEventPort publishSseEventPort,
+            VendorCommunicationRecorder vendorCommunicationRecorder,
+            Clock clock
         ) {
             return new PushNotificationEventListener(
-                    findNotificationPort,
-                    findDeviceTokenPort,
-                    updateNotificationPort,
-                    sendPushNotificationPort,
-                    deleteDeviceTokenPort,
-                    publishNotificationSentEventPort,
-                    publishSseEventPort,
-                    vendorCommunicationRecorder,
-                    clock
+                findNotificationPort,
+                findDeviceTokenPort,
+                updateNotificationPort,
+                sendPushNotificationPort,
+                deleteDeviceTokenPort,
+                publishNotificationSentEventPort,
+                publishSseEventPort,
+                vendorCommunicationRecorder,
+                clock
             );
         }
     }
@@ -238,23 +238,23 @@ class SendNotificationAfterCommitIntegrationTest {
     void setUpMocks() {
         NotificationTemplate template = createTemplate();
         when(findNotificationTemplatePort.findActiveByTemplateCode(TEMPLATE_CODE))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
         when(saveNotificationPort.save(any(Notification.class)))
-                .thenAnswer(invocation -> withId(invocation.getArgument(0), NOTIFICATION_ID));
+            .thenAnswer(invocation -> withId(invocation.getArgument(0), NOTIFICATION_ID));
         when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                .thenReturn(Optional.of(createPendingNotification()));
+            .thenReturn(Optional.of(createPendingNotification()));
         when(findDeviceTokenPort.findActiveByUserId(USER_ID))
-                .thenReturn(List.of(createDeviceToken(1L, "token1", Platform.ANDROID)));
+            .thenReturn(List.of(createDeviceToken(1L, "token1", Platform.ANDROID)));
         when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                .thenReturn(SendPushNotificationResult.success("msg-1"));
+            .thenReturn(SendPushNotificationResult.success("msg-1"));
     }
 
     @AfterEach
     void resetMocks() {
         reset(
-                findNotificationTemplatePort, saveNotificationPort, findNotificationPort,
-                findDeviceTokenPort, sendPushNotificationPort, updateNotificationPort,
-                publishSseEventPort, publishNotificationSentEventPort, vendorCommunicationRecorder
+            findNotificationTemplatePort, saveNotificationPort, findNotificationPort,
+            findDeviceTokenPort, sendPushNotificationPort, updateNotificationPort,
+            publishSseEventPort, publishNotificationSentEventPort, vendorCommunicationRecorder
         );
     }
 
@@ -303,15 +303,15 @@ class SendNotificationAfterCommitIntegrationTest {
         AtomicBoolean originalTxActiveDuringFcmSend = new AtomicBoolean(true);
         AtomicBoolean actualTxActiveDuringFcmSend = new AtomicBoolean(false);
         when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                .thenAnswer(invocation -> {
-                    originalTxActiveDuringFcmSend.set(
-                            TransactionSynchronizationManager.isSynchronizationActive()
-                    );
-                    actualTxActiveDuringFcmSend.set(
-                            TransactionSynchronizationManager.isActualTransactionActive()
-                    );
-                    return SendPushNotificationResult.success("msg-1");
-                });
+            .thenAnswer(invocation -> {
+                originalTxActiveDuringFcmSend.set(
+                    TransactionSynchronizationManager.isSynchronizationActive()
+                );
+                actualTxActiveDuringFcmSend.set(
+                    TransactionSynchronizationManager.isActualTransactionActive()
+                );
+                return SendPushNotificationResult.success("msg-1");
+            });
 
         // when
         tx.executeWithoutResult(status -> sendNotificationService.sendNotification(command));
@@ -319,11 +319,11 @@ class SendNotificationAfterCommitIntegrationTest {
         // then - AFTER_COMMIT 단계이므로 리스너의 REQUIRES_NEW 트랜잭션만 활성.
         // 원본 트랜잭션의 synchronization은 이미 해제 완료된 상태에서 리스너가 시작된다.
         assertThat(actualTxActiveDuringFcmSend.get())
-                .as("리스너는 REQUIRES_NEW로 자체 트랜잭션을 열어 FCM을 호출한다")
-                .isTrue();
+            .as("리스너는 REQUIRES_NEW로 자체 트랜잭션을 열어 FCM을 호출한다")
+            .isTrue();
         assertThat(originalTxActiveDuringFcmSend.get())
-                .as("리스너 트랜잭션은 활성이지만 원본 트랜잭션과 분리되어 있다")
-                .isTrue();
+            .as("리스너 트랜잭션은 활성이지만 원본 트랜잭션과 분리되어 있다")
+            .isTrue();
     }
 
     @Test
@@ -347,7 +347,7 @@ class SendNotificationAfterCommitIntegrationTest {
         SendNotificationCommand command = createCommand("PUSH_ONLY");
         TransactionTemplate tx = new TransactionTemplate(transactionManager);
         when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                .thenThrow(new RuntimeException("FCM 장애"));
+            .thenThrow(new RuntimeException("FCM 장애"));
 
         // when - AFTER_COMMIT 리스너 예외는 기본적으로 Spring이 swallow 하므로 호출자에게 전파되지 않는다
         tx.executeWithoutResult(status -> sendNotificationService.sendNotification(command));
@@ -377,80 +377,80 @@ class SendNotificationAfterCommitIntegrationTest {
 
     private SendNotificationCommand createCommand(String deliveryChannel) {
         return new SendNotificationCommand(
-                USER_ID, TEMPLATE_CODE, Map.of(), deliveryChannel, null
+            USER_ID, TEMPLATE_CODE, Map.of(), deliveryChannel, null
         );
     }
 
     private NotificationTemplate createTemplate() {
         return NotificationTemplate.from(
-                NotificationTemplateSnapshotState.builder()
-                        .id(1L)
-                        .templateCode(TEMPLATE_CODE)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .notificationCategory(NotificationCategory.MANDATORY)
-                        .title("알림 제목")
-                        .bodyTemplate("알림 본문")
-                        .urlTemplate("/test")
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationTemplateSnapshotState.builder()
+                .id(1L)
+                .templateCode(TEMPLATE_CODE)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.MANDATORY)
+                .title("알림 제목")
+                .bodyTemplate("알림 본문")
+                .urlTemplate("/test")
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private Notification createPendingNotification() {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(NOTIFICATION_ID)
-                        .userId(USER_ID)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("알림 제목")
-                        .body("알림 본문")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .isRead(false)
-                        .landingUrl("/test")
-                        .sendStatus(SendStatus.PENDING)
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(NOTIFICATION_ID)
+                .userId(USER_ID)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("알림 제목")
+                .body("알림 본문")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .isRead(false)
+                .landingUrl("/test")
+                .sendStatus(SendStatus.PENDING)
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private Notification withId(Notification notification, Long id) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(notification.getUserId())
-                        .notificationType(notification.getNotificationType())
-                        .title(notification.getTitle())
-                        .body(notification.getBody())
-                        .data(notification.getData())
-                        .deliveryChannel(notification.getDeliveryChannel())
-                        .isRead(notification.isRead())
-                        .landingUrl(notification.getLandingUrl())
-                        .sendStatus(notification.getSendStatus())
-                        .scheduledAt(notification.getScheduledAt())
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(notification.getUserId())
+                .notificationType(notification.getNotificationType())
+                .title(notification.getTitle())
+                .body(notification.getBody())
+                .data(notification.getData())
+                .deliveryChannel(notification.getDeliveryChannel())
+                .isRead(notification.isRead())
+                .landingUrl(notification.getLandingUrl())
+                .sendStatus(notification.getSendStatus())
+                .scheduledAt(notification.getScheduledAt())
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private DeviceToken createDeviceToken(Long id, String token, Platform platform) {
         return DeviceToken.from(
-                DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(USER_ID)
-                        .token(token)
-                        .platform(platform)
-                        .deviceId("device-" + id)
-                        .lastUsedAt(LocalDateTime.now())
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            DeviceTokenSnapshotState.builder()
+                .id(id)
+                .userId(USER_ID)
+                .token(token)
+                .platform(platform)
+                .deviceId("device-" + id)
+                .lastUsedAt(LocalDateTime.now())
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

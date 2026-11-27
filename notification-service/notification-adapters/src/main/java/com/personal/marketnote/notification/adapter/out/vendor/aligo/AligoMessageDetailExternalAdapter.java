@@ -30,8 +30,8 @@ public class AligoMessageDetailExternalAdapter implements GetAligoMessageDetailE
         params.add("limit", "500");
 
         AligoMessageDetailApiResponse response = aligoHttpClient.post(
-                GET_MESSAGE_DETAIL_OPERATION, aligoProperties.getApi().getHistoryDetailPath(),
-                params, AligoMessageDetailApiResponse.class
+            GET_MESSAGE_DETAIL_OPERATION, aligoProperties.getApi().getHistoryDetailPath(),
+            params, AligoMessageDetailApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {
@@ -39,19 +39,19 @@ public class AligoMessageDetailExternalAdapter implements GetAligoMessageDetailE
         }
 
         return response.list().stream()
-                .map(this::toResult)
-                .toList();
+            .map(this::toResult)
+            .toList();
     }
 
     private AligoRecipientDetailResult toResult(AligoMessageDetailApiResponse.DetailInfo info) {
         return new AligoRecipientDetailResult(
-                info.msgId(),
-                info.receiver(),
-                info.rslt(),
-                info.rsltMessage(),
-                parseDateTime(info.smsDate()),
-                parseDateTime(info.rsltDate()),
-                parseDateTime(info.reportDate())
+            info.msgId(),
+            info.receiver(),
+            info.rslt(),
+            info.rsltMessage(),
+            parseDateTime(info.smsDate()),
+            parseDateTime(info.rsltDate()),
+            parseDateTime(info.reportDate())
         );
     }
 

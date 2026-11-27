@@ -6,17 +6,17 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GiftishowBrandListResponse(
-        int listNum,
-        List<GiftishowBrandItem> brandList
+    int listNum,
+    List<GiftishowBrandItem> brandList
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record GiftishowBrandItem(
-            String brandCode,
-            String brandName,
-            String brandIconImg,
-            String category1Seq,
-            String category1Name
+        String brandCode,
+        String brandName,
+        String brandIconImg,
+        String category1Seq,
+        String category1Name
     ) {
     }
 }

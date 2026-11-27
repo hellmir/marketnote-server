@@ -63,7 +63,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 예약 해소");
 
@@ -81,7 +81,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 예약 해소");
 
@@ -98,7 +98,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 예약 해소");
 
@@ -115,13 +115,13 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 예약 해소");
 
             verify(saveCacheStockPort).save(any(Set.class));
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 10, InventoryChangeAction.UPDATED
+                100L, 1L, 10, InventoryChangeAction.UPDATED
             );
         }
 
@@ -136,7 +136,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             releaseInventoryReservationService.release(orderProducts, 1L, reason);
 
@@ -161,7 +161,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 재고 복구");
 
@@ -177,7 +177,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 재고 복구");
 
@@ -193,14 +193,14 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상 - 재고 복구");
 
             verify(saveInventoryRestorationHistoryPort).save(any(InventoryRestorationHistories.class));
             verify(saveCacheStockPort).save(any(Set.class));
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 10, InventoryChangeAction.UPDATED
+                100L, 1L, 10, InventoryChangeAction.UPDATED
             );
         }
 
@@ -214,7 +214,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             releaseInventoryReservationService.release(orderProducts, 1L, reason);
 
@@ -234,8 +234,8 @@ class ReleaseInventoryReservationUseCaseTest {
         @DisplayName("일부 예약 있고 일부 없는 경우 각각 releaseReservation과 restore로 처리한다")
         void release_partialReservation_mixesReleaseAndRestore() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventoryWithReserved(1L, 100L, 10, 2);
             Inventory inventory2 = buildInventory(2L, 200L, 15);
@@ -244,7 +244,7 @@ class ReleaseInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory1, inventory2));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             releaseInventoryReservationService.release(orderProducts, 1L, "SAGA 보상");
 
@@ -268,12 +268,12 @@ class ReleaseInventoryReservationUseCaseTest {
 
     private OrderProduct buildOrderProduct(Long pricePolicyId, int quantity) {
         return OrderProduct.from(
-                OrderProductSnapshotState.builder()
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(quantity)
-                        .unitAmount(0L)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .unitAmount(0L)
+                .accumulatedPoint(0L)
+                .build()
         );
     }
 
@@ -283,21 +283,21 @@ class ReleaseInventoryReservationUseCaseTest {
 
     private Inventory buildInventoryWithReserved(Long productId, Long pricePolicyId, int stock, int reserved) {
         return Inventory.from(InventorySnapshotState.builder()
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .stock(stock)
-                .version(0L)
-                .reserved(reserved)
-                .build());
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .stock(stock)
+            .version(0L)
+            .reserved(reserved)
+            .build());
     }
 
     private InventoryReservation buildReservation(Long orderId, Long pricePolicyId, int quantity) {
         return InventoryReservation.from(InventoryReservationSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .reservedAt(LocalDateTime.now())
-                .build());
+            .id(1L)
+            .orderId(orderId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .reservedAt(LocalDateTime.now())
+            .build());
     }
 }

@@ -25,7 +25,7 @@ class SseEventWireFormatRoundTripTest {
         StringRedisTemplate stringRedisTemplate = mock(StringRedisTemplate.class);
         ObjectMapper objectMapper = new ObjectMapper();
         RedisSseEventPublishAdapter adapter =
-                new RedisSseEventPublishAdapter(stringRedisTemplate, objectMapper);
+            new RedisSseEventPublishAdapter(stringRedisTemplate, objectMapper);
         UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(9L);
 
         // when
@@ -34,7 +34,7 @@ class SseEventWireFormatRoundTripTest {
         // then
         ArgumentCaptor<String> wireCaptor = ArgumentCaptor.forClass(String.class);
         verify(stringRedisTemplate)
-                .convertAndSend(eq(SSE_NOTIFICATION_EVENTS_CHANNEL), wireCaptor.capture());
+            .convertAndSend(eq(SSE_NOTIFICATION_EVENTS_CHANNEL), wireCaptor.capture());
         String wire = wireCaptor.getValue();
 
         SseEventMessage restored = objectMapper.readValue(wire, SseEventMessage.class);

@@ -9,33 +9,33 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetSettlementResponse(
-        Long id,
-        Long sellerId,
-        Integer year,
-        Integer month,
-        Long totalAllocatedAmount,
-        Long shippingFee,
-        Long pgFeeAmount,
-        Long platformFeeAmount,
-        Long sellerPayoutAmount,
-        SettlementStatus status,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt
+    Long id,
+    Long sellerId,
+    Integer year,
+    Integer month,
+    Long totalAllocatedAmount,
+    Long shippingFee,
+    Long pgFeeAmount,
+    Long platformFeeAmount,
+    Long sellerPayoutAmount,
+    SettlementStatus status,
+    LocalDateTime createdAt,
+    LocalDateTime modifiedAt
 ) {
     public static GetSettlementResponse from(GetSettlementResult result) {
         return GetSettlementResponse.builder()
-                .id(result.id())
-                .sellerId(result.sellerId())
-                .year(result.year())
-                .month(result.month())
-                .totalAllocatedAmount(result.totalAllocatedAmount())
-                .shippingFee(result.shippingFee())
-                .pgFeeAmount(result.pgFeeAmount())
-                .platformFeeAmount(result.platformFeeAmount())
-                .sellerPayoutAmount(result.sellerPayoutAmount())
-                .status(result.status())
-                .createdAt(result.createdAt())
-                .modifiedAt(result.modifiedAt())
-                .build();
+            .id(result.id())
+            .sellerId(result.sellerId())
+            .year(result.year())
+            .month(result.month())
+            .totalAllocatedAmount(result.totalAllocatedAmount())
+            .shippingFee(result.shippingFee())
+            .pgFeeAmount(result.pgFeeAmount())
+            .platformFeeAmount(result.platformFeeAmount())
+            .sellerPayoutAmount(result.sellerPayoutAmount())
+            .status(result.status())
+            .createdAt(result.createdAt())
+            .modifiedAt(result.modifiedAt())
+            .build();
     }
 }

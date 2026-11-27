@@ -12,9 +12,9 @@ class BrandTalkTemplateStatusTest {
 
     @ParameterizedTest
     @CsvSource({
-            "O, NORMAL, 정상",
-            "S, STOPPED, 중단",
-            "R, WAITING, 대기"
+        "O, NORMAL, 정상",
+        "S, STOPPED, 중단",
+        "R, WAITING, 대기"
     })
     @DisplayName("BrandTalkTemplateStatus.from — 유효 코드(O/S/R)를 Enum으로 변환한다")
     void shouldConvertValidCodes(String code, String expectedName, String expectedDescription) {
@@ -31,15 +31,15 @@ class BrandTalkTemplateStatusTest {
     @DisplayName("BrandTalkTemplateStatus.from — 무효 코드 시 InvalidBrandTalkTemplateStatusException이 발생한다")
     void shouldThrowExceptionForInvalidCode() {
         assertThatThrownBy(() -> BrandTalkTemplateStatus.from("Z"))
-                .isInstanceOf(InvalidBrandTalkTemplateStatusException.class)
-                .hasMessageContaining("알 수 없는 브랜드메시지 템플릿 상태");
+            .isInstanceOf(InvalidBrandTalkTemplateStatusException.class)
+            .hasMessageContaining("알 수 없는 브랜드메시지 템플릿 상태");
     }
 
     @Test
     @DisplayName("BrandTalkTemplateStatus.from — null 코드 시 InvalidBrandTalkTemplateStatusException이 발생한다")
     void shouldThrowExceptionForNullCode() {
         assertThatThrownBy(() -> BrandTalkTemplateStatus.from(null))
-                .isInstanceOf(InvalidBrandTalkTemplateStatusException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateStatusException.class);
     }
 
     @Test

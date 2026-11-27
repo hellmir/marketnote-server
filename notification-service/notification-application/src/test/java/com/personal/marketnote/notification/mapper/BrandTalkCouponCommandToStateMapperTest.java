@@ -21,12 +21,12 @@ class BrandTalkCouponCommandToStateMapperTest {
     @DisplayName("Coupon Command가 있으면 BrandTalkCoupon 도메인으로 매핑된다")
     void mapsCouponCommand() {
         BrandTalkCouponCommand command = new BrandTalkCouponCommand(
-                "10% 할인 쿠폰",
-                "회원 전용 혜택",
-                "https://m.example.com",
-                "https://pc.example.com",
-                "iosapp://coupon",
-                "androidapp://coupon"
+            "10% 할인 쿠폰",
+            "회원 전용 혜택",
+            "https://m.example.com",
+            "https://pc.example.com",
+            "iosapp://coupon",
+            "androidapp://coupon"
         );
 
         BrandTalkCoupon coupon = BrandTalkCouponCommandToStateMapper.mapCoupon(command);

@@ -25,8 +25,8 @@ class CommunitySwaggerConfigTest {
     @BeforeEach
     void setUp() {
         config = new CommunitySwaggerConfig(
-                mock(Environment.class),
-                new SwaggerOrigin("https", "marketnote.store")
+            mock(Environment.class),
+            new SwaggerOrigin("https", "marketnote.store")
         );
         sorter = config.tagOnlySorter();
     }
@@ -61,24 +61,24 @@ class CommunitySwaggerConfigTest {
         void sortsKnownTagsByPredefinedOrder() {
             OpenAPI openApi = new OpenAPI();
             openApi.setTags(new ArrayList<>(List.of(
-                    new Tag().name("리뷰 API"),
-                    new Tag().name("게시판 API"),
-                    new Tag().name("좋아요 API"),
-                    new Tag().name("게시글 API"),
-                    new Tag().name("서버 정보 API"),
-                    new Tag().name("신고 API")
+                new Tag().name("리뷰 API"),
+                new Tag().name("게시판 API"),
+                new Tag().name("좋아요 API"),
+                new Tag().name("게시글 API"),
+                new Tag().name("서버 정보 API"),
+                new Tag().name("신고 API")
             )));
 
             sorter.customise(openApi);
 
             List<String> sortedNames = openApi.getTags().stream().map(Tag::getName).toList();
             assertThat(sortedNames).containsExactly(
-                    "게시판 API",
-                    "게시글 API",
-                    "리뷰 API",
-                    "좋아요 API",
-                    "신고 API",
-                    "서버 정보 API"
+                "게시판 API",
+                "게시글 API",
+                "리뷰 API",
+                "좋아요 API",
+                "신고 API",
+                "서버 정보 API"
             );
         }
 
@@ -87,20 +87,20 @@ class CommunitySwaggerConfigTest {
         void placesUnknownTagsAfterKnownPreservingOriginalOrder() {
             OpenAPI openApi = new OpenAPI();
             openApi.setTags(new ArrayList<>(List.of(
-                    new Tag().name("커스텀 B"),
-                    new Tag().name("리뷰 API"),
-                    new Tag().name("커스텀 A"),
-                    new Tag().name("게시판 API")
+                new Tag().name("커스텀 B"),
+                new Tag().name("리뷰 API"),
+                new Tag().name("커스텀 A"),
+                new Tag().name("게시판 API")
             )));
 
             sorter.customise(openApi);
 
             List<String> sortedNames = openApi.getTags().stream().map(Tag::getName).toList();
             assertThat(sortedNames).containsExactly(
-                    "게시판 API",
-                    "리뷰 API",
-                    "커스텀 B",
-                    "커스텀 A"
+                "게시판 API",
+                "리뷰 API",
+                "커스텀 B",
+                "커스텀 A"
             );
         }
 
@@ -109,9 +109,9 @@ class CommunitySwaggerConfigTest {
         void preservesOriginalOrderWhenAllUnknown() {
             OpenAPI openApi = new OpenAPI();
             openApi.setTags(new ArrayList<>(List.of(
-                    new Tag().name("Z"),
-                    new Tag().name("A"),
-                    new Tag().name("M")
+                new Tag().name("Z"),
+                new Tag().name("A"),
+                new Tag().name("M")
             )));
 
             sorter.customise(openApi);

@@ -31,12 +31,12 @@ public class EventRegisteredNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.EVENT_REGISTERED,
-            groupId = "notification-event-registered"
+        topics = KafkaTopicConstants.EVENT_REGISTERED,
+        groupId = "notification-event-registered"
     )
     public void handleEventRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -53,10 +53,10 @@ public class EventRegisteredNotificationConsumer {
         EventRegisteredEvent payload = envelope.getPayloadAs(EventRegisteredEvent.class, objectMapper);
 
         log.info("이벤트 등록 이벤트 수신 (알림 발송). eventId={}, postId={}, title={}",
-                envelope.eventId(), payload.postId(), payload.title());
+            envelope.eventId(), payload.postId(), payload.title());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("postId", payload.postId()))) {
+            EventPayloadValidator.id("postId", payload.postId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -71,30 +71,30 @@ public class EventRegisteredNotificationConsumer {
             List<Long> allUserIds = findNotificationPreferencePort.findAllDistinctUserIds();
 
             Map<String, String> variables = Map.of(
-                    "post_id", String.valueOf(payload.postId()),
-                    "event_title", payload.title()
+                "post_id", String.valueOf(payload.postId()),
+                "event_title", payload.title()
             );
 
             for (int i = 0; i < allUserIds.size(); i += MAX_BATCH_SIZE) {
                 List<Long> batchUserIds = allUserIds.subList(i, Math.min(i + MAX_BATCH_SIZE, allUserIds.size()));
 
                 SendBatchNotificationCommand command = new SendBatchNotificationCommand(
-                        batchUserIds,
-                        "EVENT_REGISTERED",
-                        variables,
-                        "PUSH_AND_IN_APP",
-                        null
+                    batchUserIds,
+                    "EVENT_REGISTERED",
+                    variables,
+                    "PUSH_AND_IN_APP",
+                    null
                 );
                 sendBatchNotificationUseCase.sendBatchNotification(command);
 
                 log.info("이벤트 알림 배치 발송 완료. postId={}, batchIndex={}, batchSize={}",
-                        payload.postId(), i / MAX_BATCH_SIZE, batchUserIds.size());
+                    payload.postId(), i / MAX_BATCH_SIZE, batchUserIds.size());
             }
 
             log.info("이벤트 알림 전체 발송 완료. postId={}, totalUsers={}", payload.postId(), allUserIds.size());
         } catch (Exception e) {
             log.error("이벤트 알림 발송 실패. eventId={}, postId={}, error={}",
-                    envelope.eventId(), payload.postId(), e.getMessage(), e);
+                envelope.eventId(), payload.postId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

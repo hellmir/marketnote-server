@@ -66,7 +66,7 @@ class PaymentControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -85,16 +85,16 @@ class PaymentControllerTest {
 
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             ReadyPaymentResult result = ReadyPaymentResult.builder()
-                    .orderKey("ORDER_KEY_1")
-                    .approvalKey("APPROVAL_KEY_1")
-                    .payUrl("https://pg.test/pay")
-                    .traceNo("TRACE_1")
-                    .build();
+                .orderKey("ORDER_KEY_1")
+                .approvalKey("APPROVAL_KEY_1")
+                .payUrl("https://pg.test/pay")
+                .traceNo("TRACE_1")
+                .build();
             when(readyPaymentUseCase.ready(any(ReadyPaymentCommand.class))).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<ReadyPaymentResponse>> response =
-                    paymentController.readyPayment(principal, request);
+                paymentController.readyPayment(principal, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -126,19 +126,19 @@ class PaymentControllerTest {
 
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             ApprovePaymentResult result = ApprovePaymentResult.builder()
-                    .orderId(1L)
-                    .orderKey("ORDER_KEY_1")
-                    .pgPaymentKey("PG_KEY_1")
-                    .amount(10_000L)
-                    .resultCode("0000")
-                    .resultMessage("정상 승인")
-                    .payMethod("CARD")
-                    .build();
+                .orderId(1L)
+                .orderKey("ORDER_KEY_1")
+                .pgPaymentKey("PG_KEY_1")
+                .amount(10_000L)
+                .resultCode("0000")
+                .resultMessage("정상 승인")
+                .payMethod("CARD")
+                .build();
             when(approvePaymentUseCase.approve(any(ApprovePaymentCommand.class))).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<ApprovePaymentResponse>> response =
-                    paymentController.approvePayment(principal, request);
+                paymentController.approvePayment(principal, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -161,19 +161,19 @@ class PaymentControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             String orderKey = "ORDER_KEY_1";
             GetPaymentResult result = GetPaymentResult.builder()
-                    .orderId(1L)
-                    .orderKey(orderKey)
-                    .paymentAmount(10_000L)
-                    .successYn(true)
-                    .refundedYn(false)
-                    .refundAmount(0L)
-                    .pgPaymentKey("PG_KEY_1")
-                    .build();
+                .orderId(1L)
+                .orderKey(orderKey)
+                .paymentAmount(10_000L)
+                .successYn(true)
+                .refundedYn(false)
+                .refundAmount(0L)
+                .pgPaymentKey("PG_KEY_1")
+                .build();
             when(getPaymentUseCase.getPayment(200L, orderKey)).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetPaymentResponse>> response =
-                    paymentController.getPayment(principal, orderKey);
+                paymentController.getPayment(principal, orderKey);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -204,7 +204,7 @@ class PaymentControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    paymentController.cancelPayment(principal, orderKey, idempotencyKey, request);
+                paymentController.cancelPayment(principal, orderKey, idempotencyKey, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -227,22 +227,22 @@ class PaymentControllerTest {
             // given
             Long orderId = 1L;
             GetAdminRefundResult result = GetAdminRefundResult.builder()
-                    .id(10L)
-                    .paymentId(20L)
-                    .orderId(orderId)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(10_000L)
-                    .cancelReason("단순 변심")
-                    .processedBy("ADMIN_1")
-                    .pgRefundKey("PG_REFUND_1")
-                    .pgRawResponse("{}")
-                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                    .build();
+                .id(10L)
+                .paymentId(20L)
+                .orderId(orderId)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(10_000L)
+                .cancelReason("단순 변심")
+                .processedBy("ADMIN_1")
+                .pgRefundKey("PG_REFUND_1")
+                .pgRawResponse("{}")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .build();
             when(getAdminRefundsUseCase.getRefundsByOrderId(orderId)).thenReturn(List.of(result));
 
             // when
             ResponseEntity<BaseResponse<List<GetAdminRefundResponse>>> response =
-                    paymentController.getRefundsByOrderId(orderId);
+                paymentController.getRefundsByOrderId(orderId);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

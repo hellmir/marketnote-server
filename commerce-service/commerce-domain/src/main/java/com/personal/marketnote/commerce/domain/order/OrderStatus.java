@@ -179,17 +179,17 @@ public enum OrderStatus {
 
     public boolean isNotPartialChanged() {
         return this != PARTIALLY_CONFIRMED
-                && this != PARTIALLY_RETURNED
-                && this != PARTIALLY_CANCELLED
-                && this != PARTIALLY_CANCEL_REQUESTED
-                && this != PARTIALLY_RETURN_REQUESTED;
+            && this != PARTIALLY_RETURNED
+            && this != PARTIALLY_CANCELLED
+            && this != PARTIALLY_CANCEL_REQUESTED
+            && this != PARTIALLY_RETURN_REQUESTED;
     }
 
     public boolean isReviewable() {
         return this == DELIVERED
-                || this == PARTIALLY_CONFIRMED
-                || this == CONFIRMED
-                || this == PARTIALLY_RETURNED
-                || this == RETURNED;
+            || this == PARTIALLY_CONFIRMED
+            || this == CONFIRMED
+            || this == PARTIALLY_RETURNED
+            || this == RETURNED;
     }
 }

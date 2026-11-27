@@ -95,24 +95,24 @@ public class PaymentCancelTransactionHelper {
     public PaymentCancelContext prepareCancel(CancelPaymentCommand command) {
         UUID orderKeyUuid = UUID.fromString(command.orderKey());
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                return new PaymentNotFoundException();
+            });
 
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
 
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                return new PaymentNotFoundException();
+            });
 
         String transactionNumber = event.getPgPaymentKey();
         boolean isFullCancel = command.isFullCancel();
         String modType = isFullCancel
-                ? PSP_FULL_CANCEL_TYPE_CODE
-                : PSP_PARTIAL_CANCEL_TYPE_CODE;
+            ? PSP_FULL_CANCEL_TYPE_CODE
+            : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
         Long alreadyRefunded = payment.getRefundAmount().getValue();
         Long refundableAmount = Math.subtractExact(payment.getPaymentAmount().getValue(), alreadyRefunded);
@@ -136,25 +136,25 @@ public class PaymentCancelTransactionHelper {
                 adjustedCancelAmount = 0L;
             }
             adjustedCancelReason = command.cancelReason()
-                    + " (무료 배송 기준 미달로 인한 배송비 차감 " + shippingFeeDeduction + "원)";
+                + " (무료 배송 기준 미달로 인한 배송비 차감 " + shippingFeeDeduction + "원)";
             log.info("부분 취소 배송비 재계산 - orderId: {}, 원래 환불액: {}, 배송비 차감: {}, 조정 환불액: {}",
-                    order.getId(), cancelAmount, shippingFeeDeduction, adjustedCancelAmount);
+                order.getId(), cancelAmount, shippingFeeDeduction, adjustedCancelAmount);
         }
 
         Long remainAmount = Math.subtractExact(refundableAmount, adjustedCancelAmount);
         String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
 
         PaymentCancelComputation computation = PaymentCancelComputation.of(
-                cancelAmount,
-                adjustedCancelAmount,
-                remainAmount,
-                alreadyRefunded,
-                shippingFeeDeduction,
-                isFullCancel,
-                adjustedCancelReason,
-                cancelId,
-                transactionNumber,
-                modType
+            cancelAmount,
+            adjustedCancelAmount,
+            remainAmount,
+            alreadyRefunded,
+            shippingFeeDeduction,
+            isFullCancel,
+            adjustedCancelReason,
+            cancelId,
+            transactionNumber,
+            modType
         );
         return PaymentCancelContextMapper.from(payment, event, order, command, computation);
     }
@@ -187,23 +187,23 @@ public class PaymentCancelTransactionHelper {
      * refundAmount 누적. @Version 충돌 시 {@link Retryable}로 최대 3회 재시도.</p>
      */
     @Retryable(
-            retryFor = OptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+        retryFor = OptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitPaymentAndPostProcess(PaymentCancelContext context, PaymentCancelVendorResult vendorResult) {
         int retryCount = resolveRetryCount();
         if (retryCount > 0) {
             log.warn("결제 취소 재시도 진입 - orderKey: {}, attempt: {}/3",
-                    context.originalCommand().orderKey(), retryCount + 1);
+                context.originalCommand().orderKey(), retryCount + 1);
         }
 
         Payment payment = findPaymentPort.findByOrderKey(context.payment().getOrderKey())
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", context.originalCommand().orderKey());
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", context.originalCommand().orderKey());
+                return new PaymentNotFoundException();
+            });
         Order order = context.order();
         CancelPaymentCommand command = context.originalCommand();
         boolean isFullCancel = context.isFullCancel();
@@ -226,24 +226,24 @@ public class PaymentCancelTransactionHelper {
         if (!isFullCancel) {
             restorePartialCancelInventory(order, command);
             partialProductPendingDeduction = resolveDeductionPoint(
-                    order.getOrderProducts(), command, payment.getPaymentAmount().getValue(), context.cancelAmount());
+                order.getOrderProducts(), command, payment.getPaymentAmount().getValue(), context.cancelAmount());
             Long buyerId = order.getBuyerId();
             Long orderId = order.getId();
             Long precomputedDeduction = partialProductPendingDeduction;
             runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(buyerId, orderId, precomputedDeduction));
             runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
-                    order, payment.getPaymentAmount().getValue(), context.cancelAmount()));
+                order, payment.getPaymentAmount().getValue(), context.cancelAmount()));
         }
 
         List<OrderProduct> cancelTargetProducts = resolveCancelProducts(isFullCancel, command);
 
         // [#929][#1034] 결제 취소 역분개는 Kafka Consumer(PaymentCancelledLedgerConsumer)로 전환 완료
         publishPaymentCancelledEvent(
-                order.getId(), command.orderKey(), order.getBuyerId(), context.cancelAmount(),
-                payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(),
-                isFullCancel, context.alreadyRefunded(),
-                context.cancelId(), order.getOrderProducts(), cancelTargetProducts,
-                partialProductPendingDeduction
+            order.getId(), command.orderKey(), order.getBuyerId(), context.cancelAmount(),
+            payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(),
+            isFullCancel, context.alreadyRefunded(),
+            context.cancelId(), order.getOrderProducts(), cancelTargetProducts,
+            partialProductPendingDeduction
         );
     }
 
@@ -255,20 +255,20 @@ public class PaymentCancelTransactionHelper {
      */
     @Recover
     public void recoverCommitPaymentAndPostProcess(
-            OptimisticLockingFailureException ex,
-            PaymentCancelContext context,
-            PaymentCancelVendorResult vendorResult
+        OptimisticLockingFailureException ex,
+        PaymentCancelContext context,
+        PaymentCancelVendorResult vendorResult
     ) {
         String orderKey = context.originalCommand().orderKey();
         log.error(
-                "결제 취소 재시도 3회 소진 - 수동 복구 필요. orderKey: {}, cancelAmount: {}, isFullCancel: {}, "
-                        + "PSP Event: {} 커밋 완료(pgPaymentKey: {}), payment/refund/재고/포인트/Outbox 수동 보정 필요",
-                orderKey,
-                context.adjustedCancelAmount(),
-                context.isFullCancel(),
-                context.isFullCancel() ? "cancel" : "partialRefund",
-                context.transactionNumber(),
-                ex
+            "결제 취소 재시도 3회 소진 - 수동 복구 필요. orderKey: {}, cancelAmount: {}, isFullCancel: {}, "
+                + "PSP Event: {} 커밋 완료(pgPaymentKey: {}), payment/refund/재고/포인트/Outbox 수동 보정 필요",
+            orderKey,
+            context.adjustedCancelAmount(),
+            context.isFullCancel(),
+            context.isFullCancel() ? "cancel" : "partialRefund",
+            context.transactionNumber(),
+            ex
         );
         throw new PaymentCancelRetryExhaustedException(orderKey, ex);
     }
@@ -306,20 +306,20 @@ public class PaymentCancelTransactionHelper {
         restorePartialCancelInventory(order, command);
 
         Long pgSkipDeduction = resolveDeductionPoint(
-                order.getOrderProducts(), command, payment.getPaymentAmount().getValue(), context.cancelAmount());
+            order.getOrderProducts(), command, payment.getPaymentAmount().getValue(), context.cancelAmount());
         Long pgSkipBuyerId = order.getBuyerId();
         Long pgSkipOrderId = order.getId();
         runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
-                pgSkipBuyerId, pgSkipOrderId, pgSkipDeduction));
+            pgSkipBuyerId, pgSkipOrderId, pgSkipDeduction));
         runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
-                order, payment.getPaymentAmount().getValue(), context.cancelAmount()));
+            order, payment.getPaymentAmount().getValue(), context.cancelAmount()));
 
         List<OrderProduct> pgSkipCancelProducts = resolveCancelProducts(context.isFullCancel(), command);
         publishPaymentCancelledEvent(
-                order.getId(), command.orderKey(), order.getBuyerId(), 0L,
-                payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(),
-                context.isFullCancel(), context.alreadyRefunded(),
-                UUID.randomUUID().toString(), order.getOrderProducts(), pgSkipCancelProducts, pgSkipDeduction
+            order.getId(), command.orderKey(), order.getBuyerId(), 0L,
+            payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(),
+            context.isFullCancel(), context.alreadyRefunded(),
+            UUID.randomUUID().toString(), order.getOrderProducts(), pgSkipCancelProducts, pgSkipDeduction
         );
     }
 
@@ -335,8 +335,8 @@ public class PaymentCancelTransactionHelper {
 
         if (partialCancelAmount > refundableAmount) {
             log.warn(
-                    "취소 금액이 환불 가능 금액을 초과합니다. partialCancelAmount={}, refundableAmount={}",
-                    partialCancelAmount, refundableAmount
+                "취소 금액이 환불 가능 금액을 초과합니다. partialCancelAmount={}, refundableAmount={}",
+                partialCancelAmount, refundableAmount
             );
             throw InvalidCancelAmountException.exceedsRefundable();
         }
@@ -345,18 +345,18 @@ public class PaymentCancelTransactionHelper {
     }
 
     private void saveRefundRecord(
-            Payment payment, boolean isFullCancel, Long cancelAmount,
-            String cancelReason, PaymentCancelVendorResult vendorResult
+        Payment payment, boolean isFullCancel, Long cancelAmount,
+        String cancelReason, PaymentCancelVendorResult vendorResult
     ) {
         RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
         RefundCreateState createState = RefundCreateState.withPg(
-                payment.getId(),
-                payment.getOrderId(),
-                refundType,
-                cancelAmount,
-                cancelReason,
-                payment.getPgPaymentKey(),
-                vendorResult.rawResponse()
+            payment.getId(),
+            payment.getOrderId(),
+            refundType,
+            cancelAmount,
+            cancelReason,
+            payment.getPgPaymentKey(),
+            vendorResult.rawResponse()
         );
         Refund refund = Refund.from(createState);
         saveRefundPort.save(refund);
@@ -370,43 +370,43 @@ public class PaymentCancelTransactionHelper {
             }
 
             Map<Long, Long> initialShippingFeeBySellerIdMap = allocations.stream()
-                    .collect(Collectors.toMap(
-                            PaymentAllocation::getSellerId,
-                            allocation -> allocation.getShippingFee().getValue(),
-                            (existing, replacement) -> existing
-                    ));
+                .collect(Collectors.toMap(
+                    PaymentAllocation::getSellerId,
+                    allocation -> allocation.getShippingFee().getValue(),
+                    (existing, replacement) -> existing
+                ));
 
             Map<Long, Long> sellerTotalAmounts = order.getOrderProducts().stream()
-                    .collect(Collectors.groupingBy(
-                            OrderProduct::getSellerId,
-                            Collectors.summingLong(
-                                    op -> op.getUnitAmount().multiply(op.getQuantity().getValue()).getValue()
-                            )
-                    ));
+                .collect(Collectors.groupingBy(
+                    OrderProduct::getSellerId,
+                    Collectors.summingLong(
+                        op -> op.getUnitAmount().multiply(op.getQuantity().getValue()).getValue()
+                    )
+                ));
 
             Map<Long, Long> sellerCancelAmounts = command.cancelProducts().stream()
-                    .collect(Collectors.groupingBy(
-                            item -> resolveSellerIdForCancelProduct(order, item.pricePolicyId()),
-                            Collectors.summingLong(item -> {
-                                OrderProduct orderProduct = findOrderProductByPricePolicyId(
-                                        order, item.pricePolicyId()
-                                );
-                                return orderProduct.getUnitAmount().multiply(item.quantity().longValue()).getValue();
-                            })
-                    ));
+                .collect(Collectors.groupingBy(
+                    item -> resolveSellerIdForCancelProduct(order, item.pricePolicyId()),
+                    Collectors.summingLong(item -> {
+                        OrderProduct orderProduct = findOrderProductByPricePolicyId(
+                            order, item.pricePolicyId()
+                        );
+                        return orderProduct.getUnitAmount().multiply(item.quantity().longValue()).getValue();
+                    })
+                ));
 
             List<Long> targetSellerIds = initialShippingFeeBySellerIdMap.entrySet().stream()
-                    .filter(entry -> entry.getValue() == 0L)
-                    .map(Map.Entry::getKey)
-                    .filter(sellerCancelAmounts::containsKey)
-                    .toList();
+                .filter(entry -> entry.getValue() == 0L)
+                .map(Map.Entry::getKey)
+                .filter(sellerCancelAmounts::containsKey)
+                .toList();
 
             if (targetSellerIds.isEmpty()) {
                 return 0L;
             }
 
             Map<Long, ShippingPolicyInfoResult> shippingPolicies =
-                    findShippingPolicyBySellerIdsPort.findBySellerIds(targetSellerIds);
+                findShippingPolicyBySellerIdsPort.findBySellerIds(targetSellerIds);
 
             long totalDeduction = 0L;
             for (Long sellerId : targetSellerIds) {
@@ -420,8 +420,8 @@ public class PaymentCancelTransactionHelper {
                 long remainingAmount = Math.subtractExact(sellerTotal, sellerCancel);
 
                 ShippingFeeContext context = ShippingFeeContext.of(
-                        Money.of(remainingAmount), Money.of(policy.shippingFee()),
-                        Money.of(policy.freeShippingThreshold())
+                    Money.of(remainingAmount), Money.of(policy.shippingFee()),
+                    Money.of(policy.freeShippingThreshold())
                 );
                 long baseFee = ShippingFeeCalculator.calculateBaseFee(context).getValue();
                 totalDeduction = Math.addExact(totalDeduction, baseFee);
@@ -436,31 +436,31 @@ public class PaymentCancelTransactionHelper {
 
     private Long resolveSellerIdForCancelProduct(Order order, Long pricePolicyId) {
         return order.getOrderProducts().stream()
-                .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
-                .map(OrderProduct::getSellerId)
-                .findFirst()
-                .orElse(0L);
+            .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
+            .map(OrderProduct::getSellerId)
+            .findFirst()
+            .orElse(0L);
     }
 
     private OrderProduct findOrderProductByPricePolicyId(Order order, Long pricePolicyId) {
         return order.getOrderProducts().stream()
-                .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
-                .findFirst()
-                .orElseThrow(() -> {
-                    log.warn("주문에 존재하지 않는 상품입니다. pricePolicyId={}", pricePolicyId);
-                    return InvalidCancelProductException.productNotInOrder();
-                });
+            .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
+            .findFirst()
+            .orElseThrow(() -> {
+                log.warn("주문에 존재하지 않는 상품입니다. pricePolicyId={}", pricePolicyId);
+                return InvalidCancelProductException.productNotInOrder();
+            });
     }
 
     private void saveRefundRecordWithoutPg(
-            Payment payment, Long originalCancelAmount, long shippingFeeDeduction, String cancelReason
+        Payment payment, Long originalCancelAmount, long shippingFeeDeduction, String cancelReason
     ) {
         RefundCreateState createState = RefundCreateState.withoutPg(
-                payment.getId(),
-                payment.getOrderId(),
-                RefundType.PARTIAL_REFUND,
-                0L,
-                cancelReason
+            payment.getId(),
+            payment.getOrderId(),
+            RefundType.PARTIAL_REFUND,
+            0L,
+            cancelReason
         );
         Refund refund = Refund.from(createState);
         saveRefundPort.save(refund);
@@ -468,21 +468,21 @@ public class PaymentCancelTransactionHelper {
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
         return findOrderPort.findById(orderId)
-                .orElseThrow(() -> {
-                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
-                    return new OrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                return new OrderNotFoundException();
+            });
     }
 
     private void restoreInventory(Order order) {
         try {
             restoreProductInventoryUseCase.restore(
-                    order.getOrderProducts(), order.getId(), "주문 전액 취소에 의한 재고 복구"
+                order.getOrderProducts(), order.getId(), "주문 전액 취소에 의한 재고 복구"
             );
         } catch (Exception e) {
             // boundary swallow: 전액 취소 재고 복구 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("재고 복구 실패 - orderId: {}, error: {}",
-                    order.getId(), e.getMessage(), e);
+                order.getId(), e.getMessage(), e);
         }
     }
 
@@ -493,38 +493,38 @@ public class PaymentCancelTransactionHelper {
 
         try {
             List<OrderProduct> cancelTargetProducts = command.cancelProducts().stream()
-                    .map(item -> OrderProduct.from(OrderProductSnapshotState.forInventoryRestore(
-                            item.pricePolicyId(), item.quantity()
-                    )))
-                    .toList();
+                .map(item -> OrderProduct.from(OrderProductSnapshotState.forInventoryRestore(
+                    item.pricePolicyId(), item.quantity()
+                )))
+                .toList();
             restoreProductInventoryUseCase.restore(cancelTargetProducts, order.getId(), "주문 부분 취소에 의한 재고 복구");
         } catch (Exception e) {
             // boundary swallow: 부분 취소 재고 복구 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 재고 복구 실패 - orderId: {}, error: {}",
-                    order.getId(), e.getMessage(), e);
+                order.getId(), e.getMessage(), e);
         }
     }
 
     private void validateCancelProducts(Order order, List<CancelPaymentCommand.CancelProductItem> cancelProducts) {
         long distinctCount = cancelProducts.stream()
-                .map(CancelPaymentCommand.CancelProductItem::pricePolicyId)
-                .distinct()
-                .count();
+            .map(CancelPaymentCommand.CancelProductItem::pricePolicyId)
+            .distinct()
+            .count();
         if (distinctCount != cancelProducts.size()) {
             log.warn("중복된 상품이 포함되어 있습니다. cancelProductsSize={}", cancelProducts.size());
             throw InvalidCancelProductException.duplicateProduct();
         }
 
         Map<Long, Integer> orderQuantityByPricePolicyId = order.getOrderProducts().stream()
-                .collect(Collectors.toMap(
-                        OrderProduct::getPricePolicyId, op -> op.getQuantity().getValue(), Integer::sum
-                ));
+            .collect(Collectors.toMap(
+                OrderProduct::getPricePolicyId, op -> op.getQuantity().getValue(), Integer::sum
+            ));
 
         for (CancelPaymentCommand.CancelProductItem item : cancelProducts) {
             if (FormatValidator.hasNoValue(item.quantity()) || item.quantity() <= 0) {
                 log.warn(
-                        "취소 수량이 1 미만입니다. pricePolicyId={}, quantity={}",
-                        item.pricePolicyId(), item.quantity()
+                    "취소 수량이 1 미만입니다. pricePolicyId={}, quantity={}",
+                    item.pricePolicyId(), item.quantity()
                 );
                 throw InvalidCancelProductException.invalidQuantity();
             }
@@ -535,8 +535,8 @@ public class PaymentCancelTransactionHelper {
             }
             if (item.quantity() > orderQuantity) {
                 log.warn(
-                        "취소 수량이 주문 수량을 초과합니다. pricePolicyId={}, orderQuantity={}, cancelQuantity={}",
-                        item.pricePolicyId(), orderQuantity, item.quantity()
+                    "취소 수량이 주문 수량을 초과합니다. pricePolicyId={}, orderQuantity={}, cancelQuantity={}",
+                    item.pricePolicyId(), orderQuantity, item.quantity()
                 );
                 throw InvalidCancelProductException.quantityExceedsOrder();
             }
@@ -545,10 +545,10 @@ public class PaymentCancelTransactionHelper {
 
     private List<UUID> extractSharerKeys(Order order) {
         return order.getOrderProducts().stream()
-                .map(OrderProduct::getSharerKey)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+            .map(OrderProduct::getSharerKey)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     }
 
     private void reducePartialPendingSharedPurchasePoints(Order order, Long paymentAmount, Long cancelAmount) {
@@ -559,16 +559,16 @@ public class PaymentCancelTransactionHelper {
 
         try {
             modifyUserPointPort.reducePartialPendingSharedPurchasePoints(
-                    sharerKeys, paymentAmount, cancelAmount, order.getId());
+                sharerKeys, paymentAmount, cancelAmount, order.getId());
         } catch (Exception e) {
             // boundary swallow: 부분 취소 공유 적립 예정 포인트 차감 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 공유 적립 예정 포인트 차감 실패 - orderId: {}, sharerKeys: {}, error: {}",
-                    order.getId(), sharerKeys, e.getMessage(), e);
+                order.getId(), sharerKeys, e.getMessage(), e);
         }
     }
 
     private void reducePartialPendingProductAccumulationPoints(
-            Long buyerId, Long orderId, Long precomputedDeduction
+        Long buyerId, Long orderId, Long precomputedDeduction
     ) {
         try {
             if (FormatValidator.hasNoValue(precomputedDeduction) || precomputedDeduction <= 0) {
@@ -579,26 +579,26 @@ public class PaymentCancelTransactionHelper {
         } catch (Exception e) {
             // boundary swallow: 부분 취소 상품 적립 예정 포인트 차감 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 상품 적립 예정 포인트 차감 실패 - orderId: {}, buyerId: {}, error: {}",
-                    orderId, buyerId, e.getMessage(), e);
+                orderId, buyerId, e.getMessage(), e);
         }
     }
 
     private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts) {
         boolean allHaveSnapshot = orderProducts.stream()
-                .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
+            .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
         if (allHaveSnapshot) {
             long total = 0L;
             for (OrderProduct orderProduct : orderProducts) {
                 total = Math.addExact(total,
-                        orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+                    orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
                 );
             }
             return total;
         }
 
         List<Long> pricePolicyIds = orderProducts.stream()
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
+            .map(OrderProduct::getPricePolicyId)
+            .toList();
         Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
 
         long total = 0L;
@@ -612,7 +612,7 @@ public class PaymentCancelTransactionHelper {
                 continue;
             }
             total = Math.addExact(total,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+                Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
             );
         }
         return total;
@@ -649,15 +649,15 @@ public class PaymentCancelTransactionHelper {
         }
 
         return command.cancelProducts().stream()
-                .map(item -> OrderProduct.from(OrderProductSnapshotState.forInventoryRestore(
-                        item.pricePolicyId(), item.quantity()
-                )))
-                .toList();
+            .map(item -> OrderProduct.from(OrderProductSnapshotState.forInventoryRestore(
+                item.pricePolicyId(), item.quantity()
+            )))
+            .toList();
     }
 
     private Long resolveDeductionPoint(
-            List<OrderProduct> orderProducts, CancelPaymentCommand command,
-            Long paymentAmount, Long cancelAmount
+        List<OrderProduct> orderProducts, CancelPaymentCommand command,
+        Long paymentAmount, Long cancelAmount
     ) {
         try {
             Long snapshotDeduction = calculateSnapshotDeductionPoint(orderProducts, command);
@@ -679,13 +679,13 @@ public class PaymentCancelTransactionHelper {
         }
 
         Map<Long, OrderProduct> orderProductMap = orderProducts.stream()
-                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op, (a, b) -> a));
+            .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op, (a, b) -> a));
 
         long total = 0L;
         for (CancelPaymentCommand.CancelProductItem cancelItem : command.cancelProducts()) {
             OrderProduct orderProduct = orderProductMap.get(cancelItem.pricePolicyId());
             if (FormatValidator.hasNoValue(orderProduct)
-                    || FormatValidator.hasNoValue(orderProduct.getAccumulatedPoint())) {
+                || FormatValidator.hasNoValue(orderProduct.getAccumulatedPoint())) {
                 return null;
             }
             total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(cancelItem.quantity()).getValue());
@@ -695,7 +695,7 @@ public class PaymentCancelTransactionHelper {
     }
 
     private Long resolveProportionalDeductionPoint(
-            List<OrderProduct> orderProducts, Long paymentAmount, Long cancelAmount
+        List<OrderProduct> orderProducts, Long paymentAmount, Long cancelAmount
     ) {
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts);
         if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
@@ -711,23 +711,23 @@ public class PaymentCancelTransactionHelper {
     }
 
     private void publishPaymentCancelledEvent(
-            Long orderId, String orderKey, Long buyerId,
-            Long cancelAmount, Long paymentAmount, Long pointAmount,
-            boolean isFullCancel, Long alreadyRefunded,
-            String cancelId,
-            List<OrderProduct> orderProducts,
-            List<OrderProduct> cancelProducts,
-            Long partialProductPendingDeduction
+        Long orderId, String orderKey, Long buyerId,
+        Long cancelAmount, Long paymentAmount, Long pointAmount,
+        boolean isFullCancel, Long alreadyRefunded,
+        String cancelId,
+        List<OrderProduct> orderProducts,
+        List<OrderProduct> cancelProducts,
+        Long partialProductPendingDeduction
     ) {
         try {
             publishPaymentEventPort.publishPaymentCancelledEvent(
-                    orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                    pointAmount, isFullCancel, alreadyRefunded, cancelId, orderProducts, cancelProducts,
-                    partialProductPendingDeduction);
+                orderId, orderKey, buyerId, cancelAmount, paymentAmount,
+                pointAmount, isFullCancel, alreadyRefunded, cancelId, orderProducts, cancelProducts,
+                partialProductPendingDeduction);
         } catch (Exception e) {
             // boundary swallow: 결제 취소 후속 이벤트 발행 실패 시에도 결제 취소 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
             log.error("결제 취소 이벤트 발행 실패 - orderId: {}, orderKey: {}, error: {}",
-                    orderId, orderKey, e.getMessage(), e);
+                orderId, orderKey, e.getMessage(), e);
         }
     }
 
@@ -742,7 +742,7 @@ public class PaymentCancelTransactionHelper {
         } catch (Exception e) {
             // boundary swallow: 포인트 환불 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("포인트 환불 실패 - orderId: {}, buyerId: {}, pointAmount: {}, error: {}",
-                    order.getId(), order.getBuyerId(), pointAmount, e.getMessage(), e);
+                order.getId(), order.getBuyerId(), pointAmount, e.getMessage(), e);
         }
     }
 }

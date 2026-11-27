@@ -37,97 +37,97 @@ public class FulfillmentShopMapper {
     private String useYn;
 
     public static FulfillmentShopMapper register(
-            String customerCode,
-            String accessToken,
-            String shopNm,
-            String cstShopCd,
-            String dealStrDt,
-            String dealEndDt,
-            String zipNo,
-            String addr1,
-            String addr2,
-            String ceoNm,
-            String busNo,
-            String telNo,
-            String unloadWay,
-            String checkWay,
-            String standYn,
-            String formType,
-            String empNm,
-            String empPosit,
-            String empTelNo,
-            String useYn
+        String customerCode,
+        String accessToken,
+        String shopNm,
+        String cstShopCd,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String telNo,
+        String unloadWay,
+        String checkWay,
+        String standYn,
+        String formType,
+        String empNm,
+        String empPosit,
+        String empTelNo,
+        String useYn
     ) {
         return create(
-                customerCode,
-                accessToken,
-                REGISTRATION_MARKETNOTE_CODE,
-                shopNm,
-                cstShopCd,
-                dealStrDt,
-                dealEndDt,
-                zipNo,
-                addr1,
-                addr2,
-                ceoNm,
-                busNo,
-                telNo,
-                unloadWay,
-                checkWay,
-                standYn,
-                formType,
-                empNm,
-                empPosit,
-                empTelNo,
-                useYn
+            customerCode,
+            accessToken,
+            REGISTRATION_MARKETNOTE_CODE,
+            shopNm,
+            cstShopCd,
+            dealStrDt,
+            dealEndDt,
+            zipNo,
+            addr1,
+            addr2,
+            ceoNm,
+            busNo,
+            telNo,
+            unloadWay,
+            checkWay,
+            standYn,
+            formType,
+            empNm,
+            empPosit,
+            empTelNo,
+            useYn
         );
     }
 
     public static FulfillmentShopMapper update(
-            String customerCode,
-            String accessToken,
-            String shopCd,
-            String shopNm,
-            String cstShopCd,
-            String dealStrDt,
-            String dealEndDt,
-            String zipNo,
-            String addr1,
-            String addr2,
-            String ceoNm,
-            String busNo,
-            String telNo,
-            String unloadWay,
-            String checkWay,
-            String standYn,
-            String formType,
-            String empNm,
-            String empPosit,
-            String empTelNo,
-            String useYn
+        String customerCode,
+        String accessToken,
+        String shopCd,
+        String shopNm,
+        String cstShopCd,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String telNo,
+        String unloadWay,
+        String checkWay,
+        String standYn,
+        String formType,
+        String empNm,
+        String empPosit,
+        String empTelNo,
+        String useYn
     ) {
         return create(
-                customerCode,
-                accessToken,
-                shopCd,
-                shopNm,
-                cstShopCd,
-                dealStrDt,
-                dealEndDt,
-                zipNo,
-                addr1,
-                addr2,
-                ceoNm,
-                busNo,
-                telNo,
-                unloadWay,
-                checkWay,
-                standYn,
-                formType,
-                empNm,
-                empPosit,
-                empTelNo,
-                useYn
+            customerCode,
+            accessToken,
+            shopCd,
+            shopNm,
+            cstShopCd,
+            dealStrDt,
+            dealEndDt,
+            zipNo,
+            addr1,
+            addr2,
+            ceoNm,
+            busNo,
+            telNo,
+            unloadWay,
+            checkWay,
+            standYn,
+            formType,
+            empNm,
+            empPosit,
+            empTelNo,
+            useYn
         );
     }
 
@@ -179,51 +179,51 @@ public class FulfillmentShopMapper {
     }
 
     private static FulfillmentShopMapper create(
-            String customerCode,
-            String accessToken,
-            String shopCd,
-            String shopNm,
-            String cstShopCd,
-            String dealStrDt,
-            String dealEndDt,
-            String zipNo,
-            String addr1,
-            String addr2,
-            String ceoNm,
-            String busNo,
-            String telNo,
-            String unloadWay,
-            String checkWay,
-            String standYn,
-            String formType,
-            String empNm,
-            String empPosit,
-            String empTelNo,
-            String useYn
+        String customerCode,
+        String accessToken,
+        String shopCd,
+        String shopNm,
+        String cstShopCd,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String telNo,
+        String unloadWay,
+        String checkWay,
+        String standYn,
+        String formType,
+        String empNm,
+        String empPosit,
+        String empTelNo,
+        String useYn
     ) {
         FulfillmentShopMapper mapper = FulfillmentShopMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .shopCd(shopCd)
-                .shopNm(shopNm)
-                .cstShopCd(cstShopCd)
-                .dealStrDt(dealStrDt)
-                .dealEndDt(dealEndDt)
-                .zipNo(zipNo)
-                .addr1(addr1)
-                .addr2(addr2)
-                .ceoNm(ceoNm)
-                .busNo(busNo)
-                .telNo(telNo)
-                .unloadWay(unloadWay)
-                .checkWay(checkWay)
-                .standYn(standYn)
-                .formType(formType)
-                .empNm(empNm)
-                .empPosit(empPosit)
-                .empTelNo(empTelNo)
-                .useYn(useYn)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .shopCd(shopCd)
+            .shopNm(shopNm)
+            .cstShopCd(cstShopCd)
+            .dealStrDt(dealStrDt)
+            .dealEndDt(dealEndDt)
+            .zipNo(zipNo)
+            .addr1(addr1)
+            .addr2(addr2)
+            .ceoNm(ceoNm)
+            .busNo(busNo)
+            .telNo(telNo)
+            .unloadWay(unloadWay)
+            .checkWay(checkWay)
+            .standYn(standYn)
+            .formType(formType)
+            .empNm(empNm)
+            .empPosit(empPosit)
+            .empTelNo(empTelNo)
+            .useYn(useYn)
+            .build();
         mapper.validate();
         return mapper;
     }

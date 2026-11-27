@@ -21,21 +21,21 @@ class CarrierCodeTest {
     @DisplayName("빈 문자열로 생성 시 CarrierCodeNoValueException 발생한다")
     void throwsExceptionWhenCarrierCodeIsEmpty() {
         assertThatThrownBy(() -> CarrierCode.of(""))
-                .isInstanceOf(CarrierCodeNoValueException.class);
+            .isInstanceOf(CarrierCodeNoValueException.class);
     }
 
     @Test
     @DisplayName("공백만 있는 문자열로 생성 시 CarrierCodeNoValueException 발생한다")
     void throwsExceptionWhenCarrierCodeIsBlank() {
         assertThatThrownBy(() -> CarrierCode.of("   "))
-                .isInstanceOf(CarrierCodeNoValueException.class);
+            .isInstanceOf(CarrierCodeNoValueException.class);
     }
 
     @Test
     @DisplayName("null로 생성 시 CarrierCodeNoValueException 발생한다")
     void throwsExceptionWhenCarrierCodeIsNull() {
         assertThatThrownBy(() -> CarrierCode.of(null))
-                .isInstanceOf(CarrierCodeNoValueException.class);
+            .isInstanceOf(CarrierCodeNoValueException.class);
     }
 
     @Test

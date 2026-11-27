@@ -27,23 +27,23 @@ public class CacheStockRedisAdapter implements SaveCacheStockPort, FindCacheStoc
     @Override
     public int findByPricePolicyId(Long pricePolicyId) throws ParsingIntegerException {
         return FormatConverter.parseToInteger((
-                stringRedisTemplate.opsForValue()
-                        .get(buildKey(pricePolicyId))
+            stringRedisTemplate.opsForValue()
+                .get(buildKey(pricePolicyId))
         ));
     }
 
     @Override
     public Map<Long, Integer> findByPricePolicyIds(List<Long> pricePolicyIds) {
         List<String> stocks = stringRedisTemplate.opsForValue()
-                .multiGet(
-                        pricePolicyIds.stream()
-                                .map(this::buildKey)
-                                .toList()
-                );
+            .multiGet(
+                pricePolicyIds.stream()
+                    .map(this::buildKey)
+                    .toList()
+            );
 
         int size = FormatValidator.hasValue(stocks)
-                ? stocks.size()
-                : 0;
+            ? stocks.size()
+            : 0;
         Map<Long, Integer> inventories = new HashMap<>(size);
         for (int i = 0; i < size; i++) {
             Integer parsedStock = null;

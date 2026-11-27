@@ -82,10 +82,10 @@ class PostControllerAuthenticationTest {
         void callsUseCaseWithIsSellerTrueWhenSellerAuthority() {
             OAuth2AuthenticatedPrincipal principal = principal("100", "ROLE_SELLER");
             when(registerPostUseCase.registerPost(eq(true), any(RegisterPostCommand.class)))
-                    .thenReturn(new RegisterPostResult(1L, UUID.randomUUID()));
+                .thenReturn(new RegisterPostResult(1L, UUID.randomUUID()));
 
             ResponseEntity<BaseResponse<RegisterPostResponse>> response =
-                    controller.registerPost(registerRequest, principal);
+                controller.registerPost(registerRequest, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             verify(registerPostUseCase).registerPost(eq(true), any(RegisterPostCommand.class));
@@ -96,7 +96,7 @@ class PostControllerAuthenticationTest {
         void callsUseCaseWithIsSellerFalseWhenBuyer() {
             OAuth2AuthenticatedPrincipal principal = principal("100", "ROLE_BUYER");
             when(registerPostUseCase.registerPost(eq(false), any(RegisterPostCommand.class)))
-                    .thenReturn(new RegisterPostResult(1L, UUID.randomUUID()));
+                .thenReturn(new RegisterPostResult(1L, UUID.randomUUID()));
 
             controller.registerPost(registerRequest, principal);
 
@@ -110,7 +110,7 @@ class PostControllerAuthenticationTest {
             OAuth2AuthenticatedPrincipal principal = principal("100", "ROLE_BUYER");
 
             assertThatThrownBy(() -> controller.registerPost(noticeRequest, principal))
-                    .isInstanceOf(AccessDeniedException.class);
+                .isInstanceOf(AccessDeniedException.class);
             verifyNoInteractions(registerPostUseCase);
         }
 
@@ -121,7 +121,7 @@ class PostControllerAuthenticationTest {
             OAuth2AuthenticatedPrincipal principal = principal("100", "ROLE_BUYER");
 
             assertThatThrownBy(() -> controller.registerPost(replyRequest, principal))
-                    .isInstanceOf(AccessDeniedException.class);
+                .isInstanceOf(AccessDeniedException.class);
             verify(registerPostUseCase, never()).registerPost(anyBoolean(), any());
         }
     }
@@ -136,7 +136,7 @@ class PostControllerAuthenticationTest {
             when(getPostUseCase.getPosts(any())).thenReturn(emptyGetPostsResult());
 
             ResponseEntity<BaseResponse<GetPostsResponse>> response =
-                    invokeGetPosts(Board.NOTICE, null, null);
+                invokeGetPosts(Board.NOTICE, null, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getPostUseCase).getPosts(any());
@@ -148,7 +148,7 @@ class PostControllerAuthenticationTest {
             when(getPostUseCase.getPosts(any())).thenReturn(emptyGetPostsResult());
 
             ResponseEntity<BaseResponse<GetPostsResponse>> response =
-                    invokeGetPosts(Board.PRODUCT_INQUERY, PostTargetType.PRICE_POLICY, null);
+                invokeGetPosts(Board.PRODUCT_INQUERY, PostTargetType.PRICE_POLICY, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getPostUseCase).getPosts(any());
@@ -158,7 +158,7 @@ class PostControllerAuthenticationTest {
         @DisplayName("회원 게시판인데 principal이 null이면 AuthenticationFailedException")
         void throwsAuthFailedWhenMemberOnlyBoardAndPrincipalNull() {
             assertThatThrownBy(() -> invokeGetPosts(Board.PRODUCT_INQUERY, null, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getPostUseCase);
         }
 
@@ -168,7 +168,7 @@ class PostControllerAuthenticationTest {
             OAuth2AuthenticatedPrincipal principal = principal("-1", "ROLE_BUYER");
 
             assertThatThrownBy(() -> invokeGetPosts(Board.PRODUCT_INQUERY, null, principal))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getPostUseCase);
         }
 
@@ -179,7 +179,7 @@ class PostControllerAuthenticationTest {
             when(getPostUseCase.getPosts(any())).thenReturn(emptyGetPostsResult());
 
             ResponseEntity<BaseResponse<GetPostsResponse>> response =
-                    invokeGetPosts(Board.PRODUCT_INQUERY, null, principal);
+                invokeGetPosts(Board.PRODUCT_INQUERY, null, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
@@ -195,7 +195,7 @@ class PostControllerAuthenticationTest {
             when(getPostUseCase.getPost(any(GetPostQuery.class))).thenReturn(emptyPostItemResult());
 
             ResponseEntity<BaseResponse<PostItemResponse>> response =
-                    controller.getPost(Board.FAQ, null, 1L, null);
+                controller.getPost(Board.FAQ, null, 1L, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getPostUseCase).getPost(any(GetPostQuery.class));
@@ -205,7 +205,7 @@ class PostControllerAuthenticationTest {
         @DisplayName("회원 게시판인데 principal이 null이면 AuthenticationFailedException")
         void throwsAuthFailedWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.getPost(Board.ONE_ON_ONE_INQUERY, null, 1L, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getPostUseCase);
         }
 
@@ -215,7 +215,7 @@ class PostControllerAuthenticationTest {
             OAuth2AuthenticatedPrincipal principal = principal("-1", "ROLE_BUYER");
 
             assertThatThrownBy(() -> controller.getPost(Board.ONE_ON_ONE_INQUERY, null, 1L, principal))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
         }
 
         @Test
@@ -224,7 +224,7 @@ class PostControllerAuthenticationTest {
             when(getPostUseCase.getPost(any(GetPostQuery.class))).thenReturn(emptyPostItemResult());
 
             ResponseEntity<BaseResponse<PostItemResponse>> response =
-                    controller.getPost(Board.PRODUCT_INQUERY, PostTargetType.PRICE_POLICY, 1L, null);
+                controller.getPost(Board.PRODUCT_INQUERY, PostTargetType.PRICE_POLICY, 1L, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getPostUseCase).getPost(any(GetPostQuery.class));
@@ -239,7 +239,7 @@ class PostControllerAuthenticationTest {
         @DisplayName("principal이 null이면 AuthenticationFailedException")
         void throwsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.getPostKey(1L, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
         }
 
         @Test
@@ -248,20 +248,20 @@ class PostControllerAuthenticationTest {
             OAuth2AuthenticatedPrincipal principal = principal("-1", "ROLE_BUYER");
 
             assertThatThrownBy(() -> controller.getPostKey(1L, principal))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
         }
     }
 
     private ResponseEntity<BaseResponse<GetPostsResponse>> invokeGetPosts(
-            Board board, PostTargetType targetType, OAuth2AuthenticatedPrincipal principal
+        Board board, PostTargetType targetType, OAuth2AuthenticatedPrincipal principal
     ) {
         return controller.getPosts(
-                board, null, null, null, targetType, null, null, 10,
-                Sort.Direction.DESC,
-                PostSortProperty.ID,
-                (PostSearchTarget) null, null,
-                (PostFilterCategory) null, (PostFilterValue) null,
-                principal
+            board, null, null, null, targetType, null, null, 10,
+            Sort.Direction.DESC,
+            PostSortProperty.ID,
+            (PostSearchTarget) null, null,
+            (PostFilterCategory) null, (PostFilterValue) null,
+            principal
         );
     }
 
@@ -271,10 +271,10 @@ class PostControllerAuthenticationTest {
 
     private PostItemResult emptyPostItemResult() {
         return PostItemResult.builder()
-                .id(1L)
-                .board("FAQ")
-                .replies(List.of())
-                .build();
+            .id(1L)
+            .board("FAQ")
+            .replies(List.of())
+            .build();
     }
 
     private RegisterPostRequest buildRegisterRequest(Board board, String category, Long parentId) {

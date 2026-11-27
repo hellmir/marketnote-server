@@ -56,20 +56,20 @@ class ReviewPersistenceAdapterTest {
     @BeforeEach
     void setUp() {
         sampleReview = Review.from(
-                ReviewCreateState.builder()
-                        .reviewerId(10L)
-                        .orderId(100L)
-                        .productId(1000L)
-                        .pricePolicyId(10000L)
-                        .productImageUrl("https://cdn.example.com/product.png")
-                        .selectedOptions("RED")
-                        .quantity(2)
-                        .reviewerName("리뷰어")
-                        .rating(Rating.of(5f))
-                        .content("리뷰 내용")
-                        .isPhoto(true)
-                        .unitAmount(5000L)
-                        .build()
+            ReviewCreateState.builder()
+                .reviewerId(10L)
+                .orderId(100L)
+                .productId(1000L)
+                .pricePolicyId(10000L)
+                .productImageUrl("https://cdn.example.com/product.png")
+                .selectedOptions("RED")
+                .quantity(2)
+                .reviewerName("리뷰어")
+                .rating(Rating.of(5f))
+                .content("리뷰 내용")
+                .isPhoto(true)
+                .unitAmount(5000L)
+                .build()
         );
     }
 
@@ -95,10 +95,10 @@ class ReviewPersistenceAdapterTest {
         @DisplayName("UNIQUE 제약 위반 시 ReviewAlreadyExistsException으로 변환한다")
         void throwsReviewAlreadyExistsWhenUniqueConstraintViolated() {
             when(reviewJpaRepository.save(any(ReviewJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("duplicate order_id/price_policy_id"));
+                .thenThrow(new DataIntegrityViolationException("duplicate order_id/price_policy_id"));
 
             assertThatThrownBy(() -> adapter.save(sampleReview))
-                    .isInstanceOf(ReviewAlreadyExistsException.class);
+                .isInstanceOf(ReviewAlreadyExistsException.class);
         }
     }
 
@@ -114,7 +114,7 @@ class ReviewPersistenceAdapterTest {
             adapter.saveAggregate(aggregate);
 
             ArgumentCaptor<ProductReviewAggregateJpaEntity> captor =
-                    ArgumentCaptor.forClass(ProductReviewAggregateJpaEntity.class);
+                ArgumentCaptor.forClass(ProductReviewAggregateJpaEntity.class);
             verify(productReviewAggregateJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getProductId()).isEqualTo(1000L);
             assertThat(captor.getValue().getTotalCount()).isEqualTo(1);
@@ -130,12 +130,12 @@ class ReviewPersistenceAdapterTest {
         @DisplayName("버전 히스토리 도메인을 엔티티로 변환해 저장한다")
         void savesVersionHistory() {
             ReviewVersionHistory history = ReviewVersionHistory.from(
-                    ReviewVersionHistoryCreateState.builder()
-                            .reviewId(77L)
-                            .rating(Rating.of(4f))
-                            .content("이전 내용")
-                            .isPhoto(false)
-                            .build()
+                ReviewVersionHistoryCreateState.builder()
+                    .reviewId(77L)
+                    .rating(Rating.of(4f))
+                    .content("이전 내용")
+                    .isPhoto(false)
+                    .build()
             );
 
             adapter.saveVersionHistory(history);
@@ -203,21 +203,21 @@ class ReviewPersistenceAdapterTest {
     class FindProductReviews {
 
         private final Pageable pageable = PageRequest.of(
-                0, 20, Sort.by(Sort.Direction.DESC, "id")
+            0, 20, Sort.by(Sort.Direction.DESC, "id")
         );
 
         @Test
         @DisplayName("isPhoto=true이면 포토 리뷰 쿼리로 분기한다")
         void branchesToPhotoQueryWhenIsPhotoTrue() {
             when(reviewJpaRepository.findProductPhotoReviewsByCursor(
-                    eq(1000L), eq(50L), eq(pageable), eq("id"), eq(false)
+                eq(1000L), eq(50L), eq(pageable), eq("id"), eq(false)
             )).thenReturn(List.of(newPersistedEntity(1L, sampleReview)));
 
             Reviews result = adapter.findProductReviews(1000L, true, 50L, pageable, ReviewSortProperty.ID);
 
             assertThat(result.size()).isEqualTo(1);
             verify(reviewJpaRepository, never()).findProductReviewsByCursor(
-                    any(), any(), any(), any(), anyBoolean()
+                any(), any(), any(), any(), anyBoolean()
             );
         }
 
@@ -225,14 +225,14 @@ class ReviewPersistenceAdapterTest {
         @DisplayName("isPhoto=false이면 일반 리뷰 쿼리로 분기한다")
         void branchesToRegularQueryWhenIsPhotoFalse() {
             when(reviewJpaRepository.findProductReviewsByCursor(
-                    eq(1000L), eq(null), eq(pageable), eq("id"), eq(false)
+                eq(1000L), eq(null), eq(pageable), eq("id"), eq(false)
             )).thenReturn(List.of());
 
             Reviews result = adapter.findProductReviews(1000L, false, null, pageable, ReviewSortProperty.ID);
 
             assertThat(result.size()).isZero();
             verify(reviewJpaRepository, never()).findProductPhotoReviewsByCursor(
-                    any(), any(), any(), any(), anyBoolean()
+                any(), any(), any(), any(), anyBoolean()
             );
         }
 
@@ -242,7 +242,7 @@ class ReviewPersistenceAdapterTest {
             Pageable ratingAsc = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "rating"));
             ArgumentCaptor<Boolean> isAscCaptor = ArgumentCaptor.forClass(Boolean.class);
             when(reviewJpaRepository.findProductReviewsByCursor(
-                    eq(1000L), any(), eq(ratingAsc), eq("rating"), isAscCaptor.capture()
+                eq(1000L), any(), eq(ratingAsc), eq("rating"), isAscCaptor.capture()
             )).thenReturn(List.of());
 
             adapter.findProductReviews(1000L, false, null, ratingAsc, ReviewSortProperty.RATING);
@@ -256,7 +256,7 @@ class ReviewPersistenceAdapterTest {
             Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdAt"));
             ArgumentCaptor<Boolean> isAscCaptor = ArgumentCaptor.forClass(Boolean.class);
             when(reviewJpaRepository.findProductReviewsByCursor(
-                    eq(1000L), any(), eq(pageable), eq("likeCount"), isAscCaptor.capture()
+                eq(1000L), any(), eq(pageable), eq("likeCount"), isAscCaptor.capture()
             )).thenReturn(List.of());
 
             adapter.findProductReviews(1000L, false, null, pageable, ReviewSortProperty.LIKE);
@@ -270,7 +270,7 @@ class ReviewPersistenceAdapterTest {
             Pageable unsorted = PageRequest.of(0, 10);
             ArgumentCaptor<Boolean> isAscCaptor = ArgumentCaptor.forClass(Boolean.class);
             when(reviewJpaRepository.findProductReviewsByCursor(
-                    eq(1000L), any(), eq(unsorted), eq("id"), isAscCaptor.capture()
+                eq(1000L), any(), eq(unsorted), eq("id"), isAscCaptor.capture()
             )).thenReturn(List.of());
 
             adapter.findProductReviews(1000L, false, null, unsorted, ReviewSortProperty.ID);
@@ -310,12 +310,12 @@ class ReviewPersistenceAdapterTest {
         @DisplayName("집계 엔티티가 있으면 도메인으로 변환해 반환한다")
         void returnsDomainWhenAggregateFound() {
             ProductReviewAggregateJpaEntity entity = ProductReviewAggregateJpaEntity.from(
-                    ProductReviewAggregate.from(sampleReview)
+                ProductReviewAggregate.from(sampleReview)
             );
             when(productReviewAggregateJpaRepository.findByProductId(1000L)).thenReturn(Optional.of(entity));
 
             Optional<ProductReviewAggregate> result =
-                    adapter.findProductReviewAggregateByProductId(1000L);
+                adapter.findProductReviewAggregateByProductId(1000L);
 
             assertThat(result).isPresent();
             assertThat(result.get().getProductId()).isEqualTo(1000L);
@@ -338,7 +338,7 @@ class ReviewPersistenceAdapterTest {
         @DisplayName("productIds가 비어 있으면 빈 Map을 반환하고 레포지토리를 호출하지 않는다")
         void returnsEmptyMapAndSkipsRepositoryWhenIdsEmpty() {
             Map<Long, ProductReviewAggregate> result =
-                    adapter.findProductReviewAggregatesByProductIds(List.of());
+                adapter.findProductReviewAggregatesByProductIds(List.of());
 
             assertThat(result).isEmpty();
             verifyNoInteractions(productReviewAggregateJpaRepository);
@@ -348,27 +348,27 @@ class ReviewPersistenceAdapterTest {
         @DisplayName("productIds가 주어지면 productId를 key로 Map을 반환한다")
         void returnsMapKeyedByProductId() {
             ProductReviewAggregateJpaEntity entity1000 = ProductReviewAggregateJpaEntity.from(
-                    ProductReviewAggregate.from(sampleReview)
+                ProductReviewAggregate.from(sampleReview)
             );
             ProductReviewAggregate other = ProductReviewAggregate.from(
-                    ProductReviewAggregateSnapshotState.builder()
-                            .productId(2000L)
-                            .totalCount(3)
-                            .fivePointCount(3)
-                            .fourPointCount(0)
-                            .threePointCount(0)
-                            .twoPointCount(0)
-                            .onePointCount(0)
-                            .totalRating(15L)
-                            .averageRating(new java.math.BigDecimal("5.00"))
-                            .build()
+                ProductReviewAggregateSnapshotState.builder()
+                    .productId(2000L)
+                    .totalCount(3)
+                    .fivePointCount(3)
+                    .fourPointCount(0)
+                    .threePointCount(0)
+                    .twoPointCount(0)
+                    .onePointCount(0)
+                    .totalRating(15L)
+                    .averageRating(new java.math.BigDecimal("5.00"))
+                    .build()
             );
             ProductReviewAggregateJpaEntity entity2000 = ProductReviewAggregateJpaEntity.from(other);
             when(productReviewAggregateJpaRepository.findByProductIdIn(List.of(1000L, 2000L)))
-                    .thenReturn(List.of(entity1000, entity2000));
+                .thenReturn(List.of(entity1000, entity2000));
 
             Map<Long, ProductReviewAggregate> result =
-                    adapter.findProductReviewAggregatesByProductIds(List.of(1000L, 2000L));
+                adapter.findProductReviewAggregatesByProductIds(List.of(1000L, 2000L));
 
             assertThat(result).hasSize(2);
             assertThat(result).containsKey(1000L);
@@ -381,14 +381,14 @@ class ReviewPersistenceAdapterTest {
     class FindUserReviews {
 
         private final Pageable pageable = PageRequest.of(
-                0, 20, Sort.by(Sort.Direction.DESC, "id")
+            0, 20, Sort.by(Sort.Direction.DESC, "id")
         );
 
         @Test
         @DisplayName("유저 리뷰 쿼리에 sortProperty 기반 파라미터를 전달한다")
         void delegatesToUserCursorQuery() {
             when(reviewJpaRepository.findUserReviewsByCursor(
-                    eq(10L), eq(null), eq(pageable), eq("id"), eq(false)
+                eq(10L), eq(null), eq(pageable), eq("id"), eq(false)
             )).thenReturn(List.of(newPersistedEntity(1L, sampleReview)));
 
             Reviews result = adapter.findUserReviews(10L, null, pageable, ReviewSortProperty.ID);
@@ -419,7 +419,7 @@ class ReviewPersistenceAdapterTest {
         void buildsDescPageableWhenIsDesc() {
             ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
             when(reviewJpaRepository.findUserReviewsByOffset(eq(10L), pageableCaptor.capture()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             adapter.findUserReviewsByOffset(10L, 2, 30, true, ReviewSortProperty.ID);
 
@@ -436,10 +436,10 @@ class ReviewPersistenceAdapterTest {
         void buildsAscPageableWhenIsNotDesc() {
             ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
             when(reviewJpaRepository.findUserReviewsByOffset(eq(10L), pageableCaptor.capture()))
-                    .thenReturn(List.of(newPersistedEntity(1L, sampleReview)));
+                .thenReturn(List.of(newPersistedEntity(1L, sampleReview)));
 
             Reviews result = adapter.findUserReviewsByOffset(
-                    10L, 1, 10, false, ReviewSortProperty.ORDER_NUM
+                10L, 1, 10, false, ReviewSortProperty.ORDER_NUM
             );
 
             assertThat(result.size()).isEqualTo(1);
@@ -476,7 +476,7 @@ class ReviewPersistenceAdapterTest {
             ReflectionTestUtils.setField(sampleReview, "id", 404L);
 
             assertThatThrownBy(() -> adapter.update(sampleReview))
-                    .isInstanceOf(ReviewNotFoundException.class);
+                .isInstanceOf(ReviewNotFoundException.class);
         }
     }
 
@@ -490,7 +490,7 @@ class ReviewPersistenceAdapterTest {
             ProductReviewAggregate aggregate = ProductReviewAggregate.from(sampleReview);
             ProductReviewAggregateJpaEntity entity = ProductReviewAggregateJpaEntity.from(aggregate);
             when(productReviewAggregateJpaRepository.findByProductId(1000L))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
             aggregate.addReview(Rating.of(4.0f));
 
             adapter.update(aggregate);
@@ -505,10 +505,10 @@ class ReviewPersistenceAdapterTest {
         void throwsWhenAggregateMissing() {
             ProductReviewAggregate aggregate = ProductReviewAggregate.from(sampleReview);
             when(productReviewAggregateJpaRepository.findByProductId(1000L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.update(aggregate))
-                    .isInstanceOf(ProductReviewAggregateNotFoundException.class);
+                .isInstanceOf(ProductReviewAggregateNotFoundException.class);
         }
     }
 

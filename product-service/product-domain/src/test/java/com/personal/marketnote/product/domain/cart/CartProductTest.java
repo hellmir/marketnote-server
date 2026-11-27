@@ -17,11 +17,11 @@ class CartProductTest {
 
     private PricePolicy createPricePolicy() {
         return PricePolicy.from(PricePolicySnapshotState.builder()
-                .id(1L)
-                .productId(1L)
-                .price(10000L)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .productId(1L)
+            .price(10000L)
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     @Nested
@@ -33,12 +33,12 @@ class CartProductTest {
         void shouldCreateWithActiveStatus() {
             // given
             CartProductCreateState state = CartProductCreateState.builder()
-                    .userId(1L)
-                    .sharerKey(UUID.randomUUID())
-                    .pricePolicy(createPricePolicy())
-                    .imageUrl("https://example.com/image.jpg")
-                    .quantity((short) 2)
-                    .build();
+                .userId(1L)
+                .sharerKey(UUID.randomUUID())
+                .pricePolicy(createPricePolicy())
+                .imageUrl("https://example.com/image.jpg")
+                .quantity((short) 2)
+                .build();
 
             // when
             CartProduct cartProduct = CartProduct.from(state);
@@ -61,13 +61,13 @@ class CartProductTest {
             UUID sharerKey = UUID.randomUUID();
             PricePolicy pricePolicy = createPricePolicy();
             CartProductSnapshotState state = CartProductSnapshotState.builder()
-                    .userId(1L)
-                    .sharerKey(sharerKey)
-                    .pricePolicy(pricePolicy)
-                    .imageUrl("https://example.com/image.jpg")
-                    .quantity((short) 3)
-                    .status(EntityStatus.INACTIVE)
-                    .build();
+                .userId(1L)
+                .sharerKey(sharerKey)
+                .pricePolicy(pricePolicy)
+                .imageUrl("https://example.com/image.jpg")
+                .quantity((short) 3)
+                .status(EntityStatus.INACTIVE)
+                .build();
 
             // when
             CartProduct cartProduct = CartProduct.from(state);
@@ -89,12 +89,12 @@ class CartProductTest {
         void shouldIncreaseQuantityWhenValidAdditionalQuantity() {
             // given
             CartProduct cartProduct = CartProduct.from(CartProductCreateState.builder()
-                    .userId(1L)
-                    .sharerKey(UUID.randomUUID())
-                    .pricePolicy(createPricePolicy())
-                    .imageUrl("https://example.com/image.jpg")
-                    .quantity((short) 5)
-                    .build());
+                .userId(1L)
+                .sharerKey(UUID.randomUUID())
+                .pricePolicy(createPricePolicy())
+                .imageUrl("https://example.com/image.jpg")
+                .quantity((short) 5)
+                .build());
 
             // when
             cartProduct.addQuantity((short) 3);
@@ -108,16 +108,16 @@ class CartProductTest {
         void shouldThrowExceptionWhenAdditionalQuantityIsZeroOrNegative() {
             // given
             CartProduct cartProduct = CartProduct.from(CartProductCreateState.builder()
-                    .userId(1L)
-                    .sharerKey(UUID.randomUUID())
-                    .pricePolicy(createPricePolicy())
-                    .imageUrl("https://example.com/image.jpg")
-                    .quantity((short) 5)
-                    .build());
+                .userId(1L)
+                .sharerKey(UUID.randomUUID())
+                .pricePolicy(createPricePolicy())
+                .imageUrl("https://example.com/image.jpg")
+                .quantity((short) 5)
+                .build());
 
             // when & then
             assertThatThrownBy(() -> cartProduct.addQuantity((short) 0))
-                    .isInstanceOf(com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException.class);
+                .isInstanceOf(com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException.class);
         }
 
         @Test
@@ -125,16 +125,16 @@ class CartProductTest {
         void shouldThrowExceptionWhenQuantityExceedsShortMaxValue() {
             // given
             CartProduct cartProduct = CartProduct.from(CartProductCreateState.builder()
-                    .userId(1L)
-                    .sharerKey(UUID.randomUUID())
-                    .pricePolicy(createPricePolicy())
-                    .imageUrl("https://example.com/image.jpg")
-                    .quantity(Short.MAX_VALUE)
-                    .build());
+                .userId(1L)
+                .sharerKey(UUID.randomUUID())
+                .pricePolicy(createPricePolicy())
+                .imageUrl("https://example.com/image.jpg")
+                .quantity(Short.MAX_VALUE)
+                .build());
 
             // when & then
             assertThatThrownBy(() -> cartProduct.addQuantity((short) 1))
-                    .isInstanceOf(InvalidCartProductQuantityException.class);
+                .isInstanceOf(InvalidCartProductQuantityException.class);
         }
     }
 }

@@ -10,12 +10,12 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductsInfoResponse(
-        Long sellerId,
-        String name,
-        String brandName,
-        ProductPricePolicyInfoResult pricePolicy,
-        List<ProductOptionInfoResult> selectedOptions,
-        GetFileResult catalogImage
+    Long sellerId,
+    String name,
+    String brandName,
+    ProductPricePolicyInfoResult pricePolicy,
+    List<ProductOptionInfoResult> selectedOptions,
+    GetFileResult catalogImage
 ) {
     public Long getPricePolicyId() {
         return FormatValidator.hasValue(pricePolicy) ? pricePolicy.id() : null;

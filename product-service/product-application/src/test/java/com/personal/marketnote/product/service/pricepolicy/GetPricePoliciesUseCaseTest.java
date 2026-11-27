@@ -82,7 +82,7 @@ class GetPricePoliciesUseCaseTest {
         when(findPricePoliciesPort.findByProductId(productId)).thenThrow(exception);
 
         assertThatThrownBy(() -> getPricePoliciesService.getPricePoliciesAndOptions(productId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -90,8 +90,8 @@ class GetPricePoliciesUseCaseTest {
     void getPricePoliciesAndOptions_byIds_returnsPolicies() {
         List<Long> ids = List.of(101L, 102L);
         List<PricePolicy> policies = List.of(
-                buildPricePolicy(101L, 10000L, 8000L, 200L, new BigDecimal("20.0"), List.of()),
-                buildPricePolicy(102L, 12000L, 9000L, 250L, new BigDecimal("25.0"), List.of(10L))
+            buildPricePolicy(101L, 10000L, 8000L, 200L, new BigDecimal("20.0"), List.of()),
+            buildPricePolicy(102L, 12000L, 9000L, 250L, new BigDecimal("25.0"), List.of(10L))
         );
 
         when(findPricePoliciesPort.findByIds(ids)).thenReturn(policies);
@@ -124,28 +124,28 @@ class GetPricePoliciesUseCaseTest {
         when(findPricePoliciesPort.findByIds(ids)).thenThrow(exception);
 
         assertThatThrownBy(() -> getPricePoliciesService.getPricePoliciesAndOptions(ids))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private PricePolicy buildPricePolicy(
-            Long id,
-            Long price,
-            Long discountPrice,
-            Long accumulatedPoint,
-            BigDecimal discountRate,
-            List<Long> optionIds
+        Long id,
+        Long price,
+        Long discountPrice,
+        Long accumulatedPoint,
+        BigDecimal discountRate,
+        List<Long> optionIds
     ) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .price(price)
-                        .discountPrice(discountPrice)
-                        .discountRate(Rate.of(discountRate))
-                        .accumulatedPoint(accumulatedPoint)
-                        .accumulationRate(Rate.of(BigDecimal.ZERO))
-                        .status(EntityStatus.ACTIVE)
-                        .optionIds(optionIds)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .price(price)
+                .discountPrice(discountPrice)
+                .discountRate(Rate.of(discountRate))
+                .accumulatedPoint(accumulatedPoint)
+                .accumulationRate(Rate.of(BigDecimal.ZERO))
+                .status(EntityStatus.ACTIVE)
+                .optionIds(optionIds)
+                .build()
         );
     }
 }

@@ -39,15 +39,15 @@ public class GetShippingPolicyService implements GetShippingPolicyUseCase {
 
         List<ShippingPolicy> policies = findShippingPolicyPort.findActiveBySellerIds(sellerIds);
         return policies.stream()
-                .map(GetShippingPolicyBySellerResult::from)
-                .toList();
+            .map(GetShippingPolicyBySellerResult::from)
+            .toList();
     }
 
     private ShippingPolicy findShippingPolicy(Long sellerId) {
         return findShippingPolicyPort.findActiveBySellerId(sellerId)
-                .orElseThrow(() -> {
-                    log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", sellerId);
-                    return new ShippingPolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", sellerId);
+                return new ShippingPolicyNotFoundException();
+            });
     }
 }

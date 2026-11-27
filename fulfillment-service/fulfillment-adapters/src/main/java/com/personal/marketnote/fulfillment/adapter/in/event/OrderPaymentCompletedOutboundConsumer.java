@@ -42,12 +42,12 @@ public class OrderPaymentCompletedOutboundConsumer {
     private final Clock clock;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "fulfillment-outbound"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "fulfillment-outbound"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -65,18 +65,18 @@ public class OrderPaymentCompletedOutboundConsumer {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(OrderPaymentCompletedEvent.class, objectMapper);
 
             log.info("주문 결제 완료 이벤트 수신 (Fulfillment 출고 요청). eventId={}, orderId={}, orderProducts={}건",
-                    envelope.eventId(), payload.orderId(),
-                    FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0);
+                envelope.eventId(), payload.orderId(),
+                FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0);
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.orderProducts()) || payload.orderProducts().isEmpty()) {
                 log.warn("주문 상품이 없는 이벤트 (출고 요청 생략). eventId={}, orderId={}",
-                        envelope.eventId(), payload.orderId());
+                    envelope.eventId(), payload.orderId());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -86,17 +86,17 @@ public class OrderPaymentCompletedOutboundConsumer {
             createShippingTracker(payload.orderId(), payload.buyerId(), envelope.eventId());
 
             log.info("Fulfillment 출고 요청 이벤트 처리 완료. orderId={}, orderProducts={}건",
-                    payload.orderId(), payload.orderProducts().size());
+                payload.orderId(), payload.orderProducts().size());
         } catch (FulfillmentDeliveryAlreadyRegisteredException e) {
             log.warn("이미 출고 등록된 주문 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+                envelope.eventId(), e.getMessage());
         } catch (ShippingTrackerAlreadyExistsException e) {
             log.warn("이미 배송 추적이 등록된 주문 (멱등 처리). eventId={}, orderId={}",
-                    envelope.eventId(), e.getMessage());
+                envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             // boundary swallow: Kafka @KafkaListener boundary — ERROR 로그 + cause 보존 후 rethrow 로 컨슈머 retry/DLQ 위임
             log.error("Fulfillment 출고 요청 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -105,26 +105,26 @@ public class OrderPaymentCompletedOutboundConsumer {
 
     private void registerFulfillmentDelivery(OrderPaymentCompletedEvent payload, String eventId) {
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
-                .orderNumber(String.valueOf(payload.orderId()))
-                .orderDate(LocalDate.now(clock).format(DateTimeFormatter.BASIC_ISO_DATE))
-                .recipientName(payload.recipientName())
-                .recipientPhoneNumber(payload.recipientPhoneNumber())
-                .recipientAddress(buildRecipientAddress(payload))
-                .shippingRequest(payload.deliveryRequestMessage())
-                .products(convertToGoodsCommands(payload.orderProducts()))
-                .build();
+            .orderNumber(String.valueOf(payload.orderId()))
+            .orderDate(LocalDate.now(clock).format(DateTimeFormatter.BASIC_ISO_DATE))
+            .recipientName(payload.recipientName())
+            .recipientPhoneNumber(payload.recipientPhoneNumber())
+            .recipientAddress(buildRecipientAddress(payload))
+            .shippingRequest(payload.deliveryRequestMessage())
+            .products(convertToGoodsCommands(payload.orderProducts()))
+            .build();
 
         fulfillmentAuthenticatedCaller.call(token -> {
             registerFulfillmentDeliveryUseCase.registerDeliveryIdempotent(
-                    RegisterFulfillmentDeliveryCommand.of(
-                            fasstoAuthProperties.getCustomerCode(), token, List.of(itemCommand)
-                    )
+                RegisterFulfillmentDeliveryCommand.of(
+                    fasstoAuthProperties.getCustomerCode(), token, List.of(itemCommand)
+                )
             );
             return null;
         });
 
         log.info("Fassto 출고 요청 완료. eventId={}, orderId={}, products={}건",
-                eventId, payload.orderId(), payload.orderProducts().size());
+            eventId, payload.orderId(), payload.orderProducts().size());
     }
 
     private String buildRecipientAddress(OrderPaymentCompletedEvent payload) {
@@ -142,14 +142,14 @@ public class OrderPaymentCompletedOutboundConsumer {
     }
 
     private List<RegisterFulfillmentDeliveryGoodsCommand> convertToGoodsCommands(
-            List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts
+        List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts
     ) {
         return orderProducts.stream()
-                .map(item -> RegisterFulfillmentDeliveryGoodsCommand.of(
-                        item.productKey(),
-                        item.quantity()
-                ))
-                .toList();
+            .map(item -> RegisterFulfillmentDeliveryGoodsCommand.of(
+                item.productKey(),
+                item.quantity()
+            ))
+            .toList();
     }
 
     private void createShippingTracker(Long orderId, Long buyerId, String eventId) {

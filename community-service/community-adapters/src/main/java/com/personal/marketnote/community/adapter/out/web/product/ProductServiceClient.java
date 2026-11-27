@@ -25,11 +25,11 @@ public class ProductServiceClient {
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
     public ProductServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${product-service.base-url:http://localhost:8081}") String productServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
-            ServiceCommunicationRecorder serviceCommunicationRecorder,
-            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+        RestClient.Builder restClientBuilder,
+        @Value("${product-service.base-url:http://localhost:8081}") String productServiceBaseUrl,
+        HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+        ServiceCommunicationRecorder serviceCommunicationRecorder,
+        ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
     ) {
         this.restClient = restClientBuilder.build();
         this.productServiceBaseUrl = productServiceBaseUrl;

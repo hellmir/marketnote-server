@@ -25,18 +25,18 @@ public class ProductOptionJpaEntity extends BaseOrderedGeneralEntity {
 
     public static ProductOptionJpaEntity of(ProductOptionCategoryJpaEntity productOptionCategoryJpaEntity, String content, Long price, Long accumulatedPoint) {
         return ProductOptionJpaEntity.builder()
-                .productOptionCategoryJpaEntity(productOptionCategoryJpaEntity)
-                .content(content)
-                .build();
+            .productOptionCategoryJpaEntity(productOptionCategoryJpaEntity)
+            .content(content)
+            .build();
     }
 
     public static ProductOptionJpaEntity from(
-            ProductOptionCategoryJpaEntity productOptionCategoryJpaEntity, ProductOption option
+        ProductOptionCategoryJpaEntity productOptionCategoryJpaEntity, ProductOption option
     ) {
         return ProductOptionJpaEntity.builder()
-                .productOptionCategoryJpaEntity(productOptionCategoryJpaEntity)
-                .content(option.getContent())
-                .build();
+            .productOptionCategoryJpaEntity(productOptionCategoryJpaEntity)
+            .content(option.getContent())
+            .build();
     }
 }
 

@@ -66,8 +66,8 @@ class FulfillmentCustomerCodeAdapterTest {
         void readsPropertyEveryInvocation() {
             // given
             when(fulfillmentAuthProperties.getCustomerCode())
-                    .thenReturn("CUST001")
-                    .thenReturn("CUST002");
+                .thenReturn("CUST001")
+                .thenReturn("CUST002");
 
             // when
             String firstCall = adapter.getCustomerCode();

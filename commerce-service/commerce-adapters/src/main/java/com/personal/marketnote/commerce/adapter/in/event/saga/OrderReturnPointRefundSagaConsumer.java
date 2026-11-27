@@ -28,12 +28,12 @@ public class OrderReturnPointRefundSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_RETURN_POINT_REFUND,
-            groupId = "saga-order-return-point-refund"
+        topics = KafkaTopicConstants.SAGA_ORDER_RETURN_POINT_REFUND,
+        groupId = "saga-order-return-point-refund"
     )
     public void handlePointRefundStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -60,7 +60,7 @@ public class OrderReturnPointRefundSagaConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 포인트 환불 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -70,7 +70,7 @@ public class OrderReturnPointRefundSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             ReturnPointRefundSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnPointRefundSagaPayload.class);
+                stepMessage.payload(), ReturnPointRefundSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId()) || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
@@ -80,8 +80,8 @@ public class OrderReturnPointRefundSagaConsumer {
             if (FormatValidator.hasNoValue(payload.refundPointAmount()) || payload.refundPointAmount() <= 0) {
                 log.info("포인트 미사용 주문 (환불 생략). sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
                 sagaResponsePublisher.publishSuccess(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
                 );
                 return;
             }
@@ -89,19 +89,19 @@ public class OrderReturnPointRefundSagaConsumer {
             modifyUserPointPort.refundOrderPoints(payload.buyerId(), payload.refundPointAmount(), payload.orderId());
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 반품 포인트 환불 성공. sagaId={}, orderId={}, buyerId={}, refundPointAmount={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.buyerId(), payload.refundPointAmount()
+                stepMessage.sagaId(), payload.orderId(), payload.buyerId(), payload.refundPointAmount()
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 포인트 환불 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 포인트 환불 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 포인트 환불 처리 실패"
             );
         }
     }
@@ -109,7 +109,7 @@ public class OrderReturnPointRefundSagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             ReturnPointRefundSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnPointRefundSagaPayload.class);
+                stepMessage.payload(), ReturnPointRefundSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId()) || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
@@ -119,8 +119,8 @@ public class OrderReturnPointRefundSagaConsumer {
             if (FormatValidator.hasNoValue(payload.refundPointAmount()) || payload.refundPointAmount() <= 0) {
                 log.info("포인트 미사용 주문 보상 (생략). sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
                 sagaResponsePublisher.publishSuccess(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "{\"compensated\":true,\"skipped\":true}"
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "{\"compensated\":true,\"skipped\":true}"
                 );
                 return;
             }
@@ -128,19 +128,19 @@ public class OrderReturnPointRefundSagaConsumer {
             modifyUserPointPort.deductOrderPoints(payload.buyerId(), payload.refundPointAmount(), payload.orderId());
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 반품 포인트 환불 보상 완료 (재차감). sagaId={}, orderId={}, buyerId={}, amount={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.buyerId(), payload.refundPointAmount()
+                stepMessage.sagaId(), payload.orderId(), payload.buyerId(), payload.refundPointAmount()
             );
         } catch (Exception e) {
             // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 포인트 환불 보상 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 포인트 환불 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 포인트 환불 보상 처리 실패"
             );
         }
     }
@@ -148,8 +148,8 @@ public class OrderReturnPointRefundSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 반품 포인트 환불 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

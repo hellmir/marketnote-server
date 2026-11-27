@@ -10,12 +10,12 @@ public class ShippingPolicyCommandToStateMapper {
 
     public static ShippingPolicyCreateState mapToState(Long sellerId, RegisterShippingPolicyCommand command) {
         return ShippingPolicyCreateState.builder()
-                .sellerId(sellerId)
-                .deliveryCompany(command.deliveryCompany())
-                .shippingFee(command.shippingFee())
-                .freeShippingThreshold(command.freeShippingThreshold())
-                .jejuSurcharge(command.jejuSurcharge())
-                .islandSurcharge(command.islandSurcharge())
-                .build();
+            .sellerId(sellerId)
+            .deliveryCompany(command.deliveryCompany())
+            .shippingFee(command.shippingFee())
+            .freeShippingThreshold(command.freeShippingThreshold())
+            .jejuSurcharge(command.jejuSurcharge())
+            .islandSurcharge(command.islandSurcharge())
+            .build();
     }
 }

@@ -42,28 +42,28 @@ class DeliveryRequestMessageTest {
             String message = "a".repeat(61);
 
             assertThatThrownBy(() -> DeliveryRequestMessage.of(message))
-                    .isInstanceOf(InvalidDeliveryRequestMessageLengthException.class);
+                .isInstanceOf(InvalidDeliveryRequestMessageLengthException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 DeliveryRequestMessageNoValueException이 발생한다")
         void shouldThrowExceptionWhenMessageIsEmpty() {
             assertThatThrownBy(() -> DeliveryRequestMessage.of(""))
-                    .isInstanceOf(DeliveryRequestMessageNoValueException.class);
+                .isInstanceOf(DeliveryRequestMessageNoValueException.class);
         }
 
         @Test
         @DisplayName("공백 문자열로 생성 시 DeliveryRequestMessageNoValueException이 발생한다")
         void shouldThrowExceptionWhenMessageIsBlank() {
             assertThatThrownBy(() -> DeliveryRequestMessage.of("   "))
-                    .isInstanceOf(DeliveryRequestMessageNoValueException.class);
+                .isInstanceOf(DeliveryRequestMessageNoValueException.class);
         }
 
         @Test
         @DisplayName("null로 생성 시 DeliveryRequestMessageNoValueException이 발생한다")
         void shouldThrowExceptionWhenMessageIsNull() {
             assertThatThrownBy(() -> DeliveryRequestMessage.of(null))
-                    .isInstanceOf(DeliveryRequestMessageNoValueException.class);
+                .isInstanceOf(DeliveryRequestMessageNoValueException.class);
         }
     }
 

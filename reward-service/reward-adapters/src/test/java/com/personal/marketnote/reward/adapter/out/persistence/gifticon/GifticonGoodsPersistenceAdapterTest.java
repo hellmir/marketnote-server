@@ -42,26 +42,26 @@ class GifticonGoodsPersistenceAdapterTest {
 
     private GifticonGoodsJpaEntity buildEntity(Long id, String goodsCode) {
         GifticonGoods restored = GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(id)
-                .goodsCode(goodsCode)
-                .goodsName("테스트 상품")
-                .brandCode("B001")
-                .brandName("스타벅스")
-                .brandImageUrl("http://img.test.com/brand.jpg")
-                .categoryCode("C001")
-                .realPrice(12_000L)
-                .salePrice(10_000L)
-                .cashPrice(10_000L)
-                .imageUrl("http://img.test.com/goods.jpg")
-                .description("테스트 상품 설명")
-                .validDays(30)
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(true)
-                .popular(false)
-                .orderNum(1)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .goodsCode(goodsCode)
+            .goodsName("테스트 상품")
+            .brandCode("B001")
+            .brandName("스타벅스")
+            .brandImageUrl("http://img.test.com/brand.jpg")
+            .categoryCode("C001")
+            .realPrice(12_000L)
+            .salePrice(10_000L)
+            .cashPrice(10_000L)
+            .imageUrl("http://img.test.com/goods.jpg")
+            .description("테스트 상품 설명")
+            .validDays(30)
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(true)
+            .popular(false)
+            .orderNum(1)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
         return GifticonGoodsJpaEntity.from(restored);
     }
 
@@ -78,7 +78,7 @@ class GifticonGoodsPersistenceAdapterTest {
     @DisplayName("findAllByGoodsStatus는 모든 엔티티를 도메인 리스트로 반환한다")
     void shouldFindAllByGoodsStatus() {
         given(repository.findAllByGoodsStatus(GoodsStatus.SALE))
-                .willReturn(List.of(buildEntity(1L, "G001"), buildEntity(2L, "G002")));
+            .willReturn(List.of(buildEntity(1L, "G001"), buildEntity(2L, "G002")));
         List<GifticonGoods> result = adapter.findAllByGoodsStatus(GoodsStatus.SALE);
         assertThat(result).hasSize(2);
     }
@@ -115,7 +115,7 @@ class GifticonGoodsPersistenceAdapterTest {
             GifticonGoodsJpaEntity sample = buildEntity(99L, "G099");
             given(repository.findById(99L)).willReturn(Optional.empty());
             assertThatThrownBy(() -> adapter.update(sample.toDomain()))
-                    .isInstanceOf(GifticonGoodsNotFoundException.class);
+                .isInstanceOf(GifticonGoodsNotFoundException.class);
         }
     }
 
@@ -124,8 +124,8 @@ class GifticonGoodsPersistenceAdapterTest {
     void shouldMapDistinctBrandsProjection() {
         // given
         List<Object[]> rows = List.of(
-                new Object[]{"B001", "스타벅스", "http://img.test.com/brand1.jpg"},
-                new Object[]{"B002", "베스킨라빈스", "http://img.test.com/brand2.jpg"}
+            new Object[]{"B001", "스타벅스", "http://img.test.com/brand1.jpg"},
+            new Object[]{"B002", "베스킨라빈스", "http://img.test.com/brand2.jpg"}
         );
         given(repository.findDistinctBrandsByCategoryCode("C001", GoodsStatus.SALE)).willReturn(rows);
 
@@ -164,7 +164,7 @@ class GifticonGoodsPersistenceAdapterTest {
             // given
             Page<GifticonGoodsJpaEntity> page = new PageImpl<>(List.of(buildEntity(1L, "G001")));
             given(repository.findAllForAdmin(eq(GoodsStatus.SALE), any(), any(), any(Pageable.class)))
-                    .willReturn(page);
+                .willReturn(page);
 
             // when
             FindAllForAdminResult result = adapter.findAllForAdmin(1, 10, GoodsStatus.SALE, null, "테스트");
@@ -183,14 +183,14 @@ class GifticonGoodsPersistenceAdapterTest {
         @DisplayName("cursor=-1이면 findExposedByAnchor를 anchor=null로 호출하고 null 파라미터를 빈 문자열로 변환한다")
         void shouldUseFirstPageQueryWhenCursorIsFirstPage() {
             given(repository.findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
             ).willReturn(List.of(buildEntity(1L, "G001")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, -1L, 10);
 
             assertThat(result).hasSize(1);
             verify(repository).findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
         }
 
         @Test
@@ -199,14 +199,14 @@ class GifticonGoodsPersistenceAdapterTest {
             GifticonGoodsJpaEntity anchorEntity = buildEntity(5L, "G005");
             given(repository.findById(5L)).willReturn(Optional.of(anchorEntity));
             given(repository.findExposedByAnchor(
-                    eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class))
+                eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class))
             ).willReturn(List.of(buildEntity(6L, "G006")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor("C001", "B001", 5L, 10);
 
             assertThat(result).hasSize(1);
             verify(repository).findExposedByAnchor(
-                    eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class));
+                eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class));
         }
 
         @Test
@@ -215,14 +215,14 @@ class GifticonGoodsPersistenceAdapterTest {
             GifticonGoodsJpaEntity anchorEntity = buildEntityWithOrderNum(7L, "G007", null);
             given(repository.findById(7L)).willReturn(Optional.of(anchorEntity));
             given(repository.findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class))
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class))
             ).willReturn(List.of(buildEntity(8L, "G008")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 7L, 10);
 
             assertThat(result).hasSize(1);
             verify(repository).findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class));
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class));
         }
 
         @Test
@@ -230,27 +230,27 @@ class GifticonGoodsPersistenceAdapterTest {
         void shouldFallbackToFirstPageWhenCursorMissing() {
             given(repository.findById(99L)).willReturn(Optional.empty());
             given(repository.findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
             ).willReturn(List.of(buildEntity(1L, "G001")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 99L, 10);
 
             assertThat(result).hasSize(1);
             verify(repository).findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
         }
 
         @Test
         @DisplayName("공백 문자열 카테고리/브랜드는 빈 문자열로 정규화된다")
         void shouldNormalizeBlankFiltersToEmpty() {
             given(repository.findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
             ).willReturn(List.of());
 
             adapter.findAllExposedByCursor("   ", "", -1L, 10);
 
             verify(repository).findExposedByAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
+                eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
         }
     }
 
@@ -270,26 +270,26 @@ class GifticonGoodsPersistenceAdapterTest {
 
     private GifticonGoodsJpaEntity buildEntityWithOrderNum(Long id, String goodsCode, Integer orderNum) {
         GifticonGoods restored = GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(id)
-                .goodsCode(goodsCode)
-                .goodsName("테스트 상품")
-                .brandCode("B001")
-                .brandName("스타벅스")
-                .brandImageUrl("http://img.test.com/brand.jpg")
-                .categoryCode("C001")
-                .realPrice(12_000L)
-                .salePrice(10_000L)
-                .cashPrice(10_000L)
-                .imageUrl("http://img.test.com/goods.jpg")
-                .description("테스트 상품 설명")
-                .validDays(30)
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(true)
-                .popular(false)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .goodsCode(goodsCode)
+            .goodsName("테스트 상품")
+            .brandCode("B001")
+            .brandName("스타벅스")
+            .brandImageUrl("http://img.test.com/brand.jpg")
+            .categoryCode("C001")
+            .realPrice(12_000L)
+            .salePrice(10_000L)
+            .cashPrice(10_000L)
+            .imageUrl("http://img.test.com/goods.jpg")
+            .description("테스트 상품 설명")
+            .validDays(30)
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(true)
+            .popular(false)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
         return GifticonGoodsJpaEntity.from(restored);
     }
 
@@ -297,7 +297,7 @@ class GifticonGoodsPersistenceAdapterTest {
     @DisplayName("findAllPopularAndExposed는 인기 상품 리스트를 반환한다")
     void shouldFindAllPopularAndExposed() {
         given(repository.findAllPopularAndExposed(eq(GoodsStatus.SALE), any(Pageable.class)))
-                .willReturn(List.of(buildEntity(1L, "G001"), buildEntity(2L, "G002")));
+            .willReturn(List.of(buildEntity(1L, "G001"), buildEntity(2L, "G002")));
         List<GifticonGoods> result = adapter.findAllPopularAndExposed(5);
         assertThat(result).hasSize(2);
     }

@@ -58,13 +58,13 @@ class ModifyUserPointServiceRetryTest {
 
         @Bean
         ModifyUserPointUseCase modifyUserPointService(
-                GetUserPointUseCase getUserPointUseCase,
-                FindUserPointPort findUserPointPort,
-                UpdateUserPointPort updateUserPointPort,
-                SaveUserPointHistoryPort saveUserPointHistoryPort
+            GetUserPointUseCase getUserPointUseCase,
+            FindUserPointPort findUserPointPort,
+            UpdateUserPointPort updateUserPointPort,
+            SaveUserPointHistoryPort saveUserPointHistoryPort
         ) {
             return new ModifyUserPointService(
-                    getUserPointUseCase, findUserPointPort, updateUserPointPort, saveUserPointHistoryPort
+                getUserPointUseCase, findUserPointPort, updateUserPointPort, saveUserPointHistoryPort
             );
         }
     }
@@ -88,26 +88,26 @@ class ModifyUserPointServiceRetryTest {
 
     private UserPoint createUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(LocalDateTime.of(2026, 3, 5, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 3, 5, 10, 0))
-                .build()
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(LocalDateTime.of(2026, 3, 5, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 3, 5, 10, 0))
+            .build()
         );
     }
 
     private ModifyUserPointCommand createAccrualCommand() {
         return ModifyUserPointCommand.builder()
-                .userId(USER_ID)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(500L)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L)
-                .reason("상품 구매 적립")
-                .build();
+            .userId(USER_ID)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(500L)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L)
+            .reason("상품 구매 적립")
+            .build();
     }
 
     @Test
@@ -117,11 +117,11 @@ class ModifyUserPointServiceRetryTest {
         ModifyUserPointCommand command = createAccrualCommand();
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(createUserPoint());
         when(updateUserPointPort.update(any(UserPoint.class)))
-                .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
-                .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
+            .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         modifyUserPointService.modify(command);
@@ -137,11 +137,11 @@ class ModifyUserPointServiceRetryTest {
         ModifyUserPointCommand command = createAccrualCommand();
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(createUserPoint());
         when(updateUserPointPort.update(any(UserPoint.class)))
-                .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID));
+            .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID));
 
         // expect
         assertThatThrownBy(() -> modifyUserPointService.modify(command))
-                .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+            .isInstanceOf(ObjectOptimisticLockingFailureException.class);
 
         verify(updateUserPointPort, times(3)).update(any(UserPoint.class));
     }
@@ -153,11 +153,11 @@ class ModifyUserPointServiceRetryTest {
         ModifyUserPointCommand command = createAccrualCommand();
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(createUserPoint());
         when(updateUserPointPort.update(any(UserPoint.class)))
-                .thenThrow(new IllegalStateException("other error"));
+            .thenThrow(new IllegalStateException("other error"));
 
         // expect
         assertThatThrownBy(() -> modifyUserPointService.modify(command))
-                .isInstanceOf(IllegalStateException.class);
+            .isInstanceOf(IllegalStateException.class);
 
         verify(updateUserPointPort, times(1)).update(any(UserPoint.class));
     }
@@ -166,6 +166,6 @@ class ModifyUserPointServiceRetryTest {
     @DisplayName("ModifyUserPointService는 AOP 프록시로 생성되어 @Retryable이 실제로 적용된다")
     void shouldBeAopProxy() {
         assertThat(org.springframework.aop.support.AopUtils.isAopProxy(modifyUserPointService))
-                .as("@Retryable 적용을 위해 AOP 프록시여야 한다").isTrue();
+            .as("@Retryable 적용을 위해 AOP 프록시여야 한다").isTrue();
     }
 }

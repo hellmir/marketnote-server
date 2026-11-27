@@ -12,11 +12,7 @@ import com.personal.marketnote.user.exception.InvalidUserStatusTransitionExcepti
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
 import com.personal.marketnote.user.exception.ReferredUserCodeInputAlreadySkippedException;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -62,8 +58,8 @@ public class User extends BaseDomain {
 
         AuthVendor targetAuthVendor = state.getAuthVendor();
         List<Terms> terms = FormatValidator.hasValue(state.getTerms())
-                ? state.getTerms()
-                : List.of();
+            ? state.getTerms()
+            : List.of();
 
         List<UserAuthProvider> userAuthProviders = new ArrayList<>(AuthVendor.size());
         AuthVendor[] allAuthVendors = AuthVendor.values();
@@ -80,18 +76,18 @@ public class User extends BaseDomain {
         }
 
         User user = User.builder()
-                .userKey(RandomCodeGenerator.generateUserKey())
-                .userAuthProviders(userAuthProviders)
-                .nickname(state.getNickname())
-                .email(toNullableEmail(state.getEmail()))
-                .fullName(state.getFullName())
-                .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
-                .referenceCode(state.getReferenceCode())
-                .role(Role.getBuyer())
-                .lastLoggedInAt(LocalDateTime.now())
-                .penaltyCount(0)
-                .deactivatedUntil(null)
-                .build();
+            .userKey(RandomCodeGenerator.generateUserKey())
+            .userAuthProviders(userAuthProviders)
+            .nickname(state.getNickname())
+            .email(toNullableEmail(state.getEmail()))
+            .fullName(state.getFullName())
+            .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
+            .referenceCode(state.getReferenceCode())
+            .role(Role.getBuyer())
+            .lastLoggedInAt(LocalDateTime.now())
+            .penaltyCount(0)
+            .deactivatedUntil(null)
+            .build();
 
         // 일반 회원 가입인 경우 비밀번호 설정
         if (targetAuthVendor.isNative() && state.hasPassword()) {
@@ -100,40 +96,40 @@ public class User extends BaseDomain {
 
         // 최초 회원 가입 시 모든 이용 약관 튜플 추가
         user.userTerms = terms.stream()
-                .map(term -> UserTerms.from(
-                        UserTermsCreateState.builder()
-                                .user(user)
-                                .terms(term)
-                                .build()
-                ))
-                .collect(Collectors.toList());
+            .map(term -> UserTerms.from(
+                UserTermsCreateState.builder()
+                    .user(user)
+                    .terms(term)
+                    .build()
+            ))
+            .collect(Collectors.toList());
 
         return user;
     }
 
     public static User from(UserSnapshotState state) {
         User user = User.builder()
-                .id(state.getId())
-                .userKey(state.getUserKey())
-                .nickname(state.getNickname())
-                .email(toNullableEmail(state.getEmail()))
-                .password(state.getPassword())
-                .fullName(state.getFullName())
-                .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
-                .referenceCode(state.getReferenceCode())
-                .referredUserCode(state.getReferredUserCode())
-                .referredUserCodeSkippedAt(state.getReferredUserCodeSkippedAt())
-                .role(state.getRole())
-                .userAuthProviders(state.getUserAuthProviders())
-                .userTerms(state.getUserTerms())
-                .signedUpAt(state.getSignedUpAt())
-                .lastLoggedInAt(state.getLastLoggedInAt())
-                .withdrawalYn(Boolean.TRUE.equals(state.getWithdrawalYn()))
-                .withdrawnAt(state.getWithdrawnAt())
-                .orderNum(state.getOrderNum())
-                .penaltyCount(state.getPenaltyCount())
-                .deactivatedUntil(state.getDeactivatedUntil())
-                .build();
+            .id(state.getId())
+            .userKey(state.getUserKey())
+            .nickname(state.getNickname())
+            .email(toNullableEmail(state.getEmail()))
+            .password(state.getPassword())
+            .fullName(state.getFullName())
+            .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
+            .referenceCode(state.getReferenceCode())
+            .referredUserCode(state.getReferredUserCode())
+            .referredUserCodeSkippedAt(state.getReferredUserCodeSkippedAt())
+            .role(state.getRole())
+            .userAuthProviders(state.getUserAuthProviders())
+            .userTerms(state.getUserTerms())
+            .signedUpAt(state.getSignedUpAt())
+            .lastLoggedInAt(state.getLastLoggedInAt())
+            .withdrawalYn(Boolean.TRUE.equals(state.getWithdrawalYn()))
+            .withdrawnAt(state.getWithdrawnAt())
+            .orderNum(state.getOrderNum())
+            .penaltyCount(state.getPenaltyCount())
+            .deactivatedUntil(state.getDeactivatedUntil())
+            .build();
 
         EntityStatus status = state.getStatus();
         if (status.isActive()) {
@@ -152,18 +148,18 @@ public class User extends BaseDomain {
 
     public static User referenceOf(Long id) {
         return User.builder()
-                .id(id)
-                .role(Role.getGuest())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(new ArrayList<>())
-                .build();
+            .id(id)
+            .role(Role.getGuest())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(new ArrayList<>())
+            .build();
     }
 
     private static User createGuest(UserCreateState state) {
         return User.builder()
-                .userAuthProviders(List.of(UserAuthProvider.of(state.getAuthVendor(), state.getOidcId())))
-                .role(Role.getGuest())
-                .build();
+            .userAuthProviders(List.of(UserAuthProvider.of(state.getAuthVendor(), state.getOidcId())))
+            .role(Role.getGuest())
+            .build();
     }
 
     private static PhoneNumber toNullablePhoneNumber(String value) {
@@ -186,8 +182,8 @@ public class User extends BaseDomain {
 
     public void acceptOrCancelTerms(List<Long> termsIds) {
         userTerms.stream()
-                .filter(userTerms -> termsIds.contains(userTerms.getTerms().getId()))
-                .forEach(UserTerms::acceptOrCancel);
+            .filter(userTerms -> termsIds.contains(userTerms.getTerms().getId()))
+            .forEach(UserTerms::acceptOrCancel);
     }
 
     public boolean isValidPassword(PasswordEncoder passwordEncoder, String targetPassword) {
@@ -216,8 +212,8 @@ public class User extends BaseDomain {
 
     public boolean isMutualReferralWith(User otherUser) {
         return FormatValidator.hasValue(this.referredUserCode)
-                && FormatValidator.hasValue(otherUser.referenceCode)
-                && this.referredUserCode.equals(otherUser.referenceCode);
+            && FormatValidator.hasValue(otherUser.referenceCode)
+            && this.referredUserCode.equals(otherUser.referenceCode);
     }
 
     public void registerReferredUserCode(ReferenceCode referredUserCode) {
@@ -264,7 +260,7 @@ public class User extends BaseDomain {
 
     public void addLoginAccountInfo(AuthVendor authVendor, String oidcId, String password, PasswordEncoder passwordEncoder) {
         userAuthProviders.forEach(
-                userAuthProvider -> userAuthProvider.update(authVendor, oidcId)
+            userAuthProvider -> userAuthProvider.update(authVendor, oidcId)
         );
 
         if (FormatValidator.hasValue(password)) {
@@ -302,7 +298,7 @@ public class User extends BaseDomain {
 
     public boolean isRequiredTermsAgreed() {
         return userTerms.stream()
-                .allMatch(UserTerms::isRequiredTermsAgreed);
+            .allMatch(UserTerms::isRequiredTermsAgreed);
     }
 
     public void withdraw(LocalDateTime now) {
@@ -335,21 +331,21 @@ public class User extends BaseDomain {
 
     public String getOidcIdByVendor(AuthVendor vendor) {
         return userAuthProviders.stream()
-                .filter(v -> v.isVendor(vendor))
-                .findFirst()
-                .map(UserAuthProvider::getOidcId)
-                .orElse(null);
+            .filter(v -> v.isVendor(vendor))
+            .findFirst()
+            .map(UserAuthProvider::getOidcId)
+            .orElse(null);
     }
 
     public boolean hasAccount(AuthVendor vendor) {
         return userAuthProviders.stream()
-                .anyMatch(v -> v.hasAccount(vendor));
+            .anyMatch(v -> v.hasAccount(vendor));
     }
 
     public void removeOidcId(AuthVendor vendor) {
         userAuthProviders.stream()
-                .filter(v -> v.isVendor(vendor))
-                .forEach(UserAuthProvider::removeOidcId);
+            .filter(v -> v.isVendor(vendor))
+            .forEach(UserAuthProvider::removeOidcId);
     }
 
     public void deactivateWithDuration(LocalDateTime deactivatedUntil) {

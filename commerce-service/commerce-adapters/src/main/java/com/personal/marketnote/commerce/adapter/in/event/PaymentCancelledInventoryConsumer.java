@@ -28,12 +28,12 @@ public class PaymentCancelledInventoryConsumer {
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
-            groupId = "commerce-inventory"
+        topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+        groupId = "commerce-inventory"
     )
     public void handlePaymentCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,11 +51,11 @@ public class PaymentCancelledInventoryConsumer {
             PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
             log.info("결제 취소 이벤트 수신 (재고 복구). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel()
+                envelope.eventId(), payload.orderId(), payload.isFullCancel()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -73,7 +73,7 @@ public class PaymentCancelledInventoryConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }
@@ -109,15 +109,15 @@ public class PaymentCancelledInventoryConsumer {
 
     private List<OrderProduct> convertToOrderProducts(List<OrderProductItem> items) {
         return items.stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .quantity(item.quantity())
-                                .unitAmount(item.unitAmount())
-                                .sharerKey(item.sharerKey())
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .toList();
+            .map(item -> OrderProduct.from(
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(item.pricePolicyId())
+                    .quantity(item.quantity())
+                    .unitAmount(item.unitAmount())
+                    .sharerKey(item.sharerKey())
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .toList();
     }
 }

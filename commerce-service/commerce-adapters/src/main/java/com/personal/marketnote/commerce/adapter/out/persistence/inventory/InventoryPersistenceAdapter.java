@@ -39,40 +39,40 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
     @Override
     public void save(Set<Inventory> inventories) {
         inventoryJpaRepository.saveAll(
-                inventories.stream()
-                        .map(InventoryJpaEntity::from)
-                        .toList()
+            inventories.stream()
+                .map(InventoryJpaEntity::from)
+                .toList()
         );
     }
 
     @Override
     public Set<Inventory> findByPricePolicyIds(Set<Long> pricePolicyIds) {
         return inventoryJpaRepository.findByPricePolicyIds(pricePolicyIds)
-                .stream()
-                .map(InventoryJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+            .stream()
+            .map(InventoryJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
     }
 
     @Override
     public Set<Inventory> findByProductIds(Set<Long> productIds) {
         return inventoryJpaRepository.findByProductIds(productIds)
-                .stream()
-                .map(InventoryJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+            .stream()
+            .map(InventoryJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
     }
 
     @Override
     public Set<Inventory> findByProductKeys(Set<UUID> productKeys) {
         return inventoryJpaRepository.findByProductKeys(productKeys)
-                .stream()
-                .map(InventoryJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+            .stream()
+            .map(InventoryJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -83,35 +83,35 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
     @Override
     public void updateProductKey(Set<Inventory> inventories) {
         Set<Long> pricePolicyIds = inventories.stream()
-                .map(Inventory::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(Inventory::getPricePolicyId)
+            .collect(Collectors.toSet());
 
         Set<InventoryJpaEntity> entities = inventoryJpaRepository.findByPricePolicyIds(pricePolicyIds);
 
         for (Inventory inventory : inventories) {
             entities.stream()
-                    .filter(entity -> entity.getPricePolicyId().equals(inventory.getPricePolicyId()))
-                    .findFirst()
-                    .ifPresent(entity -> entity.assignProductKey(inventory.getProductKey()));
+                .filter(entity -> entity.getPricePolicyId().equals(inventory.getPricePolicyId()))
+                .findFirst()
+                .ifPresent(entity -> entity.assignProductKey(inventory.getProductKey()));
         }
     }
 
     @Override
     public void update(Set<Inventory> inventories) throws InventoryNotFoundException {
         Set<Long> pricePolicyIds = inventories.stream()
-                .map(Inventory::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(Inventory::getPricePolicyId)
+            .collect(Collectors.toSet());
 
         Set<InventoryJpaEntity> inventoryEntities = inventoryJpaRepository.findByPricePolicyIds(pricePolicyIds);
 
         for (Inventory inventory : inventories) {
             InventoryJpaEntity inventoryEntity = inventoryEntities.stream()
-                    .filter(entity -> entity.getPricePolicyId().equals(inventory.getPricePolicyId()))
-                    .findFirst()
-                    .orElseThrow(() -> {
-                        log.warn("재고를 찾을 수 없습니다. pricePolicyId={}", inventory.getPricePolicyId());
-                        return new InventoryNotFoundException();
-                    });
+                .filter(entity -> entity.getPricePolicyId().equals(inventory.getPricePolicyId()))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.warn("재고를 찾을 수 없습니다. pricePolicyId={}", inventory.getPricePolicyId());
+                    return new InventoryNotFoundException();
+                });
 
             inventoryEntity.updateFrom(inventory);
         }
@@ -121,17 +121,17 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
     public void save(InventoryDeductionHistories inventoryDeductionHistories) {
         try {
             inventoryDeductionHistoryJpaRepository.saveAllAndFlush(
-                    inventoryDeductionHistories.getInventoryDeductionHistories()
-                            .stream()
-                            .map(InventoryDeductionHistoryJpaEntity::from)
-                            .toList()
+                inventoryDeductionHistories.getInventoryDeductionHistories()
+                    .stream()
+                    .map(InventoryDeductionHistoryJpaEntity::from)
+                    .toList()
             );
         } catch (DataIntegrityViolationException dive) {
             Long orderId = inventoryDeductionHistories.getInventoryDeductionHistories()
-                    .stream()
-                    .findFirst()
-                    .map(InventoryDeductionHistory::getOrderId)
-                    .orElse(null);
+                .stream()
+                .findFirst()
+                .map(InventoryDeductionHistory::getOrderId)
+                .orElse(null);
             throw new DuplicateInventoryDeductionException(orderId, dive);
         }
     }
@@ -140,17 +140,17 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
     public void save(InventoryRestorationHistories inventoryRestorationHistories) {
         try {
             inventoryRestorationHistoryJpaRepository.saveAllAndFlush(
-                    inventoryRestorationHistories.getInventoryRestorationHistories()
-                            .stream()
-                            .map(InventoryRestorationHistoryJpaEntity::from)
-                            .toList()
+                inventoryRestorationHistories.getInventoryRestorationHistories()
+                    .stream()
+                    .map(InventoryRestorationHistoryJpaEntity::from)
+                    .toList()
             );
         } catch (DataIntegrityViolationException dive) {
             Long orderId = inventoryRestorationHistories.getInventoryRestorationHistories()
-                    .stream()
-                    .findFirst()
-                    .map(InventoryRestorationHistory::getOrderId)
-                    .orElse(null);
+                .stream()
+                .findFirst()
+                .map(InventoryRestorationHistory::getOrderId)
+                .orElse(null);
             throw new DuplicateInventoryRestorationException(orderId, dive);
         }
     }

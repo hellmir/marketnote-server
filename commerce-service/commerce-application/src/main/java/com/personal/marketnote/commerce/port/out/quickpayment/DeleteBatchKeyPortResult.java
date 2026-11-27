@@ -4,8 +4,8 @@ import lombok.Builder;
 
 @Builder
 public record DeleteBatchKeyPortResult(
-        boolean success,
-        String resultCode,
-        String resultMessage
+    boolean success,
+    String resultCode,
+    String resultMessage
 ) {
 }

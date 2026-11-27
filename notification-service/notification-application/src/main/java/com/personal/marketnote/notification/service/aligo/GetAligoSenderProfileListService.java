@@ -34,8 +34,8 @@ public class GetAligoSenderProfileListService implements GetAligoSenderProfileLi
         List<AligoSenderProfile> syncedProfiles = syncProfiles(externalProfiles);
 
         List<GetAligoSenderProfileListResult.AligoSenderProfileResult> results = syncedProfiles.stream()
-                .map(this::toResult)
-                .toList();
+            .map(this::toResult)
+            .toList();
 
         return new GetAligoSenderProfileListResult(results);
     }
@@ -44,7 +44,7 @@ public class GetAligoSenderProfileListService implements GetAligoSenderProfileLi
     public List<AligoSenderProfile> syncProfiles(List<AligoSenderProfile> externalProfiles) {
         List<AligoSenderProfile> localProfiles = findAligoSenderProfilePort.findAll();
         Map<String, AligoSenderProfile> localMap = localProfiles.stream()
-                .collect(Collectors.toMap(AligoSenderProfile::getSenderKey, p -> p));
+            .collect(Collectors.toMap(AligoSenderProfile::getSenderKey, p -> p));
 
         List<AligoSenderProfile> syncedProfiles = new ArrayList<>();
 
@@ -58,9 +58,9 @@ public class GetAligoSenderProfileListService implements GetAligoSenderProfileLi
             }
 
             local.updateFromExternal(
-                    externalProfile.getProfileInspectionStatus(),
-                    externalProfile.getSenderProfileStatus(),
-                    externalProfile.isAlimUseYn()
+                externalProfile.getProfileInspectionStatus(),
+                externalProfile.getSenderProfileStatus(),
+                externalProfile.isAlimUseYn()
             );
             updateAligoSenderProfilePort.update(local);
             syncedProfiles.add(local);
@@ -71,16 +71,16 @@ public class GetAligoSenderProfileListService implements GetAligoSenderProfileLi
 
     private GetAligoSenderProfileListResult.AligoSenderProfileResult toResult(AligoSenderProfile profile) {
         return new GetAligoSenderProfileListResult.AligoSenderProfileResult(
-                profile.getId(),
-                profile.getSenderKey(),
-                profile.getPlusId(),
-                profile.getName(),
-                profile.getCategoryCode(),
-                FormatValidator.hasValue(profile.getProfileInspectionStatus())
-                        ? profile.getProfileInspectionStatus().getDescription() : null,
-                FormatValidator.hasValue(profile.getSenderProfileStatus())
-                        ? profile.getSenderProfileStatus().getDescription() : null,
-                profile.isAlimUseYn()
+            profile.getId(),
+            profile.getSenderKey(),
+            profile.getPlusId(),
+            profile.getName(),
+            profile.getCategoryCode(),
+            FormatValidator.hasValue(profile.getProfileInspectionStatus())
+                ? profile.getProfileInspectionStatus().getDescription() : null,
+            FormatValidator.hasValue(profile.getSenderProfileStatus())
+                ? profile.getSenderProfileStatus().getDescription() : null,
+            profile.isAlimUseYn()
         );
     }
 }

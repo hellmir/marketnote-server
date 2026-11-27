@@ -34,12 +34,12 @@ public class ProductRegisteredFulfillmentConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_REGISTERED,
-            groupId = "fulfillment-service"
+        topics = KafkaTopicConstants.PRODUCT_REGISTERED,
+        groupId = "fulfillment-service"
     )
     public void handleProductRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -67,18 +67,18 @@ public class ProductRegisteredFulfillmentConsumer {
             if (payload.imported()) {
                 if (FormatValidator.hasNoValue(payload.fasstoProductCode())) {
                     log.error(
-                            "import 상품인데 fasstoProductCode 누락. eventId={}, productKey={}",
-                            envelope.eventId(), payload.productKey()
+                        "import 상품인데 fasstoProductCode 누락. eventId={}, productKey={}",
+                        envelope.eventId(), payload.productKey()
                     );
                     acknowledgment.acknowledge();
                     return;
                 }
                 registerFulfillmentGoodsUseCase.recordImportedGoodsRegistration(
-                        payload.productKey(), payload.fasstoProductCode()
+                    payload.productKey(), payload.fasstoProductCode()
                 );
                 log.info(
-                        "import 상품, Fastto 송신 스킵 (로컬 매핑은 저장 완료). eventId={}, fasstoProductCode={}",
-                        envelope.eventId(), payload.fasstoProductCode()
+                    "import 상품, Fastto 송신 스킵 (로컬 매핑은 저장 완료). eventId={}, fasstoProductCode={}",
+                    envelope.eventId(), payload.fasstoProductCode()
                 );
                 acknowledgment.acknowledge();
                 return;
@@ -93,20 +93,20 @@ public class ProductRegisteredFulfillmentConsumer {
             String godType = FormatValidator.hasValue(payload.goodsType()) ? payload.goodsType() : DEFAULT_GOD_TYPE;
 
             RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                    .productKey(payload.productKey())
-                    .fasstoProductCode(payload.fasstoProductCode())
-                    .productName(payload.productName())
-                    .productType(godType)
-                    .giftDivision(DEFAULT_GIFT_DIV)
-                    .build();
+                .productKey(payload.productKey())
+                .fasstoProductCode(payload.fasstoProductCode())
+                .productName(payload.productName())
+                .productType(godType)
+                .giftDivision(DEFAULT_GIFT_DIV)
+                .build();
 
             fulfillmentAuthenticatedCaller.call(token -> {
                 registerFulfillmentGoodsUseCase.registerGoodsIdempotent(
-                        RegisterFulfillmentGoodsCommand.of(
-                                fasstoAuthProperties.getCustomerCode(),
-                                token,
-                                List.of(itemCommand)
-                        )
+                    RegisterFulfillmentGoodsCommand.of(
+                        fasstoAuthProperties.getCustomerCode(),
+                        token,
+                        List.of(itemCommand)
+                    )
                 );
                 return null;
             });
@@ -114,7 +114,7 @@ public class ProductRegisteredFulfillmentConsumer {
             log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productKey={}", payload.productKey());
         } catch (FulfillmentGoodsAlreadyRegisteredException e) {
             log.warn("이미 Fulfillment에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage()
+                envelope.eventId(), record.key(), e.getMessage()
             );
         }
         // 그 외 예외(RegisterFulfillmentGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리

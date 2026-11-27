@@ -4,12 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record FulfillmentGoodsElementItemResult(
-        String productCode,
-        String customerProductCode,
-        String productBarcode,
-        String productName,
-        String productType,
-        String productTypeName,
-        Integer quantity
+    String productCode,
+    String customerProductCode,
+    String productBarcode,
+    String productName,
+    String productType,
+    String productTypeName,
+    Integer quantity
 ) {
 }

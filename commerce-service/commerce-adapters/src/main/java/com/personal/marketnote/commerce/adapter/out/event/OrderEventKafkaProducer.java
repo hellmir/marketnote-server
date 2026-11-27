@@ -33,34 +33,34 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
     @Override
     public void publishOrderPaymentCompletedEvent(
-            Long orderId, Long buyerId, Long totalAmount,
-            Long pointAmount, ShippingAddress shippingAddress,
-            List<OrderProduct> orderProducts, Long totalAccumulatedPoint
+        Long orderId, Long buyerId, Long totalAmount,
+        Long pointAmount, ShippingAddress shippingAddress,
+        List<OrderProduct> orderProducts, Long totalAccumulatedPoint
     ) {
         List<OrderProductItem> items = orderProducts.stream()
-                .map(op -> new OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getProductId(),
-                        op.getProductKey(),
-                        op.getSharerKey(),
-                        op.getQuantity().getValue(),
-                        op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new OrderProductItem(
+                op.getPricePolicyId(),
+                op.getProductId(),
+                op.getProductKey(),
+                op.getSharerKey(),
+                op.getQuantity().getValue(),
+                op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         OrderPaymentCompletedEvent payload = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount,
-                resolveRecipientName(shippingAddress),
-                resolveRecipientPhoneNumber(shippingAddress),
-                FormatValidator.hasValue(shippingAddress) ? shippingAddress.getZipCode() : null,
-                FormatValidator.hasValue(shippingAddress) ? shippingAddress.getAddress() : null,
-                FormatValidator.hasValue(shippingAddress) ? shippingAddress.getAddressDetail() : null,
-                resolveDeliveryRequestMessage(shippingAddress),
-                items, totalAccumulatedPoint
+            orderId, buyerId, totalAmount, pointAmount,
+            resolveRecipientName(shippingAddress),
+            resolveRecipientPhoneNumber(shippingAddress),
+            FormatValidator.hasValue(shippingAddress) ? shippingAddress.getZipCode() : null,
+            FormatValidator.hasValue(shippingAddress) ? shippingAddress.getAddress() : null,
+            FormatValidator.hasValue(shippingAddress) ? shippingAddress.getAddressDetail() : null,
+            resolveDeliveryRequestMessage(shippingAddress),
+            items, totalAccumulatedPoint
         );
         String topic = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED;
         EventEnvelope<OrderPaymentCompletedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -68,24 +68,24 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
     @Override
     public void publishOrderPurchaseConfirmedEvent(
-            Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed,
-            List<OrderProduct> orderProducts
+        Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed,
+        List<OrderProduct> orderProducts
     ) {
         List<OrderPurchaseConfirmedEvent.OrderProductItem> items = FormatValidator.hasValue(orderProducts)
-                ? orderProducts.stream()
-                .map(op -> new OrderPurchaseConfirmedEvent.OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getProductId(),
-                        op.getQuantity().getValue()
-                ))
-                .toList()
-                : List.of();
+            ? orderProducts.stream()
+            .map(op -> new OrderPurchaseConfirmedEvent.OrderProductItem(
+                op.getPricePolicyId(),
+                op.getProductId(),
+                op.getQuantity().getValue()
+            ))
+            .toList()
+            : List.of();
         OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(
-                orderId, buyerId, sharerKeys, isAutoConfirmed, items
+            orderId, buyerId, sharerKeys, isAutoConfirmed, items
         );
         String topic = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED;
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -93,38 +93,38 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
     @Override
     public void publishOrderCancelledEvent(
-            Long orderId, String orderKey, Long buyerId,
-            Long cancelAmount, Long paymentAmount, Long pointAmount,
-            Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
-            List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts,
-            String cancelId
+        Long orderId, String orderKey, Long buyerId,
+        Long cancelAmount, Long paymentAmount, Long pointAmount,
+        Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
+        List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts,
+        String cancelId
     ) {
         List<OrderCancelledEvent.OrderProductItem> items = orderProducts.stream()
-                .map(op -> new OrderCancelledEvent.OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getSharerKey(),
-                        op.getQuantity().getValue(),
-                        op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new OrderCancelledEvent.OrderProductItem(
+                op.getPricePolicyId(),
+                op.getSharerKey(),
+                op.getQuantity().getValue(),
+                op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         List<OrderCancelledEvent.OrderProductItem> cancelItems = cancelProducts.stream()
-                .map(op -> new OrderCancelledEvent.OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getSharerKey(),
-                        op.getQuantity().getValue(),
-                        op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new OrderCancelledEvent.OrderProductItem(
+                op.getPricePolicyId(),
+                op.getSharerKey(),
+                op.getQuantity().getValue(),
+                op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         OrderCancelledEvent payload = new OrderCancelledEvent(
-                orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, shippingFee, isFullCancel, alreadyRefunded,
-                items, cancelItems, cancelId
+            orderId, orderKey, buyerId, cancelAmount, paymentAmount,
+            pointAmount, shippingFee, isFullCancel, alreadyRefunded,
+            items, cancelItems, cancelId
         );
         String topic = KafkaTopicConstants.ORDER_CANCELLED;
         EventEnvelope<OrderCancelledEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -132,28 +132,28 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
     @Override
     public void publishOrderReturnedEvent(
-            Long orderId, String orderKey, Long buyerId,
-            Long returnAmount, Long paymentAmount, Long pointAmount,
-            Long shippingFee, boolean isFullReturn,
-            Long returnShippingFee, List<OrderProduct> returnProducts,
-            String returnId
+        Long orderId, String orderKey, Long buyerId,
+        Long returnAmount, Long paymentAmount, Long pointAmount,
+        Long shippingFee, boolean isFullReturn,
+        Long returnShippingFee, List<OrderProduct> returnProducts,
+        String returnId
     ) {
         List<OrderReturnedEvent.OrderProductItem> items = returnProducts.stream()
-                .map(op -> new OrderReturnedEvent.OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getSharerKey(),
-                        op.getQuantity().getValue(),
-                        op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new OrderReturnedEvent.OrderProductItem(
+                op.getPricePolicyId(),
+                op.getSharerKey(),
+                op.getQuantity().getValue(),
+                op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         OrderReturnedEvent payload = new OrderReturnedEvent(
-                orderId, orderKey, buyerId, returnAmount, paymentAmount,
-                pointAmount, shippingFee, isFullReturn, returnShippingFee, items, returnId
+            orderId, orderKey, buyerId, returnAmount, paymentAmount,
+            pointAmount, shippingFee, isFullReturn, returnShippingFee, items, returnId
         );
         String topic = KafkaTopicConstants.ORDER_RETURNED;
         EventEnvelope<OrderReturnedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -164,7 +164,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         ReturnRequestedEvent payload = new ReturnRequestedEvent(orderId, buyerId);
         String topic = KafkaTopicConstants.RETURN_REQUESTED;
         EventEnvelope<ReturnRequestedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -175,7 +175,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         ReturnRejectedEvent payload = new ReturnRejectedEvent(orderId, buyerId);
         String topic = KafkaTopicConstants.RETURN_REJECTED;
         EventEnvelope<ReturnRejectedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -186,7 +186,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         OrderCancelFailedEvent payload = new OrderCancelFailedEvent(orderId, buyerId);
         String topic = KafkaTopicConstants.ORDER_CANCEL_FAILED;
         EventEnvelope<OrderCancelFailedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -220,8 +220,8 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

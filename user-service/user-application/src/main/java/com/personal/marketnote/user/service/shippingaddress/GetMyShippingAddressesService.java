@@ -25,8 +25,8 @@ public class GetMyShippingAddressesService implements GetMyShippingAddressesUseC
         List<ShippingAddress> shippingAddresses = new ArrayList<>(findShippingAddressPort.findAllByUserId(userId));
 
         shippingAddresses.sort(
-                Comparator.comparing(ShippingAddress::isDefault, Comparator.reverseOrder())
-                        .thenComparing(sa -> sa.getAddressType().ordinal())
+            Comparator.comparing(ShippingAddress::isDefault, Comparator.reverseOrder())
+                .thenComparing(sa -> sa.getAddressType().ordinal())
         );
 
         return GetMyShippingAddressesResult.from(shippingAddresses);

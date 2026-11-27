@@ -34,21 +34,21 @@ public class ProductItemResponse {
 
     public static ProductItemResponse from(ProductItemResult result) {
         return ProductItemResponse.builder()
-                .id(result.getId())
-                .sellerId(result.getSellerId())
-                .name(result.getName())
-                .brandName(result.getBrandName())
-                .pricePolicy(result.getPricePolicy())
-                .sales(result.getSales())
-                .productTags(result.getProductTags())
-                .catalogImage(result.getCatalogImage())
-                .selectedOptions(result.getSelectedOptions())
-                .stock(result.getStock())
-                .averageRating(result.getAverageRating())
-                .totalCount(result.getTotalCount())
-                .status(result.getStatus())
-                .orderNum(result.getOrderNum())
-                .build();
+            .id(result.getId())
+            .sellerId(result.getSellerId())
+            .name(result.getName())
+            .brandName(result.getBrandName())
+            .pricePolicy(result.getPricePolicy())
+            .sales(result.getSales())
+            .productTags(result.getProductTags())
+            .catalogImage(result.getCatalogImage())
+            .selectedOptions(result.getSelectedOptions())
+            .stock(result.getStock())
+            .averageRating(result.getAverageRating())
+            .totalCount(result.getTotalCount())
+            .status(result.getStatus())
+            .orderNum(result.getOrderNum())
+            .build();
     }
 }
 

@@ -5,9 +5,9 @@ import com.personal.marketnote.common.utility.FormatValidator;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentAuthResponse(
-        FulfillmentResponseHeader header,
-        FulfillmentAuthDataResponse data,
-        FulfillmentErrorInfo errorInfo
+    FulfillmentResponseHeader header,
+    FulfillmentAuthDataResponse data,
+    FulfillmentErrorInfo errorInfo
 ) implements FulfillmentApiResponse {
     public boolean isSuccess() {
         return FormatValidator.hasValue(header) && header.isSuccess();

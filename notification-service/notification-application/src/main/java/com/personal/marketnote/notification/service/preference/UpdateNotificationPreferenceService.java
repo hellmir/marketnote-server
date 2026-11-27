@@ -32,14 +32,14 @@ public class UpdateNotificationPreferenceService implements UpdateNotificationPr
         NotificationType notificationType = NotificationType.valueOf(command.notificationType());
 
         NotificationPreference preference = findNotificationPreferencePort
-                .findByUserIdAndNotificationType(command.userId(), notificationType)
-                .orElseThrow(() -> {
-                    log.warn(
-                            "알림 수신 설정을 찾을 수 없습니다. userId={}, notificationType={}",
-                            command.userId(), notificationType
-                    );
-                    return new NotificationPreferenceNotFoundException();
-                });
+            .findByUserIdAndNotificationType(command.userId(), notificationType)
+            .orElseThrow(() -> {
+                log.warn(
+                    "알림 수신 설정을 찾을 수 없습니다. userId={}, notificationType={}",
+                    command.userId(), notificationType
+                );
+                return new NotificationPreferenceNotFoundException();
+            });
 
         LocalDateTime now = LocalDateTime.now(clock);
 

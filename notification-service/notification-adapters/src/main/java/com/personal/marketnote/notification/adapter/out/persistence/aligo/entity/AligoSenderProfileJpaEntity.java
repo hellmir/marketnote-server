@@ -9,7 +9,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "aligo_sender_profile", indexes = {
-        @Index(name = "idx_aligo_sender_profile_sender_key", columnList = "sender_key", unique = true)
+    @Index(name = "idx_aligo_sender_profile_sender_key", columnList = "sender_key", unique = true)
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -59,16 +59,16 @@ public class AligoSenderProfileJpaEntity extends BaseGeneralEntity {
 
     public static AligoSenderProfileJpaEntity from(AligoSenderProfile profile) {
         return AligoSenderProfileJpaEntity.builder()
-                .senderKey(profile.getSenderKey())
-                .plusId(profile.getPlusId())
-                .phoneNumber(profile.getPhoneNumber())
-                .categoryCode(profile.getCategoryCode())
-                .name(profile.getName())
-                .licenseNum(profile.getLicenseNum())
-                .profileInspectionStatus(profile.getProfileInspectionStatus())
-                .senderProfileStatus(profile.getSenderProfileStatus())
-                .alimUseYn(profile.isAlimUseYn())
-                .uuid(profile.getUuid())
-                .build();
+            .senderKey(profile.getSenderKey())
+            .plusId(profile.getPlusId())
+            .phoneNumber(profile.getPhoneNumber())
+            .categoryCode(profile.getCategoryCode())
+            .name(profile.getName())
+            .licenseNum(profile.getLicenseNum())
+            .profileInspectionStatus(profile.getProfileInspectionStatus())
+            .senderProfileStatus(profile.getSenderProfileStatus())
+            .alimUseYn(profile.isAlimUseYn())
+            .uuid(profile.getUuid())
+            .build();
     }
 }

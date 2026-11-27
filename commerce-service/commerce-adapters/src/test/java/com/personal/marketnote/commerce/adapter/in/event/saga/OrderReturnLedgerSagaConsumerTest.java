@@ -57,16 +57,16 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("역분개 성공 시 성공 응답을 발행한다")
         void shouldPublishSuccessOnReverseLedger() throws Exception {
             String actionPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
+                Map.of("orderId", 1L, "returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_ORDER_RETURN:1");
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -74,19 +74,19 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("중복 역분개 시 멱등 처리로 성공 응답을 발행한다")
         void shouldPublishSuccessOnDuplicateLedgerEntry() throws Exception {
             String actionPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
+                Map.of("orderId", 1L, "returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new DuplicateLedgerTransactionException("SAGA_ORDER_RETURN:1"))
-                    .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_ORDER_RETURN:1");
+                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_ORDER_RETURN:1");
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("idempotent"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("idempotent"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -94,18 +94,18 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("역분개 처리 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnLedgerError() throws Exception {
             String actionPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
+                Map.of("orderId", 1L, "returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("분개 실패"))
-                    .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_ORDER_RETURN:1");
+                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "SAGA_ORDER_RETURN:1");
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "반품 역분개 처리 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "반품 역분개 처리 실패");
             verify(acknowledgment).acknowledge();
         }
     }
@@ -118,16 +118,16 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("보상 시 원래 분개를 복구하고 성공 응답을 발행한다")
         void shouldPublishSuccessOnCompensation() throws Exception {
             String compensationPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
+                Map.of("orderId", 1L, "paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verify(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -135,19 +135,19 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("중복 보상 시 멱등 처리로 성공 응답을 발행한다")
         void shouldPublishSuccessOnDuplicateCompensation() throws Exception {
             String compensationPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
+                Map.of("orderId", 1L, "paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new DuplicateLedgerTransactionException("SAGA_ORDER_RETURN_COMP:1"))
-                    .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+                .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("idempotent"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("idempotent"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -155,18 +155,18 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("보상 처리 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnCompensationError() throws Exception {
             String compensationPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
+                Map.of("orderId", 1L, "paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("복구 실패"))
-                    .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+                .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "반품 역분개 보상 처리 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "반품 역분개 보상 처리 실패");
             verify(acknowledgment).acknowledge();
         }
     }
@@ -179,17 +179,17 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("ACTION에서 orderId가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderIdInAction() throws Exception {
             String invalidPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
+                Map.of("returnAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("orderId"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("orderId"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -197,17 +197,17 @@ class OrderReturnLedgerSagaConsumerTest {
         @DisplayName("COMPENSATION에서 orderId가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderIdInCompensation() throws Exception {
             String invalidPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
+                Map.of("paymentAmount", 50000L, "idempotencyKey", "SAGA_ORDER_RETURN_COMP:1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleLedgerStep(record, acknowledgment);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("orderId"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("orderId"));
             verify(acknowledgment).acknowledge();
         }
     }
@@ -215,12 +215,12 @@ class OrderReturnLedgerSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-10-11T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_RETURN.RECORD_REVERSE_LEDGER.action", "saga-orchestrator", stepMessage, clock);
+            "saga.ORDER_RETURN.RECORD_REVERSE_LEDGER.action", "saga-orchestrator", stepMessage, clock);
 
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>("saga.order-return.ledger", 0, 0, SAGA_ID,
-                        (EventEnvelope<?>) (EventEnvelope) envelope);
+            new ConsumerRecord<>("saga.order-return.ledger", 0, 0, SAGA_ID,
+                (EventEnvelope<?>) (EventEnvelope) envelope);
         return record;
     }
 }

@@ -37,11 +37,11 @@ public class AdminPaymentEventController {
     public ResponseEntity<BaseResponse<List<GetUnknownPaymentEventsResponse>>> getUnknownPaymentEvents() {
         List<GetUnknownPaymentEventsResult> results = getUnknownPaymentEventsUseCase.getUnknownPaymentEvents();
         List<GetUnknownPaymentEventsResponse> responses = results.stream()
-                .map(GetUnknownPaymentEventsResponse::from)
-                .toList();
+            .map(GetUnknownPaymentEventsResponse::from)
+            .toList();
         return new ResponseEntity<>(
-                BaseResponse.of(responses, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "UNKNOWN 결제 이벤트 조회 성공"),
-                HttpStatus.OK
+            BaseResponse.of(responses, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "UNKNOWN 결제 이벤트 조회 성공"),
+            HttpStatus.OK
         );
     }
 
@@ -49,29 +49,29 @@ public class AdminPaymentEventController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ResolveUnknownPaymentEventApiDocs
     public ResponseEntity<BaseResponse<ResolveUnknownPaymentResponse>> resolveUnknownPaymentEvent(
-            @PathVariable("orderKey") String orderKey,
-            @Valid @RequestBody ResolveUnknownPaymentRequest request
+        @PathVariable("orderKey") String orderKey,
+        @Valid @RequestBody ResolveUnknownPaymentRequest request
     ) {
         ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                .orderKey(orderKey)
-                .resolvedStatus(request.resolvedStatus())
-                .resultCode(request.resultCode())
-                .resultMessage(request.resultMessage())
-                .pgPaymentKey(request.pgPaymentKey())
-                .approvalNumber(request.approvalNumber())
-                .appTime(request.appTime())
-                .build();
+            .orderKey(orderKey)
+            .resolvedStatus(request.resolvedStatus())
+            .resultCode(request.resultCode())
+            .resultMessage(request.resultMessage())
+            .pgPaymentKey(request.pgPaymentKey())
+            .approvalNumber(request.approvalNumber())
+            .appTime(request.appTime())
+            .build();
 
         ResolveUnknownPaymentResult result = resolveUnknownPaymentUseCase.resolve(command);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ResolveUnknownPaymentResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "UNKNOWN 결제 이벤트 해소 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ResolveUnknownPaymentResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "UNKNOWN 결제 이벤트 해소 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

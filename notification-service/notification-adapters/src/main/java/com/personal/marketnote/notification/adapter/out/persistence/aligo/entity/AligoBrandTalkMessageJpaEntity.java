@@ -76,10 +76,10 @@ public class AligoBrandTalkMessageJpaEntity extends BaseGeneralEntity {
     private List<AligoBrandTalkMessageRecipientJpaEntity> recipients = new ArrayList<>();
 
     public static AligoBrandTalkMessageJpaEntity create(
-            String senderKey, String sender, BrandTalkKakaoTarget kakaoTarget,
-            boolean advertYn, String templateCode,
-            boolean failoverEnabled, String failoverSubject, BrandTalkFailoverType failoverType,
-            LocalDateTime requestedAt, List<AligoBrandTalkMessageRecipientJpaEntity> recipientEntities
+        String senderKey, String sender, BrandTalkKakaoTarget kakaoTarget,
+        boolean advertYn, String templateCode,
+        boolean failoverEnabled, String failoverSubject, BrandTalkFailoverType failoverType,
+        LocalDateTime requestedAt, List<AligoBrandTalkMessageRecipientJpaEntity> recipientEntities
     ) {
         AligoBrandTalkMessageJpaEntity entity = new AligoBrandTalkMessageJpaEntity();
         entity.senderKey = senderKey;
@@ -103,9 +103,9 @@ public class AligoBrandTalkMessageJpaEntity extends BaseGeneralEntity {
     }
 
     public void updateSendResult(
-            String aligoMid, BrandTalkMessageCostType costType,
-            int unitCost, int totalCost, int successCount, int failCount,
-            BrandTalkMessageStatus messageStatus, LocalDateTime sentAt
+        String aligoMid, BrandTalkMessageCostType costType,
+        int unitCost, int totalCost, int successCount, int failCount,
+        BrandTalkMessageStatus messageStatus, LocalDateTime sentAt
     ) {
         this.aligoMid = aligoMid;
         this.costType = costType;

@@ -35,21 +35,21 @@ class RecordUserServiceCommunicationHistoryUseCaseTest {
         JsonNode payloadJson = new ObjectMapper().createObjectNode().put("key", "value");
 
         UserServiceCommunicationHistoryCommand command = UserServiceCommunicationHistoryCommand.builder()
-                .targetType(UserServiceCommunicationTargetType.USER_POINT)
-                .targetId("123")
-                .communicationType(UserServiceCommunicationType.REQUEST)
-                .sender(UserServiceCommunicationSenderType.REWARD)
-                .exception(null)
-                .payload("{\"key\":\"value\"}")
-                .payloadJson(payloadJson)
-                .build();
+            .targetType(UserServiceCommunicationTargetType.USER_POINT)
+            .targetId("123")
+            .communicationType(UserServiceCommunicationType.REQUEST)
+            .sender(UserServiceCommunicationSenderType.REWARD)
+            .exception(null)
+            .payload("{\"key\":\"value\"}")
+            .payloadJson(payloadJson)
+            .build();
 
         ArgumentCaptor<UserServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(UserServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(UserServiceCommunicationHistory.class);
 
         UserServiceCommunicationHistory savedHistory = mock(UserServiceCommunicationHistory.class);
         when(saveServiceCommunicationHistoryPort.save(any(UserServiceCommunicationHistory.class)))
-                .thenReturn(savedHistory);
+            .thenReturn(savedHistory);
 
         // when
         UserServiceCommunicationHistory result = recordUserServiceCommunicationHistoryService.record(command);
@@ -75,21 +75,21 @@ class RecordUserServiceCommunicationHistoryUseCaseTest {
     void record_commandWithException_savesExceptionInfo() {
         // given
         UserServiceCommunicationHistoryCommand command = UserServiceCommunicationHistoryCommand.builder()
-                .targetType(UserServiceCommunicationTargetType.USER_POINT)
-                .targetId("456")
-                .communicationType(UserServiceCommunicationType.RESPONSE)
-                .sender(UserServiceCommunicationSenderType.USER)
-                .exception("java.lang.RuntimeException: 포인트 조회 실패")
-                .payload(null)
-                .payloadJson(null)
-                .build();
+            .targetType(UserServiceCommunicationTargetType.USER_POINT)
+            .targetId("456")
+            .communicationType(UserServiceCommunicationType.RESPONSE)
+            .sender(UserServiceCommunicationSenderType.USER)
+            .exception("java.lang.RuntimeException: 포인트 조회 실패")
+            .payload(null)
+            .payloadJson(null)
+            .build();
 
         ArgumentCaptor<UserServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(UserServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(UserServiceCommunicationHistory.class);
 
         UserServiceCommunicationHistory savedHistory = mock(UserServiceCommunicationHistory.class);
         when(saveServiceCommunicationHistoryPort.save(any(UserServiceCommunicationHistory.class)))
-                .thenReturn(savedHistory);
+            .thenReturn(savedHistory);
 
         // when
         UserServiceCommunicationHistory result = recordUserServiceCommunicationHistoryService.record(command);

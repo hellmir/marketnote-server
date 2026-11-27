@@ -73,7 +73,7 @@ class UpdatePostUseCaseTest {
         UpdatePostCommand command = UpdatePostCommand.of(postId, "제목", "내용");
 
         assertThatThrownBy(() -> updatePostService.updatePost(command))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
         verifyNoInteractions(updatePostPort);
     }
 
@@ -86,7 +86,7 @@ class UpdatePostUseCaseTest {
         UpdatePostCommand command = UpdatePostCommand.of(postId, "제목", "내용");
 
         assertThatThrownBy(() -> updatePostService.updatePost(command))
-                .isInstanceOf(PostNotEditableException.class);
+            .isInstanceOf(PostNotEditableException.class);
         verifyNoInteractions(updatePostPort);
     }
 
@@ -99,7 +99,7 @@ class UpdatePostUseCaseTest {
         UpdatePostCommand command = UpdatePostCommand.of(postId, "욕설제목", "욕설내용");
 
         assertThatThrownBy(() -> updatePostService.updatePost(command))
-                .isInstanceOf(PostNotEditableException.class);
+            .isInstanceOf(PostNotEditableException.class);
 
         verifyNoInteractions(findProfanityWordPort);
         verifyNoInteractions(updatePostPort);
@@ -240,35 +240,35 @@ class UpdatePostUseCaseTest {
 
     private Post buildPost(Long id, Board board, UUID postKey) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .postKey(postKey)
-                .board(board)
-                .category(resolveCategoryCode(board))
-                .title("원본 제목")
-                .content("원본 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .postKey(postKey)
+            .board(board)
+            .category(resolveCategoryCode(board))
+            .title("원본 제목")
+            .content("원본 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildPostWithImportance(Long id, Board board, boolean isImportant) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .postKey(UUID.randomUUID())
-                .board(board)
-                .category(resolveCategoryCode(board))
-                .title("원본 제목")
-                .content("원본 내용")
-                .isImportant(isImportant)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .postKey(UUID.randomUUID())
+            .board(board)
+            .category(resolveCategoryCode(board))
+            .title("원본 제목")
+            .content("원본 내용")
+            .isImportant(isImportant)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private String resolveCategoryCode(Board board) {

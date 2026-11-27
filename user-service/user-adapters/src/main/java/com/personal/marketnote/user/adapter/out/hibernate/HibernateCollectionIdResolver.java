@@ -21,7 +21,7 @@ public class HibernateCollectionIdResolver extends TypeIdResolverBase {
         }
 
         if (value instanceof PersistentBag || value instanceof PersistentIdentifierBag
-                || value instanceof PersistentList) {
+            || value instanceof PersistentList) {
             return List.class.getName();
         }
 

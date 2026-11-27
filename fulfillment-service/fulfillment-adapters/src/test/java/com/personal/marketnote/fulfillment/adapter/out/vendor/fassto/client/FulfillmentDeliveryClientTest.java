@@ -5,9 +5,9 @@ import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.exception.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.*;
@@ -81,20 +81,20 @@ class FulfillmentDeliveryClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentDeliveryClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubDeliveryMutationProperties() {
@@ -130,7 +130,7 @@ class FulfillmentDeliveryClientTest {
     private void stubDeliveryStatusProperties() {
         when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
         when(properties.getDeliveryStatusPath())
-                .thenReturn("/delivery/parcel/{customerCode}/{startDate}/{endDate}/{outDiv}");
+            .thenReturn("/delivery/parcel/{customerCode}/{startDate}/{endDate}/{outDiv}");
     }
 
     private void stubDeliveryDetailProperties() {
@@ -141,111 +141,111 @@ class FulfillmentDeliveryClientTest {
     private void stubOutOrdGoodsDetailProperties() {
         when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
         when(properties.getDeliveryOutOrdGoodsDetailPath())
-                .thenReturn("/delivery/outOrd/goodsDetail/{customerCode}");
+            .thenReturn("/delivery/outOrd/goodsDetail/{customerCode}");
     }
 
     private void stubOutOrdGoodsByOrdNoProperties() {
         when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
         when(properties.getDeliveryOutOrdGoodsByOrdNoPath())
-                .thenReturn("/delivery/outOrd/ordNo/{customerCode}/{startDate}/{endDate}");
+            .thenReturn("/delivery/outOrd/ordNo/{customerCode}/{startDate}/{endDate}");
     }
 
     private void stubDeliveryGoodDetailProperties() {
         when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
         when(properties.getDeliveryGoodDetailPath())
-                .thenReturn("/delivery/goodDetail/{customerCode}/{startDate}/{endDate}");
+            .thenReturn("/delivery/goodDetail/{customerCode}/{startDate}/{endDate}");
     }
 
     private RegisterFulfillmentDeliveryCommand buildValidRegisterCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
-                .orderNumber("ORD001")
-                .orderDate("20260414")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .releaseMethod("01")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderNumber("ORD001")
+            .orderDate("20260414")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .releaseMethod("01")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentDeliveryCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private UpdateFulfillmentDeliveryCommand buildValidUpdateCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         UpdateFulfillmentDeliveryItemCommand itemCommand = UpdateFulfillmentDeliveryItemCommand.builder()
-                .orderNumber("ORD001")
-                .orderDate("20260414")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .releaseMethod("01")
-                .slipNumber("SLIP001")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderNumber("ORD001")
+            .orderDate("20260414")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .releaseMethod("01")
+            .slipNumber("SLIP001")
+            .products(List.of(goodsCommand))
+            .build();
         return UpdateFulfillmentDeliveryCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private RegisterFulfillmentDeliveryCarCommand buildValidRegisterCarCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDeliveryCarItemCommand itemCommand = RegisterFulfillmentDeliveryCarItemCommand.builder()
-                .orderNumber("ORD001")
-                .orderDate("20260414")
-                .releaseMethod("01")
-                .shopCode("SHOP001")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderNumber("ORD001")
+            .orderDate("20260414")
+            .releaseMethod("01")
+            .shopCode("SHOP001")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentDeliveryCarCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private UpdateFulfillmentDeliveryCarCommand buildValidUpdateCarCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         UpdateFulfillmentDeliveryCarItemCommand itemCommand = UpdateFulfillmentDeliveryCarItemCommand.builder()
-                .orderNumber("ORD001")
-                .orderDate("20260414")
-                .releaseMethod("01")
-                .shopCode("SHOP001")
-                .slipNumber("SLIP001")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderNumber("ORD001")
+            .orderDate("20260414")
+            .releaseMethod("01")
+            .shopCode("SHOP001")
+            .slipNumber("SLIP001")
+            .products(List.of(goodsCommand))
+            .build();
         return UpdateFulfillmentDeliveryCarCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private RegisterFulfillmentDeliveryIcsCommand buildValidRegisterIcsCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDeliveryIcsItemCommand itemCommand = RegisterFulfillmentDeliveryIcsItemCommand.builder()
-                .orderNumber("ORD001")
-                .orderDate("20260414")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .invoiceNumber("INV001")
-                .logisticsCenter("LC01")
-                .platform("PLATFORM")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderNumber("ORD001")
+            .orderDate("20260414")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .invoiceNumber("INV001")
+            .logisticsCenter("LC01")
+            .platform("PLATFORM")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentDeliveryIcsCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private CompleteFulfillmentDeliveryIcsCommand buildValidCompleteIcsCommand() {
         CompleteFulfillmentDeliveryIcsItemCommand itemCommand = CompleteFulfillmentDeliveryIcsItemCommand.of(
-                List.of("ORD001")
+            List.of("ORD001")
         );
         return CompleteFulfillmentDeliveryIcsCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private CancelFulfillmentDeliveryCommand buildValidCancelCommand() {
         CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of(
-                "SLIP001", "ORD001"
+            "SLIP001", "ORD001"
         );
         return CancelFulfillmentDeliveryCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
@@ -315,11 +315,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -345,7 +345,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDelivery(command))
-                    .isInstanceOf(RegisterFulfillmentDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDeliveryFailedException.class);
         }
 
         @Test
@@ -355,18 +355,18 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "INVALID_ACCESS", "msg": "access token is invalid"},
-                      "data": []
-                    }
-                    """;
+                {
+                  "header": {"code": "INVALID_ACCESS", "msg": "access token is invalid"},
+                  "data": []
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             RegisterFulfillmentDeliveryCommand command = buildValidRegisterCommand();
 
             // when & then
             assertThatThrownBy(() -> client.registerDelivery(command))
-                    .isInstanceOf(FulfillmentInvalidAccessException.class);
+                .isInstanceOf(FulfillmentInvalidAccessException.class);
         }
     }
 
@@ -381,11 +381,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -409,7 +409,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.updateDelivery(command))
-                    .isInstanceOf(UpdateFulfillmentDeliveryFailedException.class);
+                .isInstanceOf(UpdateFulfillmentDeliveryFailedException.class);
         }
     }
 
@@ -424,11 +424,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryCarMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -452,11 +452,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryCarMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -479,7 +479,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.updateDeliveryCar(command))
-                    .isInstanceOf(UpdateFulfillmentDeliveryCarFailedException.class);
+                .isInstanceOf(UpdateFulfillmentDeliveryCarFailedException.class);
         }
     }
 
@@ -494,11 +494,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryIcsMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "OK", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -521,11 +521,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryIcsCompletedProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "completed", "ordNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "completed", "ordNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -549,7 +549,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.completeDeliveryIcs(command))
-                    .isInstanceOf(CompleteFulfillmentDeliveryIcsFailedException.class);
+                .isInstanceOf(CompleteFulfillmentDeliveryIcsFailedException.class);
         }
     }
 
@@ -564,11 +564,11 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryCancelProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"code": "200", "msg": "cancelled", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"code": "200", "msg": "cancelled", "fmsSlipNo": "FMS001", "orderNo": "ORD001"}]
+                }
+                """;
             stubMethodChainReturns(successJson(body));
 
             // when
@@ -592,7 +592,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.cancelDelivery(command))
-                    .isInstanceOf(CancelFulfillmentDeliveryFailedException.class);
+                .isInstanceOf(CancelFulfillmentDeliveryFailedException.class);
         }
     }
 
@@ -607,22 +607,22 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryListProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"ordNo": "ORD001", "slipNo": "SLIP001", "whCd": "WH01"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"ordNo": "ORD001", "slipNo": "SLIP001", "whCd": "WH01"}]
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("01")
-                    .releaseType("01")
-                    .orderNumber("ORD001")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("01")
+                .releaseType("01")
+                .orderNumber("ORD001")
+                .build();
 
             // when
             GetFulfillmentDeliveriesResult result = client.getDeliveries(command);
@@ -643,17 +643,17 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("01")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("01")
+                .releaseType("01")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveries(command))
-                    .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
         }
     }
 
@@ -668,20 +668,20 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryStatusProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"ordNo": "ORD001", "invoiceNo": "INV001", "godCd": "G001"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"ordNo": "ORD001", "invoiceNo": "INV001", "godCd": "G001"}]
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .releaseType("01")
+                .build();
 
             // when
             GetFulfillmentDeliveryStatusesResult result = client.getDeliveryStatuses(command);
@@ -702,16 +702,16 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .releaseType("01")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveryStatuses(command))
-                    .isInstanceOf(GetFulfillmentDeliveryStatusesFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveryStatusesFailedException.class);
         }
     }
 
@@ -726,15 +726,15 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryDetailProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"ordNo": "ORD001", "slipNo": "SLIP001", "whCd": "WH01"}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"ordNo": "ORD001", "slipNo": "SLIP001", "whCd": "WH01"}]
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "ORD001"
+                "CUST001", "valid-token", "SLIP001", "ORD001"
             );
 
             // when
@@ -755,12 +755,12 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001"
+                "CUST001", "valid-token", "SLIP001"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveryDetail(command))
-                    .isInstanceOf(GetFulfillmentDeliveryDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveryDetailFailedException.class);
         }
     }
 
@@ -775,15 +775,15 @@ class FulfillmentDeliveryClientTest {
             stubOutOrdGoodsDetailProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"invoiceNo": "INV001", "goodsDeliveredList": []}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"invoiceNo": "INV001", "goodsDeliveredList": []}]
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryOutOrdGoodsDetailCommand command = GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001"
+                "CUST001", "valid-token", "SLIP001"
             );
 
             // when
@@ -802,14 +802,14 @@ class FulfillmentDeliveryClientTest {
             stubOutOrdGoodsDetailProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 0}
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 0}
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryOutOrdGoodsDetailCommand command = GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001"
+                "CUST001", "valid-token", "SLIP001"
             );
 
             // when
@@ -829,12 +829,12 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryOutOrdGoodsDetailCommand command = GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001"
+                "CUST001", "valid-token", "SLIP001"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getOutOrdGoodsDetail(command))
-                    .isInstanceOf(GetFulfillmentDeliveryOutOrdGoodsDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveryOutOrdGoodsDetailFailedException.class);
         }
     }
 
@@ -849,20 +849,20 @@ class FulfillmentDeliveryClientTest {
             stubOutOrdGoodsByOrdNoProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"ordNo": "ORD001", "invoiceNo": "INV001", "goods": []}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"ordNo": "ORD001", "invoiceNo": "INV001", "goods": []}]
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command = GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .orderNumber("ORD001")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .orderNumber("ORD001")
+                .build();
 
             // when
             GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult result = client.getOutOrdGoodsByOrdNo(command);
@@ -885,20 +885,20 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryGoodDetailProperties();
             stubPayloadGenerator();
             String body = """
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{"orderNo": "ORD001", "slipNo": "SLIP001", "outDt": "20260101", "outQty": 1}]
-                    }
-                    """;
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{"orderNo": "ORD001", "slipNo": "SLIP001", "outDt": "20260101", "outQty": 1}]
+                }
+                """;
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .orderNumber("ORD001")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .orderNumber("ORD001")
+                .build();
 
             // when
             GetFulfillmentDeliveryGoodDetailResult result = client.getDeliveryGoodDetail(command);
@@ -918,15 +918,15 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveryGoodDetail(command))
-                    .isInstanceOf(GetFulfillmentDeliveryGoodDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveryGoodDetailFailedException.class);
         }
     }
 
@@ -941,22 +941,22 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryListProperties();
             stubPayloadGenerator();
             String body = """
-                    {"header": {"code": "401", "msg": "unauthorized"}}
-                    """;
+                {"header": {"code": "401", "msg": "unauthorized"}}
+                """;
             stubGetChainReturns(responseWithStatus(body, HttpStatus.UNAUTHORIZED));
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("01")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("01")
+                .releaseType("01")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveries(command))
-                    .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
         }
 
         @Test
@@ -966,15 +966,15 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {"header": {"code": "400", "msg": "bad request"}}
-                    """;
+                {"header": {"code": "400", "msg": "bad request"}}
+                """;
             stubMethodChainReturns(responseWithStatus(body, HttpStatus.BAD_REQUEST));
 
             RegisterFulfillmentDeliveryCommand command = buildValidRegisterCommand();
 
             // when & then
             assertThatThrownBy(() -> client.registerDelivery(command))
-                    .isInstanceOf(RegisterFulfillmentDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDeliveryFailedException.class);
         }
 
         @Test
@@ -984,15 +984,15 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
             String body = """
-                    {"header": {"code": "500", "msg": "internal server error"}}
-                    """;
+                {"header": {"code": "500", "msg": "internal server error"}}
+                """;
             stubMethodChainReturns(responseWithStatus(body, HttpStatus.INTERNAL_SERVER_ERROR));
 
             RegisterFulfillmentDeliveryCommand command = buildValidRegisterCommand();
 
             // when & then
             assertThatThrownBy(() -> client.registerDelivery(command))
-                    .isInstanceOf(RegisterFulfillmentDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDeliveryFailedException.class);
         }
     }
 
@@ -1007,17 +1007,17 @@ class FulfillmentDeliveryClientTest {
             when(properties.getBaseUrl()).thenReturn(null);
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("01")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("01")
+                .releaseType("01")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveries(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -1031,7 +1031,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDelivery(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -1045,7 +1045,7 @@ class FulfillmentDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDelivery(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -1057,7 +1057,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryQuery customerCode 누락 시 예외 발생")
         void deliveryQueryCustomerCodeMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryQuery.of(
-                    null, "token", "20260101", "20260131", "01", "01"
+                null, "token", "20260101", "20260131", "01", "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1065,7 +1065,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryQuery accessToken 공백 시 예외 발생")
         void deliveryQueryAccessTokenBlank() {
             assertThatThrownBy(() -> FulfillmentDeliveryQuery.of(
-                    "CUST001", "  ", "20260101", "20260131", "01", "01"
+                "CUST001", "  ", "20260101", "20260131", "01", "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1073,7 +1073,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryQuery startDate 누락 시 예외 발생")
         void deliveryQueryStartDateMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryQuery.of(
-                    "CUST001", "token", null, "20260131", "01", "01"
+                "CUST001", "token", null, "20260131", "01", "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1081,7 +1081,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryQuery endDate 누락 시 예외 발생")
         void deliveryQueryEndDateMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryQuery.of(
-                    "CUST001", "token", "20260101", null, "01", "01"
+                "CUST001", "token", "20260101", null, "01", "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1089,7 +1089,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryQuery status 누락 시 예외 발생")
         void deliveryQueryStatusMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryQuery.of(
-                    "CUST001", "token", "20260101", "20260131", null, "01"
+                "CUST001", "token", "20260101", "20260131", null, "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1097,7 +1097,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryQuery outDiv 누락 시 예외 발생")
         void deliveryQueryOutDivMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryQuery.of(
-                    "CUST001", "token", "20260101", "20260131", "01", null
+                "CUST001", "token", "20260101", "20260131", "01", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1105,7 +1105,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryStatusQuery customerCode 누락 시 예외 발생")
         void statusQueryCustomerCodeMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryStatusQuery.of(
-                    null, "token", "20260101", "20260131", "01"
+                null, "token", "20260101", "20260131", "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1113,7 +1113,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryStatusQuery accessToken 누락 시 예외 발생")
         void statusQueryAccessTokenMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryStatusQuery.of(
-                    "CUST001", null, "20260101", "20260131", "01"
+                "CUST001", null, "20260101", "20260131", "01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1121,7 +1121,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryStatusQuery outDiv 공백 시 예외 발생")
         void statusQueryOutDivBlank() {
             assertThatThrownBy(() -> FulfillmentDeliveryStatusQuery.of(
-                    "CUST001", "token", "20260101", "20260131", " "
+                "CUST001", "token", "20260101", "20260131", " "
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1129,7 +1129,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryDetailQuery customerCode 누락 시 예외 발생")
         void detailQueryCustomerCodeMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryDetailQuery.of(
-                    null, "token", "SLIP001"
+                null, "token", "SLIP001"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1137,7 +1137,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryDetailQuery slipNo 누락 시 예외 발생")
         void detailQuerySlipNoMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryDetailQuery.of(
-                    "CUST001", "token", null
+                "CUST001", "token", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1145,7 +1145,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryDetailQuery accessToken 공백 시 예외 발생")
         void detailQueryAccessTokenBlank() {
             assertThatThrownBy(() -> FulfillmentDeliveryDetailQuery.of(
-                    "CUST001", "", "SLIP001"
+                "CUST001", "", "SLIP001"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1153,7 +1153,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsDetailQuery customerCode 누락 시 예외 발생")
         void outOrdGoodsDetailCustomerCodeMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsDetailQuery.of(
-                    null, "token", "SLIP001"
+                null, "token", "SLIP001"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1161,7 +1161,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsDetailQuery outOrdSlipNo 누락 시 예외 발생")
         void outOrdGoodsDetailSlipNoMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsDetailQuery.of(
-                    "CUST001", "token", null
+                "CUST001", "token", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1169,7 +1169,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsDetailQuery accessToken 공백 시 예외 발생")
         void outOrdGoodsDetailAccessTokenBlank() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsDetailQuery.of(
-                    "CUST001", " ", "SLIP001"
+                "CUST001", " ", "SLIP001"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1177,7 +1177,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsByOrdNoQuery customerCode 누락 시 예외 발생")
         void outOrdGoodsByOrdNoCustomerCodeMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsByOrdNoQuery.of(
-                    null, "token", "20260101", "20260131", null
+                null, "token", "20260101", "20260131", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1185,7 +1185,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsByOrdNoQuery accessToken 누락 시 예외 발생")
         void outOrdGoodsByOrdNoAccessTokenMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsByOrdNoQuery.of(
-                    "CUST001", null, "20260101", "20260131", null
+                "CUST001", null, "20260101", "20260131", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1193,7 +1193,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsByOrdNoQuery startDate 공백 시 예외 발생")
         void outOrdGoodsByOrdNoStartDateBlank() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsByOrdNoQuery.of(
-                    "CUST001", "token", " ", "20260131", null
+                "CUST001", "token", " ", "20260131", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1201,7 +1201,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryOutOrdGoodsByOrdNoQuery endDate 누락 시 예외 발생")
         void outOrdGoodsByOrdNoEndDateMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryOutOrdGoodsByOrdNoQuery.of(
-                    "CUST001", "token", "20260101", null, null
+                "CUST001", "token", "20260101", null, null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1209,7 +1209,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryGoodDetailQuery customerCode 누락 시 예외 발생")
         void goodDetailCustomerCodeMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryGoodDetailQuery.of(
-                    null, "token", "20260101", "20260131", null
+                null, "token", "20260101", "20260131", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1217,7 +1217,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryGoodDetailQuery accessToken 공백 시 예외 발생")
         void goodDetailAccessTokenBlank() {
             assertThatThrownBy(() -> FulfillmentDeliveryGoodDetailQuery.of(
-                    "CUST001", "  ", "20260101", "20260131", null
+                "CUST001", "  ", "20260101", "20260131", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1225,7 +1225,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryGoodDetailQuery startDate 누락 시 예외 발생")
         void goodDetailStartDateMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryGoodDetailQuery.of(
-                    "CUST001", "token", null, "20260131", null
+                "CUST001", "token", null, "20260131", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -1233,7 +1233,7 @@ class FulfillmentDeliveryClientTest {
         @DisplayName("FulfillmentDeliveryGoodDetailQuery endDate 누락 시 예외 발생")
         void goodDetailEndDateMissing() {
             assertThatThrownBy(() -> FulfillmentDeliveryGoodDetailQuery.of(
-                    "CUST001", "token", "20260101", null, null
+                "CUST001", "token", "20260101", null, null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
@@ -1254,23 +1254,23 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "ordNo": "ORD001",
-                        "slipNo": "SLIP001",
-                        "goods": [{
-                          "godCd": "GOD001",
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, TEST_ENCODED_CST_GOD_CD);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "ordNo": "ORD001",
+                    "slipNo": "SLIP001",
+                    "goods": [{
+                      "godCd": "GOD001",
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, TEST_ENCODED_CST_GOD_CD);
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "ORD001"
+                "CUST001", "valid-token", "SLIP001", "ORD001"
             );
 
             // when
@@ -1280,7 +1280,7 @@ class FulfillmentDeliveryClientTest {
             assertThat(result.deliveries()).hasSize(1);
             assertThat(result.deliveries().get(0).goods()).hasSize(1);
             assertThat(result.deliveries().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(TEST_ENCODED_CST_GOD_CD);
+                .isEqualTo(TEST_ENCODED_CST_GOD_CD);
         }
 
         @Test
@@ -1290,23 +1290,23 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "ordNo": "ORD001",
-                        "slipNo": "SLIP001",
-                        "goods": [{
-                          "godCd": "GOD001",
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, FALLBACK_PRODUCT_CODE);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "ordNo": "ORD001",
+                    "slipNo": "SLIP001",
+                    "goods": [{
+                      "godCd": "GOD001",
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, FALLBACK_PRODUCT_CODE);
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "ORD001"
+                "CUST001", "valid-token", "SLIP001", "ORD001"
             );
 
             // when
@@ -1314,7 +1314,7 @@ class FulfillmentDeliveryClientTest {
 
             // then
             assertThat(result.deliveries().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(FALLBACK_PRODUCT_CODE);
+                .isEqualTo(FALLBACK_PRODUCT_CODE);
         }
 
         @Test
@@ -1324,23 +1324,23 @@ class FulfillmentDeliveryClientTest {
             stubDeliveryDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "ordNo": "ORD001",
-                        "slipNo": "SLIP001",
-                        "goods": [{
-                          "godCd": "GOD001",
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, LEGACY_UUID_RAW);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "ordNo": "ORD001",
+                    "slipNo": "SLIP001",
+                    "goods": [{
+                      "godCd": "GOD001",
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, LEGACY_UUID_RAW);
             stubGetChainReturns(successJson(body));
 
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "ORD001"
+                "CUST001", "valid-token", "SLIP001", "ORD001"
             );
 
             // when
@@ -1348,7 +1348,7 @@ class FulfillmentDeliveryClientTest {
 
             // then
             assertThat(result.deliveries().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(LEGACY_UUID_RAW);
+                .isEqualTo(LEGACY_UUID_RAW);
         }
     }
 
@@ -1367,24 +1367,24 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("01")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("01")
+                .releaseType("01")
+                .build();
 
             // when
             assertThatThrownBy(() -> client.getDeliveries(command))
-                    .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -1398,24 +1398,24 @@ class FulfillmentDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("01")
-                    .releaseType("01")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("01")
+                .releaseType("01")
+                .build();
 
             // when
             assertThatThrownBy(() -> client.getDeliveries(command))
-                    .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
+                .isInstanceOf(GetFulfillmentDeliveriesFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDeliveries"), any(Map.class), any(Supplier.class)
             );
         }
     }

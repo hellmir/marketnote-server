@@ -44,10 +44,10 @@ class SyncPricePolicyCreatedUseCaseTest {
     void syncPricePolicyCreated_firstTime_persistsLogAndUpsertsCatalog() {
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                10L, UUID.randomUUID(), 100L, 20L, "테스트 상품", "브랜드",
-                10000L, 9000L, 100L, 0L,
-                List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
-                List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(50L, "색상: 빨강"))
+            10L, UUID.randomUUID(), 100L, 20L, "테스트 상품", "브랜드",
+            10000L, 9000L, 100L, 0L,
+            List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
+            List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(50L, "색상: 빨강"))
         );
         when(pricePolicyCreatedSyncLogPort.isProcessed(eventId)).thenReturn(false);
 
@@ -58,13 +58,13 @@ class SyncPricePolicyCreatedUseCaseTest {
         ArgumentCaptor<String> tagsCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> optionsCaptor = ArgumentCaptor.forClass(String.class);
         verify(saveProductCatalogReadModelPort).upsertCatalog(
-                eq(100L), eq(10L), eq(20L), eq(null),
-                eq("테스트 상품"), eq("브랜드"),
-                eq(10000L), eq(9000L), eq(BigDecimal.ZERO),
-                eq(100L), eq(BigDecimal.ZERO),
-                eq(0L), eq(0L),
-                eq(0L),
-                tagsCaptor.capture(), optionsCaptor.capture()
+            eq(100L), eq(10L), eq(20L), eq(null),
+            eq("테스트 상품"), eq("브랜드"),
+            eq(10000L), eq(9000L), eq(BigDecimal.ZERO),
+            eq(100L), eq(BigDecimal.ZERO),
+            eq(0L), eq(0L),
+            eq(0L),
+            tagsCaptor.capture(), optionsCaptor.capture()
         );
         assertThat(tagsCaptor.getValue()).contains("\"NEW\"");
         assertThat(optionsCaptor.getValue()).contains("색상: 빨강");
@@ -75,8 +75,8 @@ class SyncPricePolicyCreatedUseCaseTest {
     void syncPricePolicyCreated_alreadyProcessed_skipsWork() {
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                20L, UUID.randomUUID(), 200L, 30L, "상품", "브랜드",
-                5000L, 4500L, 50L, 0L, List.of(), List.of()
+            20L, UUID.randomUUID(), 200L, 30L, "상품", "브랜드",
+            5000L, 4500L, 50L, 0L, List.of(), List.of()
         );
         when(pricePolicyCreatedSyncLogPort.isProcessed(eventId)).thenReturn(true);
 
@@ -91,12 +91,12 @@ class SyncPricePolicyCreatedUseCaseTest {
     void syncPricePolicyCreated_logConflict_returnsWithoutUpdate() {
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                30L, UUID.randomUUID(), 300L, 40L, "상품", "브랜드",
-                3000L, 2500L, 25L, 0L, List.of(), List.of()
+            30L, UUID.randomUUID(), 300L, 40L, "상품", "브랜드",
+            3000L, 2500L, 25L, 0L, List.of(), List.of()
         );
         when(pricePolicyCreatedSyncLogPort.isProcessed(eventId)).thenReturn(false);
         doThrow(new DataIntegrityViolationException("duplicate"))
-                .when(pricePolicyCreatedSyncLogPort).markProcessed(eventId);
+            .when(pricePolicyCreatedSyncLogPort).markProcessed(eventId);
 
         service.syncPricePolicyCreated(eventId, event);
 
@@ -109,21 +109,21 @@ class SyncPricePolicyCreatedUseCaseTest {
     void syncPricePolicyCreated_emptyTagsAndOptions_writesNull() {
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                40L, UUID.randomUUID(), 400L, 50L, "상품", "브랜드",
-                1000L, 900L, 10L, 0L, List.of(), List.of()
+            40L, UUID.randomUUID(), 400L, 50L, "상품", "브랜드",
+            1000L, 900L, 10L, 0L, List.of(), List.of()
         );
         when(pricePolicyCreatedSyncLogPort.isProcessed(eventId)).thenReturn(false);
 
         service.syncPricePolicyCreated(eventId, event);
 
         verify(saveProductCatalogReadModelPort).upsertCatalog(
-                eq(400L), eq(40L), eq(50L), eq(null),
-                eq("상품"), eq("브랜드"),
-                eq(1000L), eq(900L), eq(BigDecimal.ZERO),
-                eq(10L), eq(BigDecimal.ZERO),
-                eq(0L), eq(0L),
-                eq(0L),
-                eq(null), eq(null)
+            eq(400L), eq(40L), eq(50L), eq(null),
+            eq("상품"), eq("브랜드"),
+            eq(1000L), eq(900L), eq(BigDecimal.ZERO),
+            eq(10L), eq(BigDecimal.ZERO),
+            eq(0L), eq(0L),
+            eq(0L),
+            eq(null), eq(null)
         );
     }
 
@@ -132,10 +132,10 @@ class SyncPricePolicyCreatedUseCaseTest {
     void syncPricePolicyCreated_serializationFails_writesNull() throws Exception {
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                50L, UUID.randomUUID(), 500L, 60L, "상품", "브랜드",
-                2000L, 1800L, 20L, 0L,
-                List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "SALE", 1L)),
-                List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(10L, "사이즈: L"))
+            50L, UUID.randomUUID(), 500L, 60L, "상품", "브랜드",
+            2000L, 1800L, 20L, 0L,
+            List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "SALE", 1L)),
+            List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(10L, "사이즈: L"))
         );
         when(pricePolicyCreatedSyncLogPort.isProcessed(eventId)).thenReturn(false);
         doThrow(new JsonProcessingException("fail") {
@@ -144,13 +144,13 @@ class SyncPricePolicyCreatedUseCaseTest {
         service.syncPricePolicyCreated(eventId, event);
 
         verify(saveProductCatalogReadModelPort).upsertCatalog(
-                eq(500L), eq(50L), eq(60L), eq(null),
-                eq("상품"), eq("브랜드"),
-                eq(2000L), eq(1800L), eq(BigDecimal.ZERO),
-                eq(20L), eq(BigDecimal.ZERO),
-                eq(0L), eq(0L),
-                eq(0L),
-                eq(null), eq(null)
+            eq(500L), eq(50L), eq(60L), eq(null),
+            eq("상품"), eq("브랜드"),
+            eq(2000L), eq(1800L), eq(BigDecimal.ZERO),
+            eq(20L), eq(BigDecimal.ZERO),
+            eq(0L), eq(0L),
+            eq(0L),
+            eq(null), eq(null)
         );
     }
 
@@ -159,21 +159,21 @@ class SyncPricePolicyCreatedUseCaseTest {
     void syncPricePolicyCreated_nullNumerics_defaultsToZero() {
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                60L, UUID.randomUUID(), 600L, 70L, "상품", "브랜드",
-                null, null, null, null, List.of(), List.of()
+            60L, UUID.randomUUID(), 600L, 70L, "상품", "브랜드",
+            null, null, null, null, List.of(), List.of()
         );
         when(pricePolicyCreatedSyncLogPort.isProcessed(eventId)).thenReturn(false);
 
         service.syncPricePolicyCreated(eventId, event);
 
         verify(saveProductCatalogReadModelPort).upsertCatalog(
-                eq(600L), eq(60L), eq(70L), eq(null),
-                eq("상품"), eq("브랜드"),
-                eq(0L), eq(0L), eq(BigDecimal.ZERO),
-                eq(0L), eq(BigDecimal.ZERO),
-                eq(0L), eq(0L),
-                eq(0L),
-                eq(null), eq(null)
+            eq(600L), eq(60L), eq(70L), eq(null),
+            eq("상품"), eq("브랜드"),
+            eq(0L), eq(0L), eq(BigDecimal.ZERO),
+            eq(0L), eq(BigDecimal.ZERO),
+            eq(0L), eq(0L),
+            eq(0L),
+            eq(null), eq(null)
         );
     }
 }

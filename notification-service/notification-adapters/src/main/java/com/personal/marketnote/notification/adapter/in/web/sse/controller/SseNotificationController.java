@@ -22,8 +22,8 @@ public class SseNotificationController {
     private final long emitterTimeoutMs;
 
     public SseNotificationController(
-            SseConnectionRegistry sseConnectionRegistry,
-            @Value("${sse.emitter.timeout-ms:1800000}") long emitterTimeoutMs
+        SseConnectionRegistry sseConnectionRegistry,
+        @Value("${sse.emitter.timeout-ms:1800000}") long emitterTimeoutMs
     ) {
         this.sseConnectionRegistry = sseConnectionRegistry;
         this.emitterTimeoutMs = emitterTimeoutMs;
@@ -32,7 +32,7 @@ public class SseNotificationController {
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @SubscribeSseStreamApiDocs
     public SseEmitter subscribe(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
         return sseConnectionRegistry.register(userId, emitterTimeoutMs);

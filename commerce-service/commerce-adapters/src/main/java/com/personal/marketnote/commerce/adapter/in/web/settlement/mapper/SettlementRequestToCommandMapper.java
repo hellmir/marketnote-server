@@ -10,9 +10,9 @@ public class SettlementRequestToCommandMapper {
 
     public static ExecuteSettlementCommand mapToCommand(ExecuteSettlementRequest request) {
         return ExecuteSettlementCommand.builder()
-                .year(request.getYear())
-                .month(request.getMonth())
-                .build();
+            .year(request.getYear())
+            .month(request.getMonth())
+            .build();
     }
 
     public static GetSettlementsQuery mapToQuery(Integer year, Integer month) {

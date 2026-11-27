@@ -10,22 +10,22 @@ import java.util.Optional;
 public class InventoryJpaEntityToDomainMapper {
     public static Optional<Inventory> mapToDomain(InventoryJpaEntity inventoryJpaEntity) {
         return Optional.ofNullable(inventoryJpaEntity)
-                .map(entity -> {
-                    Long version = entity.getVersion();
-                    if (FormatValidator.hasNoValue(version)) {
-                        version = 0L;
-                    }
-                    Integer reserved = entity.getReserved();
-                    int reservedValue = FormatValidator.hasNoValue(reserved) ? 0 : reserved;
-                    InventorySnapshotState state = InventorySnapshotState.builder()
-                            .productId(entity.getProductId())
-                            .productKey(entity.getProductKey())
-                            .pricePolicyId(entity.getPricePolicyId())
-                            .stock(entity.getStock())
-                            .version(version)
-                            .reserved(reservedValue)
-                            .build();
-                    return Inventory.from(state);
-                });
+            .map(entity -> {
+                Long version = entity.getVersion();
+                if (FormatValidator.hasNoValue(version)) {
+                    version = 0L;
+                }
+                Integer reserved = entity.getReserved();
+                int reservedValue = FormatValidator.hasNoValue(reserved) ? 0 : reserved;
+                InventorySnapshotState state = InventorySnapshotState.builder()
+                    .productId(entity.getProductId())
+                    .productKey(entity.getProductKey())
+                    .pricePolicyId(entity.getPricePolicyId())
+                    .stock(entity.getStock())
+                    .version(version)
+                    .reserved(reservedValue)
+                    .build();
+                return Inventory.from(state);
+            });
     }
 }

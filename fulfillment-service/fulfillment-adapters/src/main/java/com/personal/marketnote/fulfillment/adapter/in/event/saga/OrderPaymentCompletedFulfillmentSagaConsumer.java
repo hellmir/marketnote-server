@@ -53,12 +53,12 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
     private final Clock clock;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
-            groupId = "saga-order-payment-downstream-fulfillment"
+        topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
+        groupId = "saga-order-payment-downstream-fulfillment"
     )
     public void handleFulfillmentStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -70,7 +70,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
             log.info("SAGA 결제 완료 풀필먼트 출고 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
 
             if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
@@ -84,12 +84,12 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
             }
 
             log.warn("알 수 없는 messageType. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
             // boundary swallow: Kafka @KafkaListener 진입점 — ack 보장 + 컨슈머 스레드 보호. SAGA 실패는 별도 publishFailure 경로로 전파
             log.error("SAGA 결제 완료 풀필먼트 출고 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -99,7 +99,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             FulfillmentDeliverySagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), FulfillmentDeliverySagaPayload.class
+                stepMessage.payload(), FulfillmentDeliverySagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
@@ -111,7 +111,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                 return;
             }
             boolean hasMissingProductKey = payload.orderProducts().stream()
-                    .anyMatch(item -> FormatValidator.hasNoValue(item.productKey()));
+                .anyMatch(item -> FormatValidator.hasNoValue(item.productKey()));
             if (hasMissingProductKey) {
                 publishValidationFailure(stepMessage, "productKey 누락");
                 return;
@@ -121,33 +121,33 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
             createShippingTracker(payload.orderId(), payload.buyerId());
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 풀필먼트 출고 등록 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (FulfillmentDeliveryAlreadyRegisteredException e) {
             log.info("이미 출고 등록된 주문 (멱등 처리). sagaId={}, message={}", stepMessage.sagaId(), e.getMessage());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (ShippingTrackerAlreadyExistsException e) {
             log.info("이미 배송 추적이 등록된 주문 (멱등 처리). sagaId={}, message={}",
-                    stepMessage.sagaId(), e.getMessage()
+                stepMessage.sagaId(), e.getMessage()
             );
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary swallow: SAGA 액션 처리 boundary — 모든 실패를 publishFailure 로 일원화 (compensation 트리거)
             log.error("SAGA 풀필먼트 출고 등록 처리 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "풀필먼트 출고 등록 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "풀필먼트 출고 등록 처리 실패"
             );
         }
     }
@@ -155,7 +155,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             FulfillmentCancelSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), FulfillmentCancelSagaPayload.class
+                stepMessage.payload(), FulfillmentCancelSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
@@ -164,76 +164,76 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
             }
 
             List<String> productKeys = FormatValidator.hasValue(payload.productKeys())
-                    ? payload.productKeys()
-                    : List.of();
+                ? payload.productKeys()
+                : List.of();
 
             CancelInternalFulfillmentDeliveryResult result = cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(
-                    new CancelInternalFulfillmentDeliveryCommand(payload.orderId(), productKeys)
+                new CancelInternalFulfillmentDeliveryCommand(payload.orderId(), productKeys)
             );
 
             if (!result.cancelled()) {
                 log.warn("SAGA 풀필먼트 출고 취소 보상 거부. sagaId={}, orderId={}, message={}",
-                        stepMessage.sagaId(), payload.orderId(), result.message()
+                    stepMessage.sagaId(), payload.orderId(), result.message()
                 );
                 sagaResponsePublisher.publishFailure(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + result.message()
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + result.message()
                 );
                 return;
             }
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 풀필먼트 출고 취소 보상 완료. sagaId={}, orderId={}",
-                    stepMessage.sagaId(), payload.orderId()
+                stepMessage.sagaId(), payload.orderId()
             );
         } catch (FulfillmentDeliveryRegistrationNotFoundException e) {
             log.info("출고 등록 없음 (멱등 보상 처리). sagaId={}, message={}",
-                    stepMessage.sagaId(), e.getMessage()
+                stepMessage.sagaId(), e.getMessage()
             );
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
             );
         } catch (FulfillmentDeliveryCancellationNotAllowedException e) {
             log.warn("SAGA 풀필먼트 출고 취소 보상 거부 (출고 진행/완료). sagaId={}, message={}",
-                    stepMessage.sagaId(), e.getMessage()
+                stepMessage.sagaId(), e.getMessage()
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + e.getMessage()
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + e.getMessage()
             );
         } catch (Exception e) {
             // boundary swallow: SAGA 보상 처리 boundary — 보상 실패도 publishFailure 로 SAGA 코디네이터에 통보
             log.error("SAGA 풀필먼트 출고 취소 보상 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "풀필먼트 출고 취소 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "풀필먼트 출고 취소 보상 처리 실패"
             );
         }
     }
 
     private void registerFulfillmentDelivery(FulfillmentDeliverySagaPayload payload) {
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
-                .orderNumber(String.valueOf(payload.orderId()))
-                .orderDate(LocalDate.now(clock).format(DateTimeFormatter.BASIC_ISO_DATE))
-                .recipientName(payload.recipientName())
-                .recipientPhoneNumber(payload.recipientPhoneNumber())
-                .recipientAddress(buildRecipientAddress(payload))
-                .shippingRequest(payload.deliveryRequestMessage())
-                .products(convertToGoodsCommands(payload.orderProducts()))
-                .build();
+            .orderNumber(String.valueOf(payload.orderId()))
+            .orderDate(LocalDate.now(clock).format(DateTimeFormatter.BASIC_ISO_DATE))
+            .recipientName(payload.recipientName())
+            .recipientPhoneNumber(payload.recipientPhoneNumber())
+            .recipientAddress(buildRecipientAddress(payload))
+            .shippingRequest(payload.deliveryRequestMessage())
+            .products(convertToGoodsCommands(payload.orderProducts()))
+            .build();
 
         fulfillmentAuthenticatedCaller.call(token -> {
             registerFulfillmentDeliveryUseCase.registerDeliveryIdempotent(
-                    RegisterFulfillmentDeliveryCommand.of(
-                            fasstoAuthProperties.getCustomerCode(), token, List.of(itemCommand)
-                    )
+                RegisterFulfillmentDeliveryCommand.of(
+                    fasstoAuthProperties.getCustomerCode(), token, List.of(itemCommand)
+                )
             );
             return null;
         });
@@ -254,14 +254,14 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
     }
 
     private List<RegisterFulfillmentDeliveryGoodsCommand> convertToGoodsCommands(
-            List<FulfillmentDeliverySagaPayload.OrderProductItem> orderProducts
+        List<FulfillmentDeliverySagaPayload.OrderProductItem> orderProducts
     ) {
         return orderProducts.stream()
-                .map(item -> RegisterFulfillmentDeliveryGoodsCommand.of(
-                        item.productKey(),
-                        item.quantity()
-                ))
-                .toList();
+            .map(item -> RegisterFulfillmentDeliveryGoodsCommand.of(
+                item.productKey(),
+                item.quantity()
+            ))
+            .toList();
     }
 
     private void createShippingTracker(Long orderId, Long buyerId) {
@@ -272,8 +272,8 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 풀필먼트 출고 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

@@ -32,7 +32,7 @@ public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDe
     @Transactional(isolation = READ_COMMITTED)
     public RegisterFulfillmentDeliveryResult registerDeliveryIdempotent(RegisterFulfillmentDeliveryCommand command) {
         FulfillmentDeliveryRegistration registration = FulfillmentDeliveryRegistration.from(
-                FulfillmentCommandToStateMapper.mapToDeliveryRegistrationCreateState(command)
+            FulfillmentCommandToStateMapper.mapToDeliveryRegistrationCreateState(command)
         );
         saveFulfillmentDeliveryRegistrationPort.save(registration);
 
@@ -40,7 +40,7 @@ public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDe
 
         Long orderId = Long.parseLong(command.deliveryRequests().getFirst().orderNumber());
         publishFulfillmentDeliveryWorkStatusChangedEventPort.publish(
-                new FulfillmentDeliveryWorkStatusChangedEvent(orderId, FulfillmentWorkStatus.REGISTERED.name())
+            new FulfillmentDeliveryWorkStatusChangedEvent(orderId, FulfillmentWorkStatus.REGISTERED.name())
         );
 
         return result;

@@ -27,8 +27,8 @@ public class S3OrphanCleanupEventListener {
         // storage URL은 ownerId/파일명 평문을 포함하므로 INFO/WARN 레벨에서는 건수만 노출하고,
         // 상세 URL은 운영 디버깅이 필요한 경우에만 DEBUG로 출력한다.
         log.warn(
-                "도메인 트랜잭션 롤백 감지 — S3 orphan 보상 정리 시도. count={}",
-                event.storageUrls().size()
+            "도메인 트랜잭션 롤백 감지 — S3 orphan 보상 정리 시도. count={}",
+            event.storageUrls().size()
         );
         if (log.isDebugEnabled()) {
             log.debug("orphan storage urls: {}", event.storageUrls());

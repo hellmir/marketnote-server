@@ -9,11 +9,11 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "shipping_address_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_shipping_address_read_model_shipping_address_id",
-                columnNames = "shipping_address_id"
-        )
+    name = "shipping_address_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_shipping_address_read_model_shipping_address_id",
+        columnNames = "shipping_address_id"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -43,24 +43,24 @@ public class ShippingAddressReadModelJpaEntity extends BaseGeneralEntity {
     private String regionType;
 
     public static ShippingAddressReadModelJpaEntity of(
-            Long shippingAddressId, Long userId,
-            String recipientName, String recipientPhoneNumber,
-            String address, String addressDetail, String regionType
+        Long shippingAddressId, Long userId,
+        String recipientName, String recipientPhoneNumber,
+        String address, String addressDetail, String regionType
     ) {
         return ShippingAddressReadModelJpaEntity.builder()
-                .shippingAddressId(shippingAddressId)
-                .userId(userId)
-                .recipientName(recipientName)
-                .recipientPhoneNumber(recipientPhoneNumber)
-                .address(address)
-                .addressDetail(addressDetail)
-                .regionType(regionType)
-                .build();
+            .shippingAddressId(shippingAddressId)
+            .userId(userId)
+            .recipientName(recipientName)
+            .recipientPhoneNumber(recipientPhoneNumber)
+            .address(address)
+            .addressDetail(addressDetail)
+            .regionType(regionType)
+            .build();
     }
 
     public void updateFrom(
-            String recipientName, String recipientPhoneNumber,
-            String address, String addressDetail, String regionType
+        String recipientName, String recipientPhoneNumber,
+        String address, String addressDetail, String regionType
     ) {
         this.recipientName = recipientName;
         this.recipientPhoneNumber = recipientPhoneNumber;

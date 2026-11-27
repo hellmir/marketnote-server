@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("OutboxResolveUseCase 테스트")
 class OutboxResolveUseCaseTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-04-05T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-04-05T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks
@@ -93,7 +93,7 @@ class OutboxResolveUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> outboxResolveService.resolve(command))
-                .isInstanceOf(OutboxEventNotFoundException.class);
+            .isInstanceOf(OutboxEventNotFoundException.class);
         verifyNoInteractions(outboxAuditLogger, outboxMetricsCollector);
     }
 
@@ -104,12 +104,12 @@ class OutboxResolveUseCaseTest {
         OutboxResolveCommand command = new OutboxResolveCommand(3L, OutboxResolutionAction.RETRY, null);
         OutboxEventJpaEntity entity = mock(OutboxEventJpaEntity.class);
         doThrow(new InvalidOutboxEventStatusTransitionException(OutboxEventStatus.PENDING))
-                .when(entity).resetForRetry();
+            .when(entity).resetForRetry();
         when(outboxEventJpaRepository.findById(3L)).thenReturn(Optional.of(entity));
 
         // when & then
         assertThatThrownBy(() -> outboxResolveService.resolve(command))
-                .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
+            .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
     }
 
     @Test

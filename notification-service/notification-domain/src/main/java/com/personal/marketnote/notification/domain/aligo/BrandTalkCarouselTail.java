@@ -14,8 +14,8 @@ public class BrandTalkCarouselTail {
     public static BrandTalkCarouselTail of(String linkM) {
         validate(linkM);
         return BrandTalkCarouselTail.builder()
-                .linkM(linkM)
-                .build();
+            .linkM(linkM)
+            .build();
     }
 
     private static void validate(String linkM) {

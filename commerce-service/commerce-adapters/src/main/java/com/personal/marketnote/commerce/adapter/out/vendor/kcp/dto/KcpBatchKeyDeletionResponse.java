@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record KcpBatchKeyDeletionResponse(
-        @JsonProperty("res_cd") String resCd,
-        @JsonProperty("res_msg") String resMsg
+    @JsonProperty("res_cd") String resCd,
+    @JsonProperty("res_msg") String resMsg
 ) {
     public boolean isSuccess() {
         return "0000".equals(resCd);

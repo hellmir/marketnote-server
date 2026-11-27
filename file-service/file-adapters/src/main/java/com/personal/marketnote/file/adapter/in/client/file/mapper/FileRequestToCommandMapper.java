@@ -11,7 +11,7 @@ import java.util.List;
 
 public class FileRequestToCommandMapper {
     public static UpdateFilesCommand mapToCommand(
-            UpdateFilesRequest updateFilesRequest, Long requesterId, String requesterRole
+        UpdateFilesRequest updateFilesRequest, Long requesterId, String requesterRole
     ) {
         List<MultipartFile> files = updateFilesRequest.file();
         List<String> sorts = updateFilesRequest.sort();
@@ -20,34 +20,34 @@ public class FileRequestToCommandMapper {
 
         if (FormatValidator.hasNoValue(files)) {
             return UpdateFilesCommand.builder()
-                    .fileInfo(new ArrayList<>(0))
-                    .ownerType(updateFilesRequest.ownerType())
-                    .ownerId(updateFilesRequest.ownerId())
-                    .ownerKey(updateFilesRequest.ownerKey())
-                    .requesterId(requesterId)
-                    .requesterRole(requesterRole)
-                    .build();
-        }
-
-        int fileSize = files.size();
-        List<UpdateFileCommand> fileInfo = new ArrayList<>(fileSize);
-        for (int i = 0; i < fileSize; i++) {
-            fileInfo.add(UpdateFileCommand.builder()
-                    .file(files.get(i))
-                    .sort(getOrNull(sorts, i))
-                    .extension(getOrNull(extensions, i))
-                    .name(getOrNull(names, i))
-                    .build());
-        }
-
-        return UpdateFilesCommand.builder()
-                .fileInfo(fileInfo)
+                .fileInfo(new ArrayList<>(0))
                 .ownerType(updateFilesRequest.ownerType())
                 .ownerId(updateFilesRequest.ownerId())
                 .ownerKey(updateFilesRequest.ownerKey())
                 .requesterId(requesterId)
                 .requesterRole(requesterRole)
                 .build();
+        }
+
+        int fileSize = files.size();
+        List<UpdateFileCommand> fileInfo = new ArrayList<>(fileSize);
+        for (int i = 0; i < fileSize; i++) {
+            fileInfo.add(UpdateFileCommand.builder()
+                .file(files.get(i))
+                .sort(getOrNull(sorts, i))
+                .extension(getOrNull(extensions, i))
+                .name(getOrNull(names, i))
+                .build());
+        }
+
+        return UpdateFilesCommand.builder()
+            .fileInfo(fileInfo)
+            .ownerType(updateFilesRequest.ownerType())
+            .ownerId(updateFilesRequest.ownerId())
+            .ownerKey(updateFilesRequest.ownerKey())
+            .requesterId(requesterId)
+            .requesterRole(requesterRole)
+            .build();
     }
 
     private static String getOrNull(List<String> values, int index) {

@@ -33,14 +33,14 @@ class BackfillInventoryProductKeyUseCaseTest {
 
     private Inventory buildInventory(Long productId, UUID productKey, Long pricePolicyId) {
         return Inventory.from(
-                InventorySnapshotState.builder()
-                        .productId(productId)
-                        .productKey(productKey)
-                        .pricePolicyId(pricePolicyId)
-                        .stock(0)
-                        .version(0L)
-                        .reserved(0)
-                        .build()
+            InventorySnapshotState.builder()
+                .productId(productId)
+                .productKey(productKey)
+                .pricePolicyId(pricePolicyId)
+                .stock(0)
+                .version(0L)
+                .reserved(0)
+                .build()
         );
     }
 
@@ -52,7 +52,7 @@ class BackfillInventoryProductKeyUseCaseTest {
         Inventory nullKeyInventory = buildInventory(1L, null, 100L);
         Inventory alreadyHasKey = buildInventory(1L, UUID.randomUUID(), 200L);
         when(findInventoryPort.findByProductIds(Set.of(1L)))
-                .thenReturn(Set.of(nullKeyInventory, alreadyHasKey));
+            .thenReturn(Set.of(nullKeyInventory, alreadyHasKey));
 
         // when
         service.backfillProductKey(BackfillInventoryProductKeyCommand.of(1L, productKey));

@@ -16,9 +16,9 @@ class GifticonCategoryTest {
     void shouldCreateGifticonCategoryWithUnexposedStatus() {
         // given
         GifticonCategoryCreateState state = GifticonCategoryCreateState.builder()
-                .categoryCode("CAT001")
-                .categoryName("커피/음료")
-                .build();
+            .categoryCode("CAT001")
+            .categoryName("커피/음료")
+            .build();
 
         // when
         GifticonCategory category = GifticonCategory.from(state);
@@ -35,9 +35,9 @@ class GifticonCategoryTest {
     void shouldChangeToExposedWhenExposeCalled() {
         // given
         GifticonCategory category = GifticonCategory.from(GifticonCategoryCreateState.builder()
-                .categoryCode("CAT001")
-                .categoryName("커피/음료")
-                .build()
+            .categoryCode("CAT001")
+            .categoryName("커피/음료")
+            .build()
         );
         assertThat(category.isExposed()).isFalse();
 
@@ -53,13 +53,13 @@ class GifticonCategoryTest {
     void shouldChangeToUnexposedWhenUnexposeCalled() {
         // given
         GifticonCategory category = GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(1L)
-                .categoryCode("CAT001")
-                .categoryName("커피/음료")
-                .exposed(true)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .id(1L)
+            .categoryCode("CAT001")
+            .categoryName("커피/음료")
+            .exposed(true)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
         assertThat(category.isExposed()).isTrue();
 
@@ -75,14 +75,14 @@ class GifticonCategoryTest {
     void shouldReturnDisplayNameWhenPresent() {
         // given
         GifticonCategory category = GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(1L)
-                .categoryCode("CAT001")
-                .categoryName("커피/음료")
-                .displayName("카페 음료")
-                .exposed(true)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .id(1L)
+            .categoryCode("CAT001")
+            .categoryName("커피/음료")
+            .displayName("카페 음료")
+            .exposed(true)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
 
         // when & then
@@ -94,14 +94,14 @@ class GifticonCategoryTest {
     void shouldFallbackToCategoryNameWhenDisplayNameIsNull() {
         // given
         GifticonCategory category = GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(1L)
-                .categoryCode("CAT001")
-                .categoryName("커피/음료")
-                .displayName(null)
-                .exposed(true)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .id(1L)
+            .categoryCode("CAT001")
+            .categoryName("커피/음료")
+            .displayName(null)
+            .exposed(true)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
 
         // when & then

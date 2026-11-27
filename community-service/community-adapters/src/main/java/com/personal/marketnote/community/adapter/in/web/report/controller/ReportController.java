@@ -55,26 +55,26 @@ public class ReportController {
     @PostMapping("/reviews/{id}/reports")
     @ReportReviewApiDocs
     public ResponseEntity<BaseResponse<Void>> reportReview(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody RegisterReportRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody RegisterReportRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         registerReportUseCase.report(
-                ReportRequestToCommandMapper.mapToCommand(
-                        ReportTargetType.REVIEW,
-                        id,
-                        ElementExtractor.extractUserId(principal),
-                        request
-                )
+            ReportRequestToCommandMapper.mapToCommand(
+                ReportTargetType.REVIEW,
+                id,
+                ElementExtractor.extractUserId(principal),
+                request
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 신고 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 신고 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -91,26 +91,26 @@ public class ReportController {
     @PostMapping("/posts/{id}/reports")
     @ReportPostApiDocs
     public ResponseEntity<BaseResponse<Void>> reportProductInqueryPost(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody RegisterReportRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody RegisterReportRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         registerReportUseCase.report(
-                ReportRequestToCommandMapper.mapToCommand(
-                        ReportTargetType.POST,
-                        id,
-                        ElementExtractor.extractUserId(principal),
-                        request
-                )
+            ReportRequestToCommandMapper.mapToCommand(
+                ReportTargetType.POST,
+                id,
+                ElementExtractor.extractUserId(principal),
+                request
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 신고 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 신고 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -126,20 +126,20 @@ public class ReportController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetReviewReportsApiDocs
     public ResponseEntity<BaseResponse<GetReportsResponse>> getReviewReports(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         GetReportsResult result = GetReportsResult.from(
-                getReportUseCase.getReports(ReportTargetType.REVIEW, id)
+            getReportUseCase.getReports(ReportTargetType.REVIEW, id)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetReportsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 신고 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetReportsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 신고 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -155,20 +155,20 @@ public class ReportController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetPostReportsApiDocs
     public ResponseEntity<BaseResponse<GetReportsResponse>> getPostReports(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         GetReportsResult result = GetReportsResult.from(
-                getReportUseCase.getReports(ReportTargetType.POST, id)
+            getReportUseCase.getReports(ReportTargetType.POST, id)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetReportsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 신고 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetReportsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 신고 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -184,20 +184,20 @@ public class ReportController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateTargetStatusApiDocs
     public ResponseEntity<BaseResponse<UpdateTargetStatusResponse>> updateTargetStatus(
-            @Valid @RequestBody UpdateTargetStatusRequest request
+        @Valid @RequestBody UpdateTargetStatusRequest request
     ) {
         updateTargetStatusUseCase.updateTargetStatus(
-                ReportRequestToCommandMapper.mapToCommand(request)
+            ReportRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateTargetStatusResponse.of(request.isVisible()),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "대상 노출/숨기기 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateTargetStatusResponse.of(request.isVisible()),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "대상 노출/숨기기 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

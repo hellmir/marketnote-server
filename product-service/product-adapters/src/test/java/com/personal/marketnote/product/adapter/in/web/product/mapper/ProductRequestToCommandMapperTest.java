@@ -27,16 +27,16 @@ class ProductRequestToCommandMapperTest {
         @DisplayName("필드를 그대로 매핑하고 fulfillmentVendorGoods가 null이면 null로 매핑한다")
         void mapsFieldsIncludingNullFulfillment() {
             RegisterProductRequest request = new RegisterProductRequest(
-                    10L,
-                    "상품명",
-                    "브랜드",
-                    "상세",
-                    10_000L,
-                    8_000L,
-                    100L,
-                    true,
-                    List.of("tag1", "tag2"),
-                    null
+                10L,
+                "상품명",
+                "브랜드",
+                "상세",
+                10_000L,
+                8_000L,
+                100L,
+                true,
+                List.of("tag1", "tag2"),
+                null
             );
 
             RegisterProductCommand command = ProductRequestToCommandMapper.mapToCommand(request);
@@ -123,12 +123,12 @@ class ProductRequestToCommandMapperTest {
         @DisplayName("id와 요청 필드를 매핑한다")
         void mapsUpdateProductCommand() {
             UpdateProductRequest request = new UpdateProductRequest(
-                    "상품명",
-                    "브랜드",
-                    "상세",
-                    false,
-                    List.of("tag1"),
-                    null
+                "상품명",
+                "브랜드",
+                "상세",
+                false,
+                List.of("tag1"),
+                null
             );
 
             UpdateProductCommand command = ProductRequestToCommandMapper.mapToCommand(100L, request);
@@ -151,8 +151,8 @@ class ProductRequestToCommandMapperTest {
         @DisplayName("productId와 tagOrders를 매핑한다")
         void mapsReorderCommand() {
             ReorderProductTagsRequest request = new ReorderProductTagsRequest(
-                    List.of(new ReorderProductTagsRequest.TagOrderItem(1L, 1L),
-                            new ReorderProductTagsRequest.TagOrderItem(2L, 2L))
+                List.of(new ReorderProductTagsRequest.TagOrderItem(1L, 1L),
+                    new ReorderProductTagsRequest.TagOrderItem(2L, 2L))
             );
 
             ReorderProductTagsCommand command = ProductRequestToCommandMapper.mapToCommand(100L, request);
@@ -173,9 +173,9 @@ class ProductRequestToCommandMapperTest {
         void mapsOrderingItems() {
             UUID sharerKey = UUID.randomUUID();
             GetMyOrderingProductsRequest request = new GetMyOrderingProductsRequest(
-                    List.of(new OrderingItemRequest(
-                            500L, sharerKey, (short) 2, "https://cdn.example.com/img.png"
-                    ))
+                List.of(new OrderingItemRequest(
+                    500L, sharerKey, (short) 2, "https://cdn.example.com/img.png"
+                ))
             );
 
             GetMyOrderingProductsQuery query = ProductRequestToCommandMapper.mapToCommand(request);
@@ -198,10 +198,10 @@ class ProductRequestToCommandMapperTest {
             RegisterProductFulfillmentVendorGoodsRequest fulfillment = new RegisterProductFulfillmentVendorGoodsRequest();
             setAllRegisterFulfillmentFields(fulfillment);
             RegisterProductRequest request = new RegisterProductRequest(
-                    10L, "상품명", "브랜드", "상세",
-                    10_000L, 8_000L, 100L, true,
-                    List.of("tag1"),
-                    fulfillment
+                10L, "상품명", "브랜드", "상세",
+                10_000L, 8_000L, 100L, true,
+                List.of("tag1"),
+                fulfillment
             );
 
             RegisterProductCommand command = ProductRequestToCommandMapper.mapToCommand(request);
@@ -248,10 +248,10 @@ class ProductRequestToCommandMapperTest {
         void mapsNullFieldsWhenRequestFieldsAreNull() {
             RegisterProductFulfillmentVendorGoodsRequest fulfillment = new RegisterProductFulfillmentVendorGoodsRequest();
             RegisterProductRequest request = new RegisterProductRequest(
-                    10L, "상품명", "브랜드", "상세",
-                    10_000L, 8_000L, 100L, true,
-                    List.of("tag1"),
-                    fulfillment
+                10L, "상품명", "브랜드", "상세",
+                10_000L, 8_000L, 100L, true,
+                List.of("tag1"),
+                fulfillment
             );
 
             RegisterProductCommand command = ProductRequestToCommandMapper.mapToCommand(request);
@@ -310,9 +310,9 @@ class ProductRequestToCommandMapperTest {
             UpdateProductFulfillmentVendorGoodsRequest fulfillment = new UpdateProductFulfillmentVendorGoodsRequest();
             setAllUpdateFulfillmentFields(fulfillment);
             UpdateProductRequest request = new UpdateProductRequest(
-                    "상품명", "브랜드", "상세",
-                    true, List.of("tag1"),
-                    fulfillment
+                "상품명", "브랜드", "상세",
+                true, List.of("tag1"),
+                fulfillment
             );
 
             UpdateProductCommand command = ProductRequestToCommandMapper.mapToCommand(100L, request);
@@ -358,9 +358,9 @@ class ProductRequestToCommandMapperTest {
         @DisplayName("UpdateProductRequest의 fulfillmentVendorGoods가 null이면 command도 null로 매핑한다(NPE 없음)")
         void returnsNullCommandWhenRequestIsNull() {
             UpdateProductRequest request = new UpdateProductRequest(
-                    "상품명", "브랜드", "상세",
-                    true, List.of("tag1"),
-                    null
+                "상품명", "브랜드", "상세",
+                true, List.of("tag1"),
+                null
             );
 
             UpdateProductCommand command = ProductRequestToCommandMapper.mapToCommand(100L, request);
@@ -413,11 +413,11 @@ class ProductRequestToCommandMapperTest {
         @DisplayName("RegisterProductRequest에서 isFindAllOptions가 null이면 기본값 true가 적용된다")
         void registerRequestAppliesDefaultIsFindAllOptionsWhenNull() {
             RegisterProductRequest request = new RegisterProductRequest(
-                    10L, "상품명", "브랜드", "상세",
-                    10_000L, 8_000L, 100L,
-                    null,
-                    List.of("tag1"),
-                    null
+                10L, "상품명", "브랜드", "상세",
+                10_000L, 8_000L, 100L,
+                null,
+                List.of("tag1"),
+                null
             );
 
             RegisterProductCommand command = ProductRequestToCommandMapper.mapToCommand(request);
@@ -429,9 +429,9 @@ class ProductRequestToCommandMapperTest {
         @DisplayName("UpdateProductRequest에서 isFindAllOptions가 null이면 기본값 true가 적용된다")
         void updateRequestAppliesDefaultIsFindAllOptionsWhenNull() {
             UpdateProductRequest request = new UpdateProductRequest(
-                    "상품명", "브랜드", "상세",
-                    null, List.of("tag1"),
-                    null
+                "상품명", "브랜드", "상세",
+                null, List.of("tag1"),
+                null
             );
 
             UpdateProductCommand command = ProductRequestToCommandMapper.mapToCommand(100L, request);

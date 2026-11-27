@@ -17,9 +17,9 @@ public class UpsertProductOptionsResponse {
 
     public static UpsertProductOptionsResponse from(UpdateProductOptionsResult result) {
         return UpsertProductOptionsResponse.builder()
-                .id(result.id())
-                .optionIds(result.optionIds())
-                .build();
+            .id(result.id())
+            .optionIds(result.optionIds())
+            .build();
     }
 }
 

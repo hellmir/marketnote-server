@@ -19,21 +19,21 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoSenderProfilePersistenceAdapter
-        implements FindAligoSenderProfilePort, SaveAligoSenderProfilePort, UpdateAligoSenderProfilePort {
+    implements FindAligoSenderProfilePort, SaveAligoSenderProfilePort, UpdateAligoSenderProfilePort {
 
     private final AligoSenderProfileJpaRepository repository;
 
     @Override
     public Optional<AligoSenderProfile> findBySenderKey(String senderKey) {
         return repository.findBySenderKey(senderKey)
-                .flatMap(AligoSenderProfileJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(AligoSenderProfileJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<AligoSenderProfile> findAll() {
         return repository.findAll().stream()
-                .flatMap(entity -> AligoSenderProfileJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                .toList();
+            .flatMap(entity -> AligoSenderProfileJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
@@ -46,10 +46,10 @@ public class AligoSenderProfilePersistenceAdapter
     @Override
     public void update(AligoSenderProfile senderProfile) {
         AligoSenderProfileJpaEntity entity = repository.findById(senderProfile.getId())
-                .orElseThrow(() -> {
-                    log.warn("발신프로필을 찾을 수 없습니다. senderProfileId={}", senderProfile.getId());
-                    return new AligoSenderProfileNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("발신프로필을 찾을 수 없습니다. senderProfileId={}", senderProfile.getId());
+                return new AligoSenderProfileNotFoundException();
+            });
         entity.updateFrom(senderProfile);
     }
 }

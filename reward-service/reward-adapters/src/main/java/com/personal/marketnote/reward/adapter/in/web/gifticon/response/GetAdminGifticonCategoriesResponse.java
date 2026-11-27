@@ -15,10 +15,10 @@ public class GetAdminGifticonCategoriesResponse {
 
     public static GetAdminGifticonCategoriesResponse from(GetAdminGifticonCategoriesResult result) {
         return GetAdminGifticonCategoriesResponse.builder()
-                .categories(result.categories().stream()
-                        .map(GifticonCategoryItem::from)
-                        .toList())
-                .build();
+            .categories(result.categories().stream()
+                .map(GifticonCategoryItem::from)
+                .toList())
+            .build();
     }
 
     @Getter
@@ -37,17 +37,17 @@ public class GetAdminGifticonCategoriesResponse {
 
         public static GifticonCategoryItem from(GifticonCategoryItemResult item) {
             return GifticonCategoryItem.builder()
-                    .id(item.id())
-                    .categoryCode(item.categoryCode())
-                    .categoryName(item.categoryName())
-                    .displayName(item.displayName())
-                    .effectiveDisplayName(item.effectiveDisplayName())
-                    .iconUrl(item.iconUrl())
-                    .exposed(item.exposed())
-                    .orderNum(item.orderNum())
-                    .createdAt(item.createdAt())
-                    .modifiedAt(item.modifiedAt())
-                    .build();
+                .id(item.id())
+                .categoryCode(item.categoryCode())
+                .categoryName(item.categoryName())
+                .displayName(item.displayName())
+                .effectiveDisplayName(item.effectiveDisplayName())
+                .iconUrl(item.iconUrl())
+                .exposed(item.exposed())
+                .orderNum(item.orderNum())
+                .createdAt(item.createdAt())
+                .modifiedAt(item.modifiedAt())
+                .build();
         }
     }
 }

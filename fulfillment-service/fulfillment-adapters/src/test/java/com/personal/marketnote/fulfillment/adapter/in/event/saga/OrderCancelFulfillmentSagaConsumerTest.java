@@ -67,10 +67,10 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @BeforeEach
     void setUp() throws Exception {
         preparingPayload = objectMapper.writeValueAsString(new OrderCancelFulfillmentSagaPayload(
-                1L, BUYER_ID, "PREPARING", List.of("PK-1", "PK-2")
+            1L, BUYER_ID, "PREPARING", List.of("PK-1", "PK-2")
         ));
         paidPayload = objectMapper.writeValueAsString(new OrderCancelFulfillmentSagaPayload(
-                1L, BUYER_ID, "PAID", List.of("PK-1")
+            1L, BUYER_ID, "PAID", List.of("PK-1")
         ));
     }
 
@@ -78,21 +78,21 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("ACTION 타입 메시지 수신 시 originalStatus=PREPARING이면 cancelDelivery 호출 후 성공 응답을 발행한다")
     void shouldCallCancelDeliveryAndPublishSuccessWhenOriginalStatusIsPreparing() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1", "PK-2")
+            1L, List.of("PK-1", "PK-2")
         );
         when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(expectedCommand))
-                .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, true, "출고 취소 성공"));
+            .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, true, "출고 취소 성공"));
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
         verify(sagaResponsePublisher).publishSuccess(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"compensated\":true}"
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"compensated\":true}"
         );
         verify(acknowledgment).acknowledge();
         verifyNoInteractions(publishOrderCancelFailedEventPort);
@@ -103,7 +103,7 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("ACTION 타입 메시지 수신 시 originalStatus=PAID면 cancelDelivery를 호출하지 않고 skipped 성공을 발행한다")
     void shouldSkipWhenOriginalStatusIsPaid() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, paidPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, paidPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
@@ -112,12 +112,12 @@ class OrderCancelFulfillmentSagaConsumerTest {
         verifyNoInteractions(cancelInternalFulfillmentDeliveryUseCase);
         verifyNoInteractions(publishOrderCancelFailedEventPort);
         verify(sagaResponsePublisher).publishSuccess(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("\"reason\":\"fulfillment-cancel-not-required\"")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("\"reason\":\"fulfillment-cancel-not-required\"")
         );
         verify(sagaResponsePublisher).publishSuccess(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("\"originalStatus\":\"PAID\"")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("\"originalStatus\":\"PAID\"")
         );
         verify(acknowledgment).acknowledge();
     }
@@ -126,21 +126,21 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("FulfillmentDeliveryRegistrationNotFoundException은 멱등 성공이므로 OrderCancelFailedEvent를 발행하지 않는다")
     void shouldNotPublishOrderCancelFailedWhenRegistrationNotFound() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1", "PK-2")
+            1L, List.of("PK-1", "PK-2")
         );
         doThrow(new FulfillmentDeliveryRegistrationNotFoundException())
-                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
+            .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishSuccess(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("idempotent")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("idempotent")
         );
         verifyNoInteractions(publishOrderCancelFailedEventPort);
         verify(acknowledgment).acknowledge();
@@ -150,21 +150,21 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("FulfillmentDeliveryCancellationNotAllowedException 발생 시 실패 응답과 OrderCancelFailedEvent를 발행한다")
     void shouldPublishOrderCancelFailedWhenCancellationNotAllowed() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1", "PK-2")
+            1L, List.of("PK-1", "PK-2")
         );
         doThrow(new FulfillmentDeliveryCancellationNotAllowedException(FulfillmentWorkStatus.RELEASED))
-                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
+            .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("orderId=1")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("orderId=1")
         );
         verify(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
         verify(acknowledgment).acknowledge();
@@ -174,21 +174,21 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("ACTION 타입 메시지 수신 시 일반 예외 발생하면 OrderCancelFailedEvent를 발행한다")
     void shouldPublishOrderCancelFailedWhenUnexpectedExceptionOccurs() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1", "PK-2")
+            1L, List.of("PK-1", "PK-2")
         );
         doThrow(new RuntimeException("외부 API 실패"))
-                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
+            .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("orderId=1")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("orderId=1")
         );
         verify(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
         verify(acknowledgment).acknowledge();
@@ -198,21 +198,21 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("UseCase가 cancelled=false를 반환하면 OrderCancelFailedEvent를 발행한다")
     void shouldPublishOrderCancelFailedWhenUseCaseReturnsCancelledFalse() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1", "PK-2")
+            1L, List.of("PK-1", "PK-2")
         );
         when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(expectedCommand))
-                .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, false, "already shipping"));
+            .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, false, "already shipping"));
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("주문 취소 풀필먼트 처리 거부")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("주문 취소 풀필먼트 처리 거부")
         );
         verify(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
         verify(acknowledgment).acknowledge();
@@ -222,24 +222,24 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("productKeys가 빈 리스트이면 UseCase에 빈 리스트로 전달된다")
     void shouldPassEmptyListToUseCaseWhenProductKeysEmpty() throws Exception {
         String emptyKeysPayload = objectMapper.writeValueAsString(new OrderCancelFulfillmentSagaPayload(
-                1L, BUYER_ID, "PREPARING", List.of()
+            1L, BUYER_ID, "PREPARING", List.of()
         ));
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, emptyKeysPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, emptyKeysPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of()
+            1L, List.of()
         );
         when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(expectedCommand))
-                .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, true, "출고 취소 성공"));
+            .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, true, "출고 취소 성공"));
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
         verify(sagaResponsePublisher).publishSuccess(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"compensated\":true}"
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"compensated\":true}"
         );
         verifyNoInteractions(publishOrderCancelFailedEventPort);
         verify(acknowledgment).acknowledge();
@@ -249,7 +249,7 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("ACTION 이외 타입 메시지 수신 시 실패 응답을 발행한다")
     void shouldPublishFailureOnNonActionMessageType() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
@@ -258,8 +258,8 @@ class OrderCancelFulfillmentSagaConsumerTest {
         verifyNoInteractions(cancelInternalFulfillmentDeliveryUseCase);
         verifyNoInteractions(publishOrderCancelFailedEventPort);
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.COMPENSATION), contains("지원하지 않는 messageType")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.COMPENSATION), contains("지원하지 않는 messageType")
         );
         verify(acknowledgment).acknowledge();
     }
@@ -274,15 +274,15 @@ class OrderCancelFulfillmentSagaConsumerTest {
         payload.put("productKeys", List.of("PK-1"));
         String invalidPayload = objectMapper.writeValueAsString(payload);
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("orderId")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("orderId")
         );
         verifyNoInteractions(publishOrderCancelFailedEventPort);
         verify(acknowledgment).acknowledge();
@@ -300,15 +300,15 @@ class OrderCancelFulfillmentSagaConsumerTest {
         payload.put("productKeys", List.of("PK-1"));
         String invalidPayload = objectMapper.writeValueAsString(payload);
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("originalStatus")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("originalStatus")
         );
         verify(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
         verify(acknowledgment).acknowledge();
@@ -326,21 +326,21 @@ class OrderCancelFulfillmentSagaConsumerTest {
         payload.put("productKeys", List.of("PK-1"));
         String payloadWithoutBuyerId = objectMapper.writeValueAsString(payload);
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payloadWithoutBuyerId
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payloadWithoutBuyerId
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1")
+            1L, List.of("PK-1")
         );
         doThrow(new RuntimeException("외부 API 실패"))
-                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
+            .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("orderId=1")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("orderId=1")
         );
         verifyNoInteractions(publishOrderCancelFailedEventPort);
         verify(acknowledgment).acknowledge();
@@ -350,23 +350,23 @@ class OrderCancelFulfillmentSagaConsumerTest {
     @DisplayName("OrderCancelFailedEvent 발행 중 예외가 발생해도 Consumer가 ack한다")
     void shouldAcknowledgeEvenIfOrderCancelFailedPublishThrows() {
         SagaStepMessage stepMessage = new SagaStepMessage(
-                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
+            SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
-                1L, List.of("PK-1", "PK-2")
+            1L, List.of("PK-1", "PK-2")
         );
         doThrow(new RuntimeException("외부 API 실패"))
-                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
+            .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
         doThrow(new RuntimeException("outbox 저장 실패"))
-                .when(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
+            .when(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
         verify(sagaResponsePublisher).publishFailure(
-                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("orderId=1")
+            eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+            eq(SagaStepMessage.ACTION), contains("orderId=1")
         );
         verify(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
         verify(acknowledgment).acknowledge();
@@ -376,12 +376,12 @@ class OrderCancelFulfillmentSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock fixedClock = Clock.fixed(Instant.parse("2026-10-18T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_CANCEL.CANCEL_FULFILLMENT.action",
-                "saga-orchestrator", stepMessage, fixedClock
+            "saga.ORDER_CANCEL.CANCEL_FULFILLMENT.action",
+            "saga-orchestrator", stepMessage, fixedClock
         );
         return new ConsumerRecord<>(
-                "saga.order-cancel.fulfillment", 0, 0, SAGA_ID,
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "saga.order-cancel.fulfillment", 0, 0, SAGA_ID,
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
     }
 }

@@ -47,8 +47,8 @@ public class GlobalExceptionHandler {
     // MeterRegistry는 Spring actuator 빈으로 항상 존재하며 ControllerAdvice는 컨텍스트 외 인스턴스화가 없으므로 null 가드 불필요.
     public GlobalExceptionHandler(MeterRegistry meterRegistry) {
         this.sseAsyncUnusableCounter = Counter.builder("sse.async.unusable.total")
-                .description("SSE 비동기 요청 사용 불가 예외 총 건수 (클라이언트 커넥션 종료 등)")
-                .register(meterRegistry);
+            .description("SSE 비동기 요청 사용 불가 예외 총 건수 (클라이언트 커넥션 종료 등)")
+            .register(meterRegistry);
     }
 
     private record ParsedMessage(String code, String message) {
@@ -79,35 +79,35 @@ public class GlobalExceptionHandler {
     // 로그 유출 방지: rejectedValue(사용자 입력 원본)을 제외하고 field + constraint 메시지만 포맷한다.
     private String formatValidationLogMessage(BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream()
-                .map(fieldError -> "field=" + fieldError.getField()
-                        + ", constraint=" + safeConstraintText(fieldError.getDefaultMessage()))
-                .collect(Collectors.joining(", "));
+            .map(fieldError -> "field=" + fieldError.getField()
+                + ", constraint=" + safeConstraintText(fieldError.getDefaultMessage()))
+            .collect(Collectors.joining(", "));
     }
 
     // DEBUG 전용: rejectedValue 포함. logback appender %pii로 PII 마스킹 후 출력된다 (#4927).
     private String formatValidationDebugLogMessage(BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream()
-                .map(fieldError -> "field=" + fieldError.getField()
-                        + ", rejectedValue=" + fieldError.getRejectedValue()
-                        + ", constraint=" + safeConstraintText(fieldError.getDefaultMessage()))
-                .collect(Collectors.joining(", "));
+            .map(fieldError -> "field=" + fieldError.getField()
+                + ", rejectedValue=" + fieldError.getRejectedValue()
+                + ", constraint=" + safeConstraintText(fieldError.getDefaultMessage()))
+            .collect(Collectors.joining(", "));
     }
 
     // 로그 유출 방지: invalidValue를 제외하고 propertyPath + message만 포맷한다.
     private String formatConstraintViolationLogMessage(ConstraintViolationException e) {
         return e.getConstraintViolations().stream()
-                .map(violation -> "field=" + violation.getPropertyPath()
-                        + ", constraint=" + safeConstraintText(violation.getMessage()))
-                .collect(Collectors.joining(", "));
+            .map(violation -> "field=" + violation.getPropertyPath()
+                + ", constraint=" + safeConstraintText(violation.getMessage()))
+            .collect(Collectors.joining(", "));
     }
 
     // DEBUG 전용: invalidValue 포함. logback appender %pii로 PII 마스킹 후 출력된다 (#4927).
     private String formatConstraintViolationDebugLogMessage(ConstraintViolationException e) {
         return e.getConstraintViolations().stream()
-                .map(violation -> "field=" + violation.getPropertyPath()
-                        + ", invalidValue=" + violation.getInvalidValue()
-                        + ", constraint=" + safeConstraintText(violation.getMessage()))
-                .collect(Collectors.joining(", "));
+            .map(violation -> "field=" + violation.getPropertyPath()
+                + ", invalidValue=" + violation.getInvalidValue()
+                + ", constraint=" + safeConstraintText(violation.getMessage()))
+            .collect(Collectors.joining(", "));
     }
 
     private String safeConstraintText(String constraintMessage) {
@@ -122,20 +122,20 @@ public class GlobalExceptionHandler {
         Throwable cause = e.getCause();
         if (cause instanceof MismatchedInputException mie) {
             String path = mie.getPath().stream()
-                    .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "[" + ref.getIndex() + "]")
-                    .collect(Collectors.joining("."));
+                .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "[" + ref.getIndex() + "]")
+                .collect(Collectors.joining("."));
             return "type=HttpMessageNotReadable, cause=" + cause.getClass().getSimpleName()
-                    + (path.isEmpty() ? "" : ", path=" + path);
+                + (path.isEmpty() ? "" : ", path=" + path);
         }
         return "type=HttpMessageNotReadable, cause="
-                + (FormatValidator.hasNoValue(cause) ? "unknown" : cause.getClass().getSimpleName());
+            + (FormatValidator.hasNoValue(cause) ? "unknown" : cause.getClass().getSimpleName());
     }
 
     // 로그 유출 방지: e.getValue() (원본 문자열) 제외. name + requiredType만 포맷한다.
     private String formatMethodArgumentTypeMismatchLogMessage(MethodArgumentTypeMismatchException e) {
         String requiredTypeName = FormatValidator.hasNoValue(e.getRequiredType())
-                ? "unknown"
-                : e.getRequiredType().getSimpleName();
+            ? "unknown"
+            : e.getRequiredType().getSimpleName();
         return "type=MethodArgumentTypeMismatch, name=" + e.getName() + ", requiredType=" + requiredTypeName;
     }
 
@@ -143,14 +143,14 @@ public class GlobalExceptionHandler {
     private String formatJwtExceptionLogMessage(JwtException e) {
         Throwable cause = e.getCause();
         return "type=" + e.getClass().getSimpleName()
-                + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
+            + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
     }
 
     // 로그 유출 방지: 원본 메시지(파일 경로, SQL, PII, 내부 클래스명 등)를 제외하고 예외 type/cause만 포맷한다.
     private static String formatGenericLogMessage(Throwable e) {
         Throwable cause = e.getCause();
         return "type=" + e.getClass().getSimpleName()
-                + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
+            + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
     }
 
     // QA(DEBUG) 환경에서만 stack trace 추가 기록. prod(INFO) 동작 변화 0건.
@@ -191,7 +191,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-            HttpRequestMethodNotSupportedException e
+        HttpRequestMethodNotSupportedException e
     ) {
         HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
@@ -243,8 +243,8 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 
         String fieldErrorMessage = e.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> fieldError.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+            .map(fieldError -> fieldError.getDefaultMessage())
+            .collect(Collectors.joining(", "));
 
         if (fieldErrorMessage.isEmpty()) {
             fieldErrorMessage = "요청 값이 올바르지 않습니다.";
@@ -253,8 +253,8 @@ public class GlobalExceptionHandler {
         log.info(LOG_INFO_MESSAGE, formatValidationLogMessage(e.getBindingResult()));
         if (log.isDebugEnabled()) {
             log.debug(
-                    "MethodArgumentNotValidException input: {}",
-                    formatValidationDebugLogMessage(e.getBindingResult())
+                "MethodArgumentNotValidException input: {}",
+                formatValidationDebugLogMessage(e.getBindingResult())
             );
         }
         debugStackTrace(e);
@@ -273,16 +273,16 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message = e.getConstraintViolations().stream()
-                .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
-                .collect(Collectors.joining(", "));
+            .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
+            .collect(Collectors.joining(", "));
         if (message.isEmpty()) {
             message = "요청 파라미터가 올바르지 않습니다.";
         }
         log.info(LOG_INFO_MESSAGE, formatConstraintViolationLogMessage(e));
         if (log.isDebugEnabled()) {
             log.debug(
-                    "ConstraintViolationException input: {}",
-                    formatConstraintViolationDebugLogMessage(e)
+                "ConstraintViolationException input: {}",
+                formatConstraintViolationDebugLogMessage(e)
             );
         }
         debugStackTrace(e);
@@ -368,7 +368,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
-            MissingServletRequestParameterException e
+        MissingServletRequestParameterException e
     ) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message = "필수 요청 파라미터 '" + e.getParameterName() + "'이(가) 누락되었습니다.";

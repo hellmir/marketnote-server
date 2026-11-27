@@ -25,10 +25,10 @@ public interface GetUserPenaltyHistoryUseCase {
      * @Description 특정 회원의 패널티 부과 내역을 페이징 조회합니다.
      */
     Page<GetUserPenaltyHistoryResult> getUserPenaltyHistories(
-            Long userId,
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            UserPenaltyHistorySortProperty sortProperty
+        Long userId,
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        UserPenaltyHistorySortProperty sortProperty
     );
 }

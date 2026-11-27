@@ -17,10 +17,10 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
     // Spring Kafka 인터페이스 시그니처는 @Nullable 반환을 허용하나 본 구현은 항상 non-null record를 반환한다 (MDC 전파만 수행, 레코드 변경 없음).
     @Override
     public ConsumerRecord<String, Object> intercept(
-            @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
+        @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
     ) {
         String requestId = TraceIdValidator.validateOrFallback(
-                resolveHeaderValue(record, TraceIdMdcFilter.REQUEST_ID_HEADER)
+            resolveHeaderValue(record, TraceIdMdcFilter.REQUEST_ID_HEADER)
         );
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, requestId);
 
@@ -29,7 +29,7 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
         MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, correlationId);
 
         String causationId = resolveOptionalId(
-                resolveHeaderValue(record, TraceIdMdcFilter.CAUSATION_ID_HEADER)
+            resolveHeaderValue(record, TraceIdMdcFilter.CAUSATION_ID_HEADER)
         );
         if (FormatValidator.hasValue(causationId)) {
             MDC.put(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY, causationId);
@@ -39,7 +39,7 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
 
     @Override
     public void afterRecord(
-            @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
+        @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
     ) {
         MDC.remove(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         MDC.remove(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY);

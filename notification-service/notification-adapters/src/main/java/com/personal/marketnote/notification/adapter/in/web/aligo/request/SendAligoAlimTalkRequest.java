@@ -9,33 +9,33 @@ import java.util.List;
 import java.util.Map;
 
 public record SendAligoAlimTalkRequest(
-        @NotBlank(message = "템플릿 코드는 필수입니다")
-        String templateCode,
+    @NotBlank(message = "템플릿 코드는 필수입니다")
+    String templateCode,
 
-        @NotBlank(message = "발신번호는 필수입니다")
-        String sender,
+    @NotBlank(message = "발신번호는 필수입니다")
+    String sender,
 
-        Map<String, String> variables,
+    Map<String, String> variables,
 
-        @NotNull(message = "수신자 목록은 필수입니다")
-        @Size(min = 1, max = 500, message = "수신자는 1명 이상 500명 이하여야 합니다")
-        @Valid
-        List<RecipientRequest> recipients,
+    @NotNull(message = "수신자 목록은 필수입니다")
+    @Size(min = 1, max = 500, message = "수신자는 1명 이상 500명 이하여야 합니다")
+    @Valid
+    List<RecipientRequest> recipients,
 
-        FailoverRequest failover
+    FailoverRequest failover
 ) {
 
     public record RecipientRequest(
-            @NotBlank(message = "수신자 전화번호는 필수입니다")
-            String receiver,
-            String recvName
+        @NotBlank(message = "수신자 전화번호는 필수입니다")
+        String receiver,
+        String recvName
     ) {
     }
 
     public record FailoverRequest(
-            boolean enabled,
-            String subject,
-            String body
+        boolean enabled,
+        String subject,
+        String body
     ) {
     }
 }

@@ -54,10 +54,10 @@ public class RegisterDeviceTokenService implements RegisterDeviceTokenUseCase {
     }
 
     private RegisterDeviceTokenResult createNewDeviceToken(
-            RegisterDeviceTokenCommand command, Platform platform, LocalDateTime now
+        RegisterDeviceTokenCommand command, Platform platform, LocalDateTime now
     ) {
         DeviceToken deviceToken = DeviceToken.from(
-                DeviceTokenCommandToStateMapper.mapToState(command, platform, now)
+            DeviceTokenCommandToStateMapper.mapToState(command, platform, now)
         );
         Long id = saveDeviceTokenPort.save(deviceToken);
 

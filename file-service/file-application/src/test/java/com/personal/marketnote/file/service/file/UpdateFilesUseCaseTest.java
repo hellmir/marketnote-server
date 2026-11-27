@@ -90,12 +90,12 @@ class UpdateFilesUseCaseTest {
     @DisplayName("대표 이미지 9개 업로드 시 InvalidFileCountLimitException 예외를 던진다")
     void updateFiles_representativeImage_exceedsMaxCount_throws() {
         UpdateFilesCommand command = buildCommand(
-                FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 9
+            FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 9
         );
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileCountLimitException.class)
-                .hasMessageContaining("8");
+            .isInstanceOf(InvalidFileCountLimitException.class)
+            .hasMessageContaining("8");
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort);
     }
@@ -104,12 +104,12 @@ class UpdateFilesUseCaseTest {
     @DisplayName("카탈로그 이미지 2개 업로드 시 InvalidFileCountLimitException 예외를 던진다")
     void updateFiles_catalogImage_exceedsMaxCount_throws() {
         UpdateFilesCommand command = buildCommand(
-                FileSort.PRODUCT_CATALOG_IMAGE.name(), 2
+            FileSort.PRODUCT_CATALOG_IMAGE.name(), 2
         );
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileCountLimitException.class)
-                .hasMessageContaining("1");
+            .isInstanceOf(InvalidFileCountLimitException.class)
+            .hasMessageContaining("1");
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort);
     }
@@ -118,12 +118,12 @@ class UpdateFilesUseCaseTest {
     @DisplayName("본문 이미지 6개 업로드 시 InvalidFileCountLimitException 예외를 던진다")
     void updateFiles_contentImage_exceedsMaxCount_throws() {
         UpdateFilesCommand command = buildCommand(
-                FileSort.PRODUCT_CONTENT_IMAGE.name(), 6
+            FileSort.PRODUCT_CONTENT_IMAGE.name(), 6
         );
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileCountLimitException.class)
-                .hasMessageContaining("5");
+            .isInstanceOf(InvalidFileCountLimitException.class)
+            .hasMessageContaining("5");
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort);
     }
@@ -134,10 +134,10 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         FileDomain existing = snapshotFileDomain(100L, "test-owner-key");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>(List.of(existing)));
+            .thenReturn(new ArrayList<>(List.of(existing)));
         when(getFileUseCase.getResizedFiles(anyList())).thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
@@ -155,10 +155,10 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         FileDomain existing = snapshotFileDomain(999L, "test-owner-key");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>(List.of(existing)));
+            .thenReturn(new ArrayList<>(List.of(existing)));
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileOwnerException.class);
+            .isInstanceOf(InvalidFileOwnerException.class);
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort, updateFilesPort, publishImageEventPort);
     }
@@ -169,10 +169,10 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         FileDomain existing = snapshotFileDomain(100L, "other-owner-key");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>(List.of(existing)));
+            .thenReturn(new ArrayList<>(List.of(existing)));
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileOwnerException.class);
+            .isInstanceOf(InvalidFileOwnerException.class);
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort, updateFilesPort, publishImageEventPort);
     }
@@ -183,10 +183,10 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         FileDomain existing = snapshotFileDomain(null, "test-owner-key");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>(List.of(existing)));
+            .thenReturn(new ArrayList<>(List.of(existing)));
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileOwnerException.class);
+            .isInstanceOf(InvalidFileOwnerException.class);
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort, updateFilesPort, publishImageEventPort);
     }
@@ -196,9 +196,9 @@ class UpdateFilesUseCaseTest {
     void updateFiles_firstUpload_noExistingFiles_savesSuccessfully() {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
@@ -215,9 +215,9 @@ class UpdateFilesUseCaseTest {
     void updateFiles_seller_productCatalogImage_processesSuccessfully() {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
@@ -232,9 +232,9 @@ class UpdateFilesUseCaseTest {
     void updateFiles_admin_productCatalogImage_processesSuccessfully() {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "ADMIN");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
@@ -250,11 +250,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "BUYER");
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -264,11 +264,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 1, "BUYER");
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -278,11 +278,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1, "BUYER");
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -291,9 +291,9 @@ class UpdateFilesUseCaseTest {
     void updateFiles_buyer_reviewImage_processesSuccessfully() {
         UpdateFilesCommand command = buildCommand(FileSort.REVIEW_IMAGE.name(), 1, "BUYER");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.REVIEW_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
@@ -307,16 +307,16 @@ class UpdateFilesUseCaseTest {
     @DisplayName("구매자가 리뷰 이미지와 상품 카탈로그 이미지를 혼합 업로드하면 InvalidFileRoleException을 던진다")
     void updateFiles_buyer_mixedSorts_throws() {
         UpdateFilesCommand command = buildCommandWithSorts(
-                List.of(FileSort.REVIEW_IMAGE.name(), FileSort.PRODUCT_CATALOG_IMAGE.name()),
-                "BUYER"
+            List.of(FileSort.REVIEW_IMAGE.name(), FileSort.PRODUCT_CATALOG_IMAGE.name()),
+            "BUYER"
         );
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -325,9 +325,9 @@ class UpdateFilesUseCaseTest {
     void updateFiles_admin_icon_processesSuccessfully() {
         UpdateFilesCommand command = buildCommand(FileSort.ICON.name(), 1, "ADMIN");
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.ICON.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/icon_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/icon_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
@@ -343,11 +343,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.ICON.name(), 1, "SELLER");
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -357,11 +357,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.ICON.name(), 1, "BUYER");
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -371,11 +371,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.ETC.name(), 1, "SELLER");
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -383,16 +383,16 @@ class UpdateFilesUseCaseTest {
     @DisplayName("판매자가 리뷰 이미지와 아이콘을 혼합 업로드하면 InvalidFileRoleException을 던진다")
     void updateFiles_seller_mixedReviewAndIcon_throws() {
         UpdateFilesCommand command = buildCommandWithSorts(
-                List.of(FileSort.REVIEW_IMAGE.name(), FileSort.ICON.name()),
-                "SELLER"
+            List.of(FileSort.REVIEW_IMAGE.name(), FileSort.ICON.name()),
+            "SELLER"
         );
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(InvalidFileRoleException.class);
+            .isInstanceOf(InvalidFileRoleException.class);
 
         verifyNoInteractions(
-                getFileUseCase, uploadFilesPort, saveFilesPort,
-                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+            getFileUseCase, uploadFilesPort, saveFilesPort,
+            saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
     }
 
@@ -402,23 +402,23 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
         FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/catalog_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/catalog_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
         assertThat(logAppender.list)
-                .anySatisfy(event -> {
-                    assertThat(event.getLevel()).isEqualTo(Level.WARN);
-                    assertThat(event.getFormattedMessage())
-                            .contains("카탈로그 이미지 리사이즈 실패")
-                            .contains("fileId=500")
-                            .contains("originalFilename=test_0.png")
-                            .contains("fileSort=" + FileSort.PRODUCT_CATALOG_IMAGE.name());
-                });
+            .anySatisfy(event -> {
+                assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                assertThat(event.getFormattedMessage())
+                    .contains("카탈로그 이미지 리사이즈 실패")
+                    .contains("fileId=500")
+                    .contains("originalFilename=test_0.png")
+                    .contains("fileSort=" + FileSort.PRODUCT_CATALOG_IMAGE.name());
+            });
         verify(saveResizedFilesPort, never()).saveAll(anyList());
     }
 
@@ -428,31 +428,31 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 1, "SELLER");
         FileDomain savedFile = savedFileDomain(700L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/representative_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/representative_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
         assertThat(logAppender.list)
-                .anySatisfy(event -> {
-                    assertThat(event.getLevel()).isEqualTo(Level.WARN);
-                    assertThat(event.getFormattedMessage())
-                            .contains("대표 이미지 리사이즈 실패")
-                            .contains("fileId=700")
-                            .contains("originalFilename=test_0.png")
-                            .contains("width=600");
-                })
-                .anySatisfy(event -> {
-                    assertThat(event.getLevel()).isEqualTo(Level.WARN);
-                    assertThat(event.getFormattedMessage())
-                            .contains("대표 이미지 리사이즈 실패")
-                            .contains("fileId=700")
-                            .contains("originalFilename=test_0.png")
-                            .contains("width=800");
-                });
+            .anySatisfy(event -> {
+                assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                assertThat(event.getFormattedMessage())
+                    .contains("대표 이미지 리사이즈 실패")
+                    .contains("fileId=700")
+                    .contains("originalFilename=test_0.png")
+                    .contains("width=600");
+            })
+            .anySatisfy(event -> {
+                assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                assertThat(event.getFormattedMessage())
+                    .contains("대표 이미지 리사이즈 실패")
+                    .contains("fileId=700")
+                    .contains("originalFilename=test_0.png")
+                    .contains("width=800");
+            });
         verify(saveResizedFilesPort, never()).saveAll(anyList());
     }
 
@@ -462,23 +462,23 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
         FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/catalog_0.png"))
-                .thenReturn(List.of("https://cdn.example.com/catalog_0_500x500.png"));
+            .thenReturn(List.of("https://cdn.example.com/catalog_0.png"))
+            .thenReturn(List.of("https://cdn.example.com/catalog_0_500x500.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
         List<ImageEventCommand> published = captureCreatedEvents();
         assertThat(published).hasSize(1);
         assertThat(published.getFirst().resizedImages())
-                .singleElement()
-                .satisfies(resized -> {
-                    assertThat(resized.size()).isEqualTo("500x500");
-                    assertThat(resized.storageUrl()).isEqualTo("https://cdn.example.com/catalog_0_500x500.png");
-                });
+            .singleElement()
+            .satisfies(resized -> {
+                assertThat(resized.size()).isEqualTo("500x500");
+                assertThat(resized.storageUrl()).isEqualTo("https://cdn.example.com/catalog_0_500x500.png");
+            });
     }
 
     @Test
@@ -487,26 +487,26 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 1, "SELLER");
         FileDomain savedFile = savedFileDomain(700L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/representative_0.png"))
-                .thenReturn(List.of(
-                        "https://cdn.example.com/representative_0_600.png",
-                        "https://cdn.example.com/representative_0_800.png"
-                ));
+            .thenReturn(List.of("https://cdn.example.com/representative_0.png"))
+            .thenReturn(List.of(
+                "https://cdn.example.com/representative_0_600.png",
+                "https://cdn.example.com/representative_0_800.png"
+            ));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
         List<ImageEventCommand> published = captureCreatedEvents();
         assertThat(published).hasSize(1);
         assertThat(published.getFirst().resizedImages())
-                .extracting(ImageEventCommand.ResizedImageCommand::size, ImageEventCommand.ResizedImageCommand::storageUrl)
-                .containsExactly(
-                        tuple("600", "https://cdn.example.com/representative_0_600.png"),
-                        tuple("800", "https://cdn.example.com/representative_0_800.png")
-                );
+            .extracting(ImageEventCommand.ResizedImageCommand::size, ImageEventCommand.ResizedImageCommand::storageUrl)
+            .containsExactly(
+                tuple("600", "https://cdn.example.com/representative_0_600.png"),
+                tuple("800", "https://cdn.example.com/representative_0_800.png")
+            );
     }
 
     @Test
@@ -515,11 +515,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1, "SELLER");
         FileDomain savedFile = savedFileDomain(900L, FileSort.PRODUCT_CONTENT_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/content_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/content_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
@@ -535,11 +535,11 @@ class UpdateFilesUseCaseTest {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
         FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/catalog_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/catalog_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
@@ -557,14 +557,14 @@ class UpdateFilesUseCaseTest {
         ResizedFile existingResized = activeResizedFile(99L, 10L, "500x500", "https://cdn.example.com/existing_500x500.png");
         FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
-                .thenReturn(new ArrayList<>(List.of(existing)));
+            .thenReturn(new ArrayList<>(List.of(existing)));
         when(getFileUseCase.getResizedFiles(anyList()))
-                .thenReturn(new ArrayList<>(List.of(existingResized)));
+            .thenReturn(new ArrayList<>(List.of(existingResized)));
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_catalog_0.png"))
-                .thenReturn(List.of("https://cdn.example.com/new_catalog_0_500x500.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_catalog_0.png"))
+            .thenReturn(List.of("https://cdn.example.com/new_catalog_0_500x500.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenReturn(new ArrayList<>(List.of(savedFile)));
+            .thenReturn(new ArrayList<>(List.of(savedFile)));
 
         updateFilesService.updateFiles(command);
 
@@ -575,11 +575,11 @@ class UpdateFilesUseCaseTest {
         assertThat(deleted).hasSize(1);
         assertThat(deleted.getFirst().imageId()).isEqualTo(10L);
         assertThat(deleted.getFirst().resizedImages())
-                .singleElement()
-                .satisfies(resized -> {
-                    assertThat(resized.size()).isEqualTo("500x500");
-                    assertThat(resized.storageUrl()).isEqualTo("https://cdn.example.com/existing_500x500.png");
-                });
+            .singleElement()
+            .satisfies(resized -> {
+                assertThat(resized.size()).isEqualTo("500x500");
+                assertThat(resized.storageUrl()).isEqualTo("https://cdn.example.com/existing_500x500.png");
+            });
     }
 
     @SuppressWarnings("unchecked")
@@ -599,14 +599,14 @@ class UpdateFilesUseCaseTest {
 
     private UpdateFileCommand buildPngFileCommand(String sort, int index) throws IOException {
         MockMultipartFile mockFile = new MockMultipartFile(
-                "file", "test_" + index + ".png", "image/png", createPngBytes()
+            "file", "test_" + index + ".png", "image/png", createPngBytes()
         );
         return UpdateFileCommand.builder()
-                .file(mockFile)
-                .sort(sort)
-                .extension("png")
-                .name("test_" + index + ".png")
-                .build();
+            .file(mockFile)
+            .sort(sort)
+            .extension("png")
+            .name("test_" + index + ".png")
+            .build();
     }
 
     private static byte[] createPngBytes() throws IOException {
@@ -618,64 +618,64 @@ class UpdateFilesUseCaseTest {
 
     private static FileDomain snapshotCatalogFileDomain(Long id, Long userId, String ownerKey) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(1L)
-                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("png")
-                .name("existing.png")
-                .storageUrl("https://cdn.example.com/existing.png")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .userId(userId)
-                .ownerKey(ownerKey)
-                .build());
+            .id(id)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(1L)
+            .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("png")
+            .name("existing.png")
+            .storageUrl("https://cdn.example.com/existing.png")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .userId(userId)
+            .ownerKey(ownerKey)
+            .build());
     }
 
     private static ResizedFile activeResizedFile(Long id, Long fileId, String size, String storageUrl) {
         return ResizedFile.from(ResizedFileSnapshotState.builder()
-                .id(id)
-                .fileId(fileId)
-                .size(size)
-                .storageUrl(storageUrl)
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(id)
+            .fileId(fileId)
+            .size(size)
+            .storageUrl(storageUrl)
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private static FileDomain savedFileDomain(Long id, FileSort sort) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(1L)
-                .sort(sort)
-                .extension("png")
-                .name("test_0.png")
-                .storageUrl("https://cdn.example.com/test_0.png")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .userId(100L)
-                .ownerKey("test-owner-key")
-                .build());
+            .id(id)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(1L)
+            .sort(sort)
+            .extension("png")
+            .name("test_0.png")
+            .storageUrl("https://cdn.example.com/test_0.png")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .userId(100L)
+            .ownerKey("test-owner-key")
+            .build());
     }
 
     private static FileDomain snapshotFileDomain(Long userId, String ownerKey) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(1L)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(1L)
-                .sort(FileSort.PRODUCT_CONTENT_IMAGE)
-                .extension("png")
-                .name("existing.png")
-                .storageUrl("https://cdn.example.com/existing.png")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .userId(userId)
-                .ownerKey(ownerKey)
-                .build());
+            .id(1L)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(1L)
+            .sort(FileSort.PRODUCT_CONTENT_IMAGE)
+            .extension("png")
+            .name("existing.png")
+            .storageUrl("https://cdn.example.com/existing.png")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .userId(userId)
+            .ownerKey(ownerKey)
+            .build());
     }
 
     private UpdateFilesCommand buildCommand(String sort, int fileCount) {
@@ -700,25 +700,25 @@ class UpdateFilesUseCaseTest {
 
     private UpdateFileCommand buildFileCommand(String sort, int index) {
         MockMultipartFile mockFile = new MockMultipartFile(
-                "file", "test_" + index + ".png", "image/png", new byte[]{1}
+            "file", "test_" + index + ".png", "image/png", new byte[]{1}
         );
         return UpdateFileCommand.builder()
-                .file(mockFile)
-                .sort(sort)
-                .extension("png")
-                .name("test_" + index + ".png")
-                .build();
+            .file(mockFile)
+            .sort(sort)
+            .extension("png")
+            .name("test_" + index + ".png")
+            .build();
     }
 
     private UpdateFilesCommand buildFilesCommand(List<UpdateFileCommand> fileCommands, String role) {
         return UpdateFilesCommand.builder()
-                .fileInfo(fileCommands)
-                .ownerType("PRODUCT")
-                .ownerId(1L)
-                .ownerKey("test-owner-key")
-                .requesterId(100L)
-                .requesterRole(role)
-                .build();
+            .fileInfo(fileCommands)
+            .ownerType("PRODUCT")
+            .ownerId(1L)
+            .ownerKey("test-owner-key")
+            .requesterId(100L)
+            .requesterRole(role)
+            .build();
     }
 
     @Test
@@ -726,9 +726,9 @@ class UpdateFilesUseCaseTest {
     void updateFiles_publishesOrphanCleanupEventImmediatelyAfterUpload() {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
 
         updateFilesService.updateFiles(command);
@@ -736,7 +736,7 @@ class UpdateFilesUseCaseTest {
         ArgumentCaptor<S3OrphanCleanupEvent> eventCaptor = ArgumentCaptor.forClass(S3OrphanCleanupEvent.class);
         verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
         assertThat(eventCaptor.getValue().storageUrls())
-                .containsExactly("https://cdn.example.com/new_0.png");
+            .containsExactly("https://cdn.example.com/new_0.png");
     }
 
     @Test
@@ -744,19 +744,19 @@ class UpdateFilesUseCaseTest {
     void updateFiles_publishesOrphanCleanupEvent_evenWhenSaveFilesPortFails() {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList()))
-                .thenThrow(new RuntimeException("DB 저장 실패"));
+            .thenThrow(new RuntimeException("DB 저장 실패"));
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(RuntimeException.class);
+            .isInstanceOf(RuntimeException.class);
 
         ArgumentCaptor<S3OrphanCleanupEvent> eventCaptor = ArgumentCaptor.forClass(S3OrphanCleanupEvent.class);
         verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
         assertThat(eventCaptor.getValue().storageUrls())
-                .containsExactly("https://cdn.example.com/new_0.png");
+            .containsExactly("https://cdn.example.com/new_0.png");
         verify(publishImageEventPort, never()).publishImageCreatedEvents(anyList());
     }
 
@@ -765,19 +765,19 @@ class UpdateFilesUseCaseTest {
     void updateFiles_publishesOrphanCleanupEvent_evenWhenOutboxPublishFails() {
         UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
         when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
-                .thenReturn(new ArrayList<>());
+            .thenReturn(new ArrayList<>());
         when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
-                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+            .thenReturn(List.of("https://cdn.example.com/new_0.png"));
         when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
         doThrow(new RuntimeException("Outbox 직렬화 실패"))
-                .when(publishImageEventPort).publishImageCreatedEvents(anyList());
+            .when(publishImageEventPort).publishImageCreatedEvents(anyList());
 
         assertThatThrownBy(() -> updateFilesService.updateFiles(command))
-                .isInstanceOf(RuntimeException.class);
+            .isInstanceOf(RuntimeException.class);
 
         ArgumentCaptor<S3OrphanCleanupEvent> eventCaptor = ArgumentCaptor.forClass(S3OrphanCleanupEvent.class);
         verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
         assertThat(eventCaptor.getValue().storageUrls())
-                .containsExactly("https://cdn.example.com/new_0.png");
+            .containsExactly("https://cdn.example.com/new_0.png");
     }
 }

@@ -19,8 +19,8 @@ public interface SagaInstanceJpaRepository extends JpaRepository<SagaInstanceJpa
 
     @Query("SELECT s FROM SagaInstanceJpaEntity s WHERE s.status = :status AND s.modifiedAt < :cutoff ORDER BY s.modifiedAt ASC")
     List<SagaInstanceJpaEntity> findByStatusAndModifiedAtBefore(
-            @Param("status") SagaStatus status,
-            @Param("cutoff") LocalDateTime cutoff,
-            Pageable pageable
+        @Param("status") SagaStatus status,
+        @Param("cutoff") LocalDateTime cutoff,
+        Pageable pageable
     );
 }

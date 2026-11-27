@@ -12,56 +12,56 @@ import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record PostItemResponse(
-        Long id,
-        Long userId,
-        Long parentId,
-        String board,
-        String category,
-        PostTargetType targetType,
-        Long targetId,
-        String productImageUrl,
-        String maskedWriterName,
-        String title,
-        String content,
-        boolean isPrivate,
-        boolean isPhoto,
-        List<GetFileResult> images,
-        boolean isMasked,
-        boolean isAnswered,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        PostProductInfoResponse product,
-        List<PostItemResponse> replies
+    Long id,
+    Long userId,
+    Long parentId,
+    String board,
+    String category,
+    PostTargetType targetType,
+    Long targetId,
+    String productImageUrl,
+    String maskedWriterName,
+    String title,
+    String content,
+    boolean isPrivate,
+    boolean isPhoto,
+    List<GetFileResult> images,
+    boolean isMasked,
+    boolean isAnswered,
+    LocalDateTime createdAt,
+    LocalDateTime modifiedAt,
+    PostProductInfoResponse product,
+    List<PostItemResponse> replies
 ) {
     public static PostItemResponse from(PostItemResult result) {
         List<PostItemResult> replies = result.getReplies();
 
         return PostItemResponse.builder()
-                .id(result.getId())
-                .userId(result.getUserId())
-                .parentId(result.getParentId())
-                .board(result.getBoard())
-                .category(result.getCategory())
-                .targetType(result.getTargetType())
-                .targetId(result.getTargetId())
-                .productImageUrl(result.getProductImageUrl())
-                .maskedWriterName(result.getMaskedWriterName())
-                .title(result.getTitle())
-                .content(result.getContent())
-                .isPrivate(result.isPrivate())
-                .isPhoto(result.isPhoto())
-                .images(result.getImages())
-                .isMasked(result.isMasked())
-                .isAnswered(result.isAnswered())
-                .createdAt(result.getCreatedAt())
-                .modifiedAt(result.getModifiedAt())
-                .product(PostProductInfoResponse.from(result.getProduct()))
-                .replies(FormatValidator.hasValue(replies)
-                        ? replies.stream()
-                        .map(PostItemResponse::from)
-                        .toList()
-                        : List.of()
-                )
-                .build();
+            .id(result.getId())
+            .userId(result.getUserId())
+            .parentId(result.getParentId())
+            .board(result.getBoard())
+            .category(result.getCategory())
+            .targetType(result.getTargetType())
+            .targetId(result.getTargetId())
+            .productImageUrl(result.getProductImageUrl())
+            .maskedWriterName(result.getMaskedWriterName())
+            .title(result.getTitle())
+            .content(result.getContent())
+            .isPrivate(result.isPrivate())
+            .isPhoto(result.isPhoto())
+            .images(result.getImages())
+            .isMasked(result.isMasked())
+            .isAnswered(result.isAnswered())
+            .createdAt(result.getCreatedAt())
+            .modifiedAt(result.getModifiedAt())
+            .product(PostProductInfoResponse.from(result.getProduct()))
+            .replies(FormatValidator.hasValue(replies)
+                ? replies.stream()
+                .map(PostItemResponse::from)
+                .toList()
+                : List.of()
+            )
+            .build();
     }
 }

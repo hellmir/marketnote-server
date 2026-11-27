@@ -81,9 +81,9 @@ class RemoteAreaDataInitializerTest {
 
         // 충남,태안군,,나암도 (village 빈 필드)
         RemoteAreaJpaEntity taeanNaamdo = savedEntities.stream()
-                .filter(entity -> "태안군".equals(entity.getDistrict()) && "나암도".equals(entity.getSubarea()))
-                .findFirst()
-                .orElseThrow();
+            .filter(entity -> "태안군".equals(entity.getDistrict()) && "나암도".equals(entity.getSubarea()))
+            .findFirst()
+            .orElseThrow();
 
         assertThat(taeanNaamdo.getProvince()).isEqualTo("충남");
         assertThat(taeanNaamdo.getVillage()).isEqualTo("");
@@ -104,9 +104,9 @@ class RemoteAreaDataInitializerTest {
 
         // 전남,여수시,삼산면,(전체) → subarea ""
         RemoteAreaJpaEntity yeosuSamsan = savedEntities.stream()
-                .filter(entity -> "여수시".equals(entity.getDistrict()) && "삼산면".equals(entity.getVillage()))
-                .findFirst()
-                .orElseThrow();
+            .filter(entity -> "여수시".equals(entity.getDistrict()) && "삼산면".equals(entity.getVillage()))
+            .findFirst()
+            .orElseThrow();
 
         assertThat(yeosuSamsan.getSubarea()).isEqualTo("");
     }
@@ -125,7 +125,7 @@ class RemoteAreaDataInitializerTest {
         List<RemoteAreaJpaEntity> savedEntities = batchCaptor.getValue();
 
         boolean hasHeader = savedEntities.stream()
-                .anyMatch(entity -> "광역시도".equals(entity.getProvince()));
+            .anyMatch(entity -> "광역시도".equals(entity.getProvince()));
 
         assertThat(hasHeader).isFalse();
     }
@@ -180,9 +180,9 @@ class RemoteAreaDataInitializerTest {
 
         // 충남,보령시,오천면,외연도리,DELIVERY_IMPOSSIBLE
         RemoteAreaJpaEntity oeyeondo = savedEntities.stream()
-                .filter(entity -> "보령시".equals(entity.getDistrict()) && "외연도리".equals(entity.getSubarea()))
-                .findFirst()
-                .orElseThrow();
+            .filter(entity -> "보령시".equals(entity.getDistrict()) && "외연도리".equals(entity.getSubarea()))
+            .findFirst()
+            .orElseThrow();
 
         assertThat(oeyeondo.getRegionType()).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
     }
@@ -201,8 +201,8 @@ class RemoteAreaDataInitializerTest {
         List<RemoteAreaJpaEntity> savedEntities = batchCaptor.getValue();
 
         long deliveryImpossibleCount = savedEntities.stream()
-                .filter(entity -> ShippingAddressRegionType.DELIVERY_IMPOSSIBLE.equals(entity.getRegionType()))
-                .count();
+            .filter(entity -> ShippingAddressRegionType.DELIVERY_IMPOSSIBLE.equals(entity.getRegionType()))
+            .count();
 
         assertThat(deliveryImpossibleCount).isEqualTo(5);
     }

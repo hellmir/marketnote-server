@@ -35,13 +35,13 @@ class RemoteAreaPersistenceAdapterTest {
 
     private RemoteArea createRemoteArea(Long id) {
         return RemoteArea.from(RemoteAreaSnapshotState.builder()
-                .id(id)
-                .province("제주특별자치도")
-                .district("제주시")
-                .village("추자면")
-                .subarea("")
-                .regionType(ShippingAddressRegionType.ISLAND)
-                .build());
+            .id(id)
+            .province("제주특별자치도")
+            .district("제주시")
+            .village("추자면")
+            .subarea("")
+            .regionType(ShippingAddressRegionType.ISLAND)
+            .build());
     }
 
     private RemoteAreaJpaEntity createEntity(Long id) {
@@ -77,11 +77,11 @@ class RemoteAreaPersistenceAdapterTest {
             // given
             RemoteArea remoteArea = createRemoteArea(null);
             when(remoteAreaJpaRepository.save(any(RemoteAreaJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("unique constraint"));
+                .thenThrow(new DataIntegrityViolationException("unique constraint"));
 
             // when & then
             assertThatThrownBy(() -> remoteAreaPersistenceAdapter.save(remoteArea))
-                    .isInstanceOf(RemoteAreaAlreadyExistsException.class);
+                .isInstanceOf(RemoteAreaAlreadyExistsException.class);
         }
     }
 
@@ -93,7 +93,7 @@ class RemoteAreaPersistenceAdapterTest {
         void returnsTrueWhenExists() {
             // given
             when(remoteAreaJpaRepository.existsByProvinceAndDistrictAndVillageAndSubareaAndStatus(
-                    "제주특별자치도", "제주시", "추자면", "", EntityStatus.ACTIVE
+                "제주특별자치도", "제주시", "추자면", "", EntityStatus.ACTIVE
             )).thenReturn(true);
 
             // when
@@ -108,7 +108,7 @@ class RemoteAreaPersistenceAdapterTest {
         void returnsFalseWhenNotExists() {
             // given
             when(remoteAreaJpaRepository.existsByProvinceAndDistrictAndVillageAndSubareaAndStatus(
-                    "서울특별시", "", "", "", EntityStatus.ACTIVE
+                "서울특별시", "", "", "", EntityStatus.ACTIVE
             )).thenReturn(false);
 
             // when
@@ -160,7 +160,7 @@ class RemoteAreaPersistenceAdapterTest {
             // given
             RemoteAreaJpaEntity entity = createEntity(1L);
             when(remoteAreaJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             // when
             Optional<RemoteArea> result = remoteAreaPersistenceAdapter.findActiveById(1L);
@@ -175,7 +175,7 @@ class RemoteAreaPersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(remoteAreaJpaRepository.findByIdAndStatus(999L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<RemoteArea> result = remoteAreaPersistenceAdapter.findActiveById(999L);
@@ -212,7 +212,7 @@ class RemoteAreaPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> remoteAreaPersistenceAdapter.deactivate(remoteArea))
-                    .isInstanceOf(RemoteAreaNotFoundException.class);
+                .isInstanceOf(RemoteAreaNotFoundException.class);
         }
     }
 }

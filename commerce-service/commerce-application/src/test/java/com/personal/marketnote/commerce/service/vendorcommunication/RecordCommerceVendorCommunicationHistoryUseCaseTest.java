@@ -32,36 +32,36 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         // given
         String payloadJson = "{\"key\":\"value\"}";
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                "trade-123",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                "NullPointerException",
-                "payload text",
-                payloadJson
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            "trade-123",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            "NullPointerException",
+            "payload text",
+            payloadJson
         );
         CommerceVendorCommunicationHistory savedHistory = buildHistory(
-                1L,
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                "trade-123",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                "NullPointerException",
-                "payload text",
-                payloadJson,
-                LocalDateTime.of(2026, 2, 24, 12, 0, 0)
+            1L,
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            "trade-123",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            "NullPointerException",
+            "payload text",
+            payloadJson,
+            LocalDateTime.of(2026, 2, 24, 12, 0, 0)
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(savedHistory);
+            .thenReturn(savedHistory);
 
         // when
         CommerceVendorCommunicationHistory result = recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -81,24 +81,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     void record_withRequiredFieldsOnly_savesWithNullOptionalFields() {
         // given
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.TRADE_REGISTER,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.RESPONSE,
-                CommerceVendorCommunicationSenderType.VENDOR,
-                null,
-                null,
-                null
+            CommerceVendorCommunicationTargetType.TRADE_REGISTER,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.RESPONSE,
+            CommerceVendorCommunicationSenderType.VENDOR,
+            null,
+            null,
+            null
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -118,24 +118,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         for (CommerceVendorCommunicationTargetType targetType : CommerceVendorCommunicationTargetType.values()) {
             // given
             CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                    targetType,
-                    null,
-                    CommerceVendorName.NHN_KCP,
-                    CommerceVendorCommunicationType.REQUEST,
-                    CommerceVendorCommunicationSenderType.SERVER,
-                    null,
-                    null,
-                    null
+                targetType,
+                null,
+                CommerceVendorName.NHN_KCP,
+                CommerceVendorCommunicationType.REQUEST,
+                CommerceVendorCommunicationSenderType.SERVER,
+                null,
+                null,
+                null
             );
             when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                    .thenReturn(buildMinimalHistory());
+                .thenReturn(buildMinimalHistory());
 
             // when
             recordService.record(command);
 
             // then
             ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                    ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
             verify(saveVendorCommunicationHistoryPort, atLeastOnce()).save(captor.capture());
             assertThat(captor.getValue().getTargetType()).isEqualTo(targetType);
             clearInvocations(saveVendorCommunicationHistoryPort);
@@ -147,24 +147,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     void record_requestCommunicationType_mapsCorrectly() {
         // given
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                null,
-                null
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            null,
+            null
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getCommunicationType()).isEqualTo(CommerceVendorCommunicationType.REQUEST);
     }
@@ -174,24 +174,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     void record_responseCommunicationType_mapsCorrectly() {
         // given
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.RESPONSE,
-                CommerceVendorCommunicationSenderType.VENDOR,
-                null,
-                null,
-                null
+            CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.RESPONSE,
+            CommerceVendorCommunicationSenderType.VENDOR,
+            null,
+            null,
+            null
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getCommunicationType()).isEqualTo(CommerceVendorCommunicationType.RESPONSE);
     }
@@ -202,24 +202,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         for (CommerceVendorCommunicationSenderType senderType : CommerceVendorCommunicationSenderType.values()) {
             // given
             CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                    CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                    null,
-                    CommerceVendorName.NHN_KCP,
-                    CommerceVendorCommunicationType.REQUEST,
-                    senderType,
-                    null,
-                    null,
-                    null
+                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+                null,
+                CommerceVendorName.NHN_KCP,
+                CommerceVendorCommunicationType.REQUEST,
+                senderType,
+                null,
+                null,
+                null
             );
             when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                    .thenReturn(buildMinimalHistory());
+                .thenReturn(buildMinimalHistory());
 
             // when
             recordService.record(command);
 
             // then
             ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                    ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
             verify(saveVendorCommunicationHistoryPort, atLeastOnce()).save(captor.capture());
             assertThat(captor.getValue().getSender()).isEqualTo(senderType);
             clearInvocations(saveVendorCommunicationHistoryPort);
@@ -231,24 +231,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     void record_withPayloadOnly_savesCorrectly() {
         // given
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.RESPONSE,
-                CommerceVendorCommunicationSenderType.VENDOR,
-                null,
-                "text payload only",
-                null
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.RESPONSE,
+            CommerceVendorCommunicationSenderType.VENDOR,
+            null,
+            "text payload only",
+            null
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -262,24 +262,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         // given
         String json = "{\"status\":500}";
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.RESPONSE,
-                CommerceVendorCommunicationSenderType.VENDOR,
-                null,
-                null,
-                json
+            CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.RESPONSE,
+            CommerceVendorCommunicationSenderType.VENDOR,
+            null,
+            null,
+            json
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -292,24 +292,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     void record_historyBeforeSave_hasNoIdAndCreatedAt() {
         // given
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.TRADE_REGISTER,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                null,
-                null
+            CommerceVendorCommunicationTargetType.TRADE_REGISTER,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            null,
+            null
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -322,17 +322,17 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     void record_callsSavePortExactlyOnce() {
         // given
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                null,
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                null,
-                null
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            null,
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            null,
+            null
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
@@ -348,29 +348,29 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         // given
         String payloadJson = "{\"method\":\"POST\"}";
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                "approval-789",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                "POST /api/payment/approval",
-                payloadJson
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            "approval-789",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            "POST /api/payment/approval",
+            payloadJson
         );
         CommerceVendorCommunicationHistory expectedResult = buildHistory(
-                100L,
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                "approval-789",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                "POST /api/payment/approval",
-                payloadJson,
-                LocalDateTime.of(2026, 2, 24, 15, 30, 0)
+            100L,
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            "approval-789",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            "POST /api/payment/approval",
+            payloadJson,
+            LocalDateTime.of(2026, 2, 24, 15, 30, 0)
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(expectedResult);
+            .thenReturn(expectedResult);
 
         // when
         CommerceVendorCommunicationHistory result = recordService.record(command);
@@ -388,24 +388,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         String requestPayload = "{\"method\":\"POST\",\"url\":\"https://kcp.co.kr/api/payment\",\"attempt\":1,\"body\":{\"amount\":15000,\"ordNo\":\"ORD-001\"}}";
 
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
-                "ORD-001",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                "POST /api/payment",
-                requestPayload
+            CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL,
+            "ORD-001",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            "POST /api/payment",
+            requestPayload
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -425,36 +425,36 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         String errorPayload = "{\"error\":\"CANCEL_FAILED\",\"message\":\"이미 취소된 결제입니다\"}";
 
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
-                "ORD-002",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.RESPONSE,
-                CommerceVendorCommunicationSenderType.VENDOR,
-                "PaymentCancelException",
-                "CANCEL_FAILED",
-                errorPayload
+            CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
+            "ORD-002",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.RESPONSE,
+            CommerceVendorCommunicationSenderType.VENDOR,
+            "PaymentCancelException",
+            "CANCEL_FAILED",
+            errorPayload
         );
         CommerceVendorCommunicationHistory savedHistory = buildHistory(
-                50L,
-                CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
-                "ORD-002",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.RESPONSE,
-                CommerceVendorCommunicationSenderType.VENDOR,
-                "PaymentCancelException",
-                "CANCEL_FAILED",
-                errorPayload,
-                LocalDateTime.of(2026, 2, 24, 10, 0, 0)
+            50L,
+            CommerceVendorCommunicationTargetType.PAYMENT_CANCEL,
+            "ORD-002",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.RESPONSE,
+            CommerceVendorCommunicationSenderType.VENDOR,
+            "PaymentCancelException",
+            "CANCEL_FAILED",
+            errorPayload,
+            LocalDateTime.of(2026, 2, 24, 10, 0, 0)
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(savedHistory);
+            .thenReturn(savedHistory);
 
         // when
         CommerceVendorCommunicationHistory result = recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -473,24 +473,24 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
         String requestPayload = "{\"method\":\"POST\",\"url\":\"https://kcp.co.kr/api/trade/register\",\"attempt\":1}";
 
         CommerceVendorCommunicationHistoryCommand command = buildCommand(
-                CommerceVendorCommunicationTargetType.TRADE_REGISTER,
-                "TRADE-001",
-                CommerceVendorName.NHN_KCP,
-                CommerceVendorCommunicationType.REQUEST,
-                CommerceVendorCommunicationSenderType.SERVER,
-                null,
-                "POST /api/trade/register",
-                requestPayload
+            CommerceVendorCommunicationTargetType.TRADE_REGISTER,
+            "TRADE-001",
+            CommerceVendorName.NHN_KCP,
+            CommerceVendorCommunicationType.REQUEST,
+            CommerceVendorCommunicationSenderType.SERVER,
+            null,
+            "POST /api/trade/register",
+            requestPayload
         );
         when(saveVendorCommunicationHistoryPort.save(any(CommerceVendorCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<CommerceVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(CommerceVendorCommunicationHistory.class);
         verify(saveVendorCommunicationHistoryPort).save(captor.capture());
 
         CommerceVendorCommunicationHistory captured = captor.getValue();
@@ -504,16 +504,42 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
     // --- Helper Methods ---
 
     private CommerceVendorCommunicationHistoryCommand buildCommand(
-            CommerceVendorCommunicationTargetType targetType,
-            String targetId,
-            CommerceVendorName vendorName,
-            CommerceVendorCommunicationType communicationType,
-            CommerceVendorCommunicationSenderType sender,
-            String exception,
-            String payload,
-            String payloadJson
+        CommerceVendorCommunicationTargetType targetType,
+        String targetId,
+        CommerceVendorName vendorName,
+        CommerceVendorCommunicationType communicationType,
+        CommerceVendorCommunicationSenderType sender,
+        String exception,
+        String payload,
+        String payloadJson
     ) {
         return CommerceVendorCommunicationHistoryCommand.builder()
+            .targetType(targetType)
+            .targetId(targetId)
+            .vendorName(vendorName)
+            .communicationType(communicationType)
+            .sender(sender)
+            .exception(exception)
+            .payload(payload)
+            .payloadJson(payloadJson)
+            .build();
+    }
+
+    private CommerceVendorCommunicationHistory buildHistory(
+        Long id,
+        CommerceVendorCommunicationTargetType targetType,
+        String targetId,
+        CommerceVendorName vendorName,
+        CommerceVendorCommunicationType communicationType,
+        CommerceVendorCommunicationSenderType sender,
+        String exception,
+        String payload,
+        String payloadJson,
+        LocalDateTime createdAt
+    ) {
+        return CommerceVendorCommunicationHistory.from(
+            CommerceVendorCommunicationHistorySnapshotState.builder()
+                .id(id)
                 .targetType(targetType)
                 .targetId(targetId)
                 .vendorName(vendorName)
@@ -522,47 +548,21 @@ class RecordCommerceVendorCommunicationHistoryUseCaseTest {
                 .exception(exception)
                 .payload(payload)
                 .payloadJson(payloadJson)
-                .build();
-    }
-
-    private CommerceVendorCommunicationHistory buildHistory(
-            Long id,
-            CommerceVendorCommunicationTargetType targetType,
-            String targetId,
-            CommerceVendorName vendorName,
-            CommerceVendorCommunicationType communicationType,
-            CommerceVendorCommunicationSenderType sender,
-            String exception,
-            String payload,
-            String payloadJson,
-            LocalDateTime createdAt
-    ) {
-        return CommerceVendorCommunicationHistory.from(
-                CommerceVendorCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .vendorName(vendorName)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .createdAt(createdAt)
-                        .build()
+                .createdAt(createdAt)
+                .build()
         );
     }
 
     private CommerceVendorCommunicationHistory buildMinimalHistory() {
         return CommerceVendorCommunicationHistory.from(
-                CommerceVendorCommunicationHistorySnapshotState.builder()
-                        .id(1L)
-                        .targetType(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL)
-                        .vendorName(CommerceVendorName.NHN_KCP)
-                        .communicationType(CommerceVendorCommunicationType.REQUEST)
-                        .sender(CommerceVendorCommunicationSenderType.SERVER)
-                        .createdAt(LocalDateTime.of(2026, 2, 24, 12, 0, 0))
-                        .build()
+            CommerceVendorCommunicationHistorySnapshotState.builder()
+                .id(1L)
+                .targetType(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL)
+                .vendorName(CommerceVendorName.NHN_KCP)
+                .communicationType(CommerceVendorCommunicationType.REQUEST)
+                .sender(CommerceVendorCommunicationSenderType.SERVER)
+                .createdAt(LocalDateTime.of(2026, 2, 24, 12, 0, 0))
+                .build()
         );
     }
 }

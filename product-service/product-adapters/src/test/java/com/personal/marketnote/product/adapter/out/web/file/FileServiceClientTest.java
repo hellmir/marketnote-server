@@ -46,20 +46,20 @@ class FileServiceClientTest {
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder()
-                .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
+            .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
         mockServer = MockRestServiceServer.bindTo(builder).build();
         fileServiceClient = new FileServiceClient(
-                builder,
-                BASE_URL,
-                hmacServiceAuthHeaderBuilder,
-                serviceCommunicationRecorder,
-                serviceCommunicationPayloadGenerator
+            builder,
+            BASE_URL,
+            hmacServiceAuthHeaderBuilder,
+            serviceCommunicationRecorder,
+            serviceCommunicationPayloadGenerator
         );
 
         lenient().when(serviceCommunicationPayloadGenerator.buildRequestPayloadJson(any(), any(), any(), anyInt()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
         lenient().when(serviceCommunicationPayloadGenerator.buildErrorPayloadJson(anyString(), any(), anyInt()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     @Nested
@@ -70,8 +70,8 @@ class FileServiceClientTest {
         @DisplayName("파일 삭제 요청이 성공하면 정상적으로 완료된다")
         void shouldCompleteSuccessfullyWhenDeleteSucceeds() {
             mockServer.expect(requestTo(BASE_URL + "/api/v1/files/1"))
-                    .andExpect(method(HttpMethod.DELETE))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withSuccess());
 
             fileServiceClient.delete(1L);
 
@@ -82,11 +82,11 @@ class FileServiceClientTest {
         @DisplayName("파일 삭제 요청이 실패하면 FileServiceRequestFailedException이 발생한다")
         void shouldThrowExceptionWhenDeleteFails() {
             mockServer.expect(requestTo(BASE_URL + "/api/v1/files/1"))
-                    .andExpect(method(HttpMethod.DELETE))
-                    .andRespond(withServerError());
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withServerError());
 
             assertThatThrownBy(() -> fileServiceClient.delete(1L))
-                    .isInstanceOf(FileServiceRequestFailedException.class);
+                .isInstanceOf(FileServiceRequestFailedException.class);
 
             mockServer.verify();
         }

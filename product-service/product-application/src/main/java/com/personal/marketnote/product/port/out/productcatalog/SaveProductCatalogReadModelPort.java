@@ -6,22 +6,22 @@ import java.util.List;
 public interface SaveProductCatalogReadModelPort {
 
     void upsertCatalog(
-            Long pricePolicyId,
-            Long productId,
-            Long sellerId,
-            Long primaryCategoryId,
-            String name,
-            String brandName,
-            Long price,
-            Long discountPrice,
-            BigDecimal discountRate,
-            Long accumulatedPoint,
-            BigDecimal accumulatedPointRate,
-            Long orderNum,
-            Long popularity,
-            Long sales,
-            String productTagsJson,
-            String selectedOptionsJson
+        Long pricePolicyId,
+        Long productId,
+        Long sellerId,
+        Long primaryCategoryId,
+        String name,
+        String brandName,
+        Long price,
+        Long discountPrice,
+        BigDecimal discountRate,
+        Long accumulatedPoint,
+        BigDecimal accumulatedPointRate,
+        Long orderNum,
+        Long popularity,
+        Long sales,
+        String productTagsJson,
+        String selectedOptionsJson
     );
 
     void increaseSales(Long pricePolicyId, Long delta);

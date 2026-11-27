@@ -44,18 +44,18 @@ class OrderReturnedPgRefundConsumerTest {
     private static final UUID SHARER_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, String orderKey, boolean isFullReturn,
-            Long returnAmount, Long paymentAmount, Long returnShippingFee
+        Long orderId, String orderKey, boolean isFullReturn,
+        Long returnAmount, Long paymentAmount, Long returnShippingFee
     ) {
         OrderReturnedEvent event = new OrderReturnedEvent(
-                orderId, orderKey, 50L, returnAmount, paymentAmount, 1000L, 3000L,
-                isFullReturn, returnShippingFee,
-                List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
-                "return-id-1"
+            orderId, orderKey, 50L, returnAmount, paymentAmount, 1000L, 3000L,
+            isFullReturn, returnShippingFee,
+            List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
+            "return-id-1"
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.returned", "commerce-service",
-                LocalDateTime.of(2026, 4, 20, 10, 0), event
+            "test-event-id", "commerce.order.returned", "commerce-service",
+            LocalDateTime.of(2026, 4, 20, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.returned", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -109,7 +109,7 @@ class OrderReturnedPgRefundConsumerTest {
     void handleOrderReturnedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", null
+            "commerce.order.returned", 0, 0L, "1", null
         );
 
         // when
@@ -125,17 +125,17 @@ class OrderReturnedPgRefundConsumerTest {
     void handleOrderReturnedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
-                1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 2500L,
-                List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
-                "return-id-1"
+            1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
+            true, 2500L,
+            List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
+            "return-id-1"
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 20, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 20, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", envelope
+            "commerce.order.returned", 0, 0L, "1", envelope
         );
 
         // when
@@ -180,7 +180,7 @@ class OrderReturnedPgRefundConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 60000L, 80000L, 2500L);
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
+            .when(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
 
         // when
         consumer.handleOrderReturnedEvent(record, acknowledgment);

@@ -30,7 +30,7 @@ class GetFulfillmentStockDetailUseCaseTest {
     void shouldDelegateCommandDirectlyToPort() {
         // given
         GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
-                "CUST001", "token", "GOD001", "Y"
+            "CUST001", "token", "GOD001", "Y"
         );
         GetFulfillmentStocksResult expectedResult = GetFulfillmentStocksResult.of(0, List.of());
         when(getFulfillmentStockDetailPort.getStockDetail(command)).thenReturn(expectedResult);

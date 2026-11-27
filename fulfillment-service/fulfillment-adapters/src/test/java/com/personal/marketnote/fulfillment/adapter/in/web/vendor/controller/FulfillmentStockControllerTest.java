@@ -52,11 +52,11 @@ class FulfillmentStockControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentStocksResponse>> response =
-                    controller.getStocks(CUSTOMER_CODE, ACCESS_TOKEN, "Y", "WH01");
+                controller.getStocks(CUSTOMER_CODE, ACCESS_TOKEN, "Y", "WH01");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -73,11 +73,11 @@ class FulfillmentStockControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentStocksResponse>> response =
-                    controller.getStockDetail(CUSTOMER_CODE, ACCESS_TOKEN, "GOD-1", "N");
+                controller.getStockDetail(CUSTOMER_CODE, ACCESS_TOKEN, "GOD-1", "N");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

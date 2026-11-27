@@ -17,17 +17,17 @@ public class UserAttendanceHistoryQueryAdapter implements FindUserAttendanceHist
     @Override
     public Optional<UserAttendanceHistory> findLatestByUserAttendanceId(Long userAttendanceId) {
         return repository.findTop1ByUserAttendanceIdOrderByAttendedAtDesc(userAttendanceId)
-                .map(entity -> entity.toDomain());
+            .map(entity -> entity.toDomain());
     }
 
     @Override
     public boolean existsByUserAttendanceIdAndAttendedAtBetween(
-            Long userAttendanceId, LocalDateTime startInclusive, LocalDateTime endExclusive
+        Long userAttendanceId, LocalDateTime startInclusive, LocalDateTime endExclusive
     ) {
         return repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                userAttendanceId,
-                startInclusive,
-                endExclusive
+            userAttendanceId,
+            startInclusive,
+            endExclusive
         );
     }
 }

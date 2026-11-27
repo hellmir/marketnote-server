@@ -39,8 +39,8 @@ class GetBoardUseCaseTest {
         GetBoardsResult result = getBoardService.getBoards();
 
         assertThat(result.boards())
-                .extracting(BoardItemResult::name)
-                .containsExactly("NOTICE", "FAQ", "PRODUCT_INQUERY", "ONE_ON_ONE_INQUERY");
+            .extracting(BoardItemResult::name)
+            .containsExactly("NOTICE", "FAQ", "PRODUCT_INQUERY", "ONE_ON_ONE_INQUERY");
     }
 
     @Test
@@ -122,8 +122,8 @@ class GetBoardUseCaseTest {
         GetBoardsResult result = getBoardService.getBoards();
 
         assertThat(result.boards())
-                .extracting(BoardItemResult::name)
-                .doesNotHaveDuplicates();
+            .extracting(BoardItemResult::name)
+            .doesNotHaveDuplicates();
     }
 
     @Test
@@ -154,8 +154,8 @@ class GetBoardUseCaseTest {
 
         assertThat(result.categories()).hasSize(2);
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::name)
-                .containsExactly("ANNOUNCEMENT", "EVENT");
+            .extracting(BoardCategoryItemResult::name)
+            .containsExactly("ANNOUNCEMENT", "EVENT");
     }
 
     @Test
@@ -164,8 +164,8 @@ class GetBoardUseCaseTest {
         GetBoardCategoriesResult result = getBoardService.getCategories(Board.NOTICE);
 
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::description)
-                .containsExactly("공지", "이벤트");
+            .extracting(BoardCategoryItemResult::description)
+            .containsExactly("공지", "이벤트");
     }
 
     @Test
@@ -175,11 +175,11 @@ class GetBoardUseCaseTest {
 
         assertThat(result.categories()).hasSize(5);
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::name)
-                .containsExactly(
-                        "ORDER_DELIVERY", "CANCEL_RETURN", "BENEFIT_REWARD",
-                        "PRODUCT", "ACCOUNT"
-                );
+            .extracting(BoardCategoryItemResult::name)
+            .containsExactly(
+                "ORDER_DELIVERY", "CANCEL_RETURN", "BENEFIT_REWARD",
+                "PRODUCT", "ACCOUNT"
+            );
     }
 
     @Test
@@ -188,14 +188,14 @@ class GetBoardUseCaseTest {
         GetBoardCategoriesResult result = getBoardService.getCategories(Board.FAQ);
 
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::description)
-                .containsExactly(
-                        "주문, 결제, 배송 관련 문의",
-                        "취소, 반품, 환불 관련 문의",
-                        "앱 내 보상 및 적립 관련 문의",
-                        "제품 및 오픈 관련 문의",
-                        "회원정보 및 계정 관련 문의"
-                );
+            .extracting(BoardCategoryItemResult::description)
+            .containsExactly(
+                "주문, 결제, 배송 관련 문의",
+                "취소, 반품, 환불 관련 문의",
+                "앱 내 보상 및 적립 관련 문의",
+                "제품 및 오픈 관련 문의",
+                "회원정보 및 계정 관련 문의"
+            );
     }
 
     @Test
@@ -205,8 +205,8 @@ class GetBoardUseCaseTest {
 
         assertThat(result.categories()).hasSize(3);
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::name)
-                .containsExactly("PRODUCT_QUESTION", "RESTOCK", "SHIPPING");
+            .extracting(BoardCategoryItemResult::name)
+            .containsExactly("PRODUCT_QUESTION", "RESTOCK", "SHIPPING");
     }
 
     @Test
@@ -215,8 +215,8 @@ class GetBoardUseCaseTest {
         GetBoardCategoriesResult result = getBoardService.getCategories(Board.PRODUCT_INQUERY);
 
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::description)
-                .containsExactly("상품 문의", "재입고 문의", "배송 문의");
+            .extracting(BoardCategoryItemResult::description)
+            .containsExactly("상품 문의", "재입고 문의", "배송 문의");
     }
 
     @Test
@@ -226,11 +226,11 @@ class GetBoardUseCaseTest {
 
         assertThat(result.categories()).hasSize(6);
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::name)
-                .containsExactly(
-                        "ORDER_PAYMENT", "DELIVERY", "CANCEL_REFUND",
-                        "RETURN_EXCHANGE", "POINT", "EVENT_COUPON"
-                );
+            .extracting(BoardCategoryItemResult::name)
+            .containsExactly(
+                "ORDER_PAYMENT", "DELIVERY", "CANCEL_REFUND",
+                "RETURN_EXCHANGE", "POINT", "EVENT_COUPON"
+            );
     }
 
     @Test
@@ -239,11 +239,11 @@ class GetBoardUseCaseTest {
         GetBoardCategoriesResult result = getBoardService.getCategories(Board.ONE_ON_ONE_INQUERY);
 
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::description)
-                .containsExactly(
-                        "주문/결제", "배송 관련", "취소/환불",
-                        "반품/교환", "적립금(포인트)", "이벤트/쿠폰"
-                );
+            .extracting(BoardCategoryItemResult::description)
+            .containsExactly(
+                "주문/결제", "배송 관련", "취소/환불",
+                "반품/교환", "적립금(포인트)", "이벤트/쿠폰"
+            );
     }
 
     @Test
@@ -254,11 +254,11 @@ class GetBoardUseCaseTest {
 
             result.categories().forEach(category -> {
                 assertThat(category.name())
-                        .as("%s 게시판의 카테고리 name", board.name())
-                        .isNotBlank();
+                    .as("%s 게시판의 카테고리 name", board.name())
+                    .isNotBlank();
                 assertThat(category.description())
-                        .as("%s 게시판의 카테고리 description", board.name())
-                        .isNotBlank();
+                    .as("%s 게시판의 카테고리 description", board.name())
+                    .isNotBlank();
             });
         }
     }
@@ -270,9 +270,9 @@ class GetBoardUseCaseTest {
             GetBoardCategoriesResult result = getBoardService.getCategories(board);
 
             assertThat(result.categories())
-                    .as("%s 게시판의 카테고리 중복 검사", board.name())
-                    .extracting(BoardCategoryItemResult::name)
-                    .doesNotHaveDuplicates();
+                .as("%s 게시판의 카테고리 중복 검사", board.name())
+                .extracting(BoardCategoryItemResult::name)
+                .doesNotHaveDuplicates();
         }
     }
 
@@ -298,8 +298,8 @@ class GetBoardUseCaseTest {
             GetBoardCategoriesResult second = getBoardService.getCategories(board);
 
             assertThat(first.categories())
-                    .as("%s 게시판의 멱등성 검사", board.name())
-                    .isEqualTo(second.categories());
+                .as("%s 게시판의 멱등성 검사", board.name())
+                .isEqualTo(second.categories());
         }
     }
 
@@ -309,14 +309,14 @@ class GetBoardUseCaseTest {
         GetBoardCategoriesResult result = getBoardService.getCategories(Board.FAQ);
 
         assertThat(result.categories())
-                .extracting(BoardCategoryItemResult::name, BoardCategoryItemResult::isDefault)
-                .containsExactly(
-                        tuple("ORDER_DELIVERY", true),
-                        tuple("CANCEL_RETURN", false),
-                        tuple("BENEFIT_REWARD", false),
-                        tuple("PRODUCT", false),
-                        tuple("ACCOUNT", false)
-                );
+            .extracting(BoardCategoryItemResult::name, BoardCategoryItemResult::isDefault)
+            .containsExactly(
+                tuple("ORDER_DELIVERY", true),
+                tuple("CANCEL_RETURN", false),
+                tuple("BENEFIT_REWARD", false),
+                tuple("PRODUCT", false),
+                tuple("ACCOUNT", false)
+            );
     }
 
     @Test
@@ -328,9 +328,9 @@ class GetBoardUseCaseTest {
             GetBoardCategoriesResult result = getBoardService.getCategories(board);
 
             assertThat(result.categories())
-                    .as("%s 게시판의 default 카테고리 부재 검사", board.name())
-                    .extracting(BoardCategoryItemResult::isDefault)
-                    .containsOnly(false);
+                .as("%s 게시판의 default 카테고리 부재 검사", board.name())
+                .extracting(BoardCategoryItemResult::isDefault)
+                .containsOnly(false);
         }
     }
 
@@ -341,9 +341,9 @@ class GetBoardUseCaseTest {
         GetBoardCategoriesResult oneOnOneResult = getBoardService.getCategories(Board.ONE_ON_ONE_INQUERY);
 
         List<String> faqNames = faqResult.categories().stream()
-                .map(BoardCategoryItemResult::name).toList();
+            .map(BoardCategoryItemResult::name).toList();
         List<String> oneOnOneNames = oneOnOneResult.categories().stream()
-                .map(BoardCategoryItemResult::name).toList();
+            .map(BoardCategoryItemResult::name).toList();
 
         assertThat(faqNames).doesNotContainAnyElementsOf(oneOnOneNames);
         assertThat(oneOnOneNames).doesNotContainAnyElementsOf(faqNames);
@@ -351,8 +351,8 @@ class GetBoardUseCaseTest {
 
     private BoardItemResult findBoardByName(List<BoardItemResult> boards, String name) {
         return boards.stream()
-                .filter(board -> board.name().equals(name))
-                .findFirst()
-                .orElse(null);
+            .filter(board -> board.name().equals(name))
+            .findFirst()
+            .orElse(null);
     }
 }

@@ -41,21 +41,21 @@ class GetMonthlyAttendanceUseCaseTest {
         GetMonthlyAttendanceQuery query = GetMonthlyAttendanceQuery.of(userId, 2026, 4);
 
         UserAttendance attendance = UserAttendance.from(
-                UserAttendanceSnapshotState.builder()
-                        .id(1L)
-                        .userId(userId)
-                        .year(year)
-                        .month(month)
-                        .totalRewardQuantity(RewardQuantity.of(300L))
-                        .histories(List.of(
-                                createHistory(LocalDateTime.of(2026, 4, 1, 9, 0)),
-                                createHistory(LocalDateTime.of(2026, 4, 2, 9, 0))
-                        ))
-                        .build()
+            UserAttendanceSnapshotState.builder()
+                .id(1L)
+                .userId(userId)
+                .year(year)
+                .month(month)
+                .totalRewardQuantity(RewardQuantity.of(300L))
+                .histories(List.of(
+                    createHistory(LocalDateTime.of(2026, 4, 1, 9, 0)),
+                    createHistory(LocalDateTime.of(2026, 4, 2, 9, 0))
+                ))
+                .build()
         );
 
         when(findUserAttendancePort.findByUserIdAndYearAndMonth(userId, year, month))
-                .thenReturn(Optional.of(attendance));
+            .thenReturn(Optional.of(attendance));
 
         // when
         GetMonthlyAttendanceResult result = getMonthlyAttendanceService.getMonthlyAttendanceHistories(query);
@@ -77,7 +77,7 @@ class GetMonthlyAttendanceUseCaseTest {
         GetMonthlyAttendanceQuery query = GetMonthlyAttendanceQuery.of(userId, 2026, 4);
 
         when(findUserAttendancePort.findByUserIdAndYearAndMonth(userId, year, month))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when
         GetMonthlyAttendanceResult result = getMonthlyAttendanceService.getMonthlyAttendanceHistories(query);
@@ -91,14 +91,14 @@ class GetMonthlyAttendanceUseCaseTest {
 
     private UserAttendanceHistory createHistory(LocalDateTime attendedAt) {
         return UserAttendanceHistory.from(
-                com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState.builder()
-                        .id(1L)
-                        .userAttendanceId(1L)
-                        .attendancePolicyId((short) 1)
-                        .continuousPeriod(ContinuousPeriod.of((short) 1))
-                        .rewardQuantity(RewardQuantity.of(100L))
-                        .attendedAt(attendedAt)
-                        .build()
+            com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState.builder()
+                .id(1L)
+                .userAttendanceId(1L)
+                .attendancePolicyId((short) 1)
+                .continuousPeriod(ContinuousPeriod.of((short) 1))
+                .rewardQuantity(RewardQuantity.of(100L))
+                .attendedAt(attendedAt)
+                .build()
         );
     }
 }

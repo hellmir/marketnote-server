@@ -12,9 +12,9 @@ public class GifticonBrandCreateState {
 
     public static GifticonBrandCreateState of(String brandCode, String brandName, String brandImageUrl) {
         return GifticonBrandCreateState.builder()
-                .brandCode(brandCode)
-                .brandName(brandName)
-                .brandImageUrl(brandImageUrl)
-                .build();
+            .brandCode(brandCode)
+            .brandName(brandName)
+            .brandImageUrl(brandImageUrl)
+            .build();
     }
 }

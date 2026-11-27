@@ -7,10 +7,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
 @Builder
 public record GetPostQuery(
-        OAuth2AuthenticatedPrincipal principal,
-        Long userId,
-        Board board,
-        PostTargetType targetType,
-        Long id
+    OAuth2AuthenticatedPrincipal principal,
+    Long userId,
+    Board board,
+    PostTargetType targetType,
+    Long id
 ) {
 }

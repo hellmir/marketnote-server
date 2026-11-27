@@ -5,15 +5,15 @@ import lombok.Builder;
 
 @Builder
 public record ResolveUnknownPaymentResponse(
-        String orderKey,
-        String resolvedStatus,
-        Long orderId
+    String orderKey,
+    String resolvedStatus,
+    Long orderId
 ) {
     public static ResolveUnknownPaymentResponse from(ResolveUnknownPaymentResult result) {
         return ResolveUnknownPaymentResponse.builder()
-                .orderKey(result.orderKey())
-                .resolvedStatus(result.resolvedStatus())
-                .orderId(result.orderId())
-                .build();
+            .orderKey(result.orderKey())
+            .resolvedStatus(result.resolvedStatus())
+            .orderId(result.orderId())
+            .build();
     }
 }

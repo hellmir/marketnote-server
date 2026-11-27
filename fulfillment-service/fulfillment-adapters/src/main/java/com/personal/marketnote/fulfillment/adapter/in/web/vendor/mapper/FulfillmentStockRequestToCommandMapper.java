@@ -6,26 +6,26 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmen
 
 public class FulfillmentStockRequestToCommandMapper {
     public static GetFulfillmentStocksCommand mapToStocksCommand(
-            String customerCode,
-            String accessToken,
-            String outOfStockYn,
-            String warehouseCode
+        String customerCode,
+        String accessToken,
+        String outOfStockYn,
+        String warehouseCode
     ) {
         return GetFulfillmentStocksCommand.of(customerCode, accessToken, outOfStockYn, warehouseCode);
     }
 
     public static GetFulfillmentStockDetailCommand mapToStockDetailCommand(
-            String customerCode,
-            String accessToken,
-            String customerProductCode,
-            String outOfStockYn
+        String customerCode,
+        String accessToken,
+        String customerProductCode,
+        String outOfStockYn
     ) {
         return GetFulfillmentStockDetailCommand.of(customerCode, accessToken, customerProductCode, outOfStockYn);
     }
 
     public static SyncFulfillmentAllStockCommand mapToSyncAllCommand(
-            String customerCode,
-            String warehouseCode
+        String customerCode,
+        String warehouseCode
     ) {
         return SyncFulfillmentAllStockCommand.of(customerCode, warehouseCode);
     }

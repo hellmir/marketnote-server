@@ -32,13 +32,13 @@ class GifticonGoodsFetchAdapterTest {
     void shouldReturnMappedItemsWhenVendorRespondsSuccess() {
         // given
         GiftishowProductItem item = new GiftishowProductItem(
-                "G001", "테스트 상품", "http://img.test.com/goods.jpg",
-                "B001", "스타벅스", "http://img.test.com/brand.jpg",
-                "1", 10000L, 12000L, 30, "테스트 상품 설명", "SALE"
+            "G001", "테스트 상품", "http://img.test.com/goods.jpg",
+            "B001", "스타벅스", "http://img.test.com/brand.jpg",
+            "1", 10000L, 12000L, 30, "테스트 상품 설명", "SALE"
         );
         given(giftishowApiClient.getProductList(0, 20))
-                .willReturn(new GiftishowApiResponse<>("0000", "success",
-                        new GiftishowProductListResponse(1, List.of(item))));
+            .willReturn(new GiftishowApiResponse<>("0000", "success",
+                new GiftishowProductListResponse(1, List.of(item))));
 
         // when
         FetchGifticonGoodsResult result = adapter.fetchProductList(0, 20);
@@ -61,8 +61,8 @@ class GifticonGoodsFetchAdapterTest {
     void shouldPassPagingParametersToVendor() {
         // given
         given(giftishowApiClient.getProductList(40, 10))
-                .willReturn(new GiftishowApiResponse<>("0000", "success",
-                        new GiftishowProductListResponse(0, List.of())));
+            .willReturn(new GiftishowApiResponse<>("0000", "success",
+                new GiftishowProductListResponse(0, List.of())));
 
         // when
         adapter.fetchProductList(40, 10);
@@ -76,7 +76,7 @@ class GifticonGoodsFetchAdapterTest {
     void shouldReturnEmptyResultWhenVendorRespondsErrorCode() {
         // given
         given(giftishowApiClient.getProductList(0, 20))
-                .willReturn(new GiftishowApiResponse<>("9999", "인증 실패", null));
+            .willReturn(new GiftishowApiResponse<>("9999", "인증 실패", null));
 
         // when
         FetchGifticonGoodsResult result = adapter.fetchProductList(0, 20);

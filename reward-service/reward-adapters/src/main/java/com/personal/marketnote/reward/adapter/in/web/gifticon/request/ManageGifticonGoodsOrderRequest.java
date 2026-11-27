@@ -7,15 +7,15 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record ManageGifticonGoodsOrderRequest(
-        @NotEmpty(message = "순서 관리 항목은 필수입니다")
-        @Valid
-        List<OrderItem> items
+    @NotEmpty(message = "순서 관리 항목은 필수입니다")
+    @Valid
+    List<OrderItem> items
 ) {
     public record OrderItem(
-            @NotNull(message = "상품 코드는 필수입니다")
-            String goodsCode,
+        @NotNull(message = "상품 코드는 필수입니다")
+        String goodsCode,
 
-            Integer orderNum
+        Integer orderNum
     ) {
     }
 }

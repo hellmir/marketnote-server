@@ -32,9 +32,9 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
             remoteAreaJpaRepository.save(entity);
         } catch (DataIntegrityViolationException dive) {
             log.warn(
-                    "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
-                    remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea(),
-                    dive
+                "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
+                remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea(),
+                dive
             );
             throw new RemoteAreaAlreadyExistsException(dive);
         }
@@ -43,30 +43,30 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
     @Override
     public boolean existsByAddress(String province, String district, String village, String subarea) {
         return remoteAreaJpaRepository.existsByProvinceAndDistrictAndVillageAndSubareaAndStatus(
-                province, district, village, subarea, EntityStatus.ACTIVE
+            province, district, village, subarea, EntityStatus.ACTIVE
         );
     }
 
     @Override
     public List<RemoteArea> findAllActive() {
         return remoteAreaJpaRepository.findAllByStatus(EntityStatus.ACTIVE).stream()
-                .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain)
-                .toList();
+            .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain)
+            .toList();
     }
 
     @Override
     public Optional<RemoteArea> findActiveById(Long id) {
         return remoteAreaJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
-                .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain);
+            .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public void deactivate(RemoteArea remoteArea) {
         RemoteAreaJpaEntity entity = remoteAreaJpaRepository.findById(remoteArea.getId())
-                .orElseThrow(() -> {
-                    log.warn("도서산간 지역을 찾을 수 없습니다. remoteAreaId={}", remoteArea.getId());
-                    return new RemoteAreaNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("도서산간 지역을 찾을 수 없습니다. remoteAreaId={}", remoteArea.getId());
+                return new RemoteAreaNotFoundException();
+            });
         entity.markInactive();
     }
 }

@@ -23,21 +23,21 @@ public final class SchedulerLockArchRules {
 
     public static ArchRule scheduledMethodsShouldHaveSchedulerLock(Set<String> whitelist) {
         return methods()
-                .that().areAnnotatedWith(Scheduled.class)
-                .and(new NotInWhitelistPredicate(whitelist))
-                .should().beAnnotatedWith(SchedulerLock.class)
-                .because("@Scheduled 메서드는 다중 인스턴스 환경에서 중복 실행을 막기 위해 @SchedulerLock을 가져야 한다 (#4911)")
-                .allowEmptyShould(true);
+            .that().areAnnotatedWith(Scheduled.class)
+            .and(new NotInWhitelistPredicate(whitelist))
+            .should().beAnnotatedWith(SchedulerLock.class)
+            .because("@Scheduled 메서드는 다중 인스턴스 환경에서 중복 실행을 막기 위해 @SchedulerLock을 가져야 한다 (#4911)")
+            .allowEmptyShould(true);
     }
 
     public static ArchRule schedulerLockMethodsMustDeclareLockAtMostFor(Set<String> whitelist) {
         return methods()
-                .that().areAnnotatedWith(SchedulerLock.class)
-                .and(new NotInWhitelistPredicate(whitelist))
-                .should(declareNonEmptyLockAtMostFor())
-                .because("@SchedulerLock의 lockAtMostFor를 명시하지 않으면 EnableSchedulerLock의 defaultLockAtMostFor가 적용되어 "
-                        + "장기 잡(PT2H+)이 5분 후 다른 인스턴스에 락 탈취되어 중복 실행될 수 있다 (#4947)")
-                .allowEmptyShould(true);
+            .that().areAnnotatedWith(SchedulerLock.class)
+            .and(new NotInWhitelistPredicate(whitelist))
+            .should(declareNonEmptyLockAtMostFor())
+            .because("@SchedulerLock의 lockAtMostFor를 명시하지 않으면 EnableSchedulerLock의 defaultLockAtMostFor가 적용되어 "
+                + "장기 잡(PT2H+)이 5분 후 다른 인스턴스에 락 탈취되어 중복 실행될 수 있다 (#4947)")
+            .allowEmptyShould(true);
     }
 
     private static ArchCondition<JavaMethod> declareNonEmptyLockAtMostFor() {
@@ -51,8 +51,8 @@ public final class SchedulerLockArchRules {
                 String lockAtMostFor = annotation.lockAtMostFor();
                 if (lockAtMostFor == null || lockAtMostFor.isEmpty()) {
                     events.add(SimpleConditionEvent.violated(
-                            method,
-                            "Method " + method.getFullName() + " 는 @SchedulerLock의 lockAtMostFor 명시가 필요하다 (#4947)"
+                        method,
+                        "Method " + method.getFullName() + " 는 @SchedulerLock의 lockAtMostFor 명시가 필요하다 (#4947)"
                     ));
                 }
             }

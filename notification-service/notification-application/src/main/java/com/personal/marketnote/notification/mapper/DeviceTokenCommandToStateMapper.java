@@ -12,14 +12,14 @@ public class DeviceTokenCommandToStateMapper {
     }
 
     public static DeviceTokenCreateState mapToState(
-            RegisterDeviceTokenCommand command, Platform platform, LocalDateTime lastUsedAt
+        RegisterDeviceTokenCommand command, Platform platform, LocalDateTime lastUsedAt
     ) {
         return DeviceTokenCreateState.builder()
-                .userId(command.userId())
-                .token(command.token())
-                .platform(platform)
-                .deviceId(command.deviceId())
-                .lastUsedAt(lastUsedAt)
-                .build();
+            .userId(command.userId())
+            .token(command.token())
+            .platform(platform)
+            .deviceId(command.deviceId())
+            .lastUsedAt(lastUsedAt)
+            .build();
     }
 }

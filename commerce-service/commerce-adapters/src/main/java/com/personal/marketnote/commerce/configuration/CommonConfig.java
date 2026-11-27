@@ -13,10 +13,10 @@ import java.time.ZoneId;
 
 @Configuration
 @Import({
-        LoggingAspect.class,
-        GlobalExceptionHandler.class,
-        OpaqueTokenIntrospectorConfig.class,
-        OpaqueTokenIntrospectorProvider.class
+    LoggingAspect.class,
+    GlobalExceptionHandler.class,
+    OpaqueTokenIntrospectorConfig.class,
+    OpaqueTokenIntrospectorProvider.class
 })
 public class CommonConfig {
     @Bean

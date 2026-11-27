@@ -24,8 +24,8 @@ class FulfillmentLockProviderIntegrationTest {
         @Bean
         DataSource dataSource() {
             return new EmbeddedDatabaseBuilder()
-                    .setType(EmbeddedDatabaseType.H2)
-                    .build();
+                .setType(EmbeddedDatabaseType.H2)
+                .build();
         }
 
         @Bean
@@ -35,8 +35,8 @@ class FulfillmentLockProviderIntegrationTest {
     }
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withPropertyValues("shedlock.provider=jdbc")
-            .withUserConfiguration(TestDataSourceConfig.class, FulfillmentSchedulerLockConfig.class);
+        .withPropertyValues("shedlock.provider=jdbc")
+        .withUserConfiguration(TestDataSourceConfig.class, FulfillmentSchedulerLockConfig.class);
 
     @Test
     @DisplayName("LockProvider 빈은 정확히 1개이고 JdbcTemplateLockProvider 인스턴스다")

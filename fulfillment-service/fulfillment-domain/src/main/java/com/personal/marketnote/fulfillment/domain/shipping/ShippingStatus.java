@@ -23,17 +23,17 @@ public enum ShippingStatus {
     private static final Set<ShippingStatus> POLLING_TARGET_STATUSES = EnumSet.of(PREPARING, SHIPPING, RETURN_SHIPPING);
 
     private static final Set<ShippingStatus> TERMINAL_STATUSES = EnumSet.of(
-            DELIVERED, CANCELLED, RETURN_DELIVERED, DELIVERY_FAILED
+        DELIVERED, CANCELLED, RETURN_DELIVERED, DELIVERY_FAILED
     );
 
     private static final Map<ShippingStatus, Set<ShippingStatus>> ALLOWED_TRANSITIONS = Map.ofEntries(
-            Map.entry(PREPARING, EnumSet.of(SHIPPING, CANCELLED)),
-            Map.entry(SHIPPING, EnumSet.of(DELIVERED, CANCELLED, DELIVERY_FAILED)),
-            Map.entry(DELIVERED, EnumSet.of(RETURN_SHIPPING)),
-            Map.entry(RETURN_SHIPPING, EnumSet.of(RETURN_DELIVERED)),
-            Map.entry(CANCELLED, EnumSet.noneOf(ShippingStatus.class)),
-            Map.entry(RETURN_DELIVERED, EnumSet.noneOf(ShippingStatus.class)),
-            Map.entry(DELIVERY_FAILED, EnumSet.noneOf(ShippingStatus.class))
+        Map.entry(PREPARING, EnumSet.of(SHIPPING, CANCELLED)),
+        Map.entry(SHIPPING, EnumSet.of(DELIVERED, CANCELLED, DELIVERY_FAILED)),
+        Map.entry(DELIVERED, EnumSet.of(RETURN_SHIPPING)),
+        Map.entry(RETURN_SHIPPING, EnumSet.of(RETURN_DELIVERED)),
+        Map.entry(CANCELLED, EnumSet.noneOf(ShippingStatus.class)),
+        Map.entry(RETURN_DELIVERED, EnumSet.noneOf(ShippingStatus.class)),
+        Map.entry(DELIVERY_FAILED, EnumSet.noneOf(ShippingStatus.class))
     );
 
     public boolean isPreparing() {

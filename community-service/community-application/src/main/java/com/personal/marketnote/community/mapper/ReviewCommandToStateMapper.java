@@ -9,38 +9,38 @@ import com.personal.marketnote.community.port.in.command.review.UpdateReviewComm
 public class ReviewCommandToStateMapper {
     public static ReviewCreateState mapToState(RegisterReviewCommand command) {
         return ReviewCreateState.builder()
-                .reviewerId(command.reviewerId())
-                .orderId(command.orderId())
-                .productId(command.productId())
-                .pricePolicyId(command.pricePolicyId())
-                .productImageUrl(command.productImageUrl())
-                .selectedOptions(command.selectedOptions())
-                .quantity(command.quantity())
-                .reviewerName(command.reviewerName())
-                .rating(Rating.of(command.rating()))
-                .content(command.content())
-                .isPhoto(command.isPhoto())
-                .unitAmount(command.unitAmount())
-                .build();
+            .reviewerId(command.reviewerId())
+            .orderId(command.orderId())
+            .productId(command.productId())
+            .pricePolicyId(command.pricePolicyId())
+            .productImageUrl(command.productImageUrl())
+            .selectedOptions(command.selectedOptions())
+            .quantity(command.quantity())
+            .reviewerName(command.reviewerName())
+            .rating(Rating.of(command.rating()))
+            .content(command.content())
+            .isPhoto(command.isPhoto())
+            .unitAmount(command.unitAmount())
+            .build();
     }
 
     public static ReviewVersionHistoryCreateState mapToVersionHistoryState(
-            Long reviewId, RegisterReviewCommand command
+        Long reviewId, RegisterReviewCommand command
     ) {
         return ReviewVersionHistoryCreateState.builder()
-                .reviewId(reviewId)
-                .rating(Rating.of(command.rating()))
-                .content(command.content())
-                .isPhoto(command.isPhoto())
-                .build();
+            .reviewId(reviewId)
+            .rating(Rating.of(command.rating()))
+            .content(command.content())
+            .isPhoto(command.isPhoto())
+            .build();
     }
 
     public static ReviewVersionHistoryCreateState mapToVersionHistoryState(Long reviewId, UpdateReviewCommand command) {
         return ReviewVersionHistoryCreateState.builder()
-                .reviewId(reviewId)
-                .rating(Rating.of(command.rating()))
-                .content(command.content())
-                .isPhoto(command.isPhoto())
-                .build();
+            .reviewId(reviewId)
+            .rating(Rating.of(command.rating()))
+            .content(command.content())
+            .isPhoto(command.isPhoto())
+            .build();
     }
 }

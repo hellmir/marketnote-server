@@ -36,15 +36,15 @@ class AttendancePolicyPersistenceAdapterTest {
 
     private AttendancePolicyJpaEntity buildEntity(Short id, short continuousPeriod) {
         AttendancePolicy restored = AttendancePolicy.from(AttendancePolicySnapshotState.builder()
-                .id(id)
-                .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(100L))
-                .attendenceDate(null)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(100L))
+            .attendenceDate(null)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
         AttendancePolicyJpaEntity entity = AttendancePolicyJpaEntity.from(restored);
         ReflectionTestUtils.setField(entity, "id", id);
         return entity;
@@ -62,7 +62,7 @@ class AttendancePolicyPersistenceAdapterTest {
     @DisplayName("findByIdForUpdate는 비관적 잠금 조회 결과를 도메인으로 반환한다")
     void shouldFindByIdForUpdate() {
         given(repository.findWithLockingById((short) 1))
-                .willReturn(Optional.of(buildEntity((short) 1, (short) 1)));
+            .willReturn(Optional.of(buildEntity((short) 1, (short) 1)));
         Optional<AttendancePolicy> result = adapter.findByIdForUpdate((short) 1);
         assertThat(result).isPresent();
         verify(repository).findWithLockingById((short) 1);
@@ -73,7 +73,7 @@ class AttendancePolicyPersistenceAdapterTest {
     void shouldFindByContinuousPeriodAndAttendenceDate() {
         LocalDate date = LocalDate.of(2026, 4, 14);
         given(repository.findTop1ByContinuousPeriodAndAttendenceDate((short) 5, date))
-                .willReturn(Optional.of(buildEntity((short) 1, (short) 5)));
+            .willReturn(Optional.of(buildEntity((short) 1, (short) 5)));
         Optional<AttendancePolicy> result = adapter.findByContinuousPeriodAndAttendenceDate((short) 5, date);
         assertThat(result).isPresent();
     }
@@ -82,7 +82,7 @@ class AttendancePolicyPersistenceAdapterTest {
     @DisplayName("findByContinuousPeriodAndAttendenceDateIsNull은 일반 정책을 orderNum desc로 조회한다")
     void shouldFindByContinuousPeriodAndAttendenceDateIsNull() {
         given(repository.findTop1ByContinuousPeriodAndAttendenceDateIsNullOrderByOrderNumDesc((short) 5))
-                .willReturn(Optional.of(buildEntity((short) 1, (short) 5)));
+            .willReturn(Optional.of(buildEntity((short) 1, (short) 5)));
         Optional<AttendancePolicy> result = adapter.findByContinuousPeriodAndAttendenceDateIsNull((short) 5);
         assertThat(result).isPresent();
     }
@@ -121,7 +121,7 @@ class AttendancePolicyPersistenceAdapterTest {
             AttendancePolicyJpaEntity sample = buildEntity((short) 99, (short) 1);
             given(repository.findById((short) 99)).willReturn(Optional.empty());
             assertThatThrownBy(() -> adapter.update(sample.toDomain()))
-                    .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
         }
     }
 
@@ -129,10 +129,10 @@ class AttendancePolicyPersistenceAdapterTest {
     @DisplayName("findAllOrderByOrderNumDesc는 정렬된 정책 리스트를 반환한다")
     void shouldFindAllOrdered() {
         given(repository.findAllByOrderByOrderNumDesc())
-                .willReturn(List.of(
-                        buildEntity((short) 2, (short) 2),
-                        buildEntity((short) 1, (short) 1)
-                ));
+            .willReturn(List.of(
+                buildEntity((short) 2, (short) 2),
+                buildEntity((short) 1, (short) 1)
+            ));
         List<AttendancePolicy> result = adapter.findAllOrderByOrderNumDesc();
         assertThat(result).hasSize(2);
     }

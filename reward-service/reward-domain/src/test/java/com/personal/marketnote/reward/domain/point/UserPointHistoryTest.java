@@ -27,30 +27,30 @@ class UserPointHistoryTest {
 
     private UserPointHistoryCreateState createStateWithPointAmount(UserPointChangeType changeType, PointAmount amount) {
         return UserPointHistoryCreateState.builder()
-                .userId(USER_ID)
-                .changeType(changeType)
-                .amount(amount)
-                .isReflected(false)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(SOURCE_ID)
-                .reason(REASON)
-                .accumulatedAt(ACCUMULATED_AT)
-                .build();
+            .userId(USER_ID)
+            .changeType(changeType)
+            .amount(amount)
+            .isReflected(false)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(SOURCE_ID)
+            .reason(REASON)
+            .accumulatedAt(ACCUMULATED_AT)
+            .build();
     }
 
     private UserPointHistorySnapshotState snapshotState(UserPointChangeType changeType, Long amount) {
         return UserPointHistorySnapshotState.builder()
-                .id(1L)
-                .userId(USER_ID)
-                .changeType(changeType)
-                .amount(PointAmount.of(amount))
-                .isReflected(false)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(SOURCE_ID)
-                .reason(REASON)
-                .accumulatedAt(ACCUMULATED_AT)
-                .createdAt(CREATED_AT)
-                .build();
+            .id(1L)
+            .userId(USER_ID)
+            .changeType(changeType)
+            .amount(PointAmount.of(amount))
+            .isReflected(false)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(SOURCE_ID)
+            .reason(REASON)
+            .accumulatedAt(ACCUMULATED_AT)
+            .createdAt(CREATED_AT)
+            .build();
     }
 
     @Nested
@@ -79,14 +79,14 @@ class UserPointHistoryTest {
         @DisplayName("CreateState의 changeType이 null이면 UserPointHistoryChangeTypeNoValueException이 발생한다")
         void shouldThrowWhenChangeTypeIsNull() {
             assertThatThrownBy(() -> UserPointHistory.from(createState(null, 500L)))
-                    .isInstanceOf(UserPointHistoryChangeTypeNoValueException.class);
+                .isInstanceOf(UserPointHistoryChangeTypeNoValueException.class);
         }
 
         @Test
         @DisplayName("CreateState의 amount가 null이면 UserPointHistoryAmountNoValueException이 발생한다")
         void shouldThrowWhenAmountIsNull() {
             assertThatThrownBy(
-                    () -> UserPointHistory.from(createStateWithPointAmount(UserPointChangeType.ACCRUAL, null))
+                () -> UserPointHistory.from(createStateWithPointAmount(UserPointChangeType.ACCRUAL, null))
             ).isInstanceOf(UserPointHistoryAmountNoValueException.class);
         }
 
@@ -94,7 +94,7 @@ class UserPointHistoryTest {
         @DisplayName("CreateState의 amount에 음수를 전달하면 PointAmount 생성 시점에 InvalidPointAmountException이 발생한다")
         void shouldThrowWhenAmountIsNegative() {
             assertThatThrownBy(() -> createState(UserPointChangeType.DEDUCTION, -100L))
-                    .isInstanceOf(InvalidPointAmountException.class);
+                .isInstanceOf(InvalidPointAmountException.class);
         }
 
         @Test
@@ -136,7 +136,7 @@ class UserPointHistoryTest {
         @DisplayName("CreateState에 PointAmount를 직접 전달하면 동일 값으로 생성된다")
         void shouldCreateUserPointHistoryWithPointAmountDirectly() {
             UserPointHistoryCreateState state = createStateWithPointAmount(
-                    UserPointChangeType.ACCRUAL, PointAmount.of(2500L)
+                UserPointChangeType.ACCRUAL, PointAmount.of(2500L)
             );
 
             UserPointHistory history = UserPointHistory.from(state);
@@ -149,7 +149,7 @@ class UserPointHistoryTest {
         @DisplayName("CreateState에 PointAmount.zero()를 전달하면 amount는 zero로 생성된다")
         void shouldCreateUserPointHistoryWithPointAmountZero() {
             UserPointHistoryCreateState state = createStateWithPointAmount(
-                    UserPointChangeType.ACCRUAL, PointAmount.zero()
+                UserPointChangeType.ACCRUAL, PointAmount.zero()
             );
 
             UserPointHistory history = UserPointHistory.from(state);

@@ -31,13 +31,13 @@ class GetFulfillmentDeliveriesUseCaseTest {
     void shouldReturnDeliveriesFromPort() {
         // given
         GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("token")
-                .startDate("20260401")
-                .endDate("20260402")
-                .status("01")
-                .releaseType("01")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("token")
+            .startDate("20260401")
+            .endDate("20260402")
+            .status("01")
+            .releaseType("01")
+            .build();
         GetFulfillmentDeliveriesResult expectedResult = GetFulfillmentDeliveriesResult.of(0, List.of());
         when(getFulfillmentDeliveriesPort.getDeliveries(any())).thenReturn(expectedResult);
 

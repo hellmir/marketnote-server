@@ -21,11 +21,7 @@ import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHan
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,7 +33,6 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -108,14 +103,14 @@ class FulfillmentAuthClientTest {
         fasstoLogger.addAppender(appender);
 
         client = new FulfillmentAuthClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
@@ -129,7 +124,7 @@ class FulfillmentAuthClientTest {
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubAuthProperties() {
@@ -173,9 +168,9 @@ class FulfillmentAuthClientTest {
             stubAuthProperties();
             stubPayloadGenerator();
             FulfillmentAuthResponse authResponse = new FulfillmentAuthResponse(
-                    new FulfillmentResponseHeader("200", "Success", 1),
-                    new FulfillmentAuthDataResponse("test-token", "20261231235959"),
-                    null
+                new FulfillmentResponseHeader("200", "Success", 1),
+                new FulfillmentAuthDataResponse("test-token", "20261231235959"),
+                null
             );
             stubPostChain(ResponseEntity.ok(authResponse));
 
@@ -201,7 +196,7 @@ class FulfillmentAuthClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+                .isInstanceOf(FulfillmentAuthRequestFailedException.class);
         }
 
         @Test
@@ -211,15 +206,15 @@ class FulfillmentAuthClientTest {
             stubAuthProperties();
             stubPayloadGenerator();
             FulfillmentAuthResponse authResponse = new FulfillmentAuthResponse(
-                    new FulfillmentResponseHeader("400", "Bad Request", 0),
-                    null,
-                    null
+                new FulfillmentResponseHeader("400", "Bad Request", 0),
+                null,
+                null
             );
             stubPostChain(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(authResponse));
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+                .isInstanceOf(FulfillmentAuthRequestFailedException.class);
         }
 
         @Test
@@ -230,7 +225,7 @@ class FulfillmentAuthClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -272,7 +267,7 @@ class FulfillmentAuthClientTest {
         void shouldThrowFulfillmentClientInvalidRequestExceptionWhenTokenIsNull() {
             // when & then
             assertThatThrownBy(() -> client.disconnectAccessToken(null))
-                    .isInstanceOf(FulfillmentClientInvalidRequestException.class);
+                .isInstanceOf(FulfillmentClientInvalidRequestException.class);
         }
 
         @SuppressWarnings("unchecked")
@@ -294,7 +289,7 @@ class FulfillmentAuthClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
-                    .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
+                .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
         }
     }
 
@@ -309,9 +304,9 @@ class FulfillmentAuthClientTest {
             stubAuthProperties();
             stubPayloadGenerator();
             FulfillmentAuthResponse authResponse = new FulfillmentAuthResponse(
-                    new FulfillmentResponseHeader("200", "Success", 1),
-                    new FulfillmentAuthDataResponse("super-secret-token", "20261231235959"),
-                    null
+                new FulfillmentResponseHeader("200", "Success", 1),
+                new FulfillmentAuthDataResponse("super-secret-token", "20261231235959"),
+                null
             );
             stubPostChain(ResponseEntity.ok(authResponse));
 
@@ -320,11 +315,11 @@ class FulfillmentAuthClientTest {
 
             // then
             assertThat(appender.list)
-                    .extracting(ILoggingEvent::getFormattedMessage)
-                    .anyMatch(message -> message.contains("operation=requestAccessToken"));
+                .extracting(ILoggingEvent::getFormattedMessage)
+                .anyMatch(message -> message.contains("operation=requestAccessToken"));
             assertThat(appender.list)
-                    .extracting(ILoggingEvent::getFormattedMessage)
-                    .noneMatch(message -> message.contains("super-secret-token"));
+                .extracting(ILoggingEvent::getFormattedMessage)
+                .noneMatch(message -> message.contains("super-secret-token"));
         }
 
         @SuppressWarnings("unchecked")
@@ -349,11 +344,11 @@ class FulfillmentAuthClientTest {
 
             // then
             assertThat(appender.list)
-                    .extracting(ILoggingEvent::getFormattedMessage)
-                    .anyMatch(message -> message.contains("operation=disconnectAccessToken"));
+                .extracting(ILoggingEvent::getFormattedMessage)
+                .anyMatch(message -> message.contains("operation=disconnectAccessToken"));
             assertThat(appender.list)
-                    .extracting(ILoggingEvent::getFormattedMessage)
-                    .noneMatch(message -> message.contains("plain-secret-token"));
+                .extracting(ILoggingEvent::getFormattedMessage)
+                .noneMatch(message -> message.contains("plain-secret-token"));
         }
 
         @Test
@@ -366,14 +361,14 @@ class FulfillmentAuthClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+                .isInstanceOf(FulfillmentAuthRequestFailedException.class);
 
             assertThat(appender.list)
-                    .extracting(ILoggingEvent::getLevel)
-                    .contains(Level.ERROR);
+                .extracting(ILoggingEvent::getLevel)
+                .contains(Level.ERROR);
             assertThat(appender.list)
-                    .extracting(ILoggingEvent::getFormattedMessage)
-                    .anyMatch(message -> message.contains("operation=requestAccessToken"));
+                .extracting(ILoggingEvent::getFormattedMessage)
+                .anyMatch(message -> message.contains("operation=requestAccessToken"));
         }
     }
 
@@ -392,14 +387,14 @@ class FulfillmentAuthClientTest {
 
             // when
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+                .isInstanceOf(FulfillmentAuthRequestFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
             );
         }
 
@@ -414,14 +409,14 @@ class FulfillmentAuthClientTest {
 
             // when
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+                .isInstanceOf(FulfillmentAuthRequestFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
             );
         }
 
@@ -445,14 +440,14 @@ class FulfillmentAuthClientTest {
 
             // when
             assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
-                    .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
+                .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
 
             // then
             verify(externalCallLogger).recordVoidSensitive(
-                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+                eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
             );
             verify(externalCallLogger, never()).recordVoid(
-                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+                eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
             );
         }
 
@@ -476,14 +471,14 @@ class FulfillmentAuthClientTest {
 
             // when
             assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
-                    .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
+                .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
 
             // then
             verify(externalCallLogger).recordVoid(
-                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+                eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
             );
             verify(externalCallLogger, never()).recordVoidSensitive(
-                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+                eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
             );
         }
     }

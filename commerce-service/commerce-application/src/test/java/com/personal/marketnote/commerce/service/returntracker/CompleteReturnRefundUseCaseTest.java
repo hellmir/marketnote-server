@@ -67,12 +67,12 @@ class CompleteReturnRefundUseCaseTest {
             service.completeReturnRefund(command);
 
             verify(refundPaymentUseCase).refund(argThat(cmd ->
-                    cmd.orderKey().equals("ORDER-KEY-001")
-                            && cmd.orderId().equals(1L)
-                            && cmd.cancelAmount().equals(30000L)
-                            && cmd.paymentAmount().equals(50000L)
-                            && cmd.isFullCancel()
-                            && cmd.returnShippingFee().equals(3000L)));
+                cmd.orderKey().equals("ORDER-KEY-001")
+                    && cmd.orderId().equals(1L)
+                    && cmd.cancelAmount().equals(30000L)
+                    && cmd.paymentAmount().equals(50000L)
+                    && cmd.isFullCancel()
+                    && cmd.returnShippingFee().equals(3000L)));
             assertThat(tracker.isRefundCompleted()).isTrue();
             verify(updateReturnTrackerPort).update(tracker);
         }
@@ -88,7 +88,7 @@ class CompleteReturnRefundUseCaseTest {
             ReturnTracker tracker = createTracker(ReturnRefundStatus.PENDING);
             when(findReturnTrackerPort.findByOrderId(1L)).thenReturn(Optional.of(tracker));
             doThrow(new PaymentCancelException("PG 환불 실패"))
-                    .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
+                .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
 
             CompleteReturnRefundCommand command = createCommand();
 
@@ -106,7 +106,7 @@ class CompleteReturnRefundUseCaseTest {
             CompleteReturnRefundCommand command = createCommand();
 
             assertThatThrownBy(() -> service.completeReturnRefund(command))
-                    .isInstanceOf(ReturnTrackerNotFoundException.class);
+                .isInstanceOf(ReturnTrackerNotFoundException.class);
 
             verifyNoInteractions(refundPaymentUseCase);
             verifyNoInteractions(updateReturnTrackerPort);
@@ -123,7 +123,7 @@ class CompleteReturnRefundUseCaseTest {
             ReturnTracker tracker = createTracker(ReturnRefundStatus.PENDING);
             when(findReturnTrackerPort.findByOrderId(1L)).thenReturn(Optional.of(tracker));
             doThrow(new PaymentAlreadyRefundedException("ORDER-KEY-001"))
-                    .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
+                .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
 
             CompleteReturnRefundCommand command = createCommand();
 
@@ -136,26 +136,26 @@ class CompleteReturnRefundUseCaseTest {
 
     private CompleteReturnRefundCommand createCommand() {
         return CompleteReturnRefundCommand.builder()
-                .orderId(1L)
-                .orderKey("ORDER-KEY-001")
-                .buyerId(100L)
-                .returnAmount(30000L)
-                .paymentAmount(50000L)
-                .pointAmount(1000L)
-                .shippingFee(3000L)
-                .isFullReturn(true)
-                .returnShippingFee(3000L)
-                .build();
+            .orderId(1L)
+            .orderKey("ORDER-KEY-001")
+            .buyerId(100L)
+            .returnAmount(30000L)
+            .paymentAmount(50000L)
+            .pointAmount(1000L)
+            .shippingFee(3000L)
+            .isFullReturn(true)
+            .returnShippingFee(3000L)
+            .build();
     }
 
     private ReturnTracker createTracker(ReturnRefundStatus refundStatus) {
         return ReturnTracker.from(ReturnTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(1L)
-                .returnSlipNumber("RS-001")
-                .inspectionStatus(ReturnInspectionStatus.PASSED)
-                .refundStatus(refundStatus)
-                .inspectedAt(LocalDateTime.of(2026, 4, 9, 10, 0))
-                .build());
+            .id(1L)
+            .orderId(1L)
+            .returnSlipNumber("RS-001")
+            .inspectionStatus(ReturnInspectionStatus.PASSED)
+            .refundStatus(refundStatus)
+            .inspectedAt(LocalDateTime.of(2026, 4, 9, 10, 0))
+            .build());
     }
 }

@@ -212,9 +212,9 @@ class ImageReadModelPersistenceAdapterTest {
         void deactivateKeepsResizedFiles() {
             // given
             adapter.upsert(
-                    1L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/rep.png", 1,
-                    List.of(new ResizedImageInput("600", "https://cdn.example.com/rep_600.png"))
+                1L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/rep.png", 1,
+                List.of(new ResizedImageInput("600", "https://cdn.example.com/rep_600.png"))
             );
             entityManager.flush();
             entityManager.clear();
@@ -241,14 +241,14 @@ class ImageReadModelPersistenceAdapterTest {
         void upsertPersistsResizedFiles() {
             // given
             List<ResizedImageInput> resized = List.of(
-                    new ResizedImageInput("600", "https://cdn.example.com/10_600.png"),
-                    new ResizedImageInput("800", "https://cdn.example.com/10_800.png")
+                new ResizedImageInput("600", "https://cdn.example.com/10_600.png"),
+                new ResizedImageInput("800", "https://cdn.example.com/10_800.png")
             );
 
             // when
             adapter.upsert(
-                    10L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/10.png", 1, resized
+                10L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/10.png", 1, resized
             );
             entityManager.flush();
             entityManager.clear();
@@ -257,11 +257,11 @@ class ImageReadModelPersistenceAdapterTest {
             Optional<ImageReadModelJpaEntity> entity = repository.findByImageId(10L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getResizedFiles())
-                    .extracting(rf -> rf.getSize(), rf -> rf.getStorageUrl())
-                    .containsExactly(
-                            org.assertj.core.api.Assertions.tuple("600", "https://cdn.example.com/10_600.png"),
-                            org.assertj.core.api.Assertions.tuple("800", "https://cdn.example.com/10_800.png")
-                    );
+                .extracting(rf -> rf.getSize(), rf -> rf.getStorageUrl())
+                .containsExactly(
+                    org.assertj.core.api.Assertions.tuple("600", "https://cdn.example.com/10_600.png"),
+                    org.assertj.core.api.Assertions.tuple("800", "https://cdn.example.com/10_800.png")
+                );
         }
 
         @Test
@@ -269,8 +269,8 @@ class ImageReadModelPersistenceAdapterTest {
         void upsertWithEmptyResizedFilesCreatesNoChildRows() {
             // when
             adapter.upsert(
-                    11L, 100L, "PRODUCT", "PRODUCT_CONTENT_IMAGE",
-                    "https://cdn.example.com/11.png", 1, List.of()
+                11L, 100L, "PRODUCT", "PRODUCT_CONTENT_IMAGE",
+                "https://cdn.example.com/11.png", 1, List.of()
             );
             entityManager.flush();
             entityManager.clear();
@@ -286,24 +286,24 @@ class ImageReadModelPersistenceAdapterTest {
         void upsertReplacesResizedFilesOnReceivedAgainWithSameSizes() {
             // given
             adapter.upsert(
-                    12L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/12_old.png", 1,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/12_old_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/12_old_800.png")
-                    )
+                12L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/12_old.png", 1,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/12_old_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/12_old_800.png")
+                )
             );
             entityManager.flush();
             entityManager.clear();
 
             // when — 동일 size(600/800)로 재수신 → 과거 insert-before-delete UNIQUE 충돌 회귀 검증
             adapter.upsert(
-                    12L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/12_new.png", 2,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/12_new_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/12_new_800.png")
-                    )
+                12L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/12_new.png", 2,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/12_new_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/12_new_800.png")
+                )
             );
             entityManager.flush();
             entityManager.clear();
@@ -313,11 +313,11 @@ class ImageReadModelPersistenceAdapterTest {
             assertThat(entity).isPresent();
             assertThat(entity.get().getImageUrl()).isEqualTo("https://cdn.example.com/12_new.png");
             assertThat(entity.get().getResizedFiles())
-                    .extracting(rf -> rf.getSize(), rf -> rf.getStorageUrl())
-                    .containsExactlyInAnyOrder(
-                            org.assertj.core.api.Assertions.tuple("600", "https://cdn.example.com/12_new_600.png"),
-                            org.assertj.core.api.Assertions.tuple("800", "https://cdn.example.com/12_new_800.png")
-                    );
+                .extracting(rf -> rf.getSize(), rf -> rf.getStorageUrl())
+                .containsExactlyInAnyOrder(
+                    org.assertj.core.api.Assertions.tuple("600", "https://cdn.example.com/12_new_600.png"),
+                    org.assertj.core.api.Assertions.tuple("800", "https://cdn.example.com/12_new_800.png")
+                );
         }
 
         @Test
@@ -325,17 +325,17 @@ class ImageReadModelPersistenceAdapterTest {
         void rejectsDuplicateSizeForSameImageReadModel() {
             // given — Repository에 직접 entity 생성 후 같은 부모에 중복 size 자식 row 추가
             ImageReadModelJpaEntity entity = ImageReadModelJpaEntity.of(
-                    13L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/13.png", 1
+                13L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/13.png", 1
             );
             entity.addResizedFiles(List.of(
-                    new ImageReadModelJpaEntity.ResizedFileInput("600", "https://cdn.example.com/a.png"),
-                    new ImageReadModelJpaEntity.ResizedFileInput("600", "https://cdn.example.com/b.png")
+                new ImageReadModelJpaEntity.ResizedFileInput("600", "https://cdn.example.com/a.png"),
+                new ImageReadModelJpaEntity.ResizedFileInput("600", "https://cdn.example.com/b.png")
             ));
 
             // when & then — UNIQUE(image_read_model_id, size) 위반
             assertThatThrownBy(() -> repository.saveAndFlush(entity))
-                    .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
         }
 
         @Test
@@ -343,12 +343,12 @@ class ImageReadModelPersistenceAdapterTest {
         void findImagesReturnsResizedStorageUrlsInSortOrder() {
             // given
             adapter.upsert(
-                    20L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/20.png", 1,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/20_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/20_800.png")
-                    )
+                20L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/20.png", 1,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/20_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/20_800.png")
+                )
             );
             entityManager.flush();
             entityManager.clear();
@@ -360,10 +360,10 @@ class ImageReadModelPersistenceAdapterTest {
             assertThat(result).isPresent();
             GetFileResult fileResult = result.get().images().getFirst();
             assertThat(fileResult.resizedStorageUrls())
-                    .containsExactly(
-                            "https://cdn.example.com/20_600.png",
-                            "https://cdn.example.com/20_800.png"
-                    );
+                .containsExactly(
+                    "https://cdn.example.com/20_600.png",
+                    "https://cdn.example.com/20_800.png"
+                );
         }
 
         @Test
@@ -371,9 +371,9 @@ class ImageReadModelPersistenceAdapterTest {
         void findImagesReturnsCatalogResizedUrl() {
             // given
             adapter.upsert(
-                    30L, 300L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
-                    "https://cdn.example.com/30.png", 1,
-                    List.of(new ResizedImageInput("500x500", "https://cdn.example.com/30_500x500.png"))
+                30L, 300L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
+                "https://cdn.example.com/30.png", 1,
+                List.of(new ResizedImageInput("500x500", "https://cdn.example.com/30_500x500.png"))
             );
             entityManager.flush();
             entityManager.clear();
@@ -384,7 +384,7 @@ class ImageReadModelPersistenceAdapterTest {
             // then
             assertThat(result).isPresent();
             assertThat(result.get().images().getFirst().resizedStorageUrls())
-                    .containsExactly("https://cdn.example.com/30_500x500.png");
+                .containsExactly("https://cdn.example.com/30_500x500.png");
         }
 
         @Test
@@ -392,12 +392,12 @@ class ImageReadModelPersistenceAdapterTest {
         void findImagesReturnsRepresentativeResizedUrls() {
             // given
             adapter.upsert(
-                    40L, 400L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/40.png", 1,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/40_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/40_800.png")
-                    )
+                40L, 400L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/40.png", 1,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/40_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/40_800.png")
+                )
             );
             entityManager.flush();
             entityManager.clear();
@@ -408,10 +408,10 @@ class ImageReadModelPersistenceAdapterTest {
             // then
             assertThat(result).isPresent();
             assertThat(result.get().images().getFirst().resizedStorageUrls())
-                    .containsExactlyInAnyOrder(
-                            "https://cdn.example.com/40_600.png",
-                            "https://cdn.example.com/40_800.png"
-                    );
+                .containsExactlyInAnyOrder(
+                    "https://cdn.example.com/40_600.png",
+                    "https://cdn.example.com/40_800.png"
+                );
         }
 
         @Test
@@ -419,35 +419,35 @@ class ImageReadModelPersistenceAdapterTest {
         void findImagesDoesNotCauseNPlusOneQueries() {
             // given — 서로 다른 imageId + 각기 다른 리사이즈 파일을 여러 건 저장
             adapter.upsert(
-                    50L, 500L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/50.png", 1,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/50_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/50_800.png")
-                    )
+                50L, 500L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/50.png", 1,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/50_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/50_800.png")
+                )
             );
             adapter.upsert(
-                    51L, 500L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/51.png", 2,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/51_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/51_800.png")
-                    )
+                51L, 500L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/51.png", 2,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/51_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/51_800.png")
+                )
             );
             adapter.upsert(
-                    52L, 500L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/52.png", 3,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/52_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/52_800.png")
-                    )
+                52L, 500L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/52.png", 3,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/52_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/52_800.png")
+                )
             );
             entityManager.flush();
             entityManager.clear();
 
             Statistics stats = entityManager.getEntityManagerFactory()
-                    .unwrap(SessionFactory.class)
-                    .getStatistics();
+                .unwrap(SessionFactory.class)
+                .getStatistics();
             stats.setStatisticsEnabled(true);
             stats.clear();
 
@@ -468,19 +468,19 @@ class ImageReadModelPersistenceAdapterTest {
         void deletingImageReadModelCascadesToResizedFiles() {
             // given
             adapter.upsert(
-                    60L, 600L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
-                    "https://cdn.example.com/60.png", 1,
-                    List.of(
-                            new ResizedImageInput("600", "https://cdn.example.com/60_600.png"),
-                            new ResizedImageInput("800", "https://cdn.example.com/60_800.png")
-                    )
+                60L, 600L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/60.png", 1,
+                List.of(
+                    new ResizedImageInput("600", "https://cdn.example.com/60_600.png"),
+                    new ResizedImageInput("800", "https://cdn.example.com/60_800.png")
+                )
             );
             entityManager.flush();
             entityManager.clear();
 
             Long parentId = repository.findByImageId(60L).orElseThrow().getId();
             Long countBefore = (Long) entityManager.createNativeQuery(
-                    "SELECT COUNT(*) FROM image_read_model_resized_files WHERE image_read_model_id = ?1"
+                "SELECT COUNT(*) FROM image_read_model_resized_files WHERE image_read_model_id = ?1"
             ).setParameter(1, parentId).getSingleResult();
             assertThat(countBefore).isEqualTo(2L);
 
@@ -491,7 +491,7 @@ class ImageReadModelPersistenceAdapterTest {
 
             // then
             Long countAfter = (Long) entityManager.createNativeQuery(
-                    "SELECT COUNT(*) FROM image_read_model_resized_files WHERE image_read_model_id = ?1"
+                "SELECT COUNT(*) FROM image_read_model_resized_files WHERE image_read_model_id = ?1"
             ).setParameter(1, parentId).getSingleResult();
             assertThat(countAfter).isZero();
         }

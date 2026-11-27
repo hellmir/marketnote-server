@@ -19,8 +19,8 @@ public class DeadLetterAlertConsumer {
 
     @KafkaListener(topicPattern = ".*\\.dlt", groupId = "dlt-alert", containerFactory = "dltKafkaListenerContainerFactory")
     public void handleDeadLetterMessage(
-            ConsumerRecord<String, Object> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, Object> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             String originalTopic = DltHeaderExtractor.extractOriginalTopic(record);
@@ -28,7 +28,7 @@ public class DeadLetterAlertConsumer {
             String errorMessage = DltHeaderExtractor.extractExceptionMessage(record);
 
             log.error("DLT 메시지 도착. originalTopic={}, partition={}, offset={}, key={}, error={}: {}",
-                    originalTopic, record.partition(), record.offset(), record.key(), errorFqcn, errorMessage
+                originalTopic, record.partition(), record.offset(), record.key(), errorFqcn, errorMessage
             );
 
             dltSlackNotifier.notify(originalTopic, record, errorFqcn, errorMessage);

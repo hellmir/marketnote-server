@@ -19,12 +19,12 @@ class InventoryDeductionHistoryTest {
         @DisplayName("CreateState의 모든 필드를 도메인에 매핑한다 - ID는 null 유지")
         void shouldMapAllFieldsFromCreateState() {
             InventoryDeductionHistoryCreateState state = InventoryDeductionHistoryCreateState.builder()
-                    .productId(10L)
-                    .pricePolicyId(20L)
-                    .orderId(30L)
-                    .stock(40)
-                    .reason("차감")
-                    .build();
+                .productId(10L)
+                .pricePolicyId(20L)
+                .orderId(30L)
+                .stock(40)
+                .reason("차감")
+                .build();
 
             InventoryDeductionHistory history = InventoryDeductionHistory.from(state);
 
@@ -45,13 +45,13 @@ class InventoryDeductionHistoryTest {
         @DisplayName("SnapshotState로부터 ID를 포함한 모든 필드를 복원한다")
         void shouldRestoreAllFieldsIncludingId() {
             InventoryDeductionHistorySnapshotState state = InventoryDeductionHistorySnapshotState.builder()
-                    .id(101L)
-                    .productId(11L)
-                    .pricePolicyId(22L)
-                    .orderId(33L)
-                    .stock(44)
-                    .reason("주문 차감")
-                    .build();
+                .id(101L)
+                .productId(11L)
+                .pricePolicyId(22L)
+                .orderId(33L)
+                .stock(44)
+                .reason("주문 차감")
+                .build();
 
             InventoryDeductionHistory history = InventoryDeductionHistory.from(state);
 
@@ -72,12 +72,12 @@ class InventoryDeductionHistoryTest {
         @DisplayName("stock이 0이면 getStockValue는 0을 반환한다")
         void shouldReturnZeroWhenStockIsZero() {
             InventoryDeductionHistoryCreateState state = InventoryDeductionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(0)
-                    .reason("0 차감")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(0)
+                .reason("0 차감")
+                .build();
 
             InventoryDeductionHistory history = InventoryDeductionHistory.from(state);
 
@@ -88,12 +88,12 @@ class InventoryDeductionHistoryTest {
         @DisplayName("stock이 양수면 getStockValue는 동일한 값을 반환한다")
         void shouldReturnPositiveStockValue() {
             InventoryDeductionHistoryCreateState state = InventoryDeductionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(150)
-                    .reason("차감")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(150)
+                .reason("차감")
+                .build();
 
             InventoryDeductionHistory history = InventoryDeductionHistory.from(state);
 
@@ -104,28 +104,28 @@ class InventoryDeductionHistoryTest {
         @DisplayName("stock이 음수이면 Stock VO 생성 단계에서 InvalidQuantityException이 발생한다")
         void shouldThrowWhenStockIsNegative() {
             InventoryDeductionHistoryCreateState state = InventoryDeductionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(-5)
-                    .reason("음수 차감")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(-5)
+                .reason("음수 차감")
+                .build();
 
             assertThatThrownBy(() -> InventoryDeductionHistory.from(state))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
 
         @Test
         @DisplayName("SnapshotState 복원 시에도 getStockValue는 동일 값을 반환한다")
         void shouldReturnStockValueAfterSnapshotRestore() {
             InventoryDeductionHistorySnapshotState state = InventoryDeductionHistorySnapshotState.builder()
-                    .id(1L)
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(77)
-                    .reason("복원")
-                    .build();
+                .id(1L)
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(77)
+                .reason("복원")
+                .build();
 
             InventoryDeductionHistory history = InventoryDeductionHistory.from(state);
 

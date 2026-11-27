@@ -37,10 +37,10 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
     private final ExternalCallLogger externalCallLogger;
 
     public UserShippingAddressServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${user-service.base-url:http://localhost:8080}") String userServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
-            ExternalCallLogger externalCallLogger
+        RestClient.Builder restClientBuilder,
+        @Value("${user-service.base-url:http://localhost:8080}") String userServiceBaseUrl,
+        HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+        ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.userServiceBaseUrl = userServiceBaseUrl;
@@ -50,15 +50,15 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
 
     @Override
     public void updateDeliveryRequest(
-            Long shippingAddressId, Long userId, DeliveryRequestType deliveryRequestType, String deliveryRequestMessage
+        Long shippingAddressId, Long userId, DeliveryRequestType deliveryRequestType, String deliveryRequestMessage
     ) {
         String path = "/api/v1/internal/shipping-addresses/" + shippingAddressId + "/delivery-request";
 
         URI uri = UriComponentsBuilder.fromUriString(userServiceBaseUrl)
-                .path(path)
-                .queryParam("userId", userId)
-                .build()
-                .toUri();
+            .path(path)
+            .queryParam("userId", userId)
+            .build()
+            .toUri();
 
         Map<String, String> body = new HashMap<>();
         body.put("deliveryRequestType", deliveryRequestType.name());
@@ -67,31 +67,31 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
         }
 
         Map<String, String> tags = Map.of(
-                "shippingAddressId", String.valueOf(shippingAddressId),
-                "userId", String.valueOf(userId)
+            "shippingAddressId", String.valueOf(shippingAddressId),
+            "userId", String.valueOf(userId)
         );
 
         try {
             externalCallLogger.recordVoid(
-                    ExternalSystem.USER, OPERATION_UPDATE_DELIVERY_REQUEST, tags,
-                    () -> sendUpdateDeliveryRequest(uri, path, body)
+                ExternalSystem.USER, OPERATION_UPDATE_DELIVERY_REQUEST, tags,
+                () -> sendUpdateDeliveryRequest(uri, path, body)
             );
         } catch (RestClientException e) {
             log.warn(
-                    "fallback applied: 배송 요청사항 업데이트 실패 — 무시. shippingAddressId={}, userId={}",
-                    shippingAddressId, userId, e
+                "fallback applied: 배송 요청사항 업데이트 실패 — 무시. shippingAddressId={}, userId={}",
+                shippingAddressId, userId, e
             );
         }
     }
 
     private void sendUpdateDeliveryRequest(URI uri, String path, Map<String, String> body) {
         restClient.patch()
-                .uri(uri)
-                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body)
-                .retrieve()
-                .toBodilessEntity();
+            .uri(uri)
+            .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path))
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(body)
+            .retrieve()
+            .toBodilessEntity();
     }
 
 }

@@ -54,11 +54,11 @@ class RecordLedgerEntryUseCaseTest {
 
     private Account createActiveAccount(Long id, String name, AccountType type) {
         return Account.from(AccountSnapshotState.builder()
-                .id(id)
-                .name(name)
-                .accountType(type)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(id)
+            .name(name)
+            .accountType(type)
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     @Nested
@@ -79,37 +79,37 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findById(sellerPayableAccountId)).thenReturn(Optional.of(sellerPayable));
             when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
             when(saveLedgerTransactionPort.save(any(LedgerTransaction.class)))
-                    .thenAnswer(invocation -> {
-                        LedgerTransaction tx = invocation.getArgument(0);
-                        return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                                .id(100L)
-                                .transactionType(tx.getTransactionType())
-                                .targetType(tx.getTargetType())
-                                .targetId(tx.getTargetId())
-                                .description(tx.getDescription())
-                                .idempotencyKey(tx.getIdempotencyKey())
-                                .build());
-                    });
+                .thenAnswer(invocation -> {
+                    LedgerTransaction tx = invocation.getArgument(0);
+                    return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(100L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+                });
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("주문 1 결제 승인 분개")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(pgReceivableAccountId)
-                                    .amount(10000L)
-                                    .transactionType(TransactionType.DEBIT)
-                                    .build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(sellerPayableAccountId)
-                                    .amount(10000L)
-                                    .transactionType(TransactionType.CREDIT)
-                                    .build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("주문 1 결제 승인 분개")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(pgReceivableAccountId)
+                        .amount(10000L)
+                        .transactionType(TransactionType.DEBIT)
+                        .build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(sellerPayableAccountId)
+                        .amount(10000L)
+                        .transactionType(TransactionType.CREDIT)
+                        .build()
+                ))
+                .build();
 
             // when
             recordLedgerEntryService.record(command);
@@ -127,15 +127,15 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedEntries).hasSize(2);
 
             LedgerEntry debitEntry = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit())
+                .findFirst().orElseThrow();
             assertThat(debitEntry.getAccountId()).isEqualTo(pgReceivableAccountId);
             assertThat(debitEntry.getAmount()).isEqualTo(Money.of(10000L));
             assertThat(debitEntry.getTransactionId()).isEqualTo(100L);
 
             LedgerEntry creditEntry = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isCredit())
+                .findFirst().orElseThrow();
             assertThat(creditEntry.getAccountId()).isEqualTo(sellerPayableAccountId);
             assertThat(creditEntry.getAmount()).isEqualTo(Money.of(10000L));
             assertThat(creditEntry.getTransactionId()).isEqualTo(100L);
@@ -154,33 +154,33 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findById(2L)).thenReturn(Optional.of(pgReceivable));
             when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
             when(saveLedgerTransactionPort.save(any(LedgerTransaction.class)))
-                    .thenAnswer(invocation -> {
-                        LedgerTransaction tx = invocation.getArgument(0);
-                        return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                                .id(200L)
-                                .transactionType(tx.getTransactionType())
-                                .targetType(tx.getTargetType())
-                                .targetId(tx.getTargetId())
-                                .description(tx.getDescription())
-                                .idempotencyKey(tx.getIdempotencyKey())
-                                .build());
-                    });
+                .thenAnswer(invocation -> {
+                    LedgerTransaction tx = invocation.getArgument(0);
+                    return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(200L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+                });
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PG_SETTLEMENT)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("PG 정산 입금")
-                    .idempotencyKey("PG_SETTLEMENT:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(1L).amount(9700L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(3L).amount(300L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PG_SETTLEMENT)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("PG 정산 입금")
+                .idempotencyKey("PG_SETTLEMENT:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(1L).amount(9700L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(3L).amount(300L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
+                ))
+                .build();
 
             // when
             recordLedgerEntryService.record(command);
@@ -191,13 +191,13 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedEntries).hasSize(3);
 
             Long debitTotal = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .mapToLong(e -> e.getAmount().getValue())
-                    .sum();
+                .filter(e -> e.getTransactionType().isDebit())
+                .mapToLong(e -> e.getAmount().getValue())
+                .sum();
             Long creditTotal = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .mapToLong(e -> e.getAmount().getValue())
-                    .sum();
+                .filter(e -> e.getTransactionType().isCredit())
+                .mapToLong(e -> e.getAmount().getValue())
+                .sum();
             assertThat(debitTotal).isEqualTo(creditTotal);
         }
     }
@@ -213,23 +213,23 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.existsByIdempotencyKey("PAYMENT_APPROVAL:1")).thenReturn(true);
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
+                ))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(DuplicateLedgerTransactionException.class)
-                    .hasMessageContaining("PAYMENT_APPROVAL:1");
+                .isInstanceOf(DuplicateLedgerTransactionException.class)
+                .hasMessageContaining("PAYMENT_APPROVAL:1");
 
             verify(saveLedgerTransactionPort, never()).save(any());
             verify(saveLedgerEntryPort, never()).saveAll(any());
@@ -248,22 +248,22 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findById(1L)).thenReturn(Optional.empty());
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
+                ))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -273,33 +273,33 @@ class RecordLedgerEntryUseCaseTest {
         void shouldThrowWhenAccountIsInactive() {
             // given
             Account inactiveAccount = Account.from(AccountSnapshotState.builder()
-                    .id(1L)
-                    .name("비활성 계정")
-                    .accountType(AccountType.ASSET)
-                    .status(EntityStatus.INACTIVE)
-                    .build());
+                .id(1L)
+                .name("비활성 계정")
+                .accountType(AccountType.ASSET)
+                .status(EntityStatus.INACTIVE)
+                .build());
 
             when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
             when(findAccountPort.findById(1L)).thenReturn(Optional.of(inactiveAccount));
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(2L).amount(10000L).transactionType(TransactionType.CREDIT).build()
+                ))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(InactiveAccountException.class)
-                    .hasMessageContaining("비활성");
+                .isInstanceOf(InactiveAccountException.class)
+                .hasMessageContaining("비활성");
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -321,23 +321,23 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findById(2L)).thenReturn(Optional.of(account2));
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(2L).amount(5000L).transactionType(TransactionType.CREDIT).build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(1L).amount(10000L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(2L).amount(5000L).transactionType(TransactionType.CREDIT).build()
+                ))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("차변 합계");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("차변 합계");
 
             verify(saveLedgerTransactionPort, never()).save(any());
             verify(saveLedgerEntryPort, never()).saveAll(any());
@@ -353,18 +353,18 @@ class RecordLedgerEntryUseCaseTest {
         void shouldThrowWhenEntriesEmpty() {
             // given
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of())
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of())
+                .build();
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("비어있습니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("비어있습니다");
 
             verify(saveLedgerTransactionPort, never()).save(any());
             verify(saveLedgerEntryPort, never()).saveAll(any());
@@ -382,23 +382,23 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findById(2L)).thenReturn(Optional.of(account2));
 
             RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(1L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:1")
-                    .entries(List.of(
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(1L).amount(-10000L).transactionType(TransactionType.DEBIT).build(),
-                            RecordLedgerEntryCommand.EntryLine.builder()
-                                    .accountId(2L).amount(-10000L).transactionType(TransactionType.CREDIT).build()
-                    ))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:1")
+                .entries(List.of(
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(1L).amount(-10000L).transactionType(TransactionType.DEBIT).build(),
+                    RecordLedgerEntryCommand.EntryLine.builder()
+                        .accountId(2L).amount(-10000L).transactionType(TransactionType.CREDIT).build()
+                ))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(InvalidMoneyAmountException.class)
-                    .hasMessageContaining("0 이상이어야 합니다");
+                .isInstanceOf(InvalidMoneyAmountException.class)
+                .hasMessageContaining("0 이상이어야 합니다");
 
             verify(saveLedgerTransactionPort, never()).save(any());
             verify(saveLedgerEntryPort, never()).saveAll(any());
@@ -424,13 +424,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(100L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(100L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when
@@ -440,9 +440,9 @@ class RecordLedgerEntryUseCaseTest {
             verify(findAccountPort).findByName("매출채권_PG");
             verify(findAccountPort).findByName("미지급금_판매자");
             verify(saveLedgerTransactionPort).save(argThat(tx ->
-                    tx.getTransactionType() == LedgerTransactionType.PAYMENT_APPROVAL
-                            && "PAYMENT_APPROVAL:1".equals(tx.getIdempotencyKey().getValue())
-                            && "PAYMENT".equals(tx.getTargetType())
+                tx.getTransactionType() == LedgerTransactionType.PAYMENT_APPROVAL
+                    && "PAYMENT_APPROVAL:1".equals(tx.getIdempotencyKey().getValue())
+                    && "PAYMENT".equals(tx.getTargetType())
             ));
 
             ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
@@ -452,14 +452,14 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedEntries).hasSize(2);
 
             LedgerEntry debitEntry = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit())
+                .findFirst().orElseThrow();
             assertThat(debitEntry.getAccountId()).isEqualTo(1L);
             assertThat(debitEntry.getAmount()).isEqualTo(Money.of(50000L));
 
             LedgerEntry creditEntry = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isCredit())
+                .findFirst().orElseThrow();
             assertThat(creditEntry.getAccountId()).isEqualTo(3L);
             assertThat(creditEntry.getAmount()).isEqualTo(Money.of(50000L));
         }
@@ -472,7 +472,7 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentApproval(1L, 50000L))
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -487,7 +487,7 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentApproval(1L, 50000L))
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -512,13 +512,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(300L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(300L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when
@@ -526,9 +526,9 @@ class RecordLedgerEntryUseCaseTest {
 
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
-                    tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
-                            && "PAYMENT_CANCELLATION:1".equals(tx.getIdempotencyKey().getValue())
-                            && "PAYMENT".equals(tx.getTargetType())
+                tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
+                    && "PAYMENT_CANCELLATION:1".equals(tx.getIdempotencyKey().getValue())
+                    && "PAYMENT".equals(tx.getTargetType())
             ));
 
             ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
@@ -538,14 +538,14 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedEntries).hasSize(2);
 
             LedgerEntry debitEntry = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit())
+                .findFirst().orElseThrow();
             assertThat(debitEntry.getAccountId()).isEqualTo(3L);
             assertThat(debitEntry.getAmount()).isEqualTo(Money.of(50000L));
 
             LedgerEntry creditEntry = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isCredit())
+                .findFirst().orElseThrow();
             assertThat(creditEntry.getAccountId()).isEqualTo(1L);
             assertThat(creditEntry.getAmount()).isEqualTo(Money.of(50000L));
         }
@@ -565,13 +565,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(301L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(301L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when
@@ -579,8 +579,8 @@ class RecordLedgerEntryUseCaseTest {
 
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
-                    tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
-                            && "PAYMENT_PARTIAL_REFUND:1:20000:0".equals(tx.getIdempotencyKey().getValue())
+                tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
+                    && "PAYMENT_PARTIAL_REFUND:1:20000:0".equals(tx.getIdempotencyKey().getValue())
             ));
 
             ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
@@ -599,9 +599,9 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(
-                    () -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1")
+                () -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1")
             )
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -616,9 +616,9 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(
-                    () -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1")
+                () -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1")
             )
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -646,13 +646,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(400L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(400L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when
@@ -660,9 +660,9 @@ class RecordLedgerEntryUseCaseTest {
 
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
-                    tx.getTransactionType() == LedgerTransactionType.PG_SETTLEMENT
-                            && "PG_SETTLEMENT:1".equals(tx.getIdempotencyKey().getValue())
-                            && "SETTLEMENT".equals(tx.getTargetType())
+                tx.getTransactionType() == LedgerTransactionType.PG_SETTLEMENT
+                    && "PG_SETTLEMENT:1".equals(tx.getIdempotencyKey().getValue())
+                    && "SETTLEMENT".equals(tx.getTargetType())
             ));
 
             ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
@@ -673,20 +673,20 @@ class RecordLedgerEntryUseCaseTest {
 
             // DEBIT 보통예금 = 10000 - 300 = 9700
             LedgerEntry cashDebit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(2L))
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(2L))
+                .findFirst().orElseThrow();
             assertThat(cashDebit.getAmount()).isEqualTo(Money.of(9700L));
 
             // DEBIT PG수수료비용 = 300
             LedgerEntry pgFeeDebit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(5L))
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(5L))
+                .findFirst().orElseThrow();
             assertThat(pgFeeDebit.getAmount()).isEqualTo(Money.of(300L));
 
             // CREDIT 매출채권_PG = 10000
             LedgerEntry pgReceivableCredit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isCredit())
+                .findFirst().orElseThrow();
             assertThat(pgReceivableCredit.getAccountId()).isEqualTo(1L);
             assertThat(pgReceivableCredit.getAmount()).isEqualTo(Money.of(10000L));
         }
@@ -708,13 +708,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(401L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(401L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when
@@ -728,8 +728,8 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedEntries).hasSize(2); // PG수수료비용 Entry 생략
 
             LedgerEntry cashDebit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit())
+                .findFirst().orElseThrow();
             assertThat(cashDebit.getAccountId()).isEqualTo(2L);
             assertThat(cashDebit.getAmount()).isEqualTo(Money.of(10000L));
         }
@@ -742,7 +742,7 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.recordPgSettlement(1L, 10000L, 300L))
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }
@@ -770,13 +770,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(500L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(500L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when
@@ -784,9 +784,9 @@ class RecordLedgerEntryUseCaseTest {
 
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
-                    tx.getTransactionType() == LedgerTransactionType.SELLER_SETTLEMENT
-                            && "SELLER_SETTLEMENT:1".equals(tx.getIdempotencyKey().getValue())
-                            && "SETTLEMENT".equals(tx.getTargetType())
+                tx.getTransactionType() == LedgerTransactionType.SELLER_SETTLEMENT
+                    && "SELLER_SETTLEMENT:1".equals(tx.getIdempotencyKey().getValue())
+                    && "SETTLEMENT".equals(tx.getTargetType())
             ));
 
             ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
@@ -797,24 +797,24 @@ class RecordLedgerEntryUseCaseTest {
 
             // 판매자 정산 분개: DEBIT 미지급금(sellerPayout+platformFee) = CREDIT 보통예금(sellerPayout) + CREDIT 플랫폼수수료수익(platformFee)
             LedgerEntry sellerDebit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit())
+                .findFirst().orElseThrow();
             assertThat(sellerDebit.getAccountId()).isEqualTo(3L);
             assertThat(sellerDebit.getAmount()).isEqualTo(Money.of(9700L)); // sellerPayout + platformFee
 
             List<LedgerEntry> credits = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .toList();
+                .filter(e -> e.getTransactionType().isCredit())
+                .toList();
             assertThat(credits).hasSize(2);
 
             LedgerEntry cashCredit = credits.stream()
-                    .filter(e -> e.getAccountId().equals(2L))
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getAccountId().equals(2L))
+                .findFirst().orElseThrow();
             assertThat(cashCredit.getAmount()).isEqualTo(Money.of(9200L));
 
             LedgerEntry platformFeeCredit = credits.stream()
-                    .filter(e -> e.getAccountId().equals(4L))
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getAccountId().equals(4L))
+                .findFirst().orElseThrow();
             assertThat(platformFeeCredit.getAmount()).isEqualTo(Money.of(500L));
         }
 
@@ -835,13 +835,13 @@ class RecordLedgerEntryUseCaseTest {
             when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
                 LedgerTransaction tx = invocation.getArgument(0);
                 return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                        .id(501L)
-                        .transactionType(tx.getTransactionType())
-                        .targetType(tx.getTargetType())
-                        .targetId(tx.getTargetId())
-                        .description(tx.getDescription())
-                        .idempotencyKey(tx.getIdempotencyKey())
-                        .build());
+                    .id(501L)
+                    .transactionType(tx.getTransactionType())
+                    .targetType(tx.getTargetType())
+                    .targetId(tx.getTargetId())
+                    .description(tx.getDescription())
+                    .idempotencyKey(tx.getIdempotencyKey())
+                    .build());
             });
 
             // when — totalAmount = sellerPayout + platformFee = 9500 + 0 = 9500
@@ -855,14 +855,14 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedEntries).hasSize(2); // 플랫폼수수료수익 Entry 생략
 
             LedgerEntry sellerDebit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isDebit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isDebit())
+                .findFirst().orElseThrow();
             assertThat(sellerDebit.getAccountId()).isEqualTo(3L);
             assertThat(sellerDebit.getAmount()).isEqualTo(Money.of(9500L));
 
             LedgerEntry cashCredit = savedEntries.stream()
-                    .filter(e -> e.getTransactionType().isCredit())
-                    .findFirst().orElseThrow();
+                .filter(e -> e.getTransactionType().isCredit())
+                .findFirst().orElseThrow();
             assertThat(cashCredit.getAccountId()).isEqualTo(2L);
             assertThat(cashCredit.getAmount()).isEqualTo(Money.of(9500L));
         }
@@ -875,7 +875,7 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.recordSellerSettlement(1L, 9700L, 9200L, 500L))
-                    .isInstanceOf(AccountNotFoundException.class);
+                .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
         }

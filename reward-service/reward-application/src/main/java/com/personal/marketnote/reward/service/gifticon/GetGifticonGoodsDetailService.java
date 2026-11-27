@@ -34,19 +34,19 @@ public class GetGifticonGoodsDetailService implements GetGifticonGoodsDetailUseC
         Long userCashBalance = getUserCashBalance(command.userId());
 
         return new GetGifticonGoodsDetailResult(
-                goods.getGoodsCode().getValue(),
-                goods.getGoodsName(),
-                toBrandCodeValue(goods.getBrandCode()),
-                goods.getBrandName(),
-                goods.getBrandImageUrl(),
-                toCategoryCodeValue(goods.getCategoryCode()),
-                goods.getRealPrice().getValue(),
-                goods.getSalePrice().getValue(),
-                goods.getCashPrice().getValue(),
-                goods.getImageUrl(),
-                goods.getDescription(),
-                toValidDaysValue(goods.getValidDays()),
-                userCashBalance
+            goods.getGoodsCode().getValue(),
+            goods.getGoodsName(),
+            toBrandCodeValue(goods.getBrandCode()),
+            goods.getBrandName(),
+            goods.getBrandImageUrl(),
+            toCategoryCodeValue(goods.getCategoryCode()),
+            goods.getRealPrice().getValue(),
+            goods.getSalePrice().getValue(),
+            goods.getCashPrice().getValue(),
+            goods.getImageUrl(),
+            goods.getDescription(),
+            toValidDaysValue(goods.getValidDays()),
+            userCashBalance
         );
     }
 
@@ -73,10 +73,10 @@ public class GetGifticonGoodsDetailService implements GetGifticonGoodsDetailUseC
 
     private GifticonGoods findExposedSaleGoods(String goodsCode) {
         GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(goodsCode)
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", goodsCode);
-                    return new GifticonGoodsNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", goodsCode);
+                return new GifticonGoodsNotFoundException();
+            });
 
         if (!goods.isExposed() || !goods.isSale()) {
             log.warn("기프티콘 상품이 노출되지 않거나 판매 중이 아닙니다. goodsCode={}", goodsCode);

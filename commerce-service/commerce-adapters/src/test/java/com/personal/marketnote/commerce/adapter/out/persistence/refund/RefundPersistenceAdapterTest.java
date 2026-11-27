@@ -38,16 +38,16 @@ class RefundPersistenceAdapterTest {
 
     private Refund createAndSaveRefund(Long paymentId, Long orderId, RefundType refundType, Long refundAmount) {
         Refund refund = Refund.from(
-                RefundCreateState.builder()
-                        .paymentId(paymentId)
-                        .orderId(orderId)
-                        .refundType(refundType)
-                        .refundAmount(refundAmount)
-                        .cancelReason("테스트 환불 사유")
-                        .processedBy("SYSTEM")
-                        .pgRefundKey("PG_REFUND_KEY")
-                        .pgRawResponse("{\"result\":\"success\"}")
-                        .build()
+            RefundCreateState.builder()
+                .paymentId(paymentId)
+                .orderId(orderId)
+                .refundType(refundType)
+                .refundAmount(refundAmount)
+                .cancelReason("테스트 환불 사유")
+                .processedBy("SYSTEM")
+                .pgRefundKey("PG_REFUND_KEY")
+                .pgRawResponse("{\"result\":\"success\"}")
+                .build()
         );
         return adapter.save(refund);
     }

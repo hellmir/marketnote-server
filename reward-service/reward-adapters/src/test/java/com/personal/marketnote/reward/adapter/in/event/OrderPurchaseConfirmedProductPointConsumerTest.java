@@ -44,8 +44,8 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<UUID> sharerKeys) {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, false, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.purchase-confirmed", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -106,11 +106,11 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
         // given
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.<UUID>of(), false, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1", envelope
+            "commerce.order.purchase-confirmed", 0, 0L, "1", envelope
         );
 
         // when
@@ -182,7 +182,7 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
     void handleOrderPurchaseConfirmedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1", null
+            "commerce.order.purchase-confirmed", 0, 0L, "1", null
         );
 
         // when
@@ -199,12 +199,12 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, List.of());
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
+            .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -216,17 +216,17 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
     void handleOrderPurchaseConfirmedEvent_invalidPayload_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.order.purchase-confirmed", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verifyNoInteractions(confirmPendingPointUseCase);
         verify(acknowledgment, never()).acknowledge();

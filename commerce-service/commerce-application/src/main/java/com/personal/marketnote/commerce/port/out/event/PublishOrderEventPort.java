@@ -9,22 +9,22 @@ import java.util.UUID;
 public interface PublishOrderEventPort {
 
     void publishOrderPaymentCompletedEvent(
-            Long orderId, Long buyerId, Long totalAmount,
-            Long pointAmount, ShippingAddress shippingAddress,
-            List<OrderProduct> orderProducts, Long totalAccumulatedPoint
+        Long orderId, Long buyerId, Long totalAmount,
+        Long pointAmount, ShippingAddress shippingAddress,
+        List<OrderProduct> orderProducts, Long totalAccumulatedPoint
     );
 
     void publishOrderPurchaseConfirmedEvent(
-            Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed,
-            List<OrderProduct> orderProducts
+        Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed,
+        List<OrderProduct> orderProducts
     );
 
     void publishOrderCancelledEvent(
-            Long orderId, String orderKey, Long buyerId,
-            Long cancelAmount, Long paymentAmount, Long pointAmount,
-            Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
-            List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts,
-            String cancelId
+        Long orderId, String orderKey, Long buyerId,
+        Long cancelAmount, Long paymentAmount, Long pointAmount,
+        Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
+        List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts,
+        String cancelId
     );
 
     void publishOrderReturnedEvent(Long orderId, String orderKey, Long buyerId,

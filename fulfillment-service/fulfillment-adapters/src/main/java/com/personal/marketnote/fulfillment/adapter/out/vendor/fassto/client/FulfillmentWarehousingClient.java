@@ -59,14 +59,14 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private final Sleeper sleeper;
 
     public FulfillmentWarehousingClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -94,10 +94,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private RegisterFulfillmentWarehousingResult doRegisterWarehousing(RegisterFulfillmentWarehousingCommand command) {
         FulfillmentWarehousingMapper request = FasstoWarehousingCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentWarehousingResponse response = executeWarehousingMutation(
-                request,
-                "REGISTER",
-                HttpMethod.POST,
-                false
+            request,
+            "REGISTER",
+            HttpMethod.POST,
+            false
         );
         return mapWarehousingResult(response);
     }
@@ -111,10 +111,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private UpdateFulfillmentWarehousingResult doUpdateWarehousing(UpdateFulfillmentWarehousingCommand command) {
         FulfillmentWarehousingMapper request = FasstoWarehousingCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentWarehousingResponse response = executeWarehousingMutation(
-                request,
-                "UPDATE",
-                HttpMethod.PATCH,
-                true
+            request,
+            "UPDATE",
+            HttpMethod.PATCH,
+            true
         );
         return mapUpdateWarehousingResult(response);
     }
@@ -132,12 +132,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
         }
 
         URI uri = buildWarehousingListUri(
-                query.getCustomerCode(),
-                query.getStartDate(),
-                query.getEndDate(),
-                query.getInWay(),
-                query.getOrdNo(),
-                query.getWrkStat()
+            query.getCustomerCode(),
+            query.getStartDate(),
+            query.getEndDate(),
+            query.getInWay(),
+            query.getOrdNo(),
+            query.getWrkStat()
         );
         String path = properties.getWarehousingListPath();
         Exception error = new Exception();
@@ -154,10 +154,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -165,12 +165,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -200,22 +200,22 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             String exception = isSuccess ? null : resolveWarehousingListException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -231,9 +231,9 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             }
 
             log.warn("Fulfillment warehousing list request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -279,10 +279,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -290,12 +290,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -325,22 +325,22 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             String exception = isSuccess ? null : resolveWarehousingDetailException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -356,9 +356,9 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             }
 
             log.warn("Fulfillment warehousing detail request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -403,10 +403,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -414,12 +414,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -446,22 +446,22 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             String exception = isSuccess ? null : resolveWarehousingInspecDetailException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -477,9 +477,9 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             }
 
             log.warn("Fulfillment warehousing inspection detail request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -523,10 +523,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -534,12 +534,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -566,22 +566,22 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             String exception = isSuccess ? null : resolveWarehousingAbnormalException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -597,9 +597,9 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             }
 
             log.warn("Fulfillment warehousing abnormal request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -627,11 +627,11 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
         }
 
         URI uri = buildWarehousingAbnormalImageUri(
-                query.getSlipNo(),
-                query.getGodCd(),
-                query.getGoodsSerialNo(),
-                query.getFileSeq(),
-                query.getImgNo()
+            query.getSlipNo(),
+            query.getGodCd(),
+            query.getGoodsSerialNo(),
+            query.getFileSeq(),
+            query.getImgNo()
         );
         String path = properties.getWarehousingAbnormalImagePath();
         Exception error = new Exception();
@@ -648,10 +648,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -659,12 +659,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -691,22 +691,22 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             String exception = isSuccess ? null : resolveWarehousingAbnormalImageException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -722,9 +722,9 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             }
 
             log.warn("Fulfillment warehousing abnormal image request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -740,10 +740,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private RegisterFulfillmentWarehousingResponse executeWarehousingMutation(
-            FulfillmentWarehousingMapper request,
-            String action,
-            HttpMethod method,
-            boolean isUpdate
+        FulfillmentWarehousingMapper request,
+        String action,
+        HttpMethod method,
+        boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing request is required.");
@@ -766,11 +766,11 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             ResponseEntity<String> response;
             try {
                 response = restClient.method(method)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -778,12 +778,12 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -793,8 +793,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment warehousing request",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment warehousing request",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -812,26 +812,26 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             RegisterFulfillmentWarehousingResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -847,10 +847,10 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             }
 
             log.warn("Fulfillment warehousing {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -863,8 +863,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment warehousing request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment warehousing request",
+            uri, path, error
         );
 
         if (isUpdate) {
@@ -876,22 +876,22 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private URI buildWarehousingUri(String customerCode) {
         validateWarehousingProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getWarehousingPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getWarehousingPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildWarehousingListUri(
-            String customerCode,
-            String startDate,
-            String endDate,
-            String inWay,
-            String ordNo,
-            String wrkStat
+        String customerCode,
+        String startDate,
+        String endDate,
+        String inWay,
+        String ordNo,
+        String wrkStat
     ) {
         validateWarehousingListProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getWarehousingListPath());
+            .path(properties.getWarehousingListPath());
         if (FormatValidator.hasValue(inWay)) {
             builder.queryParam("inWay", inWay);
         }
@@ -902,62 +902,62 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             builder.queryParam("wrkStat", wrkStat);
         }
         return builder
-                .buildAndExpand(customerCode, startDate, endDate)
-                .toUri();
+            .buildAndExpand(customerCode, startDate, endDate)
+            .toUri();
     }
 
     private URI buildWarehousingDetailUri(
-            String customerCode,
-            String slipNo,
-            String ordNo
+        String customerCode,
+        String slipNo,
+        String ordNo
     ) {
         validateWarehousingDetailProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getWarehousingDetailPath());
+            .path(properties.getWarehousingDetailPath());
         if (FormatValidator.hasValue(ordNo)) {
             builder.queryParam("ordNo", ordNo);
         }
         return builder
-                .buildAndExpand(customerCode, slipNo)
-                .toUri();
+            .buildAndExpand(customerCode, slipNo)
+            .toUri();
     }
 
     private URI buildWarehousingInspecDetailUri(
-            String customerCode,
-            String slipNo,
-            String whCd
+        String customerCode,
+        String slipNo,
+        String whCd
     ) {
         validateWarehousingInspecDetailProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getWarehousingInspecDetailPath())
-                .buildAndExpand(customerCode, slipNo, whCd)
-                .toUri();
+            .path(properties.getWarehousingInspecDetailPath())
+            .buildAndExpand(customerCode, slipNo, whCd)
+            .toUri();
     }
 
     private URI buildWarehousingAbnormalUri(
-            String customerCode,
-            String whCd,
-            String slipNo
+        String customerCode,
+        String whCd,
+        String slipNo
     ) {
         validateWarehousingAbnormalProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getWarehousingAbnormalPath())
-                .buildAndExpand(customerCode, whCd, slipNo)
-                .toUri();
+            .path(properties.getWarehousingAbnormalPath())
+            .buildAndExpand(customerCode, whCd, slipNo)
+            .toUri();
     }
 
     private URI buildWarehousingAbnormalImageUri(
-            String slipNo,
-            String godCd,
-            String goodsSerialNo,
-            String fileSeq,
-            String imgNo
+        String slipNo,
+        String godCd,
+        String goodsSerialNo,
+        String fileSeq,
+        String imgNo
     ) {
         validateWarehousingAbnormalImageProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getWarehousingAbnormalImagePath())
-                .buildAndExpand(slipNo, godCd, goodsSerialNo, fileSeq, imgNo)
-                .toUri();
+            .path(properties.getWarehousingAbnormalImagePath())
+            .buildAndExpand(slipNo, godCd, goodsSerialNo, fileSeq, imgNo)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders(String accessToken) {
@@ -1189,48 +1189,48 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     private boolean isSuccessResponse(ResponseEntity<String> response, RegisterFulfillmentWarehousingResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess()
-                && FormatValidator.hasValue(parsedResponse.data());
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess()
+            && FormatValidator.hasValue(parsedResponse.data());
     }
 
     private boolean isWarehousingListSuccess(ResponseEntity<String> response, FulfillmentWarehousingListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isWarehousingDetailSuccess(ResponseEntity<String> response, FulfillmentWarehousingDetailListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isWarehousingInspecDetailSuccess(
-            ResponseEntity<String> response,
-            FulfillmentWarehousingInspecDetailListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentWarehousingInspecDetailListResponse parsedResponse
     ) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isWarehousingAbnormalSuccess(ResponseEntity<String> response, FulfillmentWarehousingAbnormalListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isWarehousingAbnormalImageSuccess(ResponseEntity<String> response, FulfillmentWarehousingAbnormalImageResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveResponseException(ResponseEntity<String> response, RegisterFulfillmentWarehousingResponse parsedResponse) {
@@ -1253,8 +1253,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private String resolveWarehousingListException(
-            ResponseEntity<String> response,
-            FulfillmentWarehousingListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentWarehousingListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -1275,8 +1275,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private String resolveWarehousingDetailException(
-            ResponseEntity<String> response,
-            FulfillmentWarehousingDetailListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentWarehousingDetailListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -1297,8 +1297,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private String resolveWarehousingInspecDetailException(
-            ResponseEntity<String> response,
-            FulfillmentWarehousingInspecDetailListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentWarehousingInspecDetailListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -1319,8 +1319,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private String resolveWarehousingAbnormalException(
-            ResponseEntity<String> response,
-            FulfillmentWarehousingAbnormalListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentWarehousingAbnormalListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -1341,8 +1341,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private String resolveWarehousingAbnormalImageException(
-            ResponseEntity<String> response,
-            FulfillmentWarehousingAbnormalImageResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentWarehousingAbnormalImageResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -1436,11 +1436,11 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private JsonNode buildRequestPayloadJson(
-            FulfillmentWarehousingMapper request,
-            URI uri,
-            int attempt,
-            String action,
-            HttpMethod method
+        FulfillmentWarehousingMapper request,
+        URI uri,
+        int attempt,
+        String action,
+        HttpMethod method
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", method.name());
@@ -1478,56 +1478,56 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     private RegisterFulfillmentWarehousingResult mapWarehousingResult(RegisterFulfillmentWarehousingResponse response) {
         List<RegisterFulfillmentWarehousingItemResult> warehousing = response.data().stream()
-                .map(this::mapWarehousingItem)
-                .toList();
+            .map(this::mapWarehousingItem)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return RegisterFulfillmentWarehousingResult.of(dataCount, warehousing);
     }
 
     private UpdateFulfillmentWarehousingResult mapUpdateWarehousingResult(RegisterFulfillmentWarehousingResponse response) {
         List<UpdateFulfillmentWarehousingItemResult> warehousing = response.data().stream()
-                .map(this::mapUpdateWarehousingItem)
-                .toList();
+            .map(this::mapUpdateWarehousingItem)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return UpdateFulfillmentWarehousingResult.of(dataCount, warehousing);
     }
 
     private GetFulfillmentWarehousingResult mapWarehousingListResult(FulfillmentWarehousingListResponse response) {
         List<FulfillmentWarehousingInfoResult> warehousing = response.data().stream()
-                .map(this::mapWarehousingInfo)
-                .toList();
+            .map(this::mapWarehousingInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentWarehousingResult.of(dataCount, warehousing);
     }
 
     private GetFulfillmentWarehousingDetailResult mapWarehousingDetailResult(FulfillmentWarehousingDetailListResponse response) {
         List<FulfillmentWarehousingDetailInfoResult> details = response.data().stream()
-                .map(this::mapWarehousingDetailInfo)
-                .toList();
+            .map(this::mapWarehousingDetailInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentWarehousingDetailResult.of(dataCount, details);
     }
 
     private GetFulfillmentWarehousingInspecDetailResult mapWarehousingInspecDetailResult(
-            FulfillmentWarehousingInspecDetailListResponse response
+        FulfillmentWarehousingInspecDetailListResponse response
     ) {
         List<FulfillmentWarehousingInspecDetailInfoResult> details = response.data().stream()
-                .map(this::mapWarehousingInspecDetailInfo)
-                .toList();
+            .map(this::mapWarehousingInspecDetailInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentWarehousingInspecDetailResult.of(dataCount, details);
     }
 
     private GetFulfillmentWarehousingAbnormalResult mapWarehousingAbnormalResult(FulfillmentWarehousingAbnormalListResponse response) {
         List<FulfillmentWarehousingAbnormalInfoResult> abnormals = response.data().stream()
-                .map(this::mapWarehousingAbnormalInfo)
-                .toList();
+            .map(this::mapWarehousingAbnormalInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentWarehousingAbnormalResult.of(dataCount, abnormals);
     }
 
     private GetFulfillmentWarehousingAbnormalImageResult mapWarehousingAbnormalImageResult(
-            FulfillmentWarehousingAbnormalImageResponse response
+        FulfillmentWarehousingAbnormalImageResponse response
     ) {
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentWarehousingAbnormalImageResult.of(dataCount, response.data());
@@ -1543,148 +1543,148 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     private FulfillmentWarehousingInfoResult mapWarehousingInfo(FulfillmentWarehousingItemResponse item) {
         List<Object> goodsSerialNo = FormatValidator.hasValue(item.goodsSerialNo())
-                ? item.goodsSerialNo()
-                : List.of();
+            ? item.goodsSerialNo()
+            : List.of();
 
         return FulfillmentWarehousingInfoResult.builder()
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .warehouseName(item.whNm())
-                .orderNumber(item.ordNo())
-                .slipNumber(item.slipNo())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .supplierCode(item.supCd())
-                .customerSupplierCode(item.cstSupCd())
-                .sku(item.sku())
-                .supplierName(item.supNm())
-                .orderQuantity(item.ordQty())
-                .inboundQuantity(item.inQty())
-                .inboundMethod(item.inWay())
-                .inboundMethodName(item.inWayNm())
-                .courierCompany(item.parcelComp())
-                .trackingNumber(item.parcelInvoiceNo())
-                .workStatus(item.wrkStat())
-                .workStatusName(item.wrkStatNm())
-                .emergencyYn(item.emgrYn())
-                .remark(item.remark())
-                .goodsSerialNo(goodsSerialNo)
-                .build();
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .warehouseName(item.whNm())
+            .orderNumber(item.ordNo())
+            .slipNumber(item.slipNo())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .supplierCode(item.supCd())
+            .customerSupplierCode(item.cstSupCd())
+            .sku(item.sku())
+            .supplierName(item.supNm())
+            .orderQuantity(item.ordQty())
+            .inboundQuantity(item.inQty())
+            .inboundMethod(item.inWay())
+            .inboundMethodName(item.inWayNm())
+            .courierCompany(item.parcelComp())
+            .trackingNumber(item.parcelInvoiceNo())
+            .workStatus(item.wrkStat())
+            .workStatusName(item.wrkStatNm())
+            .emergencyYn(item.emgrYn())
+            .remark(item.remark())
+            .goodsSerialNo(goodsSerialNo)
+            .build();
     }
 
     private FulfillmentWarehousingDetailInfoResult mapWarehousingDetailInfo(FulfillmentWarehousingDetailItemResponse item) {
         List<FulfillmentWarehousingDetailGoodsInfoResult> goods = FormatValidator.hasValue(item.goods())
-                ? item.goods().stream().map(this::mapWarehousingDetailGoods).toList()
-                : List.of();
+            ? item.goods().stream().map(this::mapWarehousingDetailGoods).toList()
+            : List.of();
 
         return FulfillmentWarehousingDetailInfoResult.builder()
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .warehouseName(item.whNm())
-                .slipNumber(item.slipNo())
-                .orderNumber(item.ordNo())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .supplierCode(item.supCd())
-                .supplierName(item.supNm())
-                .customerSupplierCode(item.cstSupCd())
-                .sku(item.sku())
-                .orderQuantity(item.ordQty())
-                .inboundQuantity(item.inQty())
-                .targetQuantity(item.tarQty())
-                .inboundMethod(item.inWay())
-                .inboundMethodName(item.inWayNm())
-                .courierCompany(item.parcelComp())
-                .trackingNumber(item.parcelInvoiceNo())
-                .workStatus(item.wrkStat())
-                .workStatusName(item.wrkStatNm())
-                .emergencyYn(item.emgrYn())
-                .remark(item.remark())
-                .goods(goods)
-                .build();
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .warehouseName(item.whNm())
+            .slipNumber(item.slipNo())
+            .orderNumber(item.ordNo())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .supplierCode(item.supCd())
+            .supplierName(item.supNm())
+            .customerSupplierCode(item.cstSupCd())
+            .sku(item.sku())
+            .orderQuantity(item.ordQty())
+            .inboundQuantity(item.inQty())
+            .targetQuantity(item.tarQty())
+            .inboundMethod(item.inWay())
+            .inboundMethodName(item.inWayNm())
+            .courierCompany(item.parcelComp())
+            .trackingNumber(item.parcelInvoiceNo())
+            .workStatus(item.wrkStat())
+            .workStatusName(item.wrkStatNm())
+            .emergencyYn(item.emgrYn())
+            .remark(item.remark())
+            .goods(goods)
+            .build();
     }
 
     private FulfillmentWarehousingDetailGoodsInfoResult mapWarehousingDetailGoods(FulfillmentWarehousingDetailGoodsResponse item) {
         return FulfillmentWarehousingDetailGoodsInfoResult.builder()
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .slipNumber(item.slipNo())
-                .customerCode(item.cstCd())
-                .shopCode(item.shopCd())
-                .supplierCode(item.supCd())
-                .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
-                .productName(item.godNm())
-                .originalProductCode(item.orgGodCd())
-                .productType(item.godType())
-                .productTypeName(item.godTypeNm())
-                .expirationDate(item.distTermDt())
-                .stockQuantity(item.stockQty())
-                .orderQuantity(item.ordQty())
-                .additionalProductOrderQuantity(item.addGodOrdQty())
-                .orderQuantitySum(item.ordQtySum())
-                .giftDivision(item.giftDiv())
-                .additionalType(item.addType())
-                .emergencyYn(item.emgrYn())
-                .build();
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .slipNumber(item.slipNo())
+            .customerCode(item.cstCd())
+            .shopCode(item.shopCd())
+            .supplierCode(item.supCd())
+            .productCode(item.godCd())
+            .customerProductCode(item.cstGodCd())
+            .productName(item.godNm())
+            .originalProductCode(item.orgGodCd())
+            .productType(item.godType())
+            .productTypeName(item.godTypeNm())
+            .expirationDate(item.distTermDt())
+            .stockQuantity(item.stockQty())
+            .orderQuantity(item.ordQty())
+            .additionalProductOrderQuantity(item.addGodOrdQty())
+            .orderQuantitySum(item.ordQtySum())
+            .giftDivision(item.giftDiv())
+            .additionalType(item.addType())
+            .emergencyYn(item.emgrYn())
+            .build();
     }
 
     private FulfillmentWarehousingInspecDetailInfoResult mapWarehousingInspecDetailInfo(
-            FulfillmentWarehousingInspecDetailItemResponse item
+        FulfillmentWarehousingInspecDetailItemResponse item
     ) {
         List<Object> goods = FormatValidator.hasValue(item.goods()) ? item.goods() : List.of();
         List<Object> goodsSerialNo = FormatValidator.hasValue(item.goodsSerialNo()) ? item.goodsSerialNo() : List.of();
 
         return FulfillmentWarehousingInspecDetailInfoResult.builder()
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .warehouseName(item.whNm())
-                .slipNumber(item.slipNo())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .supplierCode(item.supCd())
-                .supplierName(item.supNm())
-                .inboundMethod(item.inWay())
-                .inboundMethodName(item.inWayNm())
-                .productCode(item.godCd())
-                .orderQuantity(item.ordQty())
-                .totalInboundQuantity(item.totInQty())
-                .courierCompany(item.parcelComp())
-                .trackingNumber(item.parcelInvoiceNo())
-                .workStatus(item.wrkStat())
-                .workStatusName(item.wrkStatNm())
-                .remark(item.remark())
-                .goods(goods)
-                .goodsSerialNo(goodsSerialNo)
-                .externalProductImageUrl(item.externalGodImgUrl())
-                .expirationDate(item.distTermDt())
-                .build();
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .warehouseName(item.whNm())
+            .slipNumber(item.slipNo())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .supplierCode(item.supCd())
+            .supplierName(item.supNm())
+            .inboundMethod(item.inWay())
+            .inboundMethodName(item.inWayNm())
+            .productCode(item.godCd())
+            .orderQuantity(item.ordQty())
+            .totalInboundQuantity(item.totInQty())
+            .courierCompany(item.parcelComp())
+            .trackingNumber(item.parcelInvoiceNo())
+            .workStatus(item.wrkStat())
+            .workStatusName(item.wrkStatNm())
+            .remark(item.remark())
+            .goods(goods)
+            .goodsSerialNo(goodsSerialNo)
+            .externalProductImageUrl(item.externalGodImgUrl())
+            .expirationDate(item.distTermDt())
+            .build();
     }
 
     private FulfillmentWarehousingAbnormalInfoResult mapWarehousingAbnormalInfo(FulfillmentWarehousingAbnormalItemResponse item) {
         List<Object> imageUrl = FormatValidator.hasValue(item.imageUrl())
-                ? item.imageUrl()
-                : List.of();
+            ? item.imageUrl()
+            : List.of();
 
         return FulfillmentWarehousingAbnormalInfoResult.builder()
-                .slipNumber(item.slipNo())
-                .goodsSerialNo(item.goodsSerialNo())
-                .goodsSerialStatus(item.goodsSerialStatus())
-                .warehouseCode(item.whCd())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .productCode(item.godCd())
-                .description(item.description())
-                .remark(item.remark())
-                .fileSequence(item.fileSeq())
-                .lastFileSequenceNumber(item.lastFileSeqNo())
-                .registeredDate(item.regDate())
-                .registeredByName(item.regNM())
-                .updatedDate(item.updDate())
-                .updatedByName(item.updNm())
-                .fileNumber(item.fileNo())
-                .imageUrl(imageUrl)
-                .build();
+            .slipNumber(item.slipNo())
+            .goodsSerialNo(item.goodsSerialNo())
+            .goodsSerialStatus(item.goodsSerialStatus())
+            .warehouseCode(item.whCd())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .productCode(item.godCd())
+            .description(item.description())
+            .remark(item.remark())
+            .fileSequence(item.fileSeq())
+            .lastFileSequenceNumber(item.lastFileSeqNo())
+            .registeredDate(item.regDate())
+            .registeredByName(item.regNM())
+            .updatedDate(item.updDate())
+            .updatedByName(item.updNm())
+            .fileNumber(item.fileNo())
+            .imageUrl(imageUrl)
+            .build();
     }
 
     private String maskValue(String value) {
@@ -1799,8 +1799,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -1810,8 +1810,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

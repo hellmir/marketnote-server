@@ -4,5 +4,5 @@ import com.personal.marketnote.file.adapter.out.persistence.servicecommunication
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileServiceCommunicationHistoryJpaRepository
-        extends JpaRepository<FileServiceCommunicationHistoryJpaEntity, Long> {
+    extends JpaRepository<FileServiceCommunicationHistoryJpaEntity, Long> {
 }

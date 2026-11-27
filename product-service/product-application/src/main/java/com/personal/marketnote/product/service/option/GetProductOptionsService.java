@@ -21,7 +21,7 @@ public class GetProductOptionsService implements GetProductOptionsUseCase {
     @Override
     public GetProductOptionsResult getProductOptions(Long productId) {
         List<ProductOptionCategory> categories
-                = findProductOptionCategoryPort.findActiveWithOptionsByProductId(productId);
+            = findProductOptionCategoryPort.findActiveWithOptionsByProductId(productId);
 
         return GetProductOptionsResult.from(categories);
     }

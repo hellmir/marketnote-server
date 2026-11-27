@@ -18,144 +18,144 @@ import java.time.LocalDateTime;
 
 public class RewardCommandToStateMapper {
     public static OfferwallMapperCreateState mapToOfferwallMapperCreateState(
-            RegisterOfferwallRewardCommand command, boolean isSuccess
+        RegisterOfferwallRewardCommand command, boolean isSuccess
     ) {
         return OfferwallMapperCreateState.builder()
-                .offerwallType(command.offerwallType())
-                .rewardKey(command.rewardKey())
-                .userKey(command.userKey())
-                .userDeviceType(command.userDeviceType())
-                .campaignKey(command.campaignKey())
-                .campaignType(command.campaignType())
-                .campaignName(command.campaignName())
-                .quantity(FormatValidator.hasNoValue(command.quantity()) ? null : RewardQuantity.of(command.quantity()))
-                .signedValue(command.signedValue())
-                .appKey(command.appKey())
-                .appName(command.appName())
-                .adid(command.adid())
-                .idfa(command.idfa())
-                .isSuccess(isSuccess)
-                .attendedAt(command.attendedAt())
-                .build();
+            .offerwallType(command.offerwallType())
+            .rewardKey(command.rewardKey())
+            .userKey(command.userKey())
+            .userDeviceType(command.userDeviceType())
+            .campaignKey(command.campaignKey())
+            .campaignType(command.campaignType())
+            .campaignName(command.campaignName())
+            .quantity(FormatValidator.hasNoValue(command.quantity()) ? null : RewardQuantity.of(command.quantity()))
+            .signedValue(command.signedValue())
+            .appKey(command.appKey())
+            .appName(command.appName())
+            .adid(command.adid())
+            .idfa(command.idfa())
+            .isSuccess(isSuccess)
+            .attendedAt(command.attendedAt())
+            .build();
     }
 
     public static UserPointCreateState mapToUserPointCreateState(RegisterUserPointCommand command) {
         return UserPointCreateState.builder()
-                .userId(command.userId())
-                .userKey(command.userKey())
-                .amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .build();
+            .userId(command.userId())
+            .userKey(command.userKey())
+            .amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .build();
     }
 
     public static UserPointHistoryCreateState mapToUserPointHistoryCreateState(
-            RegisterUserPointCommand command,
-            LocalDateTime accumulatedAt
+        RegisterUserPointCommand command,
+        LocalDateTime accumulatedAt
     ) {
         return UserPointHistoryCreateState.builder()
-                .userId(command.userId())
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(PointAmount.zero())
-                .isReflected(Boolean.TRUE)
-                .sourceType(UserPointSourceType.USER)
-                .sourceId(command.userId())
-                .reason("회원 가입")
-                .accumulatedAt(accumulatedAt)
-                .build();
+            .userId(command.userId())
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(PointAmount.zero())
+            .isReflected(Boolean.TRUE)
+            .sourceType(UserPointSourceType.USER)
+            .sourceId(command.userId())
+            .reason("회원 가입")
+            .accumulatedAt(accumulatedAt)
+            .build();
     }
 
     public static UserPointHistoryCreateState mapToUserPointHistoryCreateState(
-            ModifyUserPointCommand command,
-            Long userId,
-            LocalDateTime accumulatedAt
+        ModifyUserPointCommand command,
+        Long userId,
+        LocalDateTime accumulatedAt
     ) {
         return UserPointHistoryCreateState.builder()
-                .userId(userId)
-                .changeType(command.changeType())
-                .amount(PointAmount.of(command.amount()))
-                .isReflected(Boolean.TRUE)
-                .sourceType(command.sourceType())
-                .sourceId(command.sourceId())
-                .reason(command.reason())
-                .accumulatedAt(accumulatedAt)
-                .build();
+            .userId(userId)
+            .changeType(command.changeType())
+            .amount(PointAmount.of(command.amount()))
+            .isReflected(Boolean.TRUE)
+            .sourceType(command.sourceType())
+            .sourceId(command.sourceId())
+            .reason(command.reason())
+            .accumulatedAt(accumulatedAt)
+            .build();
     }
 
     public static UserPointHistoryCreateState mapToPendingPointHistoryCreateState(
-            ModifyPendingPointCommand command,
-            Long userId,
-            LocalDateTime accumulatedAt
+        ModifyPendingPointCommand command,
+        Long userId,
+        LocalDateTime accumulatedAt
     ) {
         return UserPointHistoryCreateState.builder()
-                .userId(userId)
-                .changeType(command.changeType())
-                .amount(PointAmount.of(command.amount()))
-                .isReflected(Boolean.FALSE)
-                .sourceType(command.sourceType())
-                .sourceId(command.sourceId())
-                .reason(command.reason())
-                .accumulatedAt(accumulatedAt)
-                .build();
+            .userId(userId)
+            .changeType(command.changeType())
+            .amount(PointAmount.of(command.amount()))
+            .isReflected(Boolean.FALSE)
+            .sourceType(command.sourceType())
+            .sourceId(command.sourceId())
+            .reason(command.reason())
+            .accumulatedAt(accumulatedAt)
+            .build();
     }
 
     public static UserPointHistoryCreateState mapToConfirmedPointHistoryCreateState(
-            ConfirmPendingPointCommand command,
-            Long totalAmount,
-            Long userId,
-            LocalDateTime accumulatedAt
+        ConfirmPendingPointCommand command,
+        Long totalAmount,
+        Long userId,
+        LocalDateTime accumulatedAt
     ) {
         return UserPointHistoryCreateState.builder()
-                .userId(userId)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(PointAmount.of(totalAmount))
-                .isReflected(Boolean.TRUE)
-                .sourceType(command.sourceType())
-                .sourceId(command.sourceId())
-                .reason(command.reason())
-                .accumulatedAt(accumulatedAt)
-                .build();
+            .userId(userId)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(PointAmount.of(totalAmount))
+            .isReflected(Boolean.TRUE)
+            .sourceType(command.sourceType())
+            .sourceId(command.sourceId())
+            .reason(command.reason())
+            .accumulatedAt(accumulatedAt)
+            .build();
     }
 
     public static UserAttendanceHistoryCreateState mapToUserAttendanceHistoryCreateState(
-            RegisterAttendanceCommand command,
-            AttendancePolicy attendancePolicy,
-            short continuousPeriod,
-            Long userAttendanceId
+        RegisterAttendanceCommand command,
+        AttendancePolicy attendancePolicy,
+        short continuousPeriod,
+        Long userAttendanceId
     ) {
         return UserAttendanceHistoryCreateState.builder()
-                .userAttendanceId(userAttendanceId)
-                .attendancePolicyId(attendancePolicy.getId())
-                .rewardType(attendancePolicy.getRewardType())
-                .rewardQuantity(attendancePolicy.getRewardQuantity())
-                .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                .rewardYn(Boolean.TRUE)
-                .attendedDate(command.attendedAt().toLocalDate())
-                .attendedAt(command.attendedAt())
-                .build();
+            .userAttendanceId(userAttendanceId)
+            .attendancePolicyId(attendancePolicy.getId())
+            .rewardType(attendancePolicy.getRewardType())
+            .rewardQuantity(attendancePolicy.getRewardQuantity())
+            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+            .rewardYn(Boolean.TRUE)
+            .attendedDate(command.attendedAt().toLocalDate())
+            .attendedAt(command.attendedAt())
+            .build();
     }
 
     public static UserAttendanceCreateState mapToUserAttendanceCreateState(
-            Long userId,
-            Year year,
-            Month month
+        Long userId,
+        Year year,
+        Month month
     ) {
         return UserAttendanceCreateState.builder()
-                .userId(userId)
-                .year(year)
-                .month(month)
-                .totalRewardQuantity(RewardQuantity.zero())
-                .build();
+            .userId(userId)
+            .year(year)
+            .month(month)
+            .totalRewardQuantity(RewardQuantity.zero())
+            .build();
     }
 
     public static AttendancePolicyCreateState mapToAttendancePolicyCreateState(
-            RegisterAttendancePolicyCommand command
+        RegisterAttendancePolicyCommand command
     ) {
         return AttendancePolicyCreateState.builder()
-                .continuousPeriod(ContinuousPeriod.of(command.continuousPeriod()))
-                .rewardType(command.rewardType())
-                .rewardQuantity(RewardQuantity.of(command.rewardQuantity()))
-                .attendenceDate(command.attendenceDate())
-                .build();
+            .continuousPeriod(ContinuousPeriod.of(command.continuousPeriod()))
+            .rewardType(command.rewardType())
+            .rewardQuantity(RewardQuantity.of(command.rewardQuantity()))
+            .attendenceDate(command.attendenceDate())
+            .build();
     }
 }

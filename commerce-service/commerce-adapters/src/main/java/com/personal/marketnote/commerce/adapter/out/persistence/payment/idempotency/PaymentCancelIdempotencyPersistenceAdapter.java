@@ -20,10 +20,10 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class PaymentCancelIdempotencyPersistenceAdapter
-        implements SavePaymentCancelIdempotencyPort,
-        FindPaymentCancelIdempotencyPort,
-        UpdatePaymentCancelIdempotencyPort,
-        DeletePaymentCancelIdempotencyPort {
+    implements SavePaymentCancelIdempotencyPort,
+    FindPaymentCancelIdempotencyPort,
+    UpdatePaymentCancelIdempotencyPort,
+    DeletePaymentCancelIdempotencyPort {
 
     private final PaymentCancelIdempotencyJpaRepository repository;
 
@@ -41,15 +41,15 @@ public class PaymentCancelIdempotencyPersistenceAdapter
     @Override
     public Optional<PaymentCancelIdempotency> findByIdempotencyKey(String idempotencyKey) {
         return repository.findByIdempotencyKey(idempotencyKey)
-                .map(PaymentCancelIdempotencyEntityToDomainMapper::toDomain);
+            .map(PaymentCancelIdempotencyEntityToDomainMapper::toDomain);
     }
 
     @Override
     public void update(PaymentCancelIdempotency idempotency) {
         PaymentCancelIdempotencyJpaEntity entity = repository.findByIdempotencyKey(idempotency.getIdempotencyKey())
-                .orElseThrow(() -> new DomainNotFoundException(
-                        "PaymentCancelIdempotency 엔티티를 찾을 수 없습니다. key=" + idempotency.getIdempotencyKey()
-                ));
+            .orElseThrow(() -> new DomainNotFoundException(
+                "PaymentCancelIdempotency 엔티티를 찾을 수 없습니다. key=" + idempotency.getIdempotencyKey()
+            ));
         entity.updateFrom(idempotency);
     }
 

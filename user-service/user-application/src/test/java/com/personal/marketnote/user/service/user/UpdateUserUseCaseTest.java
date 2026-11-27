@@ -50,8 +50,8 @@ class UpdateUserUseCaseTest {
         Long id = 1L;
         boolean isActive = false;
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .isActive(isActive)
-                .build();
+            .isActive(isActive)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
@@ -73,15 +73,15 @@ class UpdateUserUseCaseTest {
         // given
         Long id = 2L;
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .isActive(true)
-                .build();
+            .isActive(true)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isInstanceOf(UpdateTargetNoValueException.class);
+            .isInstanceOf(UpdateTargetNoValueException.class);
 
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
@@ -101,7 +101,7 @@ class UpdateUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isInstanceOf(UpdateTargetNoValueException.class);
+            .isInstanceOf(UpdateTargetNoValueException.class);
 
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
@@ -116,8 +116,8 @@ class UpdateUserUseCaseTest {
         Long id = 4L;
         String password = "new-password";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .password(password)
-                .build();
+            .password(password)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -141,9 +141,9 @@ class UpdateUserUseCaseTest {
         String password = "new-password";
         String email = "new@test.com";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .password(password)
-                .email(email)
-                .build();
+            .password(password)
+            .email(email)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -168,8 +168,8 @@ class UpdateUserUseCaseTest {
         Long id = 6L;
         String email = "new@test.com";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .email(email)
-                .build();
+            .email(email)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -197,8 +197,8 @@ class UpdateUserUseCaseTest {
         Long id = 7L;
         String email = "dup@test.com";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .email(email)
-                .build();
+            .email(email)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -206,8 +206,8 @@ class UpdateUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isInstanceOf(UserExistsException.class)
-                .hasMessage(String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE, email));
+            .isInstanceOf(UserExistsException.class)
+            .hasMessage(String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE, email));
 
         Email emailVo = Email.of(email);
         verify(getUserUseCase).getUser(id);
@@ -226,8 +226,8 @@ class UpdateUserUseCaseTest {
         String nickname = "newNick";
         Nickname nicknameVo = Nickname.of(nickname);
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .nickname(nickname)
-                .build();
+            .nickname(nickname)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -256,8 +256,8 @@ class UpdateUserUseCaseTest {
         String nickname = "dupNick";
         Nickname nicknameVo = Nickname.of(nickname);
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .nickname(nickname)
-                .build();
+            .nickname(nickname)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -266,8 +266,8 @@ class UpdateUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isInstanceOf(UserExistsException.class)
-                .hasMessage(String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIFTH_ERROR_CODE, nickname));
+            .isInstanceOf(UserExistsException.class)
+            .hasMessage(String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIFTH_ERROR_CODE, nickname));
 
         verify(getUserUseCase).getUser(id);
         verify(user).validateDifferentNickname(nicknameVo);
@@ -285,8 +285,8 @@ class UpdateUserUseCaseTest {
         Long id = 10L;
         String phoneNumber = "01011112222";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .phoneNumber(phoneNumber)
-                .build();
+            .phoneNumber(phoneNumber)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -313,8 +313,8 @@ class UpdateUserUseCaseTest {
         Long id = 11L;
         String phoneNumber = "01033334444";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .phoneNumber(phoneNumber)
-                .build();
+            .phoneNumber(phoneNumber)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -322,8 +322,8 @@ class UpdateUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isInstanceOf(UserExistsException.class)
-                .hasMessage(String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE, phoneNumber));
+            .isInstanceOf(UserExistsException.class)
+            .hasMessage(String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE, phoneNumber));
 
         verify(getUserUseCase).getUser(id);
         verify(user).validateDifferentPhoneNumber(PhoneNumber.of(phoneNumber));
@@ -339,15 +339,15 @@ class UpdateUserUseCaseTest {
         // given
         Long id = 12L;
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .email("user@test.com")
-                .build();
+            .email("user@test.com")
+            .build();
         UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.getUser(id)).thenThrow(exception);
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
@@ -362,8 +362,8 @@ class UpdateUserUseCaseTest {
         String nickname = "나는바보야";
         Nickname nicknameVo = Nickname.of(nickname);
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
-                .nickname(nickname)
-                .build();
+            .nickname(nickname)
+            .build();
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
@@ -371,7 +371,7 @@ class UpdateUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
-                .isInstanceOf(InvalidNicknameContainsProfanityException.class);
+            .isInstanceOf(InvalidNicknameContainsProfanityException.class);
 
         verify(getUserUseCase).getUser(id);
         verify(user).validateDifferentNickname(nicknameVo);

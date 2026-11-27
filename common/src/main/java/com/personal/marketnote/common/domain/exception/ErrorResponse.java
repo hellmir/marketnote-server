@@ -51,12 +51,12 @@ public class ErrorResponse {
     public static ErrorResponse of(int statusCode, String code, String message, Object content) {
         String rawRequestId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         return ErrorResponse.builder()
-                .statusCode(statusCode)
-                .code(code)
-                .message(message)
-                .content(content)
-                .timestamp(LocalDateTime.now())
-                .traceId(FormatValidator.hasValue(rawRequestId) ? rawRequestId : null)
-                .build();
+            .statusCode(statusCode)
+            .code(code)
+            .message(message)
+            .content(content)
+            .timestamp(LocalDateTime.now())
+            .traceId(FormatValidator.hasValue(rawRequestId) ? rawRequestId : null)
+            .build();
     }
 }

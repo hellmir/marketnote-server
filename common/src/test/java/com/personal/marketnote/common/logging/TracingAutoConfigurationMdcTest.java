@@ -1,8 +1,8 @@
 package com.personal.marketnote.common.logging;
 
 import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.TraceContext;
+import io.micrometer.tracing.Tracer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,23 +24,23 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>OTLP exporter는 endpoint 환경변수 미설정 시 no-op 자동 구성되어 본 테스트 실행에 영향 없음.
  */
 @SpringBootTest(
-        classes = TracingAutoConfigurationMdcTest.AutoConfigTestApp.class,
-        webEnvironment = SpringBootTest.WebEnvironment.NONE
+    classes = TracingAutoConfigurationMdcTest.AutoConfigTestApp.class,
+    webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @TestPropertySource(properties = {
-        "management.tracing.sampling.probability=1.0",
-        "management.tracing.propagation.type=w3c",
-        "spring.autoconfigure.exclude=" +
-                "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration," +
-                "org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration"
+    "management.tracing.sampling.probability=1.0",
+    "management.tracing.propagation.type=w3c",
+    "spring.autoconfigure.exclude=" +
+        "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration," +
+        "org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration"
 })
 class TracingAutoConfigurationMdcTest {
 
@@ -56,8 +56,8 @@ class TracingAutoConfigurationMdcTest {
     @DisplayName("Spring Boot autoconfig 환경에서 Tracer 빈이 주입되고 새 span 생성 시 MDC traceId/spanId가 set된다")
     void tracerBeanInjectedAndMdcPopulatedOnSpanScope() {
         assertThat(tracer)
-                .as("micrometer-tracing-bridge-otel 자동 구성으로 Tracer 빈이 주입되어야 한다")
-                .isNotNull();
+            .as("micrometer-tracing-bridge-otel 자동 구성으로 Tracer 빈이 주입되어야 한다")
+            .isNotNull();
 
         Span span = tracer.nextSpan().name("test-span").start();
         try (Tracer.SpanInScope ignored = tracer.withSpan(span)) {
@@ -65,19 +65,19 @@ class TracingAutoConfigurationMdcTest {
             String mdcSpanId = MDC.get("spanId");
 
             assertThat(mdcTraceId)
-                    .as("Spring Boot autoconfig가 MDC traceId를 자동 set한다")
-                    .isNotNull()
-                    .isNotBlank()
-                    .matches("^[0-9a-f]+$");
+                .as("Spring Boot autoconfig가 MDC traceId를 자동 set한다")
+                .isNotNull()
+                .isNotBlank()
+                .matches("^[0-9a-f]+$");
             assertThat(mdcTraceId.length())
-                    .as("W3C traceId는 32자 hex이다 (OTel 128-bit)")
-                    .isEqualTo(32);
+                .as("W3C traceId는 32자 hex이다 (OTel 128-bit)")
+                .isEqualTo(32);
             assertThat(mdcSpanId)
-                    .as("Spring Boot autoconfig가 MDC spanId를 자동 set한다")
-                    .isNotNull()
-                    .isNotBlank()
-                    .hasSize(16)
-                    .matches("^[0-9a-f]+$");
+                .as("Spring Boot autoconfig가 MDC spanId를 자동 set한다")
+                .isNotNull()
+                .isNotBlank()
+                .hasSize(16)
+                .matches("^[0-9a-f]+$");
         } finally {
             span.end();
         }
@@ -90,9 +90,9 @@ class TracingAutoConfigurationMdcTest {
             Span span = tracer.nextSpan().name("iter-" + i).start();
             try (Tracer.SpanInScope ignored = tracer.withSpan(span)) {
                 assertThat(MDC.get("spanId"))
-                        .as("iteration %d", i)
-                        .isNotNull()
-                        .isNotBlank();
+                    .as("iteration %d", i)
+                    .isNotNull()
+                    .isNotBlank();
             } finally {
                 span.end();
             }
@@ -108,15 +108,15 @@ class TracingAutoConfigurationMdcTest {
         Span span = tracer.nextSpan().name("coexistence-span").start();
         try (Tracer.SpanInScope ignored = tracer.withSpan(span)) {
             assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY))
-                    .as("자체 발급 requestId는 Tracing 활성화 후에도 보존된다")
-                    .isEqualTo(selfIssuedRequestId);
+                .as("자체 발급 requestId는 Tracing 활성화 후에도 보존된다")
+                .isEqualTo(selfIssuedRequestId);
             assertThat(MDC.get("traceId"))
-                    .as("W3C traceId는 자체 발급 requestId와 다른 키로 set된다")
-                    .isNotNull()
-                    .isNotEqualTo(selfIssuedRequestId);
+                .as("W3C traceId는 자체 발급 requestId와 다른 키로 set된다")
+                .isNotNull()
+                .isNotEqualTo(selfIssuedRequestId);
             assertThat(MDC.get("spanId"))
-                    .as("W3C spanId는 정상 set된다")
-                    .isNotNull();
+                .as("W3C spanId는 정상 set된다")
+                .isNotNull();
         } finally {
             span.end();
         }
@@ -136,14 +136,14 @@ class TracingAutoConfigurationMdcTest {
         }
 
         assertThat(MDC.get("traceId"))
-                .as("span scope 종료 후 W3C traceId는 제거된다")
-                .isNull();
+            .as("span scope 종료 후 W3C traceId는 제거된다")
+            .isNull();
         assertThat(MDC.get("spanId"))
-                .as("span scope 종료 후 W3C spanId는 제거된다")
-                .isNull();
+            .as("span scope 종료 후 W3C spanId는 제거된다")
+            .isNull();
         assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY))
-                .as("자체 발급 requestId는 Tracing scope와 무관하게 보존된다")
-                .isEqualTo(selfIssuedRequestId);
+            .as("자체 발급 requestId는 Tracing scope와 무관하게 보존된다")
+            .isEqualTo(selfIssuedRequestId);
     }
 
     @Test
@@ -160,12 +160,12 @@ class TracingAutoConfigurationMdcTest {
             Span child = tracer.spanBuilder().setParent(parentContext).name("child").start();
             try (Tracer.SpanInScope ignored2 = tracer.withSpan(child)) {
                 assertThat(MDC.get("traceId"))
-                        .as("child span은 parent의 traceId를 상속한다")
-                        .isEqualTo(parentTraceId);
+                    .as("child span은 parent의 traceId를 상속한다")
+                    .isEqualTo(parentTraceId);
                 assertThat(MDC.get("spanId"))
-                        .as("child span은 새 spanId를 발급한다")
-                        .isNotNull()
-                        .isNotEqualTo(parentSpanId);
+                    .as("child span은 새 spanId를 발급한다")
+                    .isNotNull()
+                    .isNotEqualTo(parentSpanId);
             } finally {
                 child.end();
             }

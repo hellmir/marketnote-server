@@ -25,10 +25,10 @@ public class UpdateGifticonCategoryService implements UpdateGifticonCategoryUseC
     @Override
     public void updateGifticonCategory(UpdateGifticonCategoryCommand command) {
         GifticonCategory category = findGifticonCategoryPort.findById(command.categoryId())
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", command.categoryId());
-                    return new GifticonCategoryNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", command.categoryId());
+                return new GifticonCategoryNotFoundException();
+            });
 
         applyDisplayName(category, command);
         applyIconUrl(category, command);

@@ -21,24 +21,24 @@ public class BrandTalkCoupon {
     public static BrandTalkCoupon from(BrandTalkCouponCreateState state) {
         validate(state.getTitle(), state.getDescription());
         return BrandTalkCoupon.builder()
-                .title(state.getTitle())
-                .description(state.getDescription())
-                .linkM(state.getLinkM())
-                .linkP(state.getLinkP())
-                .linkI(state.getLinkI())
-                .linkA(state.getLinkA())
-                .build();
+            .title(state.getTitle())
+            .description(state.getDescription())
+            .linkM(state.getLinkM())
+            .linkP(state.getLinkP())
+            .linkI(state.getLinkI())
+            .linkA(state.getLinkA())
+            .build();
     }
 
     public static BrandTalkCoupon from(BrandTalkCouponSnapshotState state) {
         return BrandTalkCoupon.builder()
-                .title(state.getTitle())
-                .description(state.getDescription())
-                .linkM(state.getLinkM())
-                .linkP(state.getLinkP())
-                .linkI(state.getLinkI())
-                .linkA(state.getLinkA())
-                .build();
+            .title(state.getTitle())
+            .description(state.getDescription())
+            .linkM(state.getLinkM())
+            .linkP(state.getLinkP())
+            .linkI(state.getLinkI())
+            .linkA(state.getLinkA())
+            .build();
     }
 
     private static void validate(String title, String description) {
@@ -47,7 +47,7 @@ public class BrandTalkCoupon {
         }
         if (FormatValidator.hasValue(description) && description.length() > MAX_DESCRIPTION_LENGTH) {
             throw new InvalidBrandTalkCouponException(
-                    "쿠폰 description은 최대 " + MAX_DESCRIPTION_LENGTH + "자까지 입력할 수 있습니다."
+                "쿠폰 description은 최대 " + MAX_DESCRIPTION_LENGTH + "자까지 입력할 수 있습니다."
             );
         }
     }

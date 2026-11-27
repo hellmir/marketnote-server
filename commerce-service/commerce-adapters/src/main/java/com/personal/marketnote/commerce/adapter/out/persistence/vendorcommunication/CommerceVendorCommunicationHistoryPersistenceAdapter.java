@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class CommerceVendorCommunicationHistoryPersistenceAdapter
-        implements SaveCommerceVendorCommunicationHistoryPort {
+    implements SaveCommerceVendorCommunicationHistoryPort {
     private final CommerceVendorCommunicationHistoryJpaRepository repository;
     private final ObjectMapper objectMapper;
 
@@ -24,7 +24,7 @@ public class CommerceVendorCommunicationHistoryPersistenceAdapter
     public CommerceVendorCommunicationHistory save(CommerceVendorCommunicationHistory history) {
         JsonNode payloadJson = parseJsonNode(history.getPayloadJson());
         CommerceVendorCommunicationHistoryJpaEntity savedEntity = repository.save(
-                CommerceVendorCommunicationHistoryJpaEntity.from(history, payloadJson)
+            CommerceVendorCommunicationHistoryJpaEntity.from(history, payloadJson)
         );
         return savedEntity.toDomain();
     }

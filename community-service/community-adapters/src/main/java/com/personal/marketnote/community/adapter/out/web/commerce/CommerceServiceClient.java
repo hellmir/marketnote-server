@@ -36,11 +36,11 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @Slf4j
 public class CommerceServiceClient implements VerifyOrderOwnershipPort {
     private static final CommunityServiceCommunicationTargetType TARGET_TYPE =
-            CommunityServiceCommunicationTargetType.ORDER_OWNERSHIP;
+        CommunityServiceCommunicationTargetType.ORDER_OWNERSHIP;
     private static final CommunityServiceCommunicationSenderType REQUEST_SENDER =
-            CommunityServiceCommunicationSenderType.COMMUNITY;
+        CommunityServiceCommunicationSenderType.COMMUNITY;
     private static final CommunityServiceCommunicationSenderType RESPONSE_SENDER =
-            CommunityServiceCommunicationSenderType.COMMERCE;
+        CommunityServiceCommunicationSenderType.COMMERCE;
 
     private final RestClient restClient;
     private final String commerceServiceBaseUrl;
@@ -49,11 +49,11 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
     public CommerceServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${commerce-service.base-url}") String commerceServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
-            ServiceCommunicationRecorder serviceCommunicationRecorder,
-            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+        RestClient.Builder restClientBuilder,
+        @Value("${commerce-service.base-url}") String commerceServiceBaseUrl,
+        HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+        ServiceCommunicationRecorder serviceCommunicationRecorder,
+        ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
     ) {
         this.restClient = restClientBuilder.build();
         this.commerceServiceBaseUrl = commerceServiceBaseUrl;
@@ -65,11 +65,11 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
     @Override
     public void verifyOrderOwnership(Long orderId, Long buyerId) {
         URI uri = UriComponentsBuilder
-                .fromUriString(commerceServiceBaseUrl)
-                .path("/api/v1/internal/orders/{orderId}/ownership")
-                .queryParam("buyerId", buyerId)
-                .buildAndExpand(orderId)
-                .toUri();
+            .fromUriString(commerceServiceBaseUrl)
+            .path("/api/v1/internal/orders/{orderId}/ownership")
+            .queryParam("buyerId", buyerId)
+            .buildAndExpand(orderId)
+            .toUri();
 
         sendVerifyRequest(uri, orderId);
     }
@@ -82,10 +82,10 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
             int attempt = i + 1;
             try {
                 restClient.get()
-                        .uri(uri)
-                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
-                        .retrieve()
-                        .toBodilessEntity();
+                    .uri(uri)
+                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                    .retrieve()
+                    .toBodilessEntity();
 
                 return;
             } catch (HttpClientErrorException hce) {
@@ -99,7 +99,7 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
                 // 4xx 클라이언트 에러는 재시도해도 결과가 동일하므로 즉시 실패
                 recordError(targetId, uri, attempt, hce);
                 log.warn("커머스 서비스 주문 소유권 검증 클라이언트 에러 - orderId: {}, status: {}",
-                        orderId, hce.getStatusCode().value(), hce
+                    orderId, hce.getStatusCode().value(), hce
                 );
                 throw hce;
             } catch (RestClientException | HmacSignatureGenerationFailedException e) {
@@ -123,36 +123,36 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
     private void recordError(String targetId, URI uri, int attempt, Exception e) {
         String exception = e.getClass().getSimpleName();
         JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                HttpMethod.GET, uri, null, attempt
+            HttpMethod.GET, uri, null, attempt
         );
         JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                exception, e.getMessage(), attempt
+            exception, e.getMessage(), attempt
         );
 
         serviceCommunicationRecorder.record(
-                TARGET_TYPE,
-                CommunityServiceCommunicationType.REQUEST,
-                REQUEST_SENDER,
-                targetId,
-                requestPayloadJson.toString(),
-                requestPayloadJson,
-                exception
+            TARGET_TYPE,
+            CommunityServiceCommunicationType.REQUEST,
+            REQUEST_SENDER,
+            targetId,
+            requestPayloadJson.toString(),
+            requestPayloadJson,
+            exception
         );
         serviceCommunicationRecorder.record(
-                TARGET_TYPE,
-                CommunityServiceCommunicationType.RESPONSE,
-                RESPONSE_SENDER,
-                targetId,
-                responsePayloadJson.toString(),
-                responsePayloadJson,
-                exception
+            TARGET_TYPE,
+            CommunityServiceCommunicationType.RESPONSE,
+            RESPONSE_SENDER,
+            targetId,
+            responsePayloadJson.toString(),
+            responsePayloadJson,
+            exception
         );
     }
 
     private void sleepWithJitter(long sleepMillis) {
         try {
             long jitteredSleepMillis = ThreadLocalRandom.current()
-                    .nextLong(Math.max(1L, sleepMillis) + 1);
+                .nextLong(Math.max(1L, sleepMillis) + 1);
             Thread.sleep(jitteredSleepMillis);
         } catch (InterruptedException ignored) {
             // 재시도 backoff 중 인터럽트 — 인터럽트 플래그 복원 후 호출자에 위임

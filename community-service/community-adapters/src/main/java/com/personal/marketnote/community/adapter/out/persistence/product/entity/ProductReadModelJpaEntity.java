@@ -9,8 +9,8 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "product_read_models",
-        uniqueConstraints = @UniqueConstraint(name = "uk_product_read_model_price_policy_id", columnNames = "pricePolicyId")
+    name = "product_read_models",
+    uniqueConstraints = @UniqueConstraint(name = "uk_product_read_model_price_policy_id", columnNames = "pricePolicyId")
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,19 +40,19 @@ public class ProductReadModelJpaEntity extends BaseGeneralEntity {
     private Long accumulatedPoint;
 
     public static ProductReadModelJpaEntity of(
-            Long pricePolicyId, Long productId, Long sellerId, String name,
-            String brandName, Long price, Long discountPrice, Long accumulatedPoint
+        Long pricePolicyId, Long productId, Long sellerId, String name,
+        String brandName, Long price, Long discountPrice, Long accumulatedPoint
     ) {
         return ProductReadModelJpaEntity.builder()
-                .pricePolicyId(pricePolicyId)
-                .productId(productId)
-                .sellerId(sellerId)
-                .name(name)
-                .brandName(brandName)
-                .price(price)
-                .discountPrice(discountPrice)
-                .accumulatedPoint(accumulatedPoint)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .productId(productId)
+            .sellerId(sellerId)
+            .name(name)
+            .brandName(brandName)
+            .price(price)
+            .discountPrice(discountPrice)
+            .accumulatedPoint(accumulatedPoint)
+            .build();
     }
 
     public void updateFrom(Long productId, Long sellerId, String name,

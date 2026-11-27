@@ -19,16 +19,16 @@ class OrderCommandToStateMapperTest {
     void shouldMapProductIdFromCommandToCreateState() {
         // given
         OrderProductItemCommand command = OrderProductItemCommand.builder()
-                .productId(42L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .quantity(1)
-                .unitAmount(50000L)
-                .build();
+            .productId(42L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .quantity(1)
+            .unitAmount(50000L)
+            .build();
 
         // when
         List<OrderProductCreateState> states = OrderCommandToStateMapper.mapToOrderProductStates(
-                List.of(command), Map.of()
+            List.of(command), Map.of()
         );
 
         // then
@@ -42,19 +42,19 @@ class OrderCommandToStateMapperTest {
         // given
         UUID productKey = UUID.fromString("01900000-0000-7000-8000-000000000042");
         OrderProductItemCommand command = OrderProductItemCommand.builder()
-                .productId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .quantity(1)
-                .unitAmount(50000L)
-                .build();
+            .productId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .quantity(1)
+            .unitAmount(50000L)
+            .build();
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, productKey, 10L, "상품", "브랜드", 50000L, null, 100L, List.of()
+            1L, productKey, 10L, "상품", "브랜드", 50000L, null, 100L, List.of()
         );
 
         // when
         List<OrderProductCreateState> states = OrderCommandToStateMapper.mapToOrderProductStates(
-                List.of(command), Map.of(100L, productInfo)
+            List.of(command), Map.of(100L, productInfo)
         );
 
         // then
@@ -66,16 +66,16 @@ class OrderCommandToStateMapperTest {
     void shouldMapProductKeyAsNullWhenProductInfoMapIsEmpty() {
         // given
         OrderProductItemCommand command = OrderProductItemCommand.builder()
-                .productId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .quantity(1)
-                .unitAmount(50000L)
-                .build();
+            .productId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .quantity(1)
+            .unitAmount(50000L)
+            .build();
 
         // when
         List<OrderProductCreateState> states = OrderCommandToStateMapper.mapToOrderProductStates(
-                List.of(command), Map.of()
+            List.of(command), Map.of()
         );
 
         // then

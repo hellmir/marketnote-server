@@ -3,10 +3,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.SendAligoAlimTalkExternalPort;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,48 +51,48 @@ class AligoAlimTalkExternalAdapterTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoAlimTalkExternalAdapter(aligoHttpClient, properties);
     }
 
     private AligoMessage buildMessage(
-            List<AligoMessageRecipientCreateState> recipients,
-            String failoverSubject, String failoverBody
+        List<AligoMessageRecipientCreateState> recipients,
+        String failoverSubject, String failoverBody
     ) {
         return AligoMessage.from(
-                AligoMessageCreateState.builder()
-                        .senderKey("SK")
-                        .templateCode("TPL001")
-                        .sender("01011112222")
-                        .messageType(AligoMessageType.AT)
-                        .content("안녕하세요, #{name}님")
-                        .title("제목")
-                        .buttons(null)
-                        .failoverSubject(failoverSubject)
-                        .failoverMessageBody(failoverBody)
-                        .requestedAt(LocalDateTime.of(2026, 4, 20, 12, 0))
-                        .recipients(recipients)
-                        .build()
+            AligoMessageCreateState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .sender("01011112222")
+                .messageType(AligoMessageType.AT)
+                .content("안녕하세요, #{name}님")
+                .title("제목")
+                .buttons(null)
+                .failoverSubject(failoverSubject)
+                .failoverMessageBody(failoverBody)
+                .requestedAt(LocalDateTime.of(2026, 4, 20, 12, 0))
+                .recipients(recipients)
+                .build()
         );
     }
 
     private String successResponseBody() {
         return """
-                {
-                    "result_code": 0,
-                    "message": "성공",
-                    "info": {
-                        "type": "AT",
-                        "mid": "MID001",
-                        "scnt": 1,
-                        "fcnt": 0,
-                        "mdid": "MDID001",
-                        "smid": null
-                    }
+            {
+                "result_code": 0,
+                "message": "성공",
+                "info": {
+                    "type": "AT",
+                    "mid": "MID001",
+                    "scnt": 1,
+                    "fcnt": 0,
+                    "mdid": "MDID001",
+                    "smid": null
                 }
-                """;
+            }
+            """;
     }
 
     @Nested
@@ -104,19 +104,19 @@ class AligoAlimTalkExternalAdapterTest {
         void shouldMapRecipientsSubjectMessageByIndex() {
             // given
             mockServer.expect(requestTo("http://localhost/akv10/alimtalk/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(Matchers.containsString("receiver_1")))
-                    .andExpect(content().string(Matchers.containsString("subject_1")))
-                    .andExpect(content().string(Matchers.containsString("message_1")))
-                    .andExpect(content().string(Matchers.containsString("receiver_2")))
-                    .andExpect(content().string(Matchers.containsString("subject_2")))
-                    .andExpect(content().string(Matchers.containsString("message_2")))
-                    .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(Matchers.containsString("receiver_1")))
+                .andExpect(content().string(Matchers.containsString("subject_1")))
+                .andExpect(content().string(Matchers.containsString("message_1")))
+                .andExpect(content().string(Matchers.containsString("receiver_2")))
+                .andExpect(content().string(Matchers.containsString("subject_2")))
+                .andExpect(content().string(Matchers.containsString("message_2")))
+                .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
 
             List<AligoMessageRecipientCreateState> recipients = List.of(
-                    AligoMessageRecipientCreateState.builder().receiver("01011112221").build(),
-                    AligoMessageRecipientCreateState.builder().receiver("01011112222").build()
+                AligoMessageRecipientCreateState.builder().receiver("01011112221").build(),
+                AligoMessageRecipientCreateState.builder().receiver("01011112222").build()
             );
             AligoMessage message = buildMessage(recipients, null, null);
 
@@ -133,13 +133,13 @@ class AligoAlimTalkExternalAdapterTest {
         void shouldAddFailoverSubjectAndMessageWhenPresent() {
             // given
             mockServer.expect(requestTo("http://localhost/akv10/alimtalk/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("fsubject_1")))
-                    .andExpect(content().string(Matchers.containsString("fmessage_1")))
-                    .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("fsubject_1")))
+                .andExpect(content().string(Matchers.containsString("fmessage_1")))
+                .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
 
             List<AligoMessageRecipientCreateState> recipients = List.of(
-                    AligoMessageRecipientCreateState.builder().receiver("01011112221").build()
+                AligoMessageRecipientCreateState.builder().receiver("01011112221").build()
             );
             AligoMessage message = buildMessage(recipients, "대체 제목", "대체 본문");
 
@@ -155,16 +155,16 @@ class AligoAlimTalkExternalAdapterTest {
         void shouldAddRecvNameOnlyWhenPresent() {
             // given
             mockServer.expect(requestTo("http://localhost/akv10/alimtalk/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("recvname_1")))
-                    .andExpect(content().string(Matchers.not(Matchers.containsString("recvname_2"))))
-                    .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("recvname_1")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("recvname_2"))))
+                .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
 
             List<AligoMessageRecipientCreateState> recipients = List.of(
-                    AligoMessageRecipientCreateState.builder()
-                            .receiver("01011112221").recvName("홍길동").build(),
-                    AligoMessageRecipientCreateState.builder()
-                            .receiver("01011112222").build()
+                AligoMessageRecipientCreateState.builder()
+                    .receiver("01011112221").recvName("홍길동").build(),
+                AligoMessageRecipientCreateState.builder()
+                    .receiver("01011112222").build()
             );
             AligoMessage message = buildMessage(recipients, null, null);
 
@@ -181,17 +181,17 @@ class AligoAlimTalkExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/alimtalk/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             List<AligoMessageRecipientCreateState> recipients = List.of(
-                    AligoMessageRecipientCreateState.builder().receiver("01011112221").build()
+                AligoMessageRecipientCreateState.builder().receiver("01011112221").build()
             );
             AligoMessage message = buildMessage(recipients, null, null);
 
             // when & then
             assertThatThrownBy(() -> adapter.send(message))
-                    .isInstanceOf(AligoApiRequestFailedException.class);
+                .isInstanceOf(AligoApiRequestFailedException.class);
             mockServer.verify();
         }
     }

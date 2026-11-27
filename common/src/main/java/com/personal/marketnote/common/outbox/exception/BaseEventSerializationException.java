@@ -7,16 +7,16 @@ package com.personal.marketnote.common.outbox.exception;
 public abstract class BaseEventSerializationException extends RuntimeException {
 
     protected BaseEventSerializationException(
-            String errorCode, String domainLabel,
-            String topic, String partitionKey, String eventId,
-            Throwable cause
+        String errorCode, String domainLabel,
+        String topic, String partitionKey, String eventId,
+        Throwable cause
     ) {
         super(
-                errorCode + "::" + domainLabel + " 직렬화에 실패했습니다."
-                        + " topic=" + topic
-                        + ", partitionKey=" + partitionKey
-                        + ", eventId=" + eventId,
-                cause
+            errorCode + "::" + domainLabel + " 직렬화에 실패했습니다."
+                + " topic=" + topic
+                + ", partitionKey=" + partitionKey
+                + ", eventId=" + eventId,
+            cause
         );
     }
 }

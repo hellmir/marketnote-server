@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FulfillmentServiceCommunicationHistoryPersistenceAdapter
-        implements SaveFulfillmentServiceCommunicationHistoryPort {
+    implements SaveFulfillmentServiceCommunicationHistoryPort {
     private final FulfillmentServiceCommunicationHistoryJpaRepository repository;
 
     @Override
     public FulfillmentServiceCommunicationHistory save(FulfillmentServiceCommunicationHistory history) {
         FulfillmentServiceCommunicationHistoryJpaEntity savedEntity = repository.save(
-                FulfillmentServiceCommunicationHistoryJpaEntity.from(history)
+            FulfillmentServiceCommunicationHistoryJpaEntity.from(history)
         );
         return savedEntity.toDomain();
     }

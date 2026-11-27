@@ -23,14 +23,14 @@ public class DeleteQuickPaymentCardService implements DeleteQuickPaymentCardUseC
         log.info("빠른결제 카드 삭제 요청 - userId: {}, cardId: {}", command.userId(), command.quickPaymentCardId());
 
         QuickPaymentCard card = findQuickPaymentCardPort
-                .findActiveByIdAndUserId(command.quickPaymentCardId(), command.userId())
-                .orElseThrow(() -> {
-                    log.warn(
-                            "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, userId={}",
-                            command.quickPaymentCardId(), command.userId()
-                    );
-                    return new QuickPaymentCardNotFoundException();
-                });
+            .findActiveByIdAndUserId(command.quickPaymentCardId(), command.userId())
+            .orElseThrow(() -> {
+                log.warn(
+                    "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, userId={}",
+                    command.quickPaymentCardId(), command.userId()
+                );
+                return new QuickPaymentCardNotFoundException();
+            });
 
         DeleteBatchKeyPortResult portResult = deleteBatchKeyPort.deleteBatchKey(DeleteBatchKeyPortCommand.from(card));
 

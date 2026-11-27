@@ -56,10 +56,10 @@ public class RestClientGoogleTokenProcessor implements TokenProcessor {
     private final ExternalCallLogger externalCallLogger;
 
     public RestClientGoogleTokenProcessor(
-            RestClient.Builder restClientBuilder,
-            @Value("${oauth2.google.client-id}") String clientId,
-            @Value("${oauth2.google.client-secret}") String clientSecret,
-            ExternalCallLogger externalCallLogger
+        RestClient.Builder restClientBuilder,
+        @Value("${oauth2.google.client-id}") String clientId,
+        @Value("${oauth2.google.client-secret}") String clientSecret,
+        ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.clientId = clientId;
@@ -77,47 +77,47 @@ public class RestClientGoogleTokenProcessor implements TokenProcessor {
         requestBody.add("client_secret", clientSecret);
 
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_CODE, ValueMasker.mask(code)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_CODE, ValueMasker.mask(code)
         );
 
         OAuth2GrantedToken responseBody = externalCallLogger.record(
-                ExternalSystem.GOOGLE_OAUTH, OPERATION_GRANT_TOKEN, tags,
-                () -> {
-                    ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
-                            .uri(GOOGLE_TOKEN_URL)
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .body(requestBody)
-                            .retrieve()
-                            .toEntity(OAuth2GrantedToken.class);
+            ExternalSystem.GOOGLE_OAUTH, OPERATION_GRANT_TOKEN, tags,
+            () -> {
+                ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
+                    .uri(GOOGLE_TOKEN_URL)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(requestBody)
+                    .retrieve()
+                    .toEntity(OAuth2GrantedToken.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new UnsupportedCodeException("Code is invalid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new UnsupportedCodeException("Code is invalid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         return GrantedTokenInfo.builder()
-                .accessToken(responseBody.getAccessToken())
-                .refreshToken(responseBody.getRefreshToken())
-                .id(extractIdFromIdToken(responseBody.getIdToken()))
-                .authVendor(AuthVendor.GOOGLE)
-                .build();
+            .accessToken(responseBody.getAccessToken())
+            .refreshToken(responseBody.getRefreshToken())
+            .id(extractIdFromIdToken(responseBody.getIdToken()))
+            .authVendor(AuthVendor.GOOGLE)
+            .build();
     }
 
     private String extractIdFromIdToken(String idToken) {
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_ID_TOKEN, ValueMasker.mask(idToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_ID_TOKEN, ValueMasker.mask(idToken)
         );
 
         ResponseEntity<String> response = externalCallLogger.record(
-                ExternalSystem.GOOGLE_OAUTH, OPERATION_VERIFY_ID_TOKEN, tags,
-                () -> restClient.get()
-                        .uri(URI.create(GOOGLE_TOKEN_INFO_URL + "?id_token=" + idToken))
-                        .retrieve()
-                        .toEntity(String.class)
+            ExternalSystem.GOOGLE_OAUTH, OPERATION_VERIFY_ID_TOKEN, tags,
+            () -> restClient.get()
+                .uri(URI.create(GOOGLE_TOKEN_INFO_URL + "?id_token=" + idToken))
+                .retrieve()
+                .toEntity(String.class)
         );
 
         return new JSONObject(response.getBody()).getString(SUB_CLAIM_KEY);
@@ -126,64 +126,64 @@ public class RestClientGoogleTokenProcessor implements TokenProcessor {
     @Override
     public OAuth2AuthenticationInfo authenticate(String accessToken) throws InvalidAccessTokenException {
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
         );
 
         String responseBody = externalCallLogger.record(
-                ExternalSystem.GOOGLE_OAUTH, OPERATION_AUTHENTICATE, tags,
-                () -> {
-                    ResponseEntity<String> responseEntity = restClient.get()
-                            .uri(GOOGLE_ME_URL)
-                            .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
-                            .retrieve()
-                            .toEntity(String.class);
+            ExternalSystem.GOOGLE_OAUTH, OPERATION_AUTHENTICATE, tags,
+            () -> {
+                ResponseEntity<String> responseEntity = restClient.get()
+                    .uri(GOOGLE_ME_URL)
+                    .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
+                    .retrieve()
+                    .toEntity(String.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new InvalidAccessTokenException("Access Token is not valid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new InvalidAccessTokenException("Access Token is not valid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         JSONObject json = new JSONObject(responseBody);
 
         return OAuth2AuthenticationInfo.builder()
-                .id(json.getString("id"))
-                .authVendor(AuthVendor.GOOGLE)
-                .build();
+            .id(json.getString("id"))
+            .authVendor(AuthVendor.GOOGLE)
+            .build();
     }
 
     @Override
     public OAuth2UserInfo retrieveUserInfo(String accessToken) throws InvalidAccessTokenException {
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
         );
 
         String responseBody = externalCallLogger.record(
-                ExternalSystem.GOOGLE_OAUTH, OPERATION_RETRIEVE_USER_INFO, tags,
-                () -> {
-                    ResponseEntity<String> responseEntity = restClient.get()
-                            .uri(GOOGLE_USER_INFO_URL)
-                            .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
-                            .retrieve()
-                            .toEntity(String.class);
+            ExternalSystem.GOOGLE_OAUTH, OPERATION_RETRIEVE_USER_INFO, tags,
+            () -> {
+                ResponseEntity<String> responseEntity = restClient.get()
+                    .uri(GOOGLE_USER_INFO_URL)
+                    .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
+                    .retrieve()
+                    .toEntity(String.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new InvalidAccessTokenException("Access Token is not valid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new InvalidAccessTokenException("Access Token is not valid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         JSONObject jsonObject = new JSONObject(responseBody);
 
         try {
             return OAuth2UserInfo.builder()
-                    .id(jsonObject.getString("id"))
-                    .name(jsonObject.getString("name"))
-                    .build();
+                .id(jsonObject.getString("id"))
+                .name(jsonObject.getString("name"))
+                .build();
         } catch (JSONException e) {
             throw new OAuth2ResponseParsingException("Google", jsonObject.toString(), e);
         }
@@ -198,33 +198,33 @@ public class RestClientGoogleTokenProcessor implements TokenProcessor {
         requestBody.add("client_secret", clientSecret);
 
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_REFRESH_TOKEN, ValueMasker.mask(refreshToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_REFRESH_TOKEN, ValueMasker.mask(refreshToken)
         );
 
         OAuth2GrantedToken responseBody = externalCallLogger.record(
-                ExternalSystem.GOOGLE_OAUTH, OPERATION_REFRESH_TOKEN, tags,
-                () -> {
-                    ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
-                            .uri(GOOGLE_TOKEN_URL)
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .body(requestBody)
-                            .retrieve()
-                            .toEntity(OAuth2GrantedToken.class);
+            ExternalSystem.GOOGLE_OAUTH, OPERATION_REFRESH_TOKEN, tags,
+            () -> {
+                ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
+                    .uri(GOOGLE_TOKEN_URL)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(requestBody)
+                    .retrieve()
+                    .toEntity(OAuth2GrantedToken.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new InvalidRefreshTokenException("Refresh token is not valid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new InvalidRefreshTokenException("Refresh token is not valid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         return GrantedTokenInfo.builder()
-                .accessToken(responseBody.getAccessToken())
-                .refreshToken(responseBody.getRefreshToken())
-                .id(extractIdFromIdToken(responseBody.getIdToken()))
-                .authVendor(AuthVendor.GOOGLE)
-                .build();
+            .accessToken(responseBody.getAccessToken())
+            .refreshToken(responseBody.getRefreshToken())
+            .id(extractIdFromIdToken(responseBody.getIdToken()))
+            .authVendor(AuthVendor.GOOGLE)
+            .build();
     }
 
     @Override

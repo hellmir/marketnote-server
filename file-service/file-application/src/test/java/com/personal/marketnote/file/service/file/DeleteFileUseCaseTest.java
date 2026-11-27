@@ -48,17 +48,17 @@ class DeleteFileUseCaseTest {
         // given
         Long fileId = 1L;
         FileDomain file = FileDomain.from(FileDomainSnapshotState.builder()
-                .id(fileId)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(100L)
-                .sort(FileSort.PRODUCT_REPRESENTATIVE_IMAGE)
-                .extension("png")
-                .name("test.png")
-                .storageUrl("https://cdn.example.com/test.png")
-                .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .build());
+            .id(fileId)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(100L)
+            .sort(FileSort.PRODUCT_REPRESENTATIVE_IMAGE)
+            .extension("png")
+            .name("test.png")
+            .storageUrl("https://cdn.example.com/test.png")
+            .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .build());
         when(getFileUseCase.getFile(fileId)).thenReturn(file);
 
         // when
@@ -67,11 +67,11 @@ class DeleteFileUseCaseTest {
         // then
         verify(updateFilePort).update(file);
         verify(publishImageEventPort).publishImageDeletedEvents(argThat(events ->
-                events.size() == 1
-                        && events.getFirst().imageId().equals(fileId)
-                        && events.getFirst().targetId().equals(100L)
-                        && events.getFirst().targetType().equals("PRODUCT")
-                        && events.getFirst().imageUrl().equals("https://cdn.example.com/test.png")
+            events.size() == 1
+                && events.getFirst().imageId().equals(fileId)
+                && events.getFirst().targetId().equals(100L)
+                && events.getFirst().targetType().equals("PRODUCT")
+                && events.getFirst().imageUrl().equals("https://cdn.example.com/test.png")
         ));
     }
 
@@ -82,33 +82,33 @@ class DeleteFileUseCaseTest {
         // given
         Long fileId = 2L;
         FileDomain file = FileDomain.from(FileDomainSnapshotState.builder()
-                .id(fileId)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(100L)
-                .sort(FileSort.PRODUCT_REPRESENTATIVE_IMAGE)
-                .extension("png")
-                .name("test.png")
-                .storageUrl("https://cdn.example.com/test.png")
-                .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .build());
+            .id(fileId)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(100L)
+            .sort(FileSort.PRODUCT_REPRESENTATIVE_IMAGE)
+            .extension("png")
+            .name("test.png")
+            .storageUrl("https://cdn.example.com/test.png")
+            .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .build());
         ResizedFile resized600 = ResizedFile.from(ResizedFileSnapshotState.builder()
-                .id(10L)
-                .fileId(fileId)
-                .size("600")
-                .storageUrl("https://cdn.example.com/test_600.png")
-                .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(10L)
+            .fileId(fileId)
+            .size("600")
+            .storageUrl("https://cdn.example.com/test_600.png")
+            .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
+            .status(EntityStatus.ACTIVE)
+            .build());
         ResizedFile resized800 = ResizedFile.from(ResizedFileSnapshotState.builder()
-                .id(11L)
-                .fileId(fileId)
-                .size("800")
-                .storageUrl("https://cdn.example.com/test_800.png")
-                .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(11L)
+            .fileId(fileId)
+            .size("800")
+            .storageUrl("https://cdn.example.com/test_800.png")
+            .createdAt(LocalDateTime.of(2026, 3, 27, 10, 0))
+            .status(EntityStatus.ACTIVE)
+            .build());
         when(getFileUseCase.getFile(fileId)).thenReturn(file);
         when(getFileUseCase.getResizedFiles(anyList())).thenReturn(List.of(resized600, resized800));
 
@@ -123,13 +123,13 @@ class DeleteFileUseCaseTest {
         assertThat(published.getFirst().imageId()).isEqualTo(fileId);
         assertThat(published.getFirst().resizedImages()).hasSize(2);
         assertThat(published.getFirst().resizedImages())
-                .extracting(ImageEventCommand.ResizedImageCommand::size)
-                .containsExactly("600", "800");
+            .extracting(ImageEventCommand.ResizedImageCommand::size)
+            .containsExactly("600", "800");
         assertThat(published.getFirst().resizedImages())
-                .extracting(ImageEventCommand.ResizedImageCommand::storageUrl)
-                .containsExactly(
-                        "https://cdn.example.com/test_600.png",
-                        "https://cdn.example.com/test_800.png"
-                );
+            .extracting(ImageEventCommand.ResizedImageCommand::storageUrl)
+            .containsExactly(
+                "https://cdn.example.com/test_600.png",
+                "https://cdn.example.com/test_800.png"
+            );
     }
 }

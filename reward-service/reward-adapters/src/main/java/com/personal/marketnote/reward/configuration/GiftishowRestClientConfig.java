@@ -11,11 +11,11 @@ public class GiftishowRestClientConfig {
 
     @Bean
     public RestClient giftishowRestClient(
-            RestClient.Builder restClientBuilder,
-            GiftishowApiProperties giftishowApiProperties
+        RestClient.Builder restClientBuilder,
+        GiftishowApiProperties giftishowApiProperties
     ) {
         return restClientBuilder.clone()
-                .baseUrl(giftishowApiProperties.getBaseUrl())
-                .build();
+            .baseUrl(giftishowApiProperties.getBaseUrl())
+            .build();
     }
 }

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class FulfillmentAuthDisconnectFailedException extends ExternalOperationFailedException {
     private static final String FULFILLMENT_AUTH_DISCONNECT_FAILED_EXCEPTION_MESSAGE =
-            "Fulfillment authentication disconnect request failed.";
+        "Fulfillment authentication disconnect request failed.";
 
     public FulfillmentAuthDisconnectFailedException(IOException cause) {
         super(FULFILLMENT_AUTH_DISCONNECT_FAILED_EXCEPTION_MESSAGE, cause);

@@ -131,7 +131,7 @@ class NotificationDisplayCategoryTest {
             Set<NotificationType> types = NotificationDisplayCategory.ORDER_SHIPPING.types();
 
             assertThatThrownBy(() -> types.add(NotificationType.NOTICE))
-                    .isInstanceOf(UnsupportedOperationException.class);
+                .isInstanceOf(UnsupportedOperationException.class);
         }
     }
 }

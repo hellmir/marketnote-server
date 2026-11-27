@@ -23,13 +23,13 @@ public class PricePolicyItemResponse {
 
     public static PricePolicyItemResponse from(GetProductPricePolicyWithOptionsResult result) {
         return PricePolicyItemResponse.builder()
-                .id(result.id())
-                .price(result.price())
-                .discountPrice(result.discountPrice())
-                .accumulatedPoint(result.accumulatedPoint())
-                .discountRate(result.discountRate())
-                .optionIds(result.optionIds())
-                .build();
+            .id(result.id())
+            .price(result.price())
+            .discountPrice(result.discountPrice())
+            .accumulatedPoint(result.accumulatedPoint())
+            .discountRate(result.discountRate())
+            .optionIds(result.optionIds())
+            .build();
     }
 }
 

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
 
     private final PaymentCancelIdempotencyExceptionHandler handler =
-            new PaymentCancelIdempotencyExceptionHandler();
+        new PaymentCancelIdempotencyExceptionHandler();
 
     @AfterEach
     void clearMdc() {
@@ -33,7 +33,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleInProgress(
-                new IdempotencyKeyInProgressException("KEY-1")
+            new IdempotencyKeyInProgressException("KEY-1")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -48,7 +48,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleDuplicate(
-                new DuplicateIdempotencyKeyException("KEY-2")
+            new DuplicateIdempotencyKeyException("KEY-2")
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -60,7 +60,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
     @DisplayName("MDC에 requestId가 없으면 응답 traceId는 null이다")
     void traceIdIsNullWhenMdcEmpty() {
         ResponseEntity<ErrorResponse> response = handler.handleDuplicate(
-                new DuplicateIdempotencyKeyException("KEY-3")
+            new DuplicateIdempotencyKeyException("KEY-3")
         );
 
         assertThat(response.getBody()).isNotNull();
@@ -73,7 +73,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
         MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "trace-x");
 
         ResponseEntity<ErrorResponse> response = handler.handleInProgress(
-                new IdempotencyKeyInProgressException("KEY-4")
+            new IdempotencyKeyInProgressException("KEY-4")
         );
 
         assertThat(response.getBody()).isNotNull();

@@ -25,33 +25,33 @@ public class QuickPaymentCard extends BaseDomain {
 
     public static QuickPaymentCard from(QuickPaymentCardCreateState state) {
         QuickPaymentCard card = QuickPaymentCard.builder()
-                .userId(state.getUserId())
-                .batchKey(state.getBatchKey())
-                .groupId(state.getGroupId())
-                .cardCode(state.getCardCode())
-                .cardName(state.getCardName())
-                .maskedCardNumber(state.getMaskedCardNumber())
-                .cardBinType01(state.getCardBinType01())
-                .cardBinType02(state.getCardBinType02())
-                .build();
+            .userId(state.getUserId())
+            .batchKey(state.getBatchKey())
+            .groupId(state.getGroupId())
+            .cardCode(state.getCardCode())
+            .cardName(state.getCardName())
+            .maskedCardNumber(state.getMaskedCardNumber())
+            .cardBinType01(state.getCardBinType01())
+            .cardBinType02(state.getCardBinType02())
+            .build();
         card.activate();
         return card;
     }
 
     public static QuickPaymentCard from(QuickPaymentCardSnapshotState state) {
         QuickPaymentCard card = QuickPaymentCard.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .batchKey(state.getBatchKey())
-                .groupId(state.getGroupId())
-                .cardCode(state.getCardCode())
-                .cardName(state.getCardName())
-                .maskedCardNumber(state.getMaskedCardNumber())
-                .cardBinType01(state.getCardBinType01())
-                .cardBinType02(state.getCardBinType02())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .batchKey(state.getBatchKey())
+            .groupId(state.getGroupId())
+            .cardCode(state.getCardCode())
+            .cardName(state.getCardName())
+            .maskedCardNumber(state.getMaskedCardNumber())
+            .cardBinType01(state.getCardBinType01())
+            .cardBinType02(state.getCardBinType02())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         card.status = state.getStatus();
         return card;
     }

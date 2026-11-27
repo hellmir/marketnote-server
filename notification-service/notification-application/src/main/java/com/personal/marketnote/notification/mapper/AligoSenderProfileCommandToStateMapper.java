@@ -9,12 +9,12 @@ public class AligoSenderProfileCommandToStateMapper {
     }
 
     public static AligoSenderProfileCreateState mapToState(
-            String senderKey, AuthenticateAligoSenderProfileCommand command
+        String senderKey, AuthenticateAligoSenderProfileCommand command
     ) {
         return AligoSenderProfileCreateState.builder()
-                .senderKey(senderKey)
-                .plusId(command.plusId())
-                .phoneNumber(command.phoneNumber())
-                .build();
+            .senderKey(senderKey)
+            .plusId(command.plusId())
+            .phoneNumber(command.phoneNumber())
+            .build();
     }
 }

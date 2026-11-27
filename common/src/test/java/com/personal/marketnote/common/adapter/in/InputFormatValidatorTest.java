@@ -23,7 +23,7 @@ class InputFormatValidatorTest {
         @DisplayName("양의 정수 문자열은 통과한다")
         void passesForPositiveInteger(String id) {
             assertThatCode(() -> InputFormatValidator.validateId(id))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @ParameterizedTest
@@ -32,14 +32,14 @@ class InputFormatValidatorTest {
         @DisplayName("null/empty/blank 입력은 IdNoValueException을 던진다")
         void throwsWhenBlank(String id) {
             assertThatThrownBy(() -> InputFormatValidator.validateId(id))
-                    .isInstanceOf(IdNoValueException.class);
+                .isInstanceOf(IdNoValueException.class);
         }
 
         @Test
         @DisplayName("0은 InvalidIdException을 던진다")
         void throwsWhenZero() {
             assertThatThrownBy(() -> InputFormatValidator.validateId("0"))
-                    .isInstanceOf(InvalidIdException.class);
+                .isInstanceOf(InvalidIdException.class);
         }
 
         @ParameterizedTest
@@ -47,7 +47,7 @@ class InputFormatValidatorTest {
         @DisplayName("음수는 InvalidIdException을 던진다")
         void throwsWhenNegative(String id) {
             assertThatThrownBy(() -> InputFormatValidator.validateId(id))
-                    .isInstanceOf(InvalidIdException.class);
+                .isInstanceOf(InvalidIdException.class);
         }
 
         @ParameterizedTest
@@ -55,14 +55,14 @@ class InputFormatValidatorTest {
         @DisplayName("숫자가 아닌 문자가 포함되면 InvalidIdException을 던진다")
         void throwsWhenNotNumeric(String id) {
             assertThatThrownBy(() -> InputFormatValidator.validateId(id))
-                    .isInstanceOf(InvalidIdException.class);
+                .isInstanceOf(InvalidIdException.class);
         }
 
         @Test
         @DisplayName("0으로 시작하는 숫자는 InvalidIdException을 던진다")
         void throwsWhenLeadingZero() {
             assertThatThrownBy(() -> InputFormatValidator.validateId("01"))
-                    .isInstanceOf(InvalidIdException.class);
+                .isInstanceOf(InvalidIdException.class);
         }
     }
 }

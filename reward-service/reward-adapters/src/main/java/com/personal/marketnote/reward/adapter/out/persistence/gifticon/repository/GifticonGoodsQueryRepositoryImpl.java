@@ -26,61 +26,61 @@ public class GifticonGoodsQueryRepositoryImpl implements GifticonGoodsQueryRepos
     @Override
     public List<Object[]> findDistinctBrandsByCategoryCode(String categoryCode, GoodsStatus saleStatus) {
         List<com.querydsl.core.Tuple> rows = queryFactory
-                .select(goods.brandCode, goods.brandName, goods.brandImageUrl)
-                .from(goods)
-                .where(
-                        goods.exposed.isTrue(),
-                        goods.goodsStatus.eq(saleStatus),
-                        goods.categoryCode.eq(categoryCode)
-                )
-                .distinct()
-                .orderBy(goods.brandName.asc())
-                .fetch();
+            .select(goods.brandCode, goods.brandName, goods.brandImageUrl)
+            .from(goods)
+            .where(
+                goods.exposed.isTrue(),
+                goods.goodsStatus.eq(saleStatus),
+                goods.categoryCode.eq(categoryCode)
+            )
+            .distinct()
+            .orderBy(goods.brandName.asc())
+            .fetch();
         return rows.stream()
-                .map(tuple -> new Object[]{
-                        tuple.get(goods.brandCode),
-                        tuple.get(goods.brandName),
-                        tuple.get(goods.brandImageUrl)
-                })
-                .toList();
+            .map(tuple -> new Object[]{
+                tuple.get(goods.brandCode),
+                tuple.get(goods.brandName),
+                tuple.get(goods.brandImageUrl)
+            })
+            .toList();
     }
 
     @Override
     public List<GifticonGoodsJpaEntity> findExposedByAnchor(
-            String categoryCode,
-            String brandCode,
-            GoodsStatus saleStatus,
-            Integer anchorOrderNum,
-            Long anchorId,
-            Pageable pageable
+        String categoryCode,
+        String brandCode,
+        GoodsStatus saleStatus,
+        Integer anchorOrderNum,
+        Long anchorId,
+        Pageable pageable
     ) {
         return queryFactory
-                .selectFrom(goods)
-                .where(
-                        goods.exposed.isTrue(),
-                        goods.goodsStatus.eq(saleStatus),
-                        categoryCodeEq(categoryCode),
-                        brandCodeEq(brandCode),
-                        anchorCondition(anchorOrderNum, anchorId)
-                )
-                .orderBy(exposedOrderSpecifiers(anchorOrderNum, anchorId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(goods)
+            .where(
+                goods.exposed.isTrue(),
+                goods.goodsStatus.eq(saleStatus),
+                categoryCodeEq(categoryCode),
+                brandCodeEq(brandCode),
+                anchorCondition(anchorOrderNum, anchorId)
+            )
+            .orderBy(exposedOrderSpecifiers(anchorOrderNum, anchorId))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     @Override
     public long countAllExposed(String categoryCode, String brandCode, GoodsStatus saleStatus) {
         Long count = queryFactory
-                .select(goods.count())
-                .from(goods)
-                .where(
-                        goods.exposed.isTrue(),
-                        goods.goodsStatus.eq(saleStatus),
-                        categoryCodeEq(categoryCode),
-                        brandCodeEq(brandCode)
-                )
-                .fetchOne();
+            .select(goods.count())
+            .from(goods)
+            .where(
+                goods.exposed.isTrue(),
+                goods.goodsStatus.eq(saleStatus),
+                categoryCodeEq(categoryCode),
+                brandCodeEq(brandCode)
+            )
+            .fetchOne();
         if (FormatValidator.hasNoValue(count)) {
             return 0L;
         }
@@ -89,31 +89,31 @@ public class GifticonGoodsQueryRepositoryImpl implements GifticonGoodsQueryRepos
 
     @Override
     public Page<GifticonGoodsJpaEntity> findAllForAdmin(
-            GoodsStatus goodsStatus,
-            Boolean exposed,
-            String keyword,
-            Pageable pageable
+        GoodsStatus goodsStatus,
+        Boolean exposed,
+        String keyword,
+        Pageable pageable
     ) {
         List<GifticonGoodsJpaEntity> content = queryFactory
-                .selectFrom(goods)
-                .where(
-                        goodsStatusEq(goodsStatus),
-                        exposedEq(exposed),
-                        goodsNameLike(keyword)
-                )
-                .orderBy(goods.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(goods)
+            .where(
+                goodsStatusEq(goodsStatus),
+                exposedEq(exposed),
+                goodsNameLike(keyword)
+            )
+            .orderBy(goods.id.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
         Long total = queryFactory
-                .select(goods.count())
-                .from(goods)
-                .where(
-                        goodsStatusEq(goodsStatus),
-                        exposedEq(exposed),
-                        goodsNameLike(keyword)
-                )
-                .fetchOne();
+            .select(goods.count())
+            .from(goods)
+            .where(
+                goodsStatusEq(goodsStatus),
+                exposedEq(exposed),
+                goodsNameLike(keyword)
+            )
+            .fetchOne();
         long totalCount = FormatValidator.hasNoValue(total) ? 0L : total;
         return new PageImpl<>(content, pageable, totalCount);
     }
@@ -121,16 +121,16 @@ public class GifticonGoodsQueryRepositoryImpl implements GifticonGoodsQueryRepos
     @Override
     public List<GifticonGoodsJpaEntity> findAllPopularAndExposed(GoodsStatus saleStatus, Pageable pageable) {
         return queryFactory
-                .selectFrom(goods)
-                .where(
-                        goods.popular.isTrue(),
-                        goods.exposed.isTrue(),
-                        goods.goodsStatus.eq(saleStatus)
-                )
-                .orderBy(orderNumNullsLast().asc(), goods.orderNum.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(goods)
+            .where(
+                goods.popular.isTrue(),
+                goods.exposed.isTrue(),
+                goods.goodsStatus.eq(saleStatus)
+            )
+            .orderBy(orderNumNullsLast().asc(), goods.orderNum.asc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     private BooleanExpression categoryCodeEq(String categoryCode) {
@@ -174,8 +174,8 @@ public class GifticonGoodsQueryRepositoryImpl implements GifticonGoodsQueryRepos
         }
         if (FormatValidator.hasValue(anchorOrderNum)) {
             return goods.orderNum.isNull()
-                    .or(goods.orderNum.gt(anchorOrderNum))
-                    .or(goods.orderNum.eq(anchorOrderNum).and(goods.id.gt(anchorId)));
+                .or(goods.orderNum.gt(anchorOrderNum))
+                .or(goods.orderNum.eq(anchorOrderNum).and(goods.id.gt(anchorId)));
         }
         return goods.orderNum.isNull().and(goods.id.gt(anchorId));
     }
@@ -185,15 +185,15 @@ public class GifticonGoodsQueryRepositoryImpl implements GifticonGoodsQueryRepos
             return new OrderSpecifier<?>[]{goods.id.asc()};
         }
         return new OrderSpecifier<?>[]{
-                orderNumNullsLast().asc(),
-                goods.orderNum.asc(),
-                goods.id.asc()
+            orderNumNullsLast().asc(),
+            goods.orderNum.asc(),
+            goods.id.asc()
         };
     }
 
     private NumberExpression<Integer> orderNumNullsLast() {
         return new CaseBuilder()
-                .when(goods.orderNum.isNull()).then(1)
-                .otherwise(0);
+            .when(goods.orderNum.isNull()).then(1)
+            .otherwise(0);
     }
 }

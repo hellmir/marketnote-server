@@ -43,7 +43,7 @@ class InputLengthValidationTest {
             Set<ConstraintViolation<OrderProductItemRequest>> violations = validator.validate(request);
 
             assertThat(violations).anyMatch(v ->
-                    v.getPropertyPath().toString().equals("imageUrl"));
+                v.getPropertyPath().toString().equals("imageUrl"));
         }
 
         @Test
@@ -60,7 +60,7 @@ class InputLengthValidationTest {
             Set<ConstraintViolation<OrderProductItemRequest>> violations = validator.validate(request);
 
             assertThat(violations).noneMatch(v ->
-                    v.getPropertyPath().toString().equals("imageUrl"));
+                v.getPropertyPath().toString().equals("imageUrl"));
         }
     }
 
@@ -77,7 +77,7 @@ class InputLengthValidationTest {
             Set<ConstraintViolation<ChangeOrderStatusRequest>> violations = validator.validate(request);
 
             assertThat(violations).anyMatch(v ->
-                    v.getPropertyPath().toString().equals("reason"));
+                v.getPropertyPath().toString().equals("reason"));
         }
 
         @Test
@@ -89,7 +89,7 @@ class InputLengthValidationTest {
             Set<ConstraintViolation<ChangeOrderStatusRequest>> violations = validator.validate(request);
 
             assertThat(violations).noneMatch(v ->
-                    v.getPropertyPath().toString().equals("reason"));
+                v.getPropertyPath().toString().equals("reason"));
         }
     }
 }

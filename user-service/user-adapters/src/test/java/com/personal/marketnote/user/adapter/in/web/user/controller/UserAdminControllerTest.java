@@ -73,47 +73,47 @@ class UserAdminControllerTest {
 
     private OAuth2AuthenticatedPrincipal adminPrincipal(Long adminId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(adminId), Map.of("name", String.valueOf(adminId)), List.of()
+            String.valueOf(adminId), Map.of("name", String.valueOf(adminId)), List.of()
         );
     }
 
     private GetUserResult buildUserResult(Long id) {
         return new GetUserResult(
-                id,
-                new AccountInfoResult(List.of()),
-                "닉네임",
-                "user@example.com",
-                "홍길동",
-                "01012345678",
-                "ABC123",
-                "ROLE_BUYER",
-                LocalDateTime.of(2025, 1, 1, 0, 0),
-                LocalDateTime.of(2025, 1, 2, 0, 0),
-                "ACTIVE",
-                false,
-                100L,
-                0,
-                null
+            id,
+            new AccountInfoResult(List.of()),
+            "닉네임",
+            "user@example.com",
+            "홍길동",
+            "01012345678",
+            "ABC123",
+            "ROLE_BUYER",
+            LocalDateTime.of(2025, 1, 1, 0, 0),
+            LocalDateTime.of(2025, 1, 2, 0, 0),
+            "ACTIVE",
+            false,
+            100L,
+            0,
+            null
         );
     }
 
     private GetUserInfoResult buildUserInfoResult(Long id) {
         return new GetUserInfoResult(
-                id,
-                new AccountInfoResult(List.of()),
-                "닉네임",
-                "user@example.com",
-                "홍길동",
-                "01012345678",
-                "ABC123",
-                "ROLE_BUYER",
-                LocalDateTime.of(2025, 1, 1, 0, 0),
-                LocalDateTime.of(2025, 1, 2, 0, 0),
-                "ACTIVE",
-                false,
-                100L,
-                0,
-                null
+            id,
+            new AccountInfoResult(List.of()),
+            "닉네임",
+            "user@example.com",
+            "홍길동",
+            "01012345678",
+            "ABC123",
+            "ROLE_BUYER",
+            LocalDateTime.of(2025, 1, 1, 0, 0),
+            LocalDateTime.of(2025, 1, 2, 0, 0),
+            "ACTIVE",
+            false,
+            100L,
+            0,
+            null
         );
     }
 
@@ -128,14 +128,14 @@ class UserAdminControllerTest {
             List<GetUserResult> content = List.of(buildUserResult(1L), buildUserResult(2L));
             Page<GetUserResult> page = new PageImpl<>(content, PageRequest.of(0, 10), 15);
             when(getUserUseCase.getAllStatusUsers(
-                    10, 0, Sort.Direction.DESC, UserSortProperty.ORDER_NUM,
-                    UserSearchTarget.EMAIL, "user@example.com"
+                10, 0, Sort.Direction.DESC, UserSortProperty.ORDER_NUM,
+                UserSearchTarget.EMAIL, "user@example.com"
             )).thenReturn(page);
 
             // when
             ResponseEntity<BaseResponse<GetUsersResponse>> response = controller.getUsers(
-                    10, 1, Sort.Direction.DESC, UserSortProperty.ORDER_NUM,
-                    UserSearchTarget.EMAIL, "user@example.com"
+                10, 1, Sort.Direction.DESC, UserSortProperty.ORDER_NUM,
+                UserSearchTarget.EMAIL, "user@example.com"
             );
 
             // then
@@ -155,20 +155,20 @@ class UserAdminControllerTest {
             // given
             Page<GetUserResult> page = new PageImpl<>(List.of(), PageRequest.of(2, 5), 0);
             when(getUserUseCase.getAllStatusUsers(
-                    5, 2, Sort.Direction.ASC, UserSortProperty.ID,
-                    UserSearchTarget.NICKNAME, null
+                5, 2, Sort.Direction.ASC, UserSortProperty.ID,
+                UserSearchTarget.NICKNAME, null
             )).thenReturn(page);
 
             // when
             controller.getUsers(
-                    5, 3, Sort.Direction.ASC, UserSortProperty.ID,
-                    UserSearchTarget.NICKNAME, null
+                5, 3, Sort.Direction.ASC, UserSortProperty.ID,
+                UserSearchTarget.NICKNAME, null
             );
 
             // then
             verify(getUserUseCase).getAllStatusUsers(
-                    5, 2, Sort.Direction.ASC, UserSortProperty.ID,
-                    UserSearchTarget.NICKNAME, null
+                5, 2, Sort.Direction.ASC, UserSortProperty.ID,
+                UserSearchTarget.NICKNAME, null
             );
         }
     }
@@ -230,25 +230,25 @@ class UserAdminControllerTest {
         void returnsLoginHistoriesWithPaging() {
             // given
             GetLoginHistoryResult loginHistoryResult = new GetLoginHistoryResult(
-                    1L, 10L, AuthVendor.NATIVE, "127.0.0.1", LocalDateTime.of(2025, 3, 1, 10, 0)
+                1L, 10L, AuthVendor.NATIVE, "127.0.0.1", LocalDateTime.of(2025, 3, 1, 10, 0)
             );
             Page<GetLoginHistoryResult> page = new PageImpl<>(
-                    List.of(loginHistoryResult), PageRequest.of(0, 20), 1
+                List.of(loginHistoryResult), PageRequest.of(0, 20), 1
             );
             when(getLoginHistoryUseCase.getLoginHistories(
-                    10L, 20, 0, Sort.Direction.DESC, LoginHistorySortProperty.ID
+                10L, 20, 0, Sort.Direction.DESC, LoginHistorySortProperty.ID
             )).thenReturn(page);
 
             // when
             ResponseEntity<BaseResponse<GetLoginHistoriesResponse>> response = controller.getLoginHistories(
-                    10L, 20, 1, Sort.Direction.DESC, LoginHistorySortProperty.ID
+                10L, 20, 1, Sort.Direction.DESC, LoginHistorySortProperty.ID
             );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             verify(getLoginHistoryUseCase).getLoginHistories(
-                    10L, 20, 0, Sort.Direction.DESC, LoginHistorySortProperty.ID
+                10L, 20, 0, Sort.Direction.DESC, LoginHistorySortProperty.ID
             );
         }
     }
@@ -263,16 +263,16 @@ class UserAdminControllerTest {
             // given
             LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 12, 31, 23, 59);
             ChangeUserStatusRequest request = new ChangeUserStatusRequest(
-                    UserStatusAction.DEACTIVATE, "운영 정책 위반", deactivatedUntil
+                UserStatusAction.DEACTIVATE, "운영 정책 위반", deactivatedUntil
             );
             ChangeUserStatusResult result = ChangeUserStatusResult.of(10L, "INACTIVE", deactivatedUntil, 1L);
             when(changeUserStatusUseCase.changeStatus(new ChangeUserStatusCommand(
-                    10L, 1L, "DEACTIVATE", "운영 정책 위반", deactivatedUntil
+                10L, 1L, "DEACTIVATE", "운영 정책 위반", deactivatedUntil
             ))).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<ChangeUserStatusResponse>> response = controller.changeUserStatus(
-                    10L, request, adminPrincipal(1L)
+                10L, request, adminPrincipal(1L)
             );
 
             // then
@@ -295,12 +295,12 @@ class UserAdminControllerTest {
             // given
             ApplyUserPenaltyRequest request = new ApplyUserPenaltyRequest("욕설 신고");
             when(applyUserPenaltyUseCase.applyPenalty(
-                    new ApplyUserPenaltyCommand(10L, 1L, "욕설 신고")
+                new ApplyUserPenaltyCommand(10L, 1L, "욕설 신고")
             )).thenReturn(ApplyUserPenaltyResult.of(10L, 2, 55L));
 
             // when
             ResponseEntity<BaseResponse<ApplyUserPenaltyResponse>> response = controller.applyUserPenalty(
-                    10L, request, adminPrincipal(1L)
+                10L, request, adminPrincipal(1L)
             );
 
             // then
@@ -320,12 +320,12 @@ class UserAdminControllerTest {
             // given
             UpdateUserPenaltyCountRequest request = new UpdateUserPenaltyCountRequest(5, "누적 조정");
             when(updateUserPenaltyCountUseCase.updatePenaltyCount(
-                    new UpdateUserPenaltyCountCommand(10L, 1L, 5, "누적 조정")
+                new UpdateUserPenaltyCountCommand(10L, 1L, 5, "누적 조정")
             )).thenReturn(UpdateUserPenaltyCountResult.of(10L, 5, 77L));
 
             // when
             ResponseEntity<BaseResponse<UpdateUserPenaltyCountResponse>> response = controller.updateUserPenaltyCount(
-                    10L, request, adminPrincipal(1L)
+                10L, request, adminPrincipal(1L)
             );
 
             // then
@@ -344,24 +344,24 @@ class UserAdminControllerTest {
         void convertsPageNumberAndReturnsPenaltyHistories() {
             // given
             GetUserPenaltyHistoryResult history = new GetUserPenaltyHistoryResult(
-                    1L, 10L, 1, 2, "누적", 1L, LocalDateTime.of(2025, 3, 1, 10, 0)
+                1L, 10L, 1, 2, "누적", 1L, LocalDateTime.of(2025, 3, 1, 10, 0)
             );
             Page<GetUserPenaltyHistoryResult> page = new PageImpl<>(
-                    List.of(history), PageRequest.of(1, 20), 25
+                List.of(history), PageRequest.of(1, 20), 25
             );
             when(getUserPenaltyHistoryUseCase.getUserPenaltyHistories(
-                    10L, 20, 1, Sort.Direction.DESC, UserPenaltyHistorySortProperty.ID
+                10L, 20, 1, Sort.Direction.DESC, UserPenaltyHistorySortProperty.ID
             )).thenReturn(page);
 
             // when
             ResponseEntity<BaseResponse<GetUserPenaltyHistoriesResponse>> response = controller.getUserPenaltyHistories(
-                    10L, 20, 2, Sort.Direction.DESC, UserPenaltyHistorySortProperty.ID
+                10L, 20, 2, Sort.Direction.DESC, UserPenaltyHistorySortProperty.ID
             );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getUserPenaltyHistoryUseCase).getUserPenaltyHistories(
-                    10L, 20, 1, Sort.Direction.DESC, UserPenaltyHistorySortProperty.ID
+                10L, 20, 1, Sort.Direction.DESC, UserPenaltyHistorySortProperty.ID
             );
         }
     }
@@ -375,27 +375,27 @@ class UserAdminControllerTest {
         void invokesOnlyStatusHistoryUseCase() {
             // given
             GetUserStatusHistoryResult history = new GetUserStatusHistoryResult(
-                    1L, 10L, "DEACTIVATE", "정책 위반",
-                    LocalDateTime.of(2026, 12, 31, 0, 0), 1L, LocalDateTime.of(2025, 3, 1, 10, 0)
+                1L, 10L, "DEACTIVATE", "정책 위반",
+                LocalDateTime.of(2026, 12, 31, 0, 0), 1L, LocalDateTime.of(2025, 3, 1, 10, 0)
             );
             Page<GetUserStatusHistoryResult> page = new PageImpl<>(
-                    List.of(history), PageRequest.of(0, 20), 1
+                List.of(history), PageRequest.of(0, 20), 1
             );
             when(getUserStatusHistoryUseCase.getUserStatusHistories(
-                    10L, 20, 0, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
+                10L, 20, 0, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
             )).thenReturn(page);
 
             // when
             ResponseEntity<BaseResponse<GetUserStatusHistoriesResponse>> response = controller.getUserStatusHistories(
-                    10L, 20, 1, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
+                10L, 20, 1, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
             );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verifyNoInteractions(
-                    getUserUseCase, updateUserUseCase, getLoginHistoryUseCase,
-                    changeUserStatusUseCase, applyUserPenaltyUseCase,
-                    updateUserPenaltyCountUseCase, getUserPenaltyHistoryUseCase
+                getUserUseCase, updateUserUseCase, getLoginHistoryUseCase,
+                changeUserStatusUseCase, applyUserPenaltyUseCase,
+                updateUserPenaltyCountUseCase, getUserPenaltyHistoryUseCase
             );
         }
     }

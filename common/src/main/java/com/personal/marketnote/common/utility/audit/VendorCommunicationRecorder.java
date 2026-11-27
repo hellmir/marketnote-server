@@ -22,11 +22,11 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @param <S> SenderType enum 타입
  */
 public class VendorCommunicationRecorder<
-        T extends Enum<T>,
-        V extends Enum<V>,
-        C extends Enum<C>,
-        S extends Enum<S>
-        > {
+    T extends Enum<T>,
+    V extends Enum<V>,
+    C extends Enum<C>,
+    S extends Enum<S>
+    > {
     private static final int DEFAULT_ATTEMPT_COUNT = 1;
 
     private final VendorCommunicationHistoryDispatcher<T, V, C, S> dispatcher;
@@ -36,126 +36,126 @@ public class VendorCommunicationRecorder<
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson
+        T targetType,
+        C communicationType,
+        S sender,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson
     ) {
         dispatcher.dispatch(
-                targetType, null, vendorName, communicationType, sender,
-                null, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
+            targetType, null, vendorName, communicationType, sender,
+            null, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String targetId,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson
+        T targetType,
+        C communicationType,
+        S sender,
+        String targetId,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson
     ) {
         dispatcher.dispatch(
-                targetType, targetId, vendorName, communicationType, sender,
-                null, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
+            targetType, targetId, vendorName, communicationType, sender,
+            null, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson,
-            String exception
+        T targetType,
+        C communicationType,
+        S sender,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson,
+        String exception
     ) {
         dispatcher.dispatch(
-                targetType, null, vendorName, communicationType, sender,
-                exception, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
+            targetType, null, vendorName, communicationType, sender,
+            exception, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String targetId,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson,
-            String exception
+        T targetType,
+        C communicationType,
+        S sender,
+        String targetId,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson,
+        String exception
     ) {
         dispatcher.dispatch(
-                targetType, targetId, vendorName, communicationType, sender,
-                exception, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
+            targetType, targetId, vendorName, communicationType, sender,
+            exception, payload, payloadJson, DEFAULT_ATTEMPT_COUNT
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson,
-            int attemptCount
+        T targetType,
+        C communicationType,
+        S sender,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson,
+        int attemptCount
     ) {
         dispatcher.dispatch(
-                targetType, null, vendorName, communicationType, sender,
-                null, payload, payloadJson, attemptCount
+            targetType, null, vendorName, communicationType, sender,
+            null, payload, payloadJson, attemptCount
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String targetId,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson,
-            int attemptCount
+        T targetType,
+        C communicationType,
+        S sender,
+        String targetId,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson,
+        int attemptCount
     ) {
         dispatcher.dispatch(
-                targetType, targetId, vendorName, communicationType, sender,
-                null, payload, payloadJson, attemptCount
+            targetType, targetId, vendorName, communicationType, sender,
+            null, payload, payloadJson, attemptCount
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson,
-            String exception,
-            int attemptCount
+        T targetType,
+        C communicationType,
+        S sender,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson,
+        String exception,
+        int attemptCount
     ) {
         dispatcher.dispatch(
-                targetType, null, vendorName, communicationType, sender,
-                exception, payload, payloadJson, attemptCount
+            targetType, null, vendorName, communicationType, sender,
+            exception, payload, payloadJson, attemptCount
         );
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String targetId,
-            V vendorName,
-            String payload,
-            JsonNode payloadJson,
-            String exception,
-            int attemptCount
+        T targetType,
+        C communicationType,
+        S sender,
+        String targetId,
+        V vendorName,
+        String payload,
+        JsonNode payloadJson,
+        String exception,
+        int attemptCount
     ) {
         dispatcher.dispatch(
-                targetType, targetId, vendorName, communicationType, sender,
-                exception, payload, payloadJson, attemptCount
+            targetType, targetId, vendorName, communicationType, sender,
+            exception, payload, payloadJson, attemptCount
         );
     }
 }

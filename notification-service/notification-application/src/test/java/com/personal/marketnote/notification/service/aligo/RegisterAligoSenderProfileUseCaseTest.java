@@ -41,19 +41,19 @@ class RegisterAligoSenderProfileUseCaseTest {
     void shouldFindProfileAndCallExternalApiAndUpdateCategoryCode() {
         // given
         RegisterAligoSenderProfileCommand command = new RegisterAligoSenderProfileCommand(
-                "test-sender-key", "category-001"
+            "test-sender-key", "category-001"
         );
         AligoSenderProfile profile = AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey("test-sender-key")
-                        .plusId("@testChannel")
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey("test-sender-key")
+                .plusId("@testChannel")
+                .build()
         );
         when(findAligoSenderProfilePort.findBySenderKey("test-sender-key")).thenReturn(Optional.of(profile));
 
         // when
         RegisterAligoSenderProfileResult result = registerAligoSenderProfileService
-                .registerSenderProfile(command);
+            .registerSenderProfile(command);
 
         // then
         assertThat(result.senderKey()).isEqualTo("test-sender-key");
@@ -67,13 +67,13 @@ class RegisterAligoSenderProfileUseCaseTest {
     void shouldThrowNotFoundExceptionWhenSenderKeyNotExists() {
         // given
         RegisterAligoSenderProfileCommand command = new RegisterAligoSenderProfileCommand(
-                "non-existent-key", "category-001"
+            "non-existent-key", "category-001"
         );
         when(findAligoSenderProfilePort.findBySenderKey("non-existent-key")).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> registerAligoSenderProfileService.registerSenderProfile(command))
-                .isInstanceOf(AligoSenderProfileNotFoundException.class);
+            .isInstanceOf(AligoSenderProfileNotFoundException.class);
         verifyNoInteractions(registerAligoSenderProfileExternalPort);
         verifyNoInteractions(updateAligoSenderProfilePort);
     }

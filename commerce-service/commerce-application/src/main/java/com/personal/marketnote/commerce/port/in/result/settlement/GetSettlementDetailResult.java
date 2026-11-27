@@ -10,31 +10,31 @@ import java.util.List;
 
 @Builder
 public record GetSettlementDetailResult(
-        Long id,
-        Long orderId,
-        Long sellerId,
-        Long allocatedAmount,
-        Long shippingFee,
-        PaymentAllocationTransactionType transactionType,
-        PaymentAllocationTargetType targetType,
-        LocalDateTime createdAt
+    Long id,
+    Long orderId,
+    Long sellerId,
+    Long allocatedAmount,
+    Long shippingFee,
+    PaymentAllocationTransactionType transactionType,
+    PaymentAllocationTargetType targetType,
+    LocalDateTime createdAt
 ) {
     public static GetSettlementDetailResult from(PaymentAllocation allocation) {
         return GetSettlementDetailResult.builder()
-                .id(allocation.getId())
-                .orderId(allocation.getOrderId())
-                .sellerId(allocation.getSellerId())
-                .allocatedAmount(allocation.getAllocatedAmount().getValue())
-                .shippingFee(allocation.getShippingFee().getValue())
-                .transactionType(allocation.getTransactionType())
-                .targetType(allocation.getTargetType())
-                .createdAt(allocation.getCreatedAt())
-                .build();
+            .id(allocation.getId())
+            .orderId(allocation.getOrderId())
+            .sellerId(allocation.getSellerId())
+            .allocatedAmount(allocation.getAllocatedAmount().getValue())
+            .shippingFee(allocation.getShippingFee().getValue())
+            .transactionType(allocation.getTransactionType())
+            .targetType(allocation.getTargetType())
+            .createdAt(allocation.getCreatedAt())
+            .build();
     }
 
     public static List<GetSettlementDetailResult> fromList(List<PaymentAllocation> allocations) {
         return allocations.stream()
-                .map(GetSettlementDetailResult::from)
-                .toList();
+            .map(GetSettlementDetailResult::from)
+            .toList();
     }
 }

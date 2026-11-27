@@ -2,11 +2,7 @@ package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductTag;
-import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
+import com.personal.marketnote.product.domain.product.*;
 import com.personal.marketnote.product.exception.DuplicateProductTagOrderException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -53,8 +49,8 @@ class ReorderProductTagsUseCaseTest {
         Long productId = 10L;
         Product product = buildProductWithTags(productId, 1L);
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 2L),
-                new ReorderProductTagsCommand.TagOrderItem(200L, 1L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 2L),
+            new ReorderProductTagsCommand.TagOrderItem(200L, 1L)
         ));
 
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
@@ -70,17 +66,17 @@ class ReorderProductTagsUseCaseTest {
         assertThat(captured).containsEntry(200L, 1L);
 
         ArgumentCaptor<List<ProductTagChangedEvent.ProductTagSnapshot>> tagCaptor
-                = ArgumentCaptor.forClass(List.class);
+            = ArgumentCaptor.forClass(List.class);
         verify(publishProductEventPort).publishProductTagChangedEvent(
-                eq(productId), tagCaptor.capture(), eq(ProductTagChangedEvent.Action.REORDERED)
+            eq(productId), tagCaptor.capture(), eq(ProductTagChangedEvent.Action.REORDERED)
         );
         List<ProductTagChangedEvent.ProductTagSnapshot> snapshots = tagCaptor.getValue();
         assertThat(snapshots).extracting(ProductTagChangedEvent.ProductTagSnapshot::id)
-                .containsExactly(100L, 200L);
+            .containsExactly(100L, 200L);
         assertThat(snapshots).extracting(ProductTagChangedEvent.ProductTagSnapshot::orderNum)
-                .containsExactly(2L, 1L);
+            .containsExactly(2L, 1L);
         assertThat(snapshots).extracting(ProductTagChangedEvent.ProductTagSnapshot::name)
-                .containsExactly("태그1", "태그2");
+            .containsExactly("태그1", "태그2");
     }
 
     @Test
@@ -90,8 +86,8 @@ class ReorderProductTagsUseCaseTest {
         Long sellerId = 5L;
         Product product = buildProductWithTags(productId, sellerId);
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 3L),
-                new ReorderProductTagsCommand.TagOrderItem(200L, 1L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 3L),
+            new ReorderProductTagsCommand.TagOrderItem(200L, 1L)
         ));
 
         when(findProductPort.existsByIdAndSellerId(productId, sellerId)).thenReturn(true);
@@ -108,7 +104,7 @@ class ReorderProductTagsUseCaseTest {
         assertThat(captured).containsEntry(200L, 1L);
 
         verify(publishProductEventPort).publishProductTagChangedEvent(
-                eq(productId), anyList(), eq(ProductTagChangedEvent.Action.REORDERED)
+            eq(productId), anyList(), eq(ProductTagChangedEvent.Action.REORDERED)
         );
     }
 
@@ -118,14 +114,14 @@ class ReorderProductTagsUseCaseTest {
         Long productId = 30L;
         Long nonOwnerId = 99L;
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 1L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 1L)
         ));
 
         when(findProductPort.existsByIdAndSellerId(productId, nonOwnerId)).thenReturn(false);
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(nonOwnerId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, nonOwnerId);
         verifyNoInteractions(getProductUseCase, updateProductTagPort, publishProductEventPort);
@@ -138,14 +134,14 @@ class ReorderProductTagsUseCaseTest {
         Long nonExistentTagId = 999L;
         Product product = buildProductWithTags(productId, 1L);
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 1L),
-                new ReorderProductTagsCommand.TagOrderItem(nonExistentTagId, 2L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 1L),
+            new ReorderProductTagsCommand.TagOrderItem(nonExistentTagId, 2L)
         ));
 
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
-                .isInstanceOf(ProductTagNotFoundException.class);
+            .isInstanceOf(ProductTagNotFoundException.class);
 
         verify(getProductUseCase).getProduct(productId);
         verifyNoInteractions(updateProductTagPort, publishProductEventPort);
@@ -156,14 +152,14 @@ class ReorderProductTagsUseCaseTest {
     void reorderProductTags_productNotFound_propagates() {
         Long productId = 50L;
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 1L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 1L)
         ));
         ProductNotFoundException exception = new ProductNotFoundException();
 
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(productId);
         verifyNoInteractions(findProductPort, updateProductTagPort, publishProductEventPort);
@@ -175,15 +171,15 @@ class ReorderProductTagsUseCaseTest {
         Long productId = 60L;
         Product product = buildProductWithTags(productId, 1L);
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 1L),
-                new ReorderProductTagsCommand.TagOrderItem(100L, 2L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 1L),
+            new ReorderProductTagsCommand.TagOrderItem(100L, 2L)
         ));
 
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
-                .isInstanceOf(DuplicateProductTagOrderException.class)
-                .hasMessageContaining("중복된 태그 ID");
+            .isInstanceOf(DuplicateProductTagOrderException.class)
+            .hasMessageContaining("중복된 태그 ID");
 
         verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }
@@ -194,15 +190,15 @@ class ReorderProductTagsUseCaseTest {
         Long productId = 70L;
         Product product = buildProductWithTags(productId, 1L);
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
-                new ReorderProductTagsCommand.TagOrderItem(100L, 1L),
-                new ReorderProductTagsCommand.TagOrderItem(200L, 1L)
+            new ReorderProductTagsCommand.TagOrderItem(100L, 1L),
+            new ReorderProductTagsCommand.TagOrderItem(200L, 1L)
         ));
 
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
-                .isInstanceOf(DuplicateProductTagOrderException.class)
-                .hasMessageContaining("중복된 순서 번호");
+            .isInstanceOf(DuplicateProductTagOrderException.class)
+            .hasMessageContaining("중복된 순서 번호");
 
         verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }
@@ -216,33 +212,33 @@ class ReorderProductTagsUseCaseTest {
 
     private ReorderProductTagsCommand buildCommand(Long productId, List<ReorderProductTagsCommand.TagOrderItem> tagOrders) {
         return ReorderProductTagsCommand.builder()
-                .productId(productId)
-                .tagOrders(tagOrders)
-                .build();
+            .productId(productId)
+            .tagOrders(tagOrders)
+            .build();
     }
 
     private Product buildProductWithTags(Long productId, Long sellerId) {
         List<ProductTag> tags = List.of(
-                ProductTag.from(ProductTagSnapshotState.builder()
-                        .id(100L).productId(productId).name("태그1").orderNum(1L).status(EntityStatus.ACTIVE).build()),
-                ProductTag.from(ProductTagSnapshotState.builder()
-                        .id(200L).productId(productId).name("태그2").orderNum(2L).status(EntityStatus.ACTIVE).build())
+            ProductTag.from(ProductTagSnapshotState.builder()
+                .id(100L).productId(productId).name("태그1").orderNum(1L).status(EntityStatus.ACTIVE).build()),
+            ProductTag.from(ProductTagSnapshotState.builder()
+                .id(200L).productId(productId).name("태그2").orderNum(2L).status(EntityStatus.ACTIVE).build())
         );
 
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(productId)
-                        .productKey(productKey)
-                        .sellerId(sellerId)
-                        .name("테스트 상품")
-                        .brandName("테스트 브랜드")
-                        .detail("테스트 상세")
-                        .findAllOptionsYn(false)
-                        .productTags(tags)
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(productId)
+                .productKey(productKey)
+                .sellerId(sellerId)
+                .name("테스트 상품")
+                .brandName("테스트 브랜드")
+                .detail("테스트 상세")
+                .findAllOptionsYn(false)
+                .productTags(tags)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 }

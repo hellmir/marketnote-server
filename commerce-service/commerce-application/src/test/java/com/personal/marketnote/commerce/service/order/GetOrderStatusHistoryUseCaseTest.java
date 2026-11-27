@@ -37,30 +37,30 @@ class GetOrderStatusHistoryUseCaseTest {
 
     private Order createOrder(Long id) {
         return Order.from(OrderSnapshotState.builder()
-                .id(id)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD" + id))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of())
-                .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))
-                .build());
+            .id(id)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD" + id))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of())
+            .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))
+            .build());
     }
 
     private OrderStatusHistory createHistory(Long id, Long orderId, OrderStatus status,
                                              OrderStatusReasonCategory reasonCategory,
                                              String reason, LocalDateTime createdAt) {
         return OrderStatusHistory.from(OrderStatusHistorySnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .orderStatus(status)
-                .reasonCategory(reasonCategory)
-                .reason(reason)
-                .createdAt(createdAt)
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .orderStatus(status)
+            .reasonCategory(reasonCategory)
+            .reason(reason)
+            .createdAt(createdAt)
+            .build());
     }
 
     @Test
@@ -71,10 +71,10 @@ class GetOrderStatusHistoryUseCaseTest {
         when(findOrderPort.findById(orderId)).thenReturn(Optional.of(createOrder(orderId)));
 
         List<OrderStatusHistory> histories = List.of(
-                createHistory(1L, orderId, OrderStatus.PAYMENT_PENDING, null, "결제 대기",
-                        LocalDateTime.of(2026, 2, 20, 10, 0)),
-                createHistory(2L, orderId, OrderStatus.PAID, null, "결제 완료",
-                        LocalDateTime.of(2026, 2, 20, 10, 5))
+            createHistory(1L, orderId, OrderStatus.PAYMENT_PENDING, null, "결제 대기",
+                LocalDateTime.of(2026, 2, 20, 10, 0)),
+            createHistory(2L, orderId, OrderStatus.PAID, null, "결제 완료",
+                LocalDateTime.of(2026, 2, 20, 10, 5))
         );
         when(findOrderStatusHistoryPort.findAllByOrderId(orderId)).thenReturn(histories);
 
@@ -98,8 +98,8 @@ class GetOrderStatusHistoryUseCaseTest {
         when(findOrderPort.findById(orderId)).thenReturn(Optional.of(createOrder(orderId)));
 
         List<OrderStatusHistory> histories = List.of(
-                createHistory(1L, orderId, OrderStatus.PAID, null, "결제 완료",
-                        LocalDateTime.of(2026, 2, 20, 10, 0))
+            createHistory(1L, orderId, OrderStatus.PAID, null, "결제 완료",
+                LocalDateTime.of(2026, 2, 20, 10, 0))
         );
         when(findOrderStatusHistoryPort.findAllByOrderId(orderId)).thenReturn(histories);
 
@@ -118,8 +118,8 @@ class GetOrderStatusHistoryUseCaseTest {
         when(findOrderPort.findById(orderId)).thenReturn(Optional.of(createOrder(orderId)));
 
         OrderStatusHistory history = createHistory(
-                3L, orderId, OrderStatus.CANCELLED, OrderStatusReasonCategory.CANCEL_ORDER,
-                "구매 의사 취소", LocalDateTime.of(2026, 2, 20, 11, 0));
+            3L, orderId, OrderStatus.CANCELLED, OrderStatusReasonCategory.CANCEL_ORDER,
+            "구매 의사 취소", LocalDateTime.of(2026, 2, 20, 11, 0));
         when(findOrderStatusHistoryPort.findAllByOrderId(orderId)).thenReturn(List.of(history));
 
         // when
@@ -142,8 +142,8 @@ class GetOrderStatusHistoryUseCaseTest {
         when(findOrderPort.findById(orderId)).thenReturn(Optional.of(createOrder(orderId)));
 
         OrderStatusHistory history = createHistory(
-                1L, orderId, OrderStatus.PAID, null, "결제 완료",
-                LocalDateTime.of(2026, 2, 20, 10, 0));
+            1L, orderId, OrderStatus.PAID, null, "결제 완료",
+            LocalDateTime.of(2026, 2, 20, 10, 0));
         when(findOrderStatusHistoryPort.findAllByOrderId(orderId)).thenReturn(List.of(history));
 
         // when
@@ -181,7 +181,7 @@ class GetOrderStatusHistoryUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getOrderStatusHistoryService.getOrderStatusHistory(orderId))
-                .isInstanceOf(OrderNotFoundException.class);
+            .isInstanceOf(OrderNotFoundException.class);
         verify(findOrderPort).findById(orderId);
         verifyNoInteractions(findOrderStatusHistoryPort);
     }
@@ -225,7 +225,7 @@ class GetOrderStatusHistoryUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getOrderStatusHistoryService.getOrderStatusHistory(orderId))
-                .isInstanceOf(OrderNotFoundException.class);
+            .isInstanceOf(OrderNotFoundException.class);
         verifyNoInteractions(findOrderStatusHistoryPort);
     }
 }

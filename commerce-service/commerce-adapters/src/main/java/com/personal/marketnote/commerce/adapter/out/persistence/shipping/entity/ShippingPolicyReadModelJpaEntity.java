@@ -9,11 +9,11 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "shipping_policy_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_shipping_policy_read_model_seller_id",
-                columnNames = "seller_id"
-        )
+    name = "shipping_policy_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_shipping_policy_read_model_seller_id",
+        columnNames = "seller_id"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -39,12 +39,12 @@ public class ShippingPolicyReadModelJpaEntity extends BaseGeneralEntity {
     public static ShippingPolicyReadModelJpaEntity of(Long sellerId, Long shippingFee, Long freeShippingThreshold,
                                                       Long jejuSurcharge, Long islandSurcharge) {
         return ShippingPolicyReadModelJpaEntity.builder()
-                .sellerId(sellerId)
-                .shippingFee(shippingFee)
-                .freeShippingThreshold(freeShippingThreshold)
-                .jejuSurcharge(jejuSurcharge)
-                .islandSurcharge(islandSurcharge)
-                .build();
+            .sellerId(sellerId)
+            .shippingFee(shippingFee)
+            .freeShippingThreshold(freeShippingThreshold)
+            .jejuSurcharge(jejuSurcharge)
+            .islandSurcharge(islandSurcharge)
+            .build();
     }
 
     public void updateFrom(Long shippingFee, Long freeShippingThreshold,

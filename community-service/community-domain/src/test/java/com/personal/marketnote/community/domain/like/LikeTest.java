@@ -14,10 +14,10 @@ class LikeTest {
     @DisplayName("LikeCreateState로 Like를 생성하면 ACTIVE 상태이다")
     void shouldCreateLikeWithActiveStatusFromCreateState() {
         LikeCreateState state = LikeCreateState.builder()
-                .targetType(LikeTargetType.REVIEW)
-                .targetId(1L)
-                .userId(100L)
-                .build();
+            .targetType(LikeTargetType.REVIEW)
+            .targetId(1L)
+            .userId(100L)
+            .build();
 
         Like like = Like.from(state);
 
@@ -33,13 +33,13 @@ class LikeTest {
         LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
         LocalDateTime modifiedAt = LocalDateTime.of(2026, 4, 1, 12, 0);
         LikeSnapshotState state = LikeSnapshotState.builder()
-                .targetType(LikeTargetType.BOARD)
-                .targetId(2L)
-                .userId(200L)
-                .status(EntityStatus.INACTIVE)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .build();
+            .targetType(LikeTargetType.BOARD)
+            .targetId(2L)
+            .userId(200L)
+            .status(EntityStatus.INACTIVE)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .build();
 
         Like like = Like.from(state);
 
@@ -105,10 +105,10 @@ class LikeTest {
 
     private Like createActiveLike() {
         return Like.from(LikeCreateState.builder()
-                .targetType(LikeTargetType.REVIEW)
-                .targetId(1L)
-                .userId(100L)
-                .build());
+            .targetType(LikeTargetType.REVIEW)
+            .targetId(1L)
+            .userId(100L)
+            .build());
     }
 
     private Like createInactiveLike() {

@@ -60,17 +60,17 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             GrantedTokenInfo expected = GrantedTokenInfo.builder()
-                    .accessToken("access-token")
-                    .refreshToken("refresh-token")
-                    .id("oidc-1")
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .accessToken("access-token")
+                .refreshToken("refresh-token")
+                .id("oidc-1")
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.grantToken("auth-code", "https://example.com/callback"))
-                    .thenReturn(expected);
+                .thenReturn(expected);
 
             // when
             GrantedTokenInfo actual = delegatingTokenSupport.grantToken(
-                    "auth-code", "https://example.com/callback", AuthVendor.KAKAO
+                "auth-code", "https://example.com/callback", AuthVendor.KAKAO
             );
 
             // then
@@ -87,10 +87,10 @@ class DelegatingTokenSupportTest {
 
             // when & then
             assertThatThrownBy(() -> delegatingTokenSupport.grantToken(
-                    "auth-code", "https://example.com/callback", AuthVendor.GOOGLE
+                "auth-code", "https://example.com/callback", AuthVendor.GOOGLE
             ))
-                    .isInstanceOf(UnsupportedCodeException.class)
-                    .hasMessageContaining("GOOGLE");
+                .isInstanceOf(UnsupportedCodeException.class)
+                .hasMessageContaining("GOOGLE");
         }
     }
 
@@ -105,10 +105,10 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             OAuth2AuthenticationInfo expected = OAuth2AuthenticationInfo.builder()
-                    .id("oidc-1")
-                    .authVendor(AuthVendor.KAKAO)
-                    .userId(10L)
-                    .build();
+                .id("oidc-1")
+                .authVendor(AuthVendor.KAKAO)
+                .userId(10L)
+                .build();
             when(kakaoProcessor.authenticate("access-token")).thenReturn(expected);
 
             // when
@@ -127,12 +127,12 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             when(kakaoProcessor.authenticate("access-token"))
-                    .thenThrow(new InvalidAccessTokenException("kakao failed"));
+                .thenThrow(new InvalidAccessTokenException("kakao failed"));
             OAuth2AuthenticationInfo googleResult = OAuth2AuthenticationInfo.builder()
-                    .id("oidc-2")
-                    .authVendor(AuthVendor.GOOGLE)
-                    .userId(20L)
-                    .build();
+                .id("oidc-2")
+                .authVendor(AuthVendor.GOOGLE)
+                .userId(20L)
+                .build();
             when(googleProcessor.authenticate("access-token")).thenReturn(googleResult);
 
             // when
@@ -149,18 +149,18 @@ class DelegatingTokenSupportTest {
         void shouldThrowWhenAllProcessorsFail() {
             // given
             DelegatingTokenSupport delegatingTokenSupport =
-                    createDelegating(kakaoProcessor, googleProcessor, appleProcessor);
+                createDelegating(kakaoProcessor, googleProcessor, appleProcessor);
 
             when(kakaoProcessor.authenticate("access-token"))
-                    .thenThrow(new InvalidAccessTokenException("kakao failed"));
+                .thenThrow(new InvalidAccessTokenException("kakao failed"));
             when(googleProcessor.authenticate("access-token"))
-                    .thenThrow(new InvalidAccessTokenException("google failed"));
+                .thenThrow(new InvalidAccessTokenException("google failed"));
             when(appleProcessor.authenticate("access-token"))
-                    .thenThrow(new InvalidAccessTokenException("apple failed"));
+                .thenThrow(new InvalidAccessTokenException("apple failed"));
 
             // when & then
             assertThatThrownBy(() -> delegatingTokenSupport.authenticate("access-token"))
-                    .isInstanceOf(InvalidAccessTokenException.class);
+                .isInstanceOf(InvalidAccessTokenException.class);
 
             verify(kakaoProcessor).authenticate("access-token");
             verify(googleProcessor).authenticate("access-token");
@@ -197,13 +197,13 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             when(kakaoProcessor.retrieveUserInfo("access-token"))
-                    .thenThrow(new InvalidAccessTokenException("kakao failed"));
+                .thenThrow(new InvalidAccessTokenException("kakao failed"));
             when(googleProcessor.retrieveUserInfo("access-token"))
-                    .thenThrow(new InvalidAccessTokenException("google failed"));
+                .thenThrow(new InvalidAccessTokenException("google failed"));
 
             // when & then
             assertThatThrownBy(() -> delegatingTokenSupport.retrieveUserInfo("access-token"))
-                    .isInstanceOf(InvalidAccessTokenException.class);
+                .isInstanceOf(InvalidAccessTokenException.class);
         }
     }
 
@@ -218,11 +218,11 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             GrantedTokenInfo expected = GrantedTokenInfo.builder()
-                    .accessToken("new-access-token")
-                    .refreshToken("new-refresh-token")
-                    .id("oidc-1")
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .accessToken("new-access-token")
+                .refreshToken("new-refresh-token")
+                .id("oidc-1")
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.refreshToken("refresh-token")).thenReturn(expected);
 
             // when
@@ -241,13 +241,13 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             when(kakaoProcessor.refreshToken("refresh-token"))
-                    .thenThrow(new InvalidRefreshTokenException("kakao failed"));
+                .thenThrow(new InvalidRefreshTokenException("kakao failed"));
             GrantedTokenInfo googleResult = GrantedTokenInfo.builder()
-                    .accessToken("google-access")
-                    .refreshToken("google-refresh")
-                    .id("oidc-2")
-                    .authVendor(AuthVendor.GOOGLE)
-                    .build();
+                .accessToken("google-access")
+                .refreshToken("google-refresh")
+                .id("oidc-2")
+                .authVendor(AuthVendor.GOOGLE)
+                .build();
             when(googleProcessor.refreshToken("refresh-token")).thenReturn(googleResult);
 
             // when
@@ -266,13 +266,13 @@ class DelegatingTokenSupportTest {
             DelegatingTokenSupport delegatingTokenSupport = createDelegating(kakaoProcessor, googleProcessor);
 
             when(kakaoProcessor.refreshToken("refresh-token"))
-                    .thenThrow(new InvalidRefreshTokenException("kakao failed"));
+                .thenThrow(new InvalidRefreshTokenException("kakao failed"));
             when(googleProcessor.refreshToken("refresh-token"))
-                    .thenThrow(new InvalidRefreshTokenException("google failed"));
+                .thenThrow(new InvalidRefreshTokenException("google failed"));
 
             // when & then
             assertThatThrownBy(() -> delegatingTokenSupport.refreshToken("refresh-token"))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
     }
 }

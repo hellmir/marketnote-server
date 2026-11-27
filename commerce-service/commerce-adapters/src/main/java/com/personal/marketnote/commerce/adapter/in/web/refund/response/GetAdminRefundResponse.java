@@ -14,27 +14,27 @@ import java.time.LocalDateTime;
  */
 @Builder
 public record GetAdminRefundResponse(
-        Long id,
-        Long paymentId,
-        Long orderId,
-        RefundType refundType,
-        Long refundAmount,
-        String cancelReason,
-        String processedBy,
-        String pgRefundKey,
-        LocalDateTime createdAt
+    Long id,
+    Long paymentId,
+    Long orderId,
+    RefundType refundType,
+    Long refundAmount,
+    String cancelReason,
+    String processedBy,
+    String pgRefundKey,
+    LocalDateTime createdAt
 ) {
     public static GetAdminRefundResponse from(GetAdminRefundResult result) {
         return GetAdminRefundResponse.builder()
-                .id(result.id())
-                .paymentId(result.paymentId())
-                .orderId(result.orderId())
-                .refundType(result.refundType())
-                .refundAmount(result.refundAmount())
-                .cancelReason(result.cancelReason())
-                .processedBy(result.processedBy())
-                .pgRefundKey(result.pgRefundKey())
-                .createdAt(result.createdAt())
-                .build();
+            .id(result.id())
+            .paymentId(result.paymentId())
+            .orderId(result.orderId())
+            .refundType(result.refundType())
+            .refundAmount(result.refundAmount())
+            .cancelReason(result.cancelReason())
+            .processedBy(result.processedBy())
+            .pgRefundKey(result.pgRefundKey())
+            .createdAt(result.createdAt())
+            .build();
     }
 }

@@ -38,31 +38,31 @@ public class LedgerQueryPersistenceAdapter implements FindLedgerTransactionPort,
 
     @Override
     public List<LedgerTransaction> findByFilters(
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            LedgerTransactionType transactionType
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        LedgerTransactionType transactionType
     ) {
         LocalDateTime safeStart = FormatValidator.hasValue(startDate) ? startDate : FAR_PAST;
         LocalDateTime safeEnd = FormatValidator.hasValue(endDate) ? endDate : FAR_FUTURE;
 
         if (FormatValidator.hasValue(transactionType)) {
             return ledgerTransactionJpaRepository.findByDateRangeAndType(safeStart, safeEnd, transactionType)
-                    .stream()
-                    .map(LedgerTransactionEntityToDomainMapper::toDomain)
-                    .toList();
-        }
-        return ledgerTransactionJpaRepository.findByDateRange(safeStart, safeEnd)
                 .stream()
                 .map(LedgerTransactionEntityToDomainMapper::toDomain)
                 .toList();
+        }
+        return ledgerTransactionJpaRepository.findByDateRange(safeStart, safeEnd)
+            .stream()
+            .map(LedgerTransactionEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public List<LedgerEntry> findByTransactionId(Long transactionId) {
         return ledgerEntryJpaRepository.findByTransactionIdOrderByIdAsc(transactionId)
-                .stream()
-                .map(LedgerEntryEntityToDomainMapper::toDomain)
-                .toList();
+            .stream()
+            .map(LedgerEntryEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
@@ -93,11 +93,11 @@ public class LedgerQueryPersistenceAdapter implements FindLedgerTransactionPort,
         accountIds.sort(Long::compareTo);
 
         return accountIds.stream()
-                .map(accountId -> new AccountBalanceDto(
-                        accountId,
-                        debitMap.getOrDefault(accountId, 0L),
-                        creditMap.getOrDefault(accountId, 0L)
-                ))
-                .toList();
+            .map(accountId -> new AccountBalanceDto(
+                accountId,
+                debitMap.getOrDefault(accountId, 0L),
+                creditMap.getOrDefault(accountId, 0L)
+            ))
+            .toList();
     }
 }

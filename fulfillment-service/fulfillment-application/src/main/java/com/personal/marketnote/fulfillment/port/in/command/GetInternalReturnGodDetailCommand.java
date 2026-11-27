@@ -5,7 +5,7 @@ import com.personal.marketnote.fulfillment.exception.InvalidReturnSlipNumbersCou
 import com.personal.marketnote.fulfillment.exception.ReturnSlipNumbersNoValueException;
 
 public record GetInternalReturnGodDetailCommand(
-        String returnSlipNumbers
+    String returnSlipNumbers
 ) {
     private static final int MAX_SLIP_NUMBER_COUNT = 100;
 

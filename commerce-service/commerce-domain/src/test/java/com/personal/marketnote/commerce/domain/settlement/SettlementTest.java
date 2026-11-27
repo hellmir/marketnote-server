@@ -22,14 +22,14 @@ class SettlementTest {
         void shouldCreateWithPendingStatus() {
             // given
             SettlementCreateState state = SettlementCreateState.builder()
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L)
-                    .sellerPayoutAmount(92000L)
-                    .build();
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .pgFeeAmount(3000L)
+                .platformFeeAmount(5000L)
+                .sellerPayoutAmount(92000L)
+                .build();
 
             // when
             Settlement settlement = Settlement.from(state);
@@ -51,19 +51,19 @@ class SettlementTest {
         void shouldThrowWhenTotalAllocatedAmountIsZeroOrNegative() {
             // given
             SettlementCreateState state = SettlementCreateState.builder()
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(0L)
-                    .pgFeeAmount(0L)
-                    .platformFeeAmount(0L)
-                    .sellerPayoutAmount(0L)
-                    .build();
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(0L)
+                .pgFeeAmount(0L)
+                .platformFeeAmount(0L)
+                .sellerPayoutAmount(0L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Settlement.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
         }
 
         @Test
@@ -71,19 +71,19 @@ class SettlementTest {
         void shouldThrowWhenSellerPayoutAmountIsZeroOrNegative() {
             // given
             SettlementCreateState state = SettlementCreateState.builder()
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .pgFeeAmount(50000L)
-                    .platformFeeAmount(50000L)
-                    .sellerPayoutAmount(0L)
-                    .build();
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .pgFeeAmount(50000L)
+                .platformFeeAmount(50000L)
+                .sellerPayoutAmount(0L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Settlement.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
         }
 
         @Test
@@ -91,19 +91,19 @@ class SettlementTest {
         void shouldThrowWhenPgFeeAmountIsNegative() {
             // given
             SettlementCreateState state = SettlementCreateState.builder()
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .pgFeeAmount(-1L)
-                    .platformFeeAmount(5000L)
-                    .sellerPayoutAmount(96000L)
-                    .build();
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .pgFeeAmount(-1L)
+                .platformFeeAmount(5000L)
+                .sellerPayoutAmount(96000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Settlement.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("음수일 수 없습니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("음수일 수 없습니다");
         }
 
         @Test
@@ -111,19 +111,19 @@ class SettlementTest {
         void shouldThrowWhenPlatformFeeAmountIsNegative() {
             // given
             SettlementCreateState state = SettlementCreateState.builder()
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .pgFeeAmount(3000L)
-                    .platformFeeAmount(-1L)
-                    .sellerPayoutAmount(98000L)
-                    .build();
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .pgFeeAmount(3000L)
+                .platformFeeAmount(-1L)
+                .sellerPayoutAmount(98000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Settlement.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("음수일 수 없습니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("음수일 수 없습니다");
         }
     }
 
@@ -138,20 +138,20 @@ class SettlementTest {
             LocalDateTime createdAt = LocalDateTime.of(2026, 2, 16, 10, 0);
             LocalDateTime modifiedAt = LocalDateTime.of(2026, 2, 16, 11, 0);
             SettlementSnapshotState state = SettlementSnapshotState.builder()
-                    .id(1L)
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .shippingFee(0L)
-                    .pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L)
-                    .sellerPayoutAmount(92000L)
-                    .status(SettlementStatus.COMPLETED)
-                    .version(1L)
-                    .createdAt(createdAt)
-                    .modifiedAt(modifiedAt)
-                    .build();
+                .id(1L)
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .shippingFee(0L)
+                .pgFeeAmount(3000L)
+                .platformFeeAmount(5000L)
+                .sellerPayoutAmount(92000L)
+                .status(SettlementStatus.COMPLETED)
+                .version(1L)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .build();
 
             // when
             Settlement settlement = Settlement.from(state);
@@ -177,15 +177,15 @@ class SettlementTest {
         void shouldTransitionToCompleted() {
             // given
             Settlement settlement = Settlement.from(
-                    SettlementCreateState.builder()
-                            .sellerId(10L)
-                            .year(2026)
-                            .month(2)
-                            .totalAllocatedAmount(100000L)
-                            .pgFeeAmount(3000L)
-                            .platformFeeAmount(5000L)
-                            .sellerPayoutAmount(92000L)
-                            .build()
+                SettlementCreateState.builder()
+                    .sellerId(10L)
+                    .year(2026)
+                    .month(2)
+                    .totalAllocatedAmount(100000L)
+                    .pgFeeAmount(3000L)
+                    .platformFeeAmount(5000L)
+                    .sellerPayoutAmount(92000L)
+                    .build()
             );
 
             // when
@@ -201,15 +201,15 @@ class SettlementTest {
         void shouldTransitionToFailed() {
             // given
             Settlement settlement = Settlement.from(
-                    SettlementCreateState.builder()
-                            .sellerId(10L)
-                            .year(2026)
-                            .month(2)
-                            .totalAllocatedAmount(100000L)
-                            .pgFeeAmount(3000L)
-                            .platformFeeAmount(5000L)
-                            .sellerPayoutAmount(92000L)
-                            .build()
+                SettlementCreateState.builder()
+                    .sellerId(10L)
+                    .year(2026)
+                    .month(2)
+                    .totalAllocatedAmount(100000L)
+                    .pgFeeAmount(3000L)
+                    .platformFeeAmount(5000L)
+                    .sellerPayoutAmount(92000L)
+                    .build()
             );
 
             // when
@@ -225,18 +225,18 @@ class SettlementTest {
         void shouldThrowWhenCompleteFromCompleted() {
             // given
             Settlement settlement = Settlement.from(
-                    SettlementCreateState.builder()
-                            .sellerId(10L).year(2026).month(2)
-                            .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                            .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                            .build()
+                SettlementCreateState.builder()
+                    .sellerId(10L).year(2026).month(2)
+                    .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                    .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                    .build()
             );
             settlement.complete();
 
             // when & then
             assertThatThrownBy(settlement::complete)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -244,18 +244,18 @@ class SettlementTest {
         void shouldThrowWhenFailFromCompleted() {
             // given
             Settlement settlement = Settlement.from(
-                    SettlementCreateState.builder()
-                            .sellerId(10L).year(2026).month(2)
-                            .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                            .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                            .build()
+                SettlementCreateState.builder()
+                    .sellerId(10L).year(2026).month(2)
+                    .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                    .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                    .build()
             );
             settlement.complete();
 
             // when & then
             assertThatThrownBy(settlement::fail)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -282,8 +282,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::resetToPending)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -295,8 +295,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::resetToPending)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -322,8 +322,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::cancel)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -335,8 +335,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::cancel)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -349,8 +349,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::cancel)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -378,8 +378,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::resetCancelledToPending)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -391,8 +391,8 @@ class SettlementTest {
 
             // when & then
             assertThatThrownBy(settlement::resetCancelledToPending)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("현재 상태");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -472,11 +472,11 @@ class SettlementTest {
 
     private Settlement createPendingSettlement() {
         return Settlement.from(
-                SettlementCreateState.builder()
-                        .sellerId(10L).year(2026).month(2)
-                        .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                        .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                        .build()
+            SettlementCreateState.builder()
+                .sellerId(10L).year(2026).month(2)
+                .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                .build()
         );
     }
 }

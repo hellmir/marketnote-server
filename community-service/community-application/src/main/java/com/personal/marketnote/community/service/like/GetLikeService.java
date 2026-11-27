@@ -28,9 +28,9 @@ public class GetLikeService implements GetLikeUseCase {
     @Override
     public Like getLike(LikeTargetType targetType, Long targetId, Long userId) {
         return findLikePort.findByTargetAndUser(targetType, targetId, userId)
-                .orElseThrow(() -> {
-                    log.warn("좋아요를 찾을 수 없습니다. targetType={}, targetId={}, userId={}", targetType, targetId, userId);
-                    return new LikeNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("좋아요를 찾을 수 없습니다. targetType={}, targetId={}, userId={}", targetType, targetId, userId);
+                return new LikeNotFoundException();
+            });
     }
 }

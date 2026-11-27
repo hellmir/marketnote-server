@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(
-        name = "product_catalog_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_product_catalog_read_model_price_policy_id",
-                columnNames = "price_policy_id"
-        )
+    name = "product_catalog_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_product_catalog_read_model_price_policy_id",
+        columnNames = "price_policy_id"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -88,46 +88,46 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     private String selectedOptions;
 
     public static ProductCatalogReadModelJpaEntity of(
-            Long pricePolicyId,
-            Long productId,
-            Long sellerId,
-            Long primaryCategoryId,
-            String name,
-            String brandName,
-            Long price,
-            Long discountPrice,
-            BigDecimal discountRate,
-            Long accumulatedPoint,
-            BigDecimal accumulatedPointRate,
-            Long orderNum,
-            Long popularity,
-            Long sales,
-            String productTags,
-            String selectedOptions
+        Long pricePolicyId,
+        Long productId,
+        Long sellerId,
+        Long primaryCategoryId,
+        String name,
+        String brandName,
+        Long price,
+        Long discountPrice,
+        BigDecimal discountRate,
+        Long accumulatedPoint,
+        BigDecimal accumulatedPointRate,
+        Long orderNum,
+        Long popularity,
+        Long sales,
+        String productTags,
+        String selectedOptions
     ) {
         return ProductCatalogReadModelJpaEntity.builder()
-                .pricePolicyId(pricePolicyId)
-                .productId(productId)
-                .sellerId(sellerId)
-                .primaryCategoryId(primaryCategoryId)
-                .name(name)
-                .brandName(brandName)
-                .price(price)
-                .discountPrice(discountPrice)
-                .discountRate(discountRate)
-                .accumulatedPoint(accumulatedPoint)
-                .accumulatedPointRate(accumulatedPointRate)
-                .orderNum(orderNum)
-                .popularity(popularity)
-                .representativeImageUrl(null)
-                .resizedImageUrls(null)
-                .stockQuantity(0)
-                .reviewCount(0)
-                .reviewAverageRating(BigDecimal.ZERO)
-                .sales(sales)
-                .productTags(productTags)
-                .selectedOptions(selectedOptions)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .productId(productId)
+            .sellerId(sellerId)
+            .primaryCategoryId(primaryCategoryId)
+            .name(name)
+            .brandName(brandName)
+            .price(price)
+            .discountPrice(discountPrice)
+            .discountRate(discountRate)
+            .accumulatedPoint(accumulatedPoint)
+            .accumulatedPointRate(accumulatedPointRate)
+            .orderNum(orderNum)
+            .popularity(popularity)
+            .representativeImageUrl(null)
+            .resizedImageUrls(null)
+            .stockQuantity(0)
+            .reviewCount(0)
+            .reviewAverageRating(BigDecimal.ZERO)
+            .sales(sales)
+            .productTags(productTags)
+            .selectedOptions(selectedOptions)
+            .build();
     }
 
     public void updateProductInfo(String name, String brandName, Long primaryCategoryId) {
@@ -148,8 +148,8 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     }
 
     public void updatePricing(
-            Long price, Long discountPrice, BigDecimal discountRate,
-            Long accumulatedPoint, BigDecimal accumulatedPointRate
+        Long price, Long discountPrice, BigDecimal discountRate,
+        Long accumulatedPoint, BigDecimal accumulatedPointRate
     ) {
         if (FormatValidator.hasValue(price)) {
             this.price = price;

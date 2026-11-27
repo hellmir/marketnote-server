@@ -39,12 +39,12 @@ class AccountPersistenceAdapterTest {
     void setUp() {
         accountJpaRepository.deleteAll();
         entityManager.createNativeQuery(
-                "INSERT INTO account (id, name, account_type, status, created_at) " +
-                        "VALUES (1, 'CASH', 'ASSET', 'ACTIVE', CURRENT_TIMESTAMP)"
+            "INSERT INTO account (id, name, account_type, status, created_at) " +
+                "VALUES (1, 'CASH', 'ASSET', 'ACTIVE', CURRENT_TIMESTAMP)"
         ).executeUpdate();
         entityManager.createNativeQuery(
-                "INSERT INTO account (id, name, account_type, status, created_at) " +
-                        "VALUES (2, 'SALES_REVENUE', 'REVENUE', 'ACTIVE', CURRENT_TIMESTAMP)"
+            "INSERT INTO account (id, name, account_type, status, created_at) " +
+                "VALUES (2, 'SALES_REVENUE', 'REVENUE', 'ACTIVE', CURRENT_TIMESTAMP)"
         ).executeUpdate();
         entityManager.flush();
         entityManager.clear();

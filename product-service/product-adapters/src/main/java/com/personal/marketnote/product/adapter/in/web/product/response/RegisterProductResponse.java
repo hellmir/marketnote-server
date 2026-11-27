@@ -8,8 +8,8 @@ import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record RegisterProductResponse(
-        Long id,
-        UUID productKey
+    Long id,
+    UUID productKey
 ) {
     public static RegisterProductResponse from(RegisterProductResult result) {
         return new RegisterProductResponse(result.id(), result.productKey());

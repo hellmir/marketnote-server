@@ -30,8 +30,8 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
     public void saveAll(List<NotificationPreference> preferences) {
         try {
             List<NotificationPreferenceJpaEntity> entities = preferences.stream()
-                    .map(NotificationPreferenceJpaEntity::from)
-                    .toList();
+                .map(NotificationPreferenceJpaEntity::from)
+                .toList();
             notificationPreferenceJpaRepository.saveAll(entities);
         } catch (DataIntegrityViolationException dive) {
             Long userId = preferences.isEmpty() ? null : preferences.get(0).getUserId();
@@ -43,32 +43,32 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
     @Override
     public List<NotificationPreference> findAllByUserId(Long userId) {
         return notificationPreferenceJpaRepository.findAllByUserIdAndStatus(userId, EntityStatus.ACTIVE).stream()
-                .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     @Override
     public Optional<NotificationPreference> findByUserIdAndNotificationType(
-            Long userId, NotificationType notificationType
+        Long userId, NotificationType notificationType
     ) {
         return notificationPreferenceJpaRepository
-                .findByUserIdAndNotificationTypeAndStatus(userId, notificationType, EntityStatus.ACTIVE)
-                .flatMap(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain);
+            .findByUserIdAndNotificationTypeAndStatus(userId, notificationType, EntityStatus.ACTIVE)
+            .flatMap(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<NotificationPreference> findEnabledByUserIdsAndNotificationType(
-            List<Long> userIds, NotificationType notificationType
+        List<Long> userIds, NotificationType notificationType
     ) {
         return notificationPreferenceJpaRepository
-                .findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
-                        userIds, notificationType, EntityStatus.ACTIVE
-                )
-                .stream()
-                .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
+                userIds, notificationType, EntityStatus.ACTIVE
+            )
+            .stream()
+            .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     @Override
@@ -79,15 +79,15 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
     @Override
     public List<NotificationPreference> findConsentReminderDue(LocalDateTime threshold) {
         return notificationPreferenceJpaRepository.findConsentReminderDue(threshold, EntityStatus.ACTIVE)
-                .stream()
-                .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .stream()
+            .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     @Override
     public void update(NotificationPreference preference) {
         notificationPreferenceJpaRepository.findById(preference.getId())
-                .ifPresent(entity -> entity.updateFrom(preference));
+            .ifPresent(entity -> entity.updateFrom(preference));
     }
 }

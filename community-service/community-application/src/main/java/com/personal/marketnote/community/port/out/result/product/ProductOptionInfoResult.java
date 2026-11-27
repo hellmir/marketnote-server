@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductOptionInfoResult(
-        Long id,
-        String content,
-        String status
+    Long id,
+    String content,
+    String status
 ) {
 }

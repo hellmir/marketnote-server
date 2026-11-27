@@ -69,11 +69,11 @@ class FulfillmentStockSyncSchedulerTest {
             // given
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
             doThrow(new RuntimeException("동기화 실패"))
-                    .when(syncFulfillmentAllStockUseCase).syncAll(any(SyncFulfillmentAllStockCommand.class));
+                .when(syncFulfillmentAllStockUseCase).syncAll(any(SyncFulfillmentAllStockCommand.class));
 
             // when & then
             assertThatCode(() -> scheduler.syncAllStocks())
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 }

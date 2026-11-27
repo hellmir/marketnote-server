@@ -42,13 +42,13 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
 
     private GifticonOrder findOrder(Long orderId, Long userId) {
         return findGifticonOrderPort.findByIdAndUserId(orderId, userId)
-                .orElseThrow(() -> {
-                    log.warn(
-                            "기프티콘 주문을 찾을 수 없습니다. gifticonOrderId={}, userId={}",
-                            orderId, userId
-                    );
-                    return new GifticonOrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn(
+                    "기프티콘 주문을 찾을 수 없습니다. gifticonOrderId={}, userId={}",
+                    orderId, userId
+                );
+                return new GifticonOrderNotFoundException();
+            });
     }
 
     private void syncStatusIfIssued(GifticonOrder order) {
@@ -94,20 +94,20 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
         String brandImageUrl = FormatValidator.hasValue(goods) ? goods.getBrandImageUrl() : null;
 
         return new GetMyGifticonOrderDetailResult(
-                order.getId(),
-                order.getGoodsName(),
-                order.getBrandName(),
-                brandImageUrl,
-                order.getProductImageUrl(),
-                description,
-                order.getCashPrice().getValue(),
-                order.getCouponImageUrl(),
-                decryptedPin,
-                order.formatExpiryDate(),
-                order.calculateDaysRemaining(now),
-                order.resolveStatusLabel(),
-                order.getOrderStatus().name(),
-                order.getCreatedAt()
+            order.getId(),
+            order.getGoodsName(),
+            order.getBrandName(),
+            brandImageUrl,
+            order.getProductImageUrl(),
+            description,
+            order.getCashPrice().getValue(),
+            order.getCouponImageUrl(),
+            decryptedPin,
+            order.formatExpiryDate(),
+            order.calculateDaysRemaining(now),
+            order.resolveStatusLabel(),
+            order.getOrderStatus().name(),
+            order.getCreatedAt()
         );
     }
 

@@ -107,6 +107,6 @@ public interface ModifyUserPointPort {
      * @Description 부분 결제 취소 시 공유자들의 적립 예정 포인트를 취소 금액에 비례하여 차감합니다.
      */
     void reducePartialPendingSharedPurchasePoints(
-            List<UUID> sharerKeys, Long paymentAmount, Long cancelAmount, Long orderId
+        List<UUID> sharerKeys, Long paymentAmount, Long cancelAmount, Long orderId
     );
 }

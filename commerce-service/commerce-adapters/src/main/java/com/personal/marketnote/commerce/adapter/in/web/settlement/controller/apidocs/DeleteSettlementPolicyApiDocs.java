@@ -13,40 +13,40 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Operation(
-        summary = "(관리자) 정산 정책 삭제(비활성화)",
-        description = """
-                작성일자: 2026-03-02
-                
-                작성자: 성효빈
-                
-                ---
-                
-                ## Description
-                
-                - 정산 정책을 비활성화(소프트 삭제)합니다.
-                
-                - 비활성화된 정책의 판매자는 정산 시 시스템 기본 수수료율이 적용됩니다.
-                """,
-        parameters = {
-                @Parameter(name = "id", description = "정산 정책 ID", required = true, example = "1")
-        },
-        security = {@SecurityRequirement(name = "bearer")},
-        responses = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "정산 정책 삭제 성공",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 200,
-                                          "code": "SUC01",
-                                          "timestamp": "2026-03-02T12:00:00.000",
-                                          "content": null,
-                                          "message": "정산 정책 삭제 성공"
-                                        }
-                                        """)
-                        )
-                )
-        })
+    summary = "(관리자) 정산 정책 삭제(비활성화)",
+    description = """
+        작성일자: 2026-03-02
+
+        작성자: 성효빈
+
+        ---
+
+        ## Description
+
+        - 정산 정책을 비활성화(소프트 삭제)합니다.
+
+        - 비활성화된 정책의 판매자는 정산 시 시스템 기본 수수료율이 적용됩니다.
+        """,
+    parameters = {
+        @Parameter(name = "id", description = "정산 정책 ID", required = true, example = "1")
+    },
+    security = {@SecurityRequirement(name = "bearer")},
+    responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "정산 정책 삭제 성공",
+            content = @Content(
+                examples = @ExampleObject("""
+                    {
+                      "statusCode": 200,
+                      "code": "SUC01",
+                      "timestamp": "2026-03-02T12:00:00.000",
+                      "content": null,
+                      "message": "정산 정책 삭제 성공"
+                    }
+                    """)
+            )
+        )
+    })
 public @interface DeleteSettlementPolicyApiDocs {
 }

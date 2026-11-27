@@ -53,7 +53,7 @@ class NotificationControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -67,13 +67,13 @@ class NotificationControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             GetNotificationHistoryResult result = new GetNotificationHistoryResult(
-                    0L, false, -1L, List.of()
+                0L, false, -1L, List.of()
             );
             when(getNotificationHistoryUseCase.getNotificationHistory(any())).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetNotificationHistoryResponse>> response =
-                    controller.getNotificationHistory(principal, null, 20, null);
+                controller.getNotificationHistory(principal, null, 20, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -87,7 +87,7 @@ class NotificationControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             NotificationDisplayCategory category = NotificationDisplayCategory.ORDER_SHIPPING;
             GetNotificationHistoryResult result = new GetNotificationHistoryResult(
-                    0L, false, -1L, List.of()
+                0L, false, -1L, List.of()
             );
             when(getNotificationHistoryUseCase.getNotificationHistory(any())).thenReturn(result);
 
@@ -96,7 +96,7 @@ class NotificationControllerTest {
 
             // then
             verify(getNotificationHistoryUseCase).getNotificationHistory(
-                    argThat((GetNotificationHistoryCommand cmd) -> cmd.category() == category)
+                argThat((GetNotificationHistoryCommand cmd) -> cmd.category() == category)
             );
         }
 
@@ -106,7 +106,7 @@ class NotificationControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             GetNotificationHistoryResult result = new GetNotificationHistoryResult(
-                    0L, false, -1L, List.of()
+                0L, false, -1L, List.of()
             );
             when(getNotificationHistoryUseCase.getNotificationHistory(any())).thenReturn(result);
 
@@ -115,7 +115,7 @@ class NotificationControllerTest {
 
             // then
             verify(getNotificationHistoryUseCase).getNotificationHistory(
-                    argThat((GetNotificationHistoryCommand cmd) -> cmd.category() == null)
+                argThat((GetNotificationHistoryCommand cmd) -> cmd.category() == null)
             );
         }
     }
@@ -132,7 +132,7 @@ class NotificationControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    controller.markNotificationAsRead(principal, 1L);
+                controller.markNotificationAsRead(principal, 1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -152,7 +152,7 @@ class NotificationControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    controller.markAllNotificationAsRead(principal);
+                controller.markAllNotificationAsRead(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -170,11 +170,11 @@ class NotificationControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             when(getUnreadNotificationCountUseCase.getUnreadCount(100L))
-                    .thenReturn(new GetUnreadNotificationCountResult(5));
+                .thenReturn(new GetUnreadNotificationCountResult(5));
 
             // when
             ResponseEntity<BaseResponse<GetUnreadNotificationCountResult>> response =
-                    controller.getUnreadNotificationCount(principal);
+                controller.getUnreadNotificationCount(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -190,8 +190,8 @@ class NotificationControllerTest {
         @DisplayName("getNotificationHistory 메서드에 @RateLimited(key=my-notifications, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getNotificationHistoryHasRateLimited() throws NoSuchMethodException {
             Method method = NotificationController.class.getMethod(
-                    "getNotificationHistory",
-                    OAuth2AuthenticatedPrincipal.class, Long.class, int.class, NotificationDisplayCategory.class
+                "getNotificationHistory",
+                OAuth2AuthenticatedPrincipal.class, Long.class, int.class, NotificationDisplayCategory.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);
@@ -206,8 +206,8 @@ class NotificationControllerTest {
         @DisplayName("markAllNotificationAsRead 메서드에 @RateLimited(key=notifications-read-all, maxRequests=10, windowSeconds=60)이 부착되어 있다")
         void markAllNotificationAsReadHasRateLimited() throws NoSuchMethodException {
             Method method = NotificationController.class.getMethod(
-                    "markAllNotificationAsRead",
-                    OAuth2AuthenticatedPrincipal.class
+                "markAllNotificationAsRead",
+                OAuth2AuthenticatedPrincipal.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);
@@ -222,8 +222,8 @@ class NotificationControllerTest {
         @DisplayName("markNotificationAsRead 메서드에 @RateLimited(key=notifications-read, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void markNotificationAsReadHasRateLimited() throws NoSuchMethodException {
             Method method = NotificationController.class.getMethod(
-                    "markNotificationAsRead",
-                    OAuth2AuthenticatedPrincipal.class, Long.class
+                "markNotificationAsRead",
+                OAuth2AuthenticatedPrincipal.class, Long.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);
@@ -238,8 +238,8 @@ class NotificationControllerTest {
         @DisplayName("getUnreadNotificationCount 메서드에 @RateLimited(key=notifications-unread-count, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getUnreadNotificationCountHasRateLimited() throws NoSuchMethodException {
             Method method = NotificationController.class.getMethod(
-                    "getUnreadNotificationCount",
-                    OAuth2AuthenticatedPrincipal.class
+                "getUnreadNotificationCount",
+                OAuth2AuthenticatedPrincipal.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);

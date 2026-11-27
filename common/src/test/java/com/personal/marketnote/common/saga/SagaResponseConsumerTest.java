@@ -43,8 +43,8 @@ class SagaResponseConsumerTest {
     @BeforeEach
     void setUp() {
         clock = Clock.fixed(
-                Instant.parse("2026-03-16T01:00:00Z"),
-                ZoneId.of("Asia/Seoul")
+            Instant.parse("2026-03-16T01:00:00Z"),
+            ZoneId.of("Asia/Seoul")
         );
         objectMapper = new ObjectMapper();
         sagaResponseConsumer = new SagaResponseConsumer(sagaOrchestrator, objectMapper);
@@ -59,7 +59,7 @@ class SagaResponseConsumerTest {
         void shouldCallHandleStepResponseWithSuccessTrue() {
             // given
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, true, RESPONSE_DATA);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, true, RESPONSE_DATA);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(EVENT_TYPE, responseMessage);
 
             // when
@@ -76,7 +76,7 @@ class SagaResponseConsumerTest {
             // given
             String errorResponse = "{\"error\":\"insufficient funds\"}";
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, false, errorResponse);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, false, errorResponse);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(EVENT_TYPE, responseMessage);
 
             // when
@@ -97,7 +97,7 @@ class SagaResponseConsumerTest {
         void shouldCallHandleCompensationResponseWithSuccessTrue() {
             // given
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, true, RESPONSE_DATA);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, true, RESPONSE_DATA);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(EVENT_TYPE, responseMessage);
 
             // when
@@ -114,7 +114,7 @@ class SagaResponseConsumerTest {
             // given
             String errorResponse = "{\"error\":\"rollback failed\"}";
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, false, errorResponse);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, false, errorResponse);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(EVENT_TYPE, responseMessage);
 
             // when
@@ -149,7 +149,7 @@ class SagaResponseConsumerTest {
         void shouldAcknowledgeAndSkipWhenEventTypeMismatch() {
             // given
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, true, RESPONSE_DATA);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, true, RESPONSE_DATA);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord("wrong.event.type", responseMessage);
 
             // when
@@ -165,7 +165,7 @@ class SagaResponseConsumerTest {
         void shouldAcknowledgeAndSkipWhenUnknownMessageType() {
             // given
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, "UNKNOWN_TYPE", true, RESPONSE_DATA);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, "UNKNOWN_TYPE", true, RESPONSE_DATA);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(EVENT_TYPE, responseMessage);
 
             // when
@@ -186,16 +186,16 @@ class SagaResponseConsumerTest {
         void shouldPropagateExceptionForDefaultErrorHandler() {
             // given
             SagaResponseMessage responseMessage = new SagaResponseMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, true, RESPONSE_DATA);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, true, RESPONSE_DATA);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(EVENT_TYPE, responseMessage);
 
             doThrow(new RuntimeException("DB connection error"))
-                    .when(sagaOrchestrator).handleStepResponse(SAGA_ID, STEP_NAME, true, RESPONSE_DATA);
+                .when(sagaOrchestrator).handleStepResponse(SAGA_ID, STEP_NAME, true, RESPONSE_DATA);
 
             // when & then
             assertThatThrownBy(() -> sagaResponseConsumer.handleSagaResponse(record, acknowledgment))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("DB connection error");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("DB connection error");
 
             verify(acknowledgment, never()).acknowledge();
         }

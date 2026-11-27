@@ -5,7 +5,7 @@ import com.personal.marketnote.community.port.in.result.review.GetReviewKeyResul
 import java.util.UUID;
 
 public record GetReviewKeyResponse(
-        UUID reviewKey
+    UUID reviewKey
 ) {
     public static GetReviewKeyResponse from(GetReviewKeyResult result) {
         return new GetReviewKeyResponse(result.reviewKey());

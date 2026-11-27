@@ -35,12 +35,12 @@ class CompleteReturnInspectionUseCaseTest {
     @DisplayName("검수 PASSED 시 ReturnTracker를 업데이트하고 이벤트를 발행한다")
     void shouldPassInspectionAndPublishEvent() {
         ReturnTracker tracker = ReturnTracker.from(ReturnTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(100L)
-                .returnSlipNumber("RS-001")
-                .inspectionStatus(ReturnInspectionStatus.PENDING)
-                .refundStatus(ReturnRefundStatus.PENDING)
-                .build());
+            .id(1L)
+            .orderId(100L)
+            .returnSlipNumber("RS-001")
+            .inspectionStatus(ReturnInspectionStatus.PENDING)
+            .refundStatus(ReturnRefundStatus.PENDING)
+            .build());
 
         LocalDateTime now = LocalDateTime.of(2026, 4, 9, 19, 0);
 

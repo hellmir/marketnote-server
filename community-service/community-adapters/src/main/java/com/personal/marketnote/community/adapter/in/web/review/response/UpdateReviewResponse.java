@@ -5,8 +5,8 @@ import com.personal.marketnote.community.port.in.result.review.UpdateReviewResul
 import java.util.UUID;
 
 public record UpdateReviewResponse(
-        Long id,
-        UUID reviewKey
+    Long id,
+    UUID reviewKey
 ) {
     public static UpdateReviewResponse from(UpdateReviewResult result) {
         return new UpdateReviewResponse(result.id(), result.reviewKey());

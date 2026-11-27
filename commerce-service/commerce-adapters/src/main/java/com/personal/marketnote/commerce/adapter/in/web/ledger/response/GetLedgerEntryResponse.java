@@ -6,23 +6,23 @@ import com.personal.marketnote.commerce.port.in.result.ledger.GetLedgerEntryResu
 import java.time.LocalDateTime;
 
 public record GetLedgerEntryResponse(
-        Long id,
-        Long accountId,
-        Long transactionId,
-        Long amount,
-        TransactionType transactionType,
-        String transactionTypeDescription,
-        LocalDateTime createdAt
+    Long id,
+    Long accountId,
+    Long transactionId,
+    Long amount,
+    TransactionType transactionType,
+    String transactionTypeDescription,
+    LocalDateTime createdAt
 ) {
     public static GetLedgerEntryResponse from(GetLedgerEntryResult result) {
         return new GetLedgerEntryResponse(
-                result.id(),
-                result.accountId(),
-                result.transactionId(),
-                result.amount(),
-                result.transactionType(),
-                result.transactionType().getDescription(),
-                result.createdAt()
+            result.id(),
+            result.accountId(),
+            result.transactionId(),
+            result.amount(),
+            result.transactionType(),
+            result.transactionType().getDescription(),
+            result.createdAt()
         );
     }
 }

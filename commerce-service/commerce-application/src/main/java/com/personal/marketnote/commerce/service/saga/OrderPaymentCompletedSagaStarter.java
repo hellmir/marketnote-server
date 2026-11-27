@@ -22,7 +22,7 @@ public class OrderPaymentCompletedSagaStarter {
         String sagaId = SAGA_ID_PREFIX + context.orderId();
 
         log.info("OrderPaymentCompleted SAGA 시작. sagaId={}, orderId={}, buyerId={}",
-                sagaId, context.orderId(), context.buyerId()
+            sagaId, context.orderId(), context.buyerId()
         );
 
         sagaOrchestrator.start(definition, sagaId, context);

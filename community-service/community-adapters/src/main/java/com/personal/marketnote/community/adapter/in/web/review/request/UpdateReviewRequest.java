@@ -7,9 +7,9 @@ import lombok.Getter;
 @Getter
 public class UpdateReviewRequest {
     @Schema(
-            name = "rating",
-            description = "리뷰 평점(1 ~ 5 정수)",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "rating",
+        description = "리뷰 평점(1 ~ 5 정수)",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "리뷰 평점은 필수값입니다.")
     @Digits(integer = 1, fraction = 0, message = "리뷰 평점은 정수만 입력 가능합니다.")
@@ -18,18 +18,18 @@ public class UpdateReviewRequest {
     private Float rating;
 
     @Schema(
-            name = "content",
-            description = "리뷰 내용",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "content",
+        description = "리뷰 내용",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "리뷰 내용은 필수값입니다.")
     @Size(min = 20, max = 8192, message = "리뷰 내용은 20자 이상 8192자 이하로 입력해야 합니다.")
     private String content;
 
     @Schema(
-            name = "isPhoto",
-            description = "포토 리뷰 여부",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "isPhoto",
+        description = "포토 리뷰 여부",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     private Boolean isPhoto;
 }

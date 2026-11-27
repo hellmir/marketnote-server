@@ -1,7 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock.FulfillmentStockDetailQuery;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +24,7 @@ class FasstoStockCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.forProductKey(
-                    "CUST001", "token", productKey, encoded, "N"
+                "CUST001", "token", productKey, encoded, "N"
             );
 
             FulfillmentStockDetailQuery query = FasstoStockCommandToRequestMapper.mapToDetailQuery(command);
@@ -37,7 +37,7 @@ class FasstoStockCommandToRequestMapperTest {
         @DisplayName("운영자 등록 상품은 customerProductCode가 fasstoProductCode로 전달되어 그대로 송신된다")
         void shouldSendCustomerProductCodeWhenAdminRegistered() {
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
-                    "CUST001", "token", "GOD001", "N"
+                "CUST001", "token", "GOD001", "N"
             );
 
             FulfillmentStockDetailQuery query = FasstoStockCommandToRequestMapper.mapToDetailQuery(command);

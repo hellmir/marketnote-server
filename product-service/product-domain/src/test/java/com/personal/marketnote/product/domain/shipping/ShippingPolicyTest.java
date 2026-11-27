@@ -22,11 +22,11 @@ class ShippingPolicyTest {
         void shouldCreateShippingPolicyWithValidValues() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(20000L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(20000L)
+                .build();
 
             // when
             ShippingPolicy policy = ShippingPolicy.from(state);
@@ -44,15 +44,15 @@ class ShippingPolicyTest {
         void shouldThrowExceptionWhenShippingFeeIsNegative() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(-1000L)
-                    .freeShippingThreshold(20000L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(-1000L)
+                .freeShippingThreshold(20000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> ShippingPolicy.from(state))
-                    .isInstanceOf(InvalidShippingFeeException.class);
+                .isInstanceOf(InvalidShippingFeeException.class);
         }
 
         @Test
@@ -60,15 +60,15 @@ class ShippingPolicyTest {
         void shouldThrowExceptionWhenFreeShippingThresholdIsNegative() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(-1L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(-1L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> ShippingPolicy.from(state))
-                    .isInstanceOf(InvalidFreeShippingThresholdException.class);
+                .isInstanceOf(InvalidFreeShippingThresholdException.class);
         }
 
         @Test
@@ -76,11 +76,11 @@ class ShippingPolicyTest {
         void shouldCreateShippingPolicyWithZeroShippingFee() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(0L)
-                    .freeShippingThreshold(0L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(0L)
+                .freeShippingThreshold(0L)
+                .build();
 
             // when
             ShippingPolicy policy = ShippingPolicy.from(state);
@@ -95,13 +95,13 @@ class ShippingPolicyTest {
         void shouldCreateShippingPolicyWithSurcharges() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(20000L)
-                    .jejuSurcharge(3000L)
-                    .islandSurcharge(5000L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(20000L)
+                .jejuSurcharge(3000L)
+                .islandSurcharge(5000L)
+                .build();
 
             // when
             ShippingPolicy policy = ShippingPolicy.from(state);
@@ -116,13 +116,13 @@ class ShippingPolicyTest {
         void shouldDefaultJejuSurchargeToZeroWhenNull() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(20000L)
-                    .jejuSurcharge(null)
-                    .islandSurcharge(null)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(20000L)
+                .jejuSurcharge(null)
+                .islandSurcharge(null)
+                .build();
 
             // when
             ShippingPolicy policy = ShippingPolicy.from(state);
@@ -137,17 +137,17 @@ class ShippingPolicyTest {
         void shouldThrowExceptionWhenJejuSurchargeIsNegative() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(20000L)
-                    .jejuSurcharge(-1L)
-                    .islandSurcharge(0L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(20000L)
+                .jejuSurcharge(-1L)
+                .islandSurcharge(0L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> ShippingPolicy.from(state))
-                    .isInstanceOf(InvalidJejuSurchargeException.class);
+                .isInstanceOf(InvalidJejuSurchargeException.class);
         }
 
         @Test
@@ -155,17 +155,17 @@ class ShippingPolicyTest {
         void shouldThrowExceptionWhenIslandSurchargeIsNegative() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(20000L)
-                    .jejuSurcharge(0L)
-                    .islandSurcharge(-1L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(20000L)
+                .jejuSurcharge(0L)
+                .islandSurcharge(-1L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> ShippingPolicy.from(state))
-                    .isInstanceOf(InvalidIslandSurchargeException.class);
+                .isInstanceOf(InvalidIslandSurchargeException.class);
         }
     }
 
@@ -179,17 +179,17 @@ class ShippingPolicyTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 3, 10, 12, 0);
             ShippingPolicySnapshotState state = ShippingPolicySnapshotState.builder()
-                    .id(10L)
-                    .sellerId(1L)
-                    .deliveryCompany("CJ대한통운")
-                    .shippingFee(2500L)
-                    .freeShippingThreshold(30000L)
-                    .jejuSurcharge(3000L)
-                    .islandSurcharge(5000L)
-                    .status(EntityStatus.INACTIVE)
-                    .createdAt(now)
-                    .modifiedAt(now)
-                    .build();
+                .id(10L)
+                .sellerId(1L)
+                .deliveryCompany("CJ대한통운")
+                .shippingFee(2500L)
+                .freeShippingThreshold(30000L)
+                .jejuSurcharge(3000L)
+                .islandSurcharge(5000L)
+                .status(EntityStatus.INACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build();
 
             // when
             ShippingPolicy policy = ShippingPolicy.from(state);
@@ -213,17 +213,17 @@ class ShippingPolicyTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 3, 10, 12, 0);
             ShippingPolicySnapshotState state = ShippingPolicySnapshotState.builder()
-                    .id(10L)
-                    .sellerId(1L)
-                    .deliveryCompany("CJ대한통운")
-                    .shippingFee(2500L)
-                    .freeShippingThreshold(30000L)
-                    .jejuSurcharge(null)
-                    .islandSurcharge(null)
-                    .status(EntityStatus.ACTIVE)
-                    .createdAt(now)
-                    .modifiedAt(now)
-                    .build();
+                .id(10L)
+                .sellerId(1L)
+                .deliveryCompany("CJ대한통운")
+                .shippingFee(2500L)
+                .freeShippingThreshold(30000L)
+                .jejuSurcharge(null)
+                .islandSurcharge(null)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build();
 
             // when
             ShippingPolicy policy = ShippingPolicy.from(state);
@@ -263,7 +263,7 @@ class ShippingPolicyTest {
 
             // when & then
             assertThatThrownBy(() -> policy.update("CJ대한통운", -1L, 30000L, 0L, 0L))
-                    .isInstanceOf(InvalidShippingFeeException.class);
+                .isInstanceOf(InvalidShippingFeeException.class);
         }
 
         @Test
@@ -274,7 +274,7 @@ class ShippingPolicyTest {
 
             // when & then
             assertThatThrownBy(() -> policy.update("CJ대한통운", 3000L, -1L, 0L, 0L))
-                    .isInstanceOf(InvalidFreeShippingThresholdException.class);
+                .isInstanceOf(InvalidFreeShippingThresholdException.class);
         }
 
         @Test
@@ -285,7 +285,7 @@ class ShippingPolicyTest {
 
             // when & then
             assertThatThrownBy(() -> policy.update("CJ대한통운", 3000L, 30000L, -1L, 0L))
-                    .isInstanceOf(InvalidJejuSurchargeException.class);
+                .isInstanceOf(InvalidJejuSurchargeException.class);
         }
 
         @Test
@@ -296,7 +296,7 @@ class ShippingPolicyTest {
 
             // when & then
             assertThatThrownBy(() -> policy.update("CJ대한통운", 3000L, 30000L, 0L, -1L))
-                    .isInstanceOf(InvalidIslandSurchargeException.class);
+                .isInstanceOf(InvalidIslandSurchargeException.class);
         }
 
         @Test
@@ -349,11 +349,11 @@ class ShippingPolicyTest {
         void shouldAlwaysBeFreeWhenThresholdIsZero() {
             // given
             ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                    .sellerId(1L)
-                    .deliveryCompany("한진택배")
-                    .shippingFee(3000L)
-                    .freeShippingThreshold(0L)
-                    .build();
+                .sellerId(1L)
+                .deliveryCompany("한진택배")
+                .shippingFee(3000L)
+                .freeShippingThreshold(0L)
+                .build();
             ShippingPolicy policy = ShippingPolicy.from(state);
 
             // when & then
@@ -383,11 +383,11 @@ class ShippingPolicyTest {
 
     private ShippingPolicy createDefaultPolicy() {
         ShippingPolicyCreateState state = ShippingPolicyCreateState.builder()
-                .sellerId(1L)
-                .deliveryCompany("한진택배")
-                .shippingFee(3000L)
-                .freeShippingThreshold(20000L)
-                .build();
+            .sellerId(1L)
+            .deliveryCompany("한진택배")
+            .shippingFee(3000L)
+            .freeShippingThreshold(20000L)
+            .build();
         return ShippingPolicy.from(state);
     }
 }

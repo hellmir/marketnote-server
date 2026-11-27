@@ -9,14 +9,14 @@ public class RemoteAreaCommandToStateMapper {
     }
 
     public static RemoteAreaCreateState mapToCreateState(
-            RegisterRemoteAreaCommand command, ShippingAddressRegionType regionType
+        RegisterRemoteAreaCommand command, ShippingAddressRegionType regionType
     ) {
         return RemoteAreaCreateState.builder()
-                .province(command.province())
-                .district(command.district())
-                .village(command.village())
-                .subarea(command.subarea())
-                .regionType(regionType)
-                .build();
+            .province(command.province())
+            .district(command.district())
+            .village(command.village())
+            .subarea(command.subarea())
+            .regionType(regionType)
+            .build();
     }
 }

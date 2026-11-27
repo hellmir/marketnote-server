@@ -66,9 +66,9 @@ public class AligoMessageRecipientJpaEntity {
     }
 
     public void updatePollingResult(
-            AligoMessageRecipientStatus recipientStatus, String msgId,
-            String rslt, String rsltMessage,
-            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+        AligoMessageRecipientStatus recipientStatus, String msgId,
+        String rslt, String rsltMessage,
+        LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
     ) {
         this.recipientStatus = recipientStatus;
         this.msgId = msgId;

@@ -16,15 +16,15 @@ public class UserPenaltyHistoryCommandToStateMapper {
      * {@code User#getPenaltyCount()} 값이다. Command에는 존재하지 않으므로 개별 파라미터로 전달한다.</p>
      */
     public static UserPenaltyHistoryCreateState mapToCreateState(
-            ApplyUserPenaltyCommand command, int previousCount, int currentCount
+        ApplyUserPenaltyCommand command, int previousCount, int currentCount
     ) {
         return UserPenaltyHistoryCreateState.builder()
-                .userId(command.userId())
-                .previousCount(previousCount)
-                .currentCount(currentCount)
-                .reason(command.reason())
-                .createdBy(command.adminId())
-                .build();
+            .userId(command.userId())
+            .previousCount(previousCount)
+            .currentCount(currentCount)
+            .reason(command.reason())
+            .createdBy(command.adminId())
+            .build();
     }
 
     /**
@@ -35,14 +35,14 @@ public class UserPenaltyHistoryCommandToStateMapper {
      * {@code User#getPenaltyCount()} 값이다. Command에는 존재하지 않으므로 개별 파라미터로 전달한다.</p>
      */
     public static UserPenaltyHistoryCreateState mapToCreateState(
-            UpdateUserPenaltyCountCommand command, int previousCount, int currentCount
+        UpdateUserPenaltyCountCommand command, int previousCount, int currentCount
     ) {
         return UserPenaltyHistoryCreateState.builder()
-                .userId(command.userId())
-                .previousCount(previousCount)
-                .currentCount(currentCount)
-                .reason(command.reason())
-                .createdBy(command.adminId())
-                .build();
+            .userId(command.userId())
+            .previousCount(previousCount)
+            .currentCount(currentCount)
+            .reason(command.reason())
+            .createdBy(command.adminId())
+            .build();
     }
 }

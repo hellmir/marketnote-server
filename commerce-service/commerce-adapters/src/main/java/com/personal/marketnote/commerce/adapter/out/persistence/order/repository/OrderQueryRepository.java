@@ -8,18 +8,18 @@ import java.util.List;
 public interface OrderQueryRepository {
 
     List<Long> findIdsByBuyerIdWithFilters(
-            Long buyerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            List<String> statuses,
-            int statusSize
+        Long buyerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        List<String> statuses,
+        int statusSize
     );
 
     List<Long> findIdsByAdminFilters(
-            Long sellerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            String orderStatus
+        Long sellerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String orderStatus
     );
 
     List<OrderJpaEntity> findWithProductsByIds(List<Long> ids);

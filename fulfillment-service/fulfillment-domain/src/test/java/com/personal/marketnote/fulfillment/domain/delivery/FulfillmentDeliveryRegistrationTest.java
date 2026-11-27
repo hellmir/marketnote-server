@@ -22,8 +22,8 @@ class FulfillmentDeliveryRegistrationTest {
         void shouldCreateWithRegisteredStatusWhenOrderIdIsValid() {
             // given
             FulfillmentDeliveryRegistrationCreateState state = FulfillmentDeliveryRegistrationCreateState.builder()
-                    .orderId(1L)
-                    .build();
+                .orderId(1L)
+                .build();
 
             // when
             FulfillmentDeliveryRegistration registration = FulfillmentDeliveryRegistration.from(state);
@@ -38,12 +38,12 @@ class FulfillmentDeliveryRegistrationTest {
         void shouldThrowExceptionWhenOrderIdIsNull() {
             // given
             FulfillmentDeliveryRegistrationCreateState state = FulfillmentDeliveryRegistrationCreateState.builder()
-                    .orderId(null)
-                    .build();
+                .orderId(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> FulfillmentDeliveryRegistration.from(state))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -57,11 +57,11 @@ class FulfillmentDeliveryRegistrationTest {
             // given
             LocalDateTime createdAt = LocalDateTime.of(2026, 4, 11, 10, 0, 0);
             FulfillmentDeliveryRegistrationSnapshotState state = FulfillmentDeliveryRegistrationSnapshotState.builder()
-                    .id(100L)
-                    .orderId(200L)
-                    .workStatus(FulfillmentWorkStatus.PICKING)
-                    .createdAt(createdAt)
-                    .build();
+                .id(100L)
+                .orderId(200L)
+                .workStatus(FulfillmentWorkStatus.PICKING)
+                .createdAt(createdAt)
+                .build();
 
             // when
             FulfillmentDeliveryRegistration registration = FulfillmentDeliveryRegistration.from(state);
@@ -83,12 +83,12 @@ class FulfillmentDeliveryRegistrationTest {
         void shouldReturnTrueWhenStatusIsCancellable() {
             // given
             FulfillmentDeliveryRegistration registration = FulfillmentDeliveryRegistration.from(
-                    FulfillmentDeliveryRegistrationSnapshotState.builder()
-                            .id(1L)
-                            .orderId(1L)
-                            .workStatus(FulfillmentWorkStatus.REGISTERED)
-                            .createdAt(LocalDateTime.now())
-                            .build()
+                FulfillmentDeliveryRegistrationSnapshotState.builder()
+                    .id(1L)
+                    .orderId(1L)
+                    .workStatus(FulfillmentWorkStatus.REGISTERED)
+                    .createdAt(LocalDateTime.now())
+                    .build()
             );
 
             // when & then
@@ -100,12 +100,12 @@ class FulfillmentDeliveryRegistrationTest {
         void shouldReturnFalseWhenStatusIsNotCancellable() {
             // given
             FulfillmentDeliveryRegistration registration = FulfillmentDeliveryRegistration.from(
-                    FulfillmentDeliveryRegistrationSnapshotState.builder()
-                            .id(1L)
-                            .orderId(1L)
-                            .workStatus(FulfillmentWorkStatus.RELEASED)
-                            .createdAt(LocalDateTime.now())
-                            .build()
+                FulfillmentDeliveryRegistrationSnapshotState.builder()
+                    .id(1L)
+                    .orderId(1L)
+                    .workStatus(FulfillmentWorkStatus.RELEASED)
+                    .createdAt(LocalDateTime.now())
+                    .build()
             );
 
             // when & then

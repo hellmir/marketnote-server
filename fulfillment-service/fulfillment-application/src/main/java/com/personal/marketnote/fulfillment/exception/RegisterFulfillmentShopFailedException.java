@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class RegisterFulfillmentShopFailedException extends ExternalOperationFailedException {
     private static final String REGISTER_FULFILLMENT_MARKETNOTE_FAILED_EXCEPTION_MESSAGE =
-            "Fulfillment shop registration request failed.";
+        "Fulfillment shop registration request failed.";
 
     public RegisterFulfillmentShopFailedException(IOException cause) {
         super(REGISTER_FULFILLMENT_MARKETNOTE_FAILED_EXCEPTION_MESSAGE, cause);

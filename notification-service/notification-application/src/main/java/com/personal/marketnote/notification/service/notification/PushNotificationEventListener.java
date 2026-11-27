@@ -61,10 +61,10 @@ public class PushNotificationEventListener {
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void handlePushNotificationRequestedEvent(PushNotificationRequestedEvent event) {
         Notification notification = findNotificationPort.findActiveById(event.notificationId())
-                .orElseThrow(() -> {
-                    log.warn("알림을 찾을 수 없습니다. notificationId={}", event.notificationId());
-                    return new NotificationNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림을 찾을 수 없습니다. notificationId={}", event.notificationId());
+                return new NotificationNotFoundException();
+            });
 
         List<DeviceToken> deviceTokens = findDeviceTokenPort.findActiveByUserId(event.userId());
 
@@ -80,11 +80,11 @@ public class PushNotificationEventListener {
 
         for (DeviceToken deviceToken : deviceTokens) {
             SendPushNotificationCommand pushCommand = new SendPushNotificationCommand(
-                    deviceToken.getToken(), event.title(), event.body(), event.landingUrl(), deviceToken.getPlatform());
+                deviceToken.getToken(), event.title(), event.body(), event.landingUrl(), deviceToken.getPlatform());
             try {
                 SendPushNotificationResult pushResult = sendPushNotificationPort.send(pushCommand);
                 vendorCommunicationRecorder.recordFcmSendResult(
-                        notification, deviceToken, event.title(), event.body(), event.landingUrl(), pushResult
+                    notification, deviceToken, event.title(), event.body(), event.landingUrl(), pushResult
                 );
                 if (pushResult.success()) {
                     sentCount++;
@@ -97,7 +97,7 @@ public class PushNotificationEventListener {
             } catch (FcmSendFailedException fsfe) {
                 log.error("FCM 발송 중 예외 발생: userId={}, deviceId={}", event.userId(), deviceToken.getDeviceId(), fsfe);
                 vendorCommunicationRecorder.recordFcmSendException(
-                        notification, deviceToken, event.title(), event.body(), event.landingUrl(), fsfe
+                    notification, deviceToken, event.title(), event.body(), event.landingUrl(), fsfe
                 );
                 failedCount++;
             }
@@ -122,9 +122,9 @@ public class PushNotificationEventListener {
         try {
             long unreadCount = findNotificationPort.countUnreadByUserId(userId);
             publishSseEventPort.publish(
-                    userId,
-                    NotificationSseEventType.UNREAD_COUNT_CHANGED,
-                    UnreadCountChangedPayload.of(unreadCount)
+                userId,
+                NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                UnreadCountChangedPayload.of(unreadCount)
             );
         } catch (Exception e) {
             log.error("SSE unreadCount 이벤트 발행 실패 - userId={}", userId, e);
@@ -133,13 +133,13 @@ public class PushNotificationEventListener {
 
     private void publishNotificationSentEvent(Notification notification, int sentCount, int failedCount) {
         PushNotificationSentEvent event = new PushNotificationSentEvent(
-                notification.getId(),
-                notification.getUserId(),
-                notification.getNotificationType().name(),
-                notification.getSendStatus().name(),
-                sentCount,
-                failedCount,
-                LocalDateTime.now(clock)
+            notification.getId(),
+            notification.getUserId(),
+            notification.getNotificationType().name(),
+            notification.getSendStatus().name(),
+            sentCount,
+            failedCount,
+            LocalDateTime.now(clock)
         );
         publishNotificationSentEventPort.publish(event);
     }

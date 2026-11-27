@@ -51,7 +51,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     }
 
     private PaymentApprovalVendorResult requestPaymentApprovalToPsp(
-            ApprovePaymentCommand command, PaymentApprovalContext context
+        ApprovePaymentCommand command, PaymentApprovalContext context
     ) {
         // PG사 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
         try {

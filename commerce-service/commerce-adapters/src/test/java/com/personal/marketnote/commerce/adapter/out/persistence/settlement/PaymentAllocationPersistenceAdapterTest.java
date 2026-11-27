@@ -48,15 +48,15 @@ class PaymentAllocationPersistenceAdapterTest {
 
     private PaymentAllocation buildAllocation(Long orderId, Long sellerId, String idempotencyKey) {
         return PaymentAllocation.from(
-                PaymentAllocationCreateState.builder()
-                        .orderId(orderId)
-                        .sellerId(sellerId)
-                        .allocatedAmount(10000L)
-                        .shippingFee(3000L)
-                        .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                        .targetType(PaymentAllocationTargetType.ORDER)
-                        .idempotencyKey(IdempotencyKey.of(idempotencyKey))
-                        .build()
+            PaymentAllocationCreateState.builder()
+                .orderId(orderId)
+                .sellerId(sellerId)
+                .allocatedAmount(10000L)
+                .shippingFee(3000L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of(idempotencyKey))
+                .build()
         );
     }
 
@@ -69,8 +69,8 @@ class PaymentAllocationPersistenceAdapterTest {
         void shouldSaveAll() {
             // given
             List<PaymentAllocation> allocations = List.of(
-                    buildAllocation(1L, 100L, "ALLOC:1:100"),
-                    buildAllocation(1L, 200L, "ALLOC:1:200")
+                buildAllocation(1L, 100L, "ALLOC:1:100"),
+                buildAllocation(1L, 200L, "ALLOC:1:200")
             );
 
             // when
@@ -114,13 +114,13 @@ class PaymentAllocationPersistenceAdapterTest {
         void shouldFindBySettlementId() {
             // given
             adapter.saveAll(List.of(
-                    buildAllocation(1L, 100L, "ALLOC:1:100"),
-                    buildAllocation(2L, 100L, "ALLOC:2:100")
+                buildAllocation(1L, 100L, "ALLOC:1:100"),
+                buildAllocation(2L, 100L, "ALLOC:2:100")
             ));
             entityManager.flush();
             entityManager.clear();
             List<Long> ids = paymentAllocationJpaRepository.findAll().stream()
-                    .map(e -> e.getId()).toList();
+                .map(e -> e.getId()).toList();
             adapter.assignSettlement(ids, 999L);
             entityManager.flush();
             entityManager.clear();
@@ -143,9 +143,9 @@ class PaymentAllocationPersistenceAdapterTest {
         void shouldFindByOrderId() {
             // given
             adapter.saveAll(List.of(
-                    buildAllocation(1L, 100L, "ALLOC:1:100"),
-                    buildAllocation(1L, 200L, "ALLOC:1:200"),
-                    buildAllocation(2L, 100L, "ALLOC:2:100")
+                buildAllocation(1L, 100L, "ALLOC:1:100"),
+                buildAllocation(1L, 200L, "ALLOC:1:200"),
+                buildAllocation(2L, 100L, "ALLOC:2:100")
             ));
             entityManager.flush();
             entityManager.clear();
@@ -168,13 +168,13 @@ class PaymentAllocationPersistenceAdapterTest {
         void shouldAssignSettlementId() {
             // given
             adapter.saveAll(List.of(
-                    buildAllocation(1L, 100L, "ALLOC:1:100"),
-                    buildAllocation(2L, 100L, "ALLOC:2:100")
+                buildAllocation(1L, 100L, "ALLOC:1:100"),
+                buildAllocation(2L, 100L, "ALLOC:2:100")
             ));
             entityManager.flush();
             entityManager.clear();
             List<Long> ids = paymentAllocationJpaRepository.findAll().stream()
-                    .map(e -> e.getId()).toList();
+                .map(e -> e.getId()).toList();
 
             // when
             adapter.assignSettlement(ids, 555L);

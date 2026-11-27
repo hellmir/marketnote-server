@@ -35,18 +35,18 @@ class ProductPersistenceAdapterTagOrderNumTest {
     void shouldAssignOrderNumToTagsWhenProductIsSaved() {
         // given
         Product product = Product.from(
-                ProductCreateState.builder()
-                        .sellerId(1L)
-                        .name("테스트 상품")
-                        .brandName("테스트 브랜드")
-                        .detail("상세 설명")
-                        .findAllOptionsYn(false)
-                        .tags(List.of(
-                                ProductTagCreateState.builder().productId(null).name("태그A").build(),
-                                ProductTagCreateState.builder().productId(null).name("태그B").build(),
-                                ProductTagCreateState.builder().productId(null).name("태그C").build()
-                        ))
-                        .build()
+            ProductCreateState.builder()
+                .sellerId(1L)
+                .name("테스트 상품")
+                .brandName("테스트 브랜드")
+                .detail("상세 설명")
+                .findAllOptionsYn(false)
+                .tags(List.of(
+                    ProductTagCreateState.builder().productId(null).name("태그A").build(),
+                    ProductTagCreateState.builder().productId(null).name("태그B").build(),
+                    ProductTagCreateState.builder().productId(null).name("태그C").build()
+                ))
+                .build()
         );
 
         // when
@@ -58,9 +58,9 @@ class ProductPersistenceAdapterTagOrderNumTest {
         assertThat(tags).hasSize(3);
         for (ProductTagJpaEntity tag : tags) {
             assertThat(tag.getOrderNum())
-                    .as("태그 '%s'의 orderNum이 할당되어야 한다", tag.getName())
-                    .isNotNull()
-                    .isEqualTo(tag.getId());
+                .as("태그 '%s'의 orderNum이 할당되어야 한다", tag.getName())
+                .isNotNull()
+                .isEqualTo(tag.getId());
         }
     }
 
@@ -69,14 +69,14 @@ class ProductPersistenceAdapterTagOrderNumTest {
     void shouldAssignOrderNumToTagsWhenProductIsUpdated() {
         // given
         Product product = Product.from(
-                ProductCreateState.builder()
-                        .sellerId(1L)
-                        .name("테스트 상품")
-                        .brandName("테스트 브랜드")
-                        .detail("상세 설명")
-                        .findAllOptionsYn(false)
-                        .tags(List.of())
-                        .build()
+            ProductCreateState.builder()
+                .sellerId(1L)
+                .name("테스트 상품")
+                .brandName("테스트 브랜드")
+                .detail("상세 설명")
+                .findAllOptionsYn(false)
+                .tags(List.of())
+                .build()
         );
 
         Product savedProduct = productPersistenceAdapter.save(product);
@@ -91,9 +91,9 @@ class ProductPersistenceAdapterTagOrderNumTest {
         assertThat(tags).hasSize(2);
         for (ProductTagJpaEntity tag : tags) {
             assertThat(tag.getOrderNum())
-                    .as("태그 '%s'의 orderNum이 할당되어야 한다", tag.getName())
-                    .isNotNull()
-                    .isEqualTo(tag.getId());
+                .as("태그 '%s'의 orderNum이 할당되어야 한다", tag.getName())
+                .isNotNull()
+                .isEqualTo(tag.getId());
         }
     }
 }

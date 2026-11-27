@@ -43,11 +43,11 @@ class GetResizedFilesUseCaseTest {
             FileDomain file1 = buildFile(1L);
             FileDomain file2 = buildFile(2L);
             ResizedFile resized1 = ResizedFile.from(ResizedFileSnapshotState.builder()
-                    .fileId(1L).size("SMALL").storageUrl("https://example.com/resized-1.jpg")
-                    .status(EntityStatus.ACTIVE).build());
+                .fileId(1L).size("SMALL").storageUrl("https://example.com/resized-1.jpg")
+                .status(EntityStatus.ACTIVE).build());
             ResizedFile resized2 = ResizedFile.from(ResizedFileSnapshotState.builder()
-                    .fileId(2L).size("SMALL").storageUrl("https://example.com/resized-2.jpg")
-                    .status(EntityStatus.ACTIVE).build());
+                .fileId(2L).size("SMALL").storageUrl("https://example.com/resized-2.jpg")
+                .status(EntityStatus.ACTIVE).build());
             when(findResizedFilesPort.findByFileIds(List.of(1L, 2L))).thenReturn(List.of(resized1, resized2));
             List<ResizedFile> result = getFileService.getResizedFiles(List.of(file1, file2));
             assertThat(result).hasSize(2);
@@ -67,8 +67,8 @@ class GetResizedFilesUseCaseTest {
 
     private FileDomain buildFile(Long id) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id).ownerType(OwnerType.PRODUCT).ownerId(100L).sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("jpg").name("test-file-" + id + ".jpg").storageUrl("https://example.com/test-file-" + id + ".jpg")
-                .createdAt(LocalDateTime.now()).status(EntityStatus.ACTIVE).orderNum(id).build());
+            .id(id).ownerType(OwnerType.PRODUCT).ownerId(100L).sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("jpg").name("test-file-" + id + ".jpg").storageUrl("https://example.com/test-file-" + id + ".jpg")
+            .createdAt(LocalDateTime.now()).status(EntityStatus.ACTIVE).orderNum(id).build());
     }
 }

@@ -5,11 +5,11 @@ import lombok.Builder;
 
 @Builder
 public record UpdateUserInfoCommand(
-        Boolean isActive,
-        String email,
-        String nickname,
-        String phoneNumber,
-        String password
+    Boolean isActive,
+    String email,
+    String nickname,
+    String phoneNumber,
+    String password
 ) {
 
     public boolean hasIsActive() {

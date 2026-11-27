@@ -15,23 +15,23 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ServiceCommunicationRecorder extends com.personal.marketnote.common.utility.audit.ServiceCommunicationRecorder<
-        UserServiceCommunicationTargetType,
-        UserServiceCommunicationType,
-        UserServiceCommunicationSenderType
-        > {
+    UserServiceCommunicationTargetType,
+    UserServiceCommunicationType,
+    UserServiceCommunicationSenderType
+    > {
     public ServiceCommunicationRecorder(RecordUserServiceCommunicationHistoryUseCase useCase) {
         super((targetType, targetId, communicationType, sender, exception, payload, payloadJson) ->
-                useCase.record(
-                        UserServiceCommunicationHistoryCommand.builder()
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(payloadJson)
-                                .build()
-                )
+            useCase.record(
+                UserServiceCommunicationHistoryCommand.builder()
+                    .targetType(targetType)
+                    .targetId(targetId)
+                    .communicationType(communicationType)
+                    .sender(sender)
+                    .exception(exception)
+                    .payload(payload)
+                    .payloadJson(payloadJson)
+                    .build()
+            )
         );
     }
 }

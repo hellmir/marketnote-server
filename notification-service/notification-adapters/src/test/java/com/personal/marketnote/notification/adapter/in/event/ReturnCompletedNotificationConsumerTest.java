@@ -41,13 +41,13 @@ class ReturnCompletedNotificationConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderReturnedEvent event = new OrderReturnedEvent(
-                orderId, "order-key-123", buyerId, 50000L, 50000L, 0L, 0L, true, 3000L,
-                List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L)),
-                null
+            orderId, "order-key-123", buyerId, 50000L, 50000L, 0L, 0L, true, 3000L,
+            List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L)),
+            null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.returned", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "commerce.order.returned", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         return new ConsumerRecord<>("commerce.order.returned", 0, 0L, "key-1", envelope);
     }
@@ -80,7 +80,7 @@ class ReturnCompletedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", null
+            "commerce.order.returned", 0, 0L, "1", null
         );
 
         // when
@@ -96,16 +96,16 @@ class ReturnCompletedNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
-                100L, "order-key-123", 1L, 50000L, 50000L, 0L, 0L, true, 3000L,
-                List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L)),
-                null
+            100L, "order-key-123", 1L, 50000L, 50000L, 0L, 0L, true, 3000L,
+            List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L)),
+            null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "key-1", envelope
+            "commerce.order.returned", 0, 0L, "key-1", envelope
         );
 
         // when

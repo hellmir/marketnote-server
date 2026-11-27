@@ -15,8 +15,8 @@ class BrandTalkCarouselItemTest {
     void shouldThrowExceptionWhenButtonsEmpty() {
         // when & then
         assertThatThrownBy(() -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(List.of()).coupon(null).build()))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("최소 1개");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("최소 1개");
     }
 
     @Test
@@ -24,8 +24,8 @@ class BrandTalkCarouselItemTest {
     void shouldThrowExceptionWhenButtonsNull() {
         // when & then
         assertThatThrownBy(() -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(null).coupon(null).build()))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("최소 1개");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("최소 1개");
     }
 
     @Test
@@ -38,8 +38,8 @@ class BrandTalkCarouselItemTest {
 
         // when & then
         assertThatThrownBy(() -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(List.of(button1, button2, button3)).coupon(null).build()))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("최대 2개");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("최대 2개");
     }
 
     @Test
@@ -81,13 +81,13 @@ class BrandTalkCarouselItemTest {
         // given: invariant 위반(버튼 0개)도 복원 성공해야 함
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
-                BrandTalkCarouselItemSnapshotState.builder()
-                        .header("제목")
-                        .content("내용")
-                        .imageUrl("https://img.com/1.jpg")
-                        .buttons(List.of())
-                        .coupon(null)
-                        .build()
+            BrandTalkCarouselItemSnapshotState.builder()
+                .header("제목")
+                .content("내용")
+                .imageUrl("https://img.com/1.jpg")
+                .buttons(List.of())
+                .coupon(null)
+                .build()
         );
 
         // then
@@ -103,13 +103,13 @@ class BrandTalkCarouselItemTest {
     void shouldRestoreFromSnapshotWithNullOrEmptyButtons() {
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
-                BrandTalkCarouselItemSnapshotState.builder()
-                        .header("제목")
-                        .content("내용")
-                        .imageUrl(null)
-                        .buttons(null)
-                        .coupon(null)
-                        .build()
+            BrandTalkCarouselItemSnapshotState.builder()
+                .header("제목")
+                .content("내용")
+                .imageUrl(null)
+                .buttons(null)
+                .coupon(null)
+                .build()
         );
 
         // then
@@ -121,39 +121,39 @@ class BrandTalkCarouselItemTest {
     void shouldRestoreNestedSnapshotStatesIntoDomain() {
         // given
         BrandTalkButtonSnapshotState buttonState1 = BrandTalkButtonSnapshotState.builder()
-                .name("버튼1")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkM("https://m.ex.com")
-                .linkP("https://www.ex.com")
-                .linkI(null)
-                .linkA(null)
-                .build();
+            .name("버튼1")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkM("https://m.ex.com")
+            .linkP("https://www.ex.com")
+            .linkI(null)
+            .linkA(null)
+            .build();
         BrandTalkButtonSnapshotState buttonState2 = BrandTalkButtonSnapshotState.builder()
-                .name("버튼2")
-                .linkType(AligoTemplateButtonLinkType.BK)
-                .linkM(null)
-                .linkP(null)
-                .linkI(null)
-                .linkA(null)
-                .build();
+            .name("버튼2")
+            .linkType(AligoTemplateButtonLinkType.BK)
+            .linkM(null)
+            .linkP(null)
+            .linkI(null)
+            .linkA(null)
+            .build();
         BrandTalkCouponSnapshotState couponState = BrandTalkCouponSnapshotState.builder()
-                .title("10% 할인")
-                .description("설명")
-                .linkM("https://m.ex.com")
-                .linkP("https://www.ex.com")
-                .linkI(null)
-                .linkA(null)
-                .build();
+            .title("10% 할인")
+            .description("설명")
+            .linkM("https://m.ex.com")
+            .linkP("https://www.ex.com")
+            .linkI(null)
+            .linkA(null)
+            .build();
 
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
-                BrandTalkCarouselItemSnapshotState.builder()
-                        .header("헤더")
-                        .content("컨텐츠")
-                        .imageUrl("https://img.com/1.jpg")
-                        .buttons(List.of(buttonState1, buttonState2))
-                        .coupon(couponState)
-                        .build()
+            BrandTalkCarouselItemSnapshotState.builder()
+                .header("헤더")
+                .content("컨텐츠")
+                .imageUrl("https://img.com/1.jpg")
+                .buttons(List.of(buttonState1, buttonState2))
+                .coupon(couponState)
+                .build()
         );
 
         // then
@@ -174,23 +174,23 @@ class BrandTalkCarouselItemTest {
     void shouldRestoreFromSnapshotWithNullCoupon() {
         // given
         BrandTalkButtonSnapshotState buttonState = BrandTalkButtonSnapshotState.builder()
-                .name("버튼")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkM("https://m.ex.com")
-                .linkP("https://www.ex.com")
-                .linkI(null)
-                .linkA(null)
-                .build();
+            .name("버튼")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkM("https://m.ex.com")
+            .linkP("https://www.ex.com")
+            .linkI(null)
+            .linkA(null)
+            .build();
 
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
-                BrandTalkCarouselItemSnapshotState.builder()
-                        .header("제목")
-                        .content("내용")
-                        .imageUrl(null)
-                        .buttons(List.of(buttonState))
-                        .coupon(null)
-                        .build()
+            BrandTalkCarouselItemSnapshotState.builder()
+                .header("제목")
+                .content("내용")
+                .imageUrl(null)
+                .buttons(List.of(buttonState))
+                .coupon(null)
+                .build()
         );
 
         // then

@@ -43,16 +43,16 @@ class OrderPaymentCompletedProductPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, Long totalAmount, Long totalAccumulatedPoint
+        Long orderId, Long buyerId, Long totalAmount, Long totalAccumulatedPoint
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, 0L,
-                null, null, null, null, null, null,
-                List.of(), totalAccumulatedPoint
+            orderId, buyerId, totalAmount, 0L,
+            null, null, null, null, null, null,
+            List.of(), totalAccumulatedPoint
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -184,7 +184,7 @@ class OrderPaymentCompletedProductPointConsumerTest {
     void handleOrderPaymentCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", null
+            "commerce.order.payment-completed", 0, 0L, "1", null
         );
 
         // when
@@ -200,16 +200,16 @@ class OrderPaymentCompletedProductPointConsumerTest {
     void handleOrderPaymentCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 100L, 50000L, 0L,
-                null, null, null, null, null, null,
-                List.of(), 1500L
+            1L, 100L, 50000L, 0L,
+            null, null, null, null, null, null,
+            List.of(), 1500L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", envelope
+            "commerce.order.payment-completed", 0, 0L, "1", envelope
         );
 
         // when
@@ -282,7 +282,7 @@ class OrderPaymentCompletedProductPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, 1500L);
         doThrow(new DuplicateUserPointHistoryException())
-                .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+            .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
@@ -298,12 +298,12 @@ class OrderPaymentCompletedProductPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, 1500L);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+            .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
         verify(acknowledgment, never()).acknowledge();

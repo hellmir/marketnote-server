@@ -22,7 +22,7 @@ class InvalidFulfillmentWorkStatusExceptionTest {
         IllegalArgumentException root = new IllegalArgumentException("invalid enum");
 
         InvalidFulfillmentWorkStatusException ex =
-                new InvalidFulfillmentWorkStatusException("UNKNOWN_CODE", root);
+            new InvalidFulfillmentWorkStatusException("UNKNOWN_CODE", root);
 
         assertThat(ex.getMessage()).contains("UNKNOWN_CODE");
         assertThat(ex.getCause()).isSameAs(root);

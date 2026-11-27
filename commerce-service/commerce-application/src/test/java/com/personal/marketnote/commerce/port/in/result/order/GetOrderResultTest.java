@@ -20,38 +20,38 @@ class GetOrderResultTest {
         UUID firstKey = UUID.fromString("018f0000-0000-7000-8000-000000000011");
         UUID secondKey = UUID.fromString("018f0000-0000-7000-8000-000000000012");
         OrderProductSnapshotState first = OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .orderProductKey(firstKey)
-                .quantity(1)
-                .unitAmount(50000L)
-                .accumulatedPoint(0L)
-                .orderStatus(OrderStatus.PAID)
-                .build();
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .orderProductKey(firstKey)
+            .quantity(1)
+            .unitAmount(50000L)
+            .accumulatedPoint(0L)
+            .orderStatus(OrderStatus.PAID)
+            .build();
         OrderProductSnapshotState second = OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(200L)
-                .orderProductKey(secondKey)
-                .quantity(2)
-                .unitAmount(30000L)
-                .accumulatedPoint(0L)
-                .orderStatus(OrderStatus.PAID)
-                .build();
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(200L)
+            .orderProductKey(secondKey)
+            .quantity(2)
+            .unitAmount(30000L)
+            .accumulatedPoint(0L)
+            .orderStatus(OrderStatus.PAID)
+            .build();
 
         Order order = Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-1"))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(first, second))
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-1"))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(first, second))
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
 
         // when
         GetOrderResult result = GetOrderResult.from(order, Map.of());
@@ -68,29 +68,29 @@ class GetOrderResultTest {
         // given
         LocalDateTime scheduledAutoConfirmAt = LocalDateTime.of(2026, 4, 18, 12, 0);
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .orderProductKey(UUID.randomUUID())
-                .quantity(1)
-                .unitAmount(50000L)
-                .accumulatedPoint(0L)
-                .orderStatus(OrderStatus.DELIVERED)
-                .build();
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .orderProductKey(UUID.randomUUID())
+            .quantity(1)
+            .unitAmount(50000L)
+            .accumulatedPoint(0L)
+            .orderStatus(OrderStatus.DELIVERED)
+            .build();
 
         Order order = Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-1"))
-                .orderStatus(OrderStatus.DELIVERED)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(productState))
-                .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-1"))
+            .orderStatus(OrderStatus.DELIVERED)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(productState))
+            .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
 
         // when
         GetOrderResult result = GetOrderResult.from(order, Map.of());
@@ -104,17 +104,17 @@ class GetOrderResultTest {
     void shouldReturnNullScheduledAutoConfirmAtWhenOrderHasNone() {
         // given
         Order order = Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-1"))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-1"))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
 
         // when
         GetOrderResult result = GetOrderResult.from(order, Map.of());

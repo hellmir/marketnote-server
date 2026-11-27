@@ -23,12 +23,12 @@ class TermsTest {
         @DisplayName("CreateState로 약관을 생성하면 id는 null이고 나머지 필드가 매핑된다")
         void shouldCreateFromCreateState() {
             TermsCreateState state = TermsCreateState.builder()
-                    .content("테스트 약관 내용")
-                    .requiredYn(true)
-                    .createdAt(CREATED_AT)
-                    .modifiedAt(MODIFIED_AT)
-                    .status(EntityStatus.ACTIVE)
-                    .build();
+                .content("테스트 약관 내용")
+                .requiredYn(true)
+                .createdAt(CREATED_AT)
+                .modifiedAt(MODIFIED_AT)
+                .status(EntityStatus.ACTIVE)
+                .build();
 
             Terms terms = Terms.from(state);
 
@@ -49,13 +49,13 @@ class TermsTest {
         @DisplayName("SnapshotState로 복원하면 id 포함 모든 필드가 매핑된다")
         void shouldRestoreAllFields() {
             TermsSnapshotState state = TermsSnapshotState.builder()
-                    .id(100L)
-                    .content("복원된 약관")
-                    .requiredYn(false)
-                    .createdAt(CREATED_AT)
-                    .modifiedAt(MODIFIED_AT)
-                    .status(EntityStatus.INACTIVE)
-                    .build();
+                .id(100L)
+                .content("복원된 약관")
+                .requiredYn(false)
+                .createdAt(CREATED_AT)
+                .modifiedAt(MODIFIED_AT)
+                .status(EntityStatus.INACTIVE)
+                .build();
 
             Terms terms = Terms.from(state);
 
@@ -74,12 +74,12 @@ class TermsTest {
         @DisplayName("requiredYn=true이면 isRequired는 true를 반환한다")
         void shouldReturnTrueWhenRequiredYnTrue() {
             Terms terms = Terms.from(
-                    TermsSnapshotState.builder()
-                            .id(1L)
-                            .content("약관")
-                            .requiredYn(true)
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                TermsSnapshotState.builder()
+                    .id(1L)
+                    .content("약관")
+                    .requiredYn(true)
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
 
             assertThat(terms.isRequired()).isTrue();
@@ -89,12 +89,12 @@ class TermsTest {
         @DisplayName("requiredYn=false이면 isRequired는 false를 반환한다")
         void shouldReturnFalseWhenRequiredYnFalse() {
             Terms terms = Terms.from(
-                    TermsSnapshotState.builder()
-                            .id(1L)
-                            .content("약관")
-                            .requiredYn(false)
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                TermsSnapshotState.builder()
+                    .id(1L)
+                    .content("약관")
+                    .requiredYn(false)
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
 
             assertThat(terms.isRequired()).isFalse();

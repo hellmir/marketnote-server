@@ -1,10 +1,10 @@
 package com.personal.marketnote.notification.port.out.result;
 
 public record SendPushNotificationResult(
-        boolean success,
-        String messageId,
-        String errorCode,
-        boolean tokenInvalid
+    boolean success,
+    String messageId,
+    String errorCode,
+    boolean tokenInvalid
 ) {
     public static SendPushNotificationResult success(String messageId) {
         return new SendPushNotificationResult(true, messageId, null, false);

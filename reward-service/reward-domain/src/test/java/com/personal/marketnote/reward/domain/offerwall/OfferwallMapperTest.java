@@ -14,22 +14,22 @@ class OfferwallMapperTest {
 
     private OfferwallMapperCreateState createState() {
         return OfferwallMapperCreateState.builder()
-                .offerwallType(OfferwallType.ADPOPCORN)
-                .rewardKey("reward-key-1")
-                .userKey("user-key-1")
-                .userDeviceType(UserDeviceType.ANDROID)
-                .campaignKey("campaign-key-1")
-                .campaignType(1)
-                .campaignName("테스트 캠페인")
-                .quantity(RewardQuantity.of(100L))
-                .signedValue("signed-value-1")
-                .appKey(1)
-                .appName("테스트 앱")
-                .adid("adid-1")
-                .idfa("idfa-1")
-                .isSuccess(true)
-                .attendedAt(LocalDateTime.of(2026, 4, 11, 10, 0, 0))
-                .build();
+            .offerwallType(OfferwallType.ADPOPCORN)
+            .rewardKey("reward-key-1")
+            .userKey("user-key-1")
+            .userDeviceType(UserDeviceType.ANDROID)
+            .campaignKey("campaign-key-1")
+            .campaignType(1)
+            .campaignName("테스트 캠페인")
+            .quantity(RewardQuantity.of(100L))
+            .signedValue("signed-value-1")
+            .appKey(1)
+            .appName("테스트 앱")
+            .adid("adid-1")
+            .idfa("idfa-1")
+            .isSuccess(true)
+            .attendedAt(LocalDateTime.of(2026, 4, 11, 10, 0, 0))
+            .build();
     }
 
     @Nested

@@ -22,8 +22,8 @@ public class AligoCancelExternalAdapter implements CancelAligoMessageExternalPor
         params.add("mid", mid);
 
         aligoHttpClient.post(
-                CANCEL_MESSAGE_OPERATION, aligoProperties.getApi().getCancelPath(),
-                params, AligoApiResponse.class
+            CANCEL_MESSAGE_OPERATION, aligoProperties.getApi().getCancelPath(),
+            params, AligoApiResponse.class
         );
     }
 }

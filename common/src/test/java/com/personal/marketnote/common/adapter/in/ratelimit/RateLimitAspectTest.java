@@ -70,7 +70,7 @@ class RateLimitAspectTest {
     void shouldProceedWithoutCheckWhenPrincipalIsNotOAuth2() throws Throwable {
         // given
         SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("plainUser", "password")
+            new TestingAuthenticationToken("plainUser", "password")
         );
         Object expected = "result";
         when(joinPoint.proceed()).thenReturn(expected);
@@ -143,7 +143,7 @@ class RateLimitAspectTest {
 
         // when & then
         assertThatThrownBy(() -> rateLimitAspect.checkRateLimit(joinPoint, rateLimited))
-                .isInstanceOf(RateLimitExceededException.class);
+            .isInstanceOf(RateLimitExceededException.class);
     }
 
     @Test
@@ -227,7 +227,7 @@ class RateLimitAspectTest {
 
         // when
         assertThatThrownBy(() -> rateLimitAspect.checkRateLimit(joinPoint, rateLimited))
-                .isInstanceOf(RateLimitExceededException.class);
+            .isInstanceOf(RateLimitExceededException.class);
 
         // then
         double hitCount = meterRegistry.counter("rate_limit.hit.total", "key", "test-api").count();
@@ -322,7 +322,7 @@ class RateLimitAspectTest {
 
         // when & then
         assertThatCode(() -> aspectWithoutMetrics.checkRateLimit(joinPoint, rateLimited))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -340,7 +340,7 @@ class RateLimitAspectTest {
 
         // when & then
         assertThatThrownBy(() -> aspectWithoutMetrics.checkRateLimit(joinPoint, rateLimited))
-                .isInstanceOf(RateLimitExceededException.class);
+            .isInstanceOf(RateLimitExceededException.class);
     }
 
     private void setUpOAuth2Authentication(Long userId) {

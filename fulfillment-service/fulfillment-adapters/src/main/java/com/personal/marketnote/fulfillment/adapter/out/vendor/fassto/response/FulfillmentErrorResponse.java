@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentErrorResponse(
-        FulfillmentResponseHeader header,
-        FulfillmentErrorInfo errorInfo
+    FulfillmentResponseHeader header,
+    FulfillmentErrorInfo errorInfo
 ) implements FulfillmentApiResponse {
 }

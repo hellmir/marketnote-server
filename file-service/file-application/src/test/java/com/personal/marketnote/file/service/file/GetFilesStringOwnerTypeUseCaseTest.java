@@ -43,8 +43,8 @@ class GetFilesStringOwnerTypeUseCaseTest {
         void shouldReturnFilesWithResizedUrls() {
             FileDomain file = buildFile(1L);
             ResizedFile resizedFile = ResizedFile.from(ResizedFileSnapshotState.builder()
-                    .fileId(1L).size("SMALL").storageUrl("https://example.com/resized.jpg")
-                    .status(EntityStatus.ACTIVE).build());
+                .fileId(1L).size("SMALL").storageUrl("https://example.com/resized.jpg")
+                .status(EntityStatus.ACTIVE).build());
             when(findFilePort.findByOwnerAndSort(OwnerType.PRODUCT, 100L, FileSort.PRODUCT_CATALOG_IMAGE)).thenReturn(List.of(file));
             when(findResizedFilesPort.findByFileIds(List.of(1L))).thenReturn(List.of(resizedFile));
             GetFilesResult result = getFileService.getFiles("PRODUCT", 100L, "PRODUCT_CATALOG_IMAGE");
@@ -65,8 +65,8 @@ class GetFilesStringOwnerTypeUseCaseTest {
 
     private FileDomain buildFile(Long id) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id).ownerType(OwnerType.PRODUCT).ownerId(100L).sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("jpg").name("test-file.jpg").storageUrl("https://example.com/test-file.jpg")
-                .createdAt(LocalDateTime.now()).status(EntityStatus.ACTIVE).orderNum(1L).build());
+            .id(id).ownerType(OwnerType.PRODUCT).ownerId(100L).sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("jpg").name("test-file.jpg").storageUrl("https://example.com/test-file.jpg")
+            .createdAt(LocalDateTime.now()).status(EntityStatus.ACTIVE).orderNum(1L).build());
     }
 }

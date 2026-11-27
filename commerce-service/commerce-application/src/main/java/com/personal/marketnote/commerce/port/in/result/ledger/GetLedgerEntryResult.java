@@ -8,21 +8,21 @@ import java.time.LocalDateTime;
 
 @Builder
 public record GetLedgerEntryResult(
-        Long id,
-        Long accountId,
-        Long transactionId,
-        Long amount,
-        TransactionType transactionType,
-        LocalDateTime createdAt
+    Long id,
+    Long accountId,
+    Long transactionId,
+    Long amount,
+    TransactionType transactionType,
+    LocalDateTime createdAt
 ) {
     public static GetLedgerEntryResult from(LedgerEntry entry) {
         return GetLedgerEntryResult.builder()
-                .id(entry.getId())
-                .accountId(entry.getAccountId())
-                .transactionId(entry.getTransactionId())
-                .amount(entry.getAmount().getValue())
-                .transactionType(entry.getTransactionType())
-                .createdAt(entry.getCreatedAt())
-                .build();
+            .id(entry.getId())
+            .accountId(entry.getAccountId())
+            .transactionId(entry.getTransactionId())
+            .amount(entry.getAmount().getValue())
+            .transactionType(entry.getTransactionType())
+            .createdAt(entry.getCreatedAt())
+            .build();
     }
 }

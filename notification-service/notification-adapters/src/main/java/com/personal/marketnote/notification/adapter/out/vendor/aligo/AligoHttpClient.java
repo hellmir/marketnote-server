@@ -47,12 +47,12 @@ public class AligoHttpClient {
     private final AligoOperationTargetTypeResolver operationTargetTypeResolver;
 
     public AligoHttpClient(
-            RestClient restClient, ObjectMapper objectMapper, AligoProperties properties,
-            ExternalCallLogger externalCallLogger,
-            AligoVendorCommunicationRecorder vendorCommunicationRecorder,
-            AligoVendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            AligoOperationTargetTypeResolver operationTargetTypeResolver
+        RestClient restClient, ObjectMapper objectMapper, AligoProperties properties,
+        ExternalCallLogger externalCallLogger,
+        AligoVendorCommunicationRecorder vendorCommunicationRecorder,
+        AligoVendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        AligoOperationTargetTypeResolver operationTargetTypeResolver
     ) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
@@ -68,42 +68,42 @@ public class AligoHttpClient {
         MultiValueMap<String, String> mergedParams = mergeCommonParams(params);
         if (isSensitivePath(path)) {
             return externalCallLogger.recordSensitive(
-                    ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
-                    () -> executeWithRetry(
-                            operation, path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED
-                    )
+                ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+                () -> executeWithRetry(
+                    operation, path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED
+                )
             );
         }
         return externalCallLogger.record(
-                ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
-                () -> executeWithRetry(
-                        operation, path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED
-                )
+            ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+            () -> executeWithRetry(
+                operation, path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED
+            )
         );
     }
 
     public <T> T postMultipart(
-            String operation, String path, MultiValueMap<String, Object> params, Class<T> responseType
+        String operation, String path, MultiValueMap<String, Object> params, Class<T> responseType
     ) {
         MultiValueMap<String, Object> mergedParams = mergeCommonParams(params);
         if (isSensitivePath(path)) {
             return externalCallLogger.recordSensitive(
-                    ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
-                    () -> executeWithRetry(
-                            operation, path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA
-                    )
+                ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+                () -> executeWithRetry(
+                    operation, path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA
+                )
             );
         }
         return externalCallLogger.record(
-                ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
-                () -> executeWithRetry(
-                        operation, path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA
-                )
+            ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+            () -> executeWithRetry(
+                operation, path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA
+            )
         );
     }
 
     private <T> T executeWithRetry(
-            String operation, String path, Object body, Class<T> responseType, MediaType contentType
+        String operation, String path, Object body, Class<T> responseType, MediaType contentType
     ) {
         int maxAttempts = properties.getRetry().getMaxAttempts();
         long backoffMs = properties.getRetry().getInitialBackoffMs();
@@ -116,32 +116,32 @@ public class AligoHttpClient {
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             AttemptOutcome<T> outcome = executeRequestCapturing(
-                    attempt, operation, path, body, contentType, responseType, sensitive
+                attempt, operation, path, body, contentType, responseType, sensitive
             );
             attempts.add(outcome.attemptResult());
 
             if (outcome.isSuccess()) {
                 recordSuccessSafely(
-                        targetType, requestPayload, requestPayloadJson,
-                        outcome.responseBody(), outcome.baseResponse(), sensitive,
-                        outcome.attemptResult().exception(), attempts
+                    targetType, requestPayload, requestPayloadJson,
+                    outcome.responseBody(), outcome.baseResponse(), sensitive,
+                    outcome.attemptResult().exception(), attempts
                 );
                 AligoApiErrorMapper.throwIfError(
-                        outcome.baseResponse().resultCode(), outcome.baseResponse().message()
+                    outcome.baseResponse().resultCode(), outcome.baseResponse().message()
                 );
                 return outcome.result();
             }
 
             if (attempt == maxAttempts) {
                 recordFinalFailureSafely(
-                        outcome, targetType, requestPayload, requestPayloadJson, sensitive, attempts
+                    outcome, targetType, requestPayload, requestPayloadJson, sensitive, attempts
                 );
                 throw outcome.toException(path);
             }
 
             log.warn(
-                    "알리고 API 호출 실패 (attempt {}/{}), 재시도 예정",
-                    attempt, maxAttempts, outcome.cause()
+                "알리고 API 호출 실패 (attempt {}/{}), 재시도 예정",
+                attempt, maxAttempts, outcome.cause()
             );
             sleep(backoffMs);
             backoffMs = backoffMs * 2;
@@ -151,25 +151,25 @@ public class AligoHttpClient {
 
     @SuppressWarnings("unchecked")
     private <T> AttemptOutcome<T> executeRequestCapturing(
-            int attempt, String operation, String path, Object body, MediaType contentType,
-            Class<T> responseType, boolean sensitive
+        int attempt, String operation, String path, Object body, MediaType contentType,
+        Class<T> responseType, boolean sensitive
     ) {
         String responseBody;
         try {
             responseBody = restClient.post()
-                    .uri(path)
-                    .contentType(contentType)
-                    .body(body)
-                    .retrieve()
-                    .body(String.class);
+                .uri(path)
+                .contentType(contentType)
+                .body(body)
+                .retrieve()
+                .body(String.class);
         } catch (RestClientResponseException re) {
             int statusCode = re.getStatusCode().value();
             String exceptionName = re.getClass().getSimpleName();
             return AttemptOutcome.httpFailure(
-                    AttemptResult.httpFailure(attempt, statusCode, exceptionName),
-                    statusCode,
-                    sensitive ? null : re.getResponseBodyAsString(),
-                    re
+                AttemptResult.httpFailure(attempt, statusCode, exceptionName),
+                statusCode,
+                sensitive ? null : re.getResponseBodyAsString(),
+                re
             );
         }
 
@@ -185,10 +185,10 @@ public class AligoHttpClient {
                 result = objectMapper.readValue(responseBody, responseType);
             }
             return AttemptOutcome.success(
-                    AttemptResult.success(attempt, exception),
-                    result,
-                    responseBody,
-                    baseResponse
+                AttemptResult.success(attempt, exception),
+                result,
+                responseBody,
+                baseResponse
             );
         } catch (AligoApiException e) {
             // 비즈니스 에러는 retry 안 함 — outcome으로 캡처하지 않고 즉시 escape
@@ -196,10 +196,10 @@ public class AligoHttpClient {
         } catch (Exception e) {
             String exceptionName = e.getClass().getSimpleName();
             return AttemptOutcome.parseFailure(
-                    AttemptResult.parseFailure(attempt, exceptionName),
-                    sensitive ? null : responseBody,
-                    exceptionName,
-                    e
+                AttemptResult.parseFailure(attempt, exceptionName),
+                sensitive ? null : responseBody,
+                exceptionName,
+                e
             );
         }
     }
@@ -212,14 +212,14 @@ public class AligoHttpClient {
     }
 
     private void recordSuccessSafely(
-            NotificationVendorCommunicationTargetType targetType,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            String responseBody,
-            AligoApiResponse baseResponse,
-            boolean sensitive,
-            String exception,
-            List<AttemptResult> attempts
+        NotificationVendorCommunicationTargetType targetType,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        String responseBody,
+        AligoApiResponse baseResponse,
+        boolean sensitive,
+        String exception,
+        List<AttemptResult> attempts
     ) {
         try {
             int attemptCount = attempts.size();
@@ -227,47 +227,47 @@ public class AligoHttpClient {
             String requestPayloadWithMeta = requestPayloadJsonWithMeta.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    NotificationVendorCommunicationType.REQUEST,
-                    NotificationVendorCommunicationSenderType.SERVER,
-                    NotificationVendorName.ALIGO,
-                    requestPayloadWithMeta,
-                    requestPayloadJsonWithMeta,
-                    exception,
-                    attemptCount
+                targetType,
+                NotificationVendorCommunicationType.REQUEST,
+                NotificationVendorCommunicationSenderType.SERVER,
+                NotificationVendorName.ALIGO,
+                requestPayloadWithMeta,
+                requestPayloadJsonWithMeta,
+                exception,
+                attemptCount
             );
 
             JsonNode responsePayloadJson = buildResponsePayloadJson(
-                    responseBody, baseResponse, sensitive, attemptCount, attempts
+                responseBody, baseResponse, sensitive, attemptCount, attempts
             );
             String responsePayload = responsePayloadJson.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    NotificationVendorCommunicationType.RESPONSE,
-                    NotificationVendorCommunicationSenderType.VENDOR,
-                    NotificationVendorName.ALIGO,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception,
-                    attemptCount
+                targetType,
+                NotificationVendorCommunicationType.RESPONSE,
+                NotificationVendorCommunicationSenderType.VENDOR,
+                NotificationVendorName.ALIGO,
+                responsePayload,
+                responsePayloadJson,
+                exception,
+                attemptCount
             );
         } catch (Exception e) {
             // record 발행 실패는 외부 호출자에 전파하지 않는다 (정상 응답 흐름 비차단).
             log.error(
-                    "Aligo 통신 이력 기록 실패 (정상 응답 흐름): targetType={}, exception={}",
-                    targetType, e.getClass().getSimpleName(), e
+                "Aligo 통신 이력 기록 실패 (정상 응답 흐름): targetType={}, exception={}",
+                targetType, e.getClass().getSimpleName(), e
             );
         }
     }
 
     private void recordFinalFailureSafely(
-            AttemptOutcome<?> outcome,
-            NotificationVendorCommunicationTargetType targetType,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            boolean sensitive,
-            List<AttemptResult> attempts
+        AttemptOutcome<?> outcome,
+        NotificationVendorCommunicationTargetType targetType,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        boolean sensitive,
+        List<AttemptResult> attempts
     ) {
         try {
             int attemptCount = attempts.size();
@@ -276,28 +276,28 @@ public class AligoHttpClient {
 
             if (outcome.attemptResult().status() == AttemptStatus.HTTP_FAILURE) {
                 vendorCommunicationFailureHandler.handleHttpFailure(
-                        targetType, requestPayloadWithMeta, requestPayloadJsonWithMeta,
-                        outcome.httpStatus(), outcome.responseBody(), sensitive,
-                        attemptCount, attempts
+                    targetType, requestPayloadWithMeta, requestPayloadJsonWithMeta,
+                    outcome.httpStatus(), outcome.responseBody(), sensitive,
+                    attemptCount, attempts
                 );
                 return;
             }
             vendorCommunicationFailureHandler.handleParseFailure(
-                    targetType, requestPayloadWithMeta, requestPayloadJsonWithMeta,
-                    outcome.responseBody(), outcome.exception(), sensitive,
-                    attemptCount, attempts
+                targetType, requestPayloadWithMeta, requestPayloadJsonWithMeta,
+                outcome.responseBody(), outcome.exception(), sensitive,
+                attemptCount, attempts
             );
         } catch (Exception e) {
             // record 발행 실패는 외부 호출자에 전파하지 않는다 (최종 실패 흐름 비차단).
             log.error(
-                    "Aligo 통신 이력 기록 실패 (최종 실패 흐름): targetType={}, exception={}",
-                    targetType, e.getClass().getSimpleName(), e
+                "Aligo 통신 이력 기록 실패 (최종 실패 흐름): targetType={}, exception={}",
+                targetType, e.getClass().getSimpleName(), e
             );
         }
     }
 
     private JsonNode buildRequestPayloadJson(
-            String operation, String path, MediaType contentType, Object body
+        String operation, String path, MediaType contentType, Object body
     ) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("operation", operation);
@@ -319,7 +319,8 @@ public class AligoHttpClient {
             return new LinkedHashMap<>();
         }
         return objectMapper.convertValue(
-                payloadJson, new TypeReference<LinkedHashMap<String, Object>>() {}
+            payloadJson, new TypeReference<LinkedHashMap<String, Object>>() {
+            }
         );
     }
 
@@ -387,8 +388,8 @@ public class AligoHttpClient {
     }
 
     private JsonNode buildResponsePayloadJson(
-            String responseBody, AligoApiResponse baseResponse, boolean sensitive,
-            int attemptCount, List<AttemptResult> attempts
+        String responseBody, AligoApiResponse baseResponse, boolean sensitive,
+        int attemptCount, List<AttemptResult> attempts
     ) {
         Map<String, Object> map = new LinkedHashMap<>();
         if (sensitive) {
@@ -416,15 +417,15 @@ public class AligoHttpClient {
         if (resultCode == 0) {
             if (aligoCallLog.isDebugEnabled()) {
                 aligoCallLog.debug(
-                        "Aligo response: operation={}, path={}, resultCode={}, message={}",
-                        operation, path, resultCode, message
+                    "Aligo response: operation={}, path={}, resultCode={}, message={}",
+                    operation, path, resultCode, message
                 );
             }
             return;
         }
         aligoCallLog.error(
-                "Aligo response error: operation={}, path={}, resultCode={}, message={}",
-                operation, path, resultCode, message
+            "Aligo response error: operation={}, path={}, resultCode={}, message={}",
+            operation, path, resultCode, message
         );
     }
 
@@ -458,30 +459,30 @@ public class AligoHttpClient {
      * AligoHttpClient 내부 attempt 결과 캡처 객체. Recorder/FailureHandler와 retry 흐름의 분리를 돕는다.
      */
     private record AttemptOutcome<T>(
-            AttemptResult attemptResult,
-            T result,
-            String responseBody,
-            AligoApiResponse baseResponse,
-            int httpStatus,
-            String exception,
-            Throwable cause
+        AttemptResult attemptResult,
+        T result,
+        String responseBody,
+        AligoApiResponse baseResponse,
+        int httpStatus,
+        String exception,
+        Throwable cause
     ) {
         static <T> AttemptOutcome<T> success(
-                AttemptResult attemptResult, T result, String responseBody, AligoApiResponse baseResponse
+            AttemptResult attemptResult, T result, String responseBody, AligoApiResponse baseResponse
         ) {
             return new AttemptOutcome<>(attemptResult, result, responseBody, baseResponse, 0, null, null);
         }
 
         static <T> AttemptOutcome<T> httpFailure(
-                AttemptResult attemptResult, int httpStatus, String responseBody, Throwable cause
+            AttemptResult attemptResult, int httpStatus, String responseBody, Throwable cause
         ) {
             return new AttemptOutcome<>(
-                    attemptResult, null, responseBody, null, httpStatus, attemptResult.exception(), cause
+                attemptResult, null, responseBody, null, httpStatus, attemptResult.exception(), cause
             );
         }
 
         static <T> AttemptOutcome<T> parseFailure(
-                AttemptResult attemptResult, String responseBody, String exception, Throwable cause
+            AttemptResult attemptResult, String responseBody, String exception, Throwable cause
         ) {
             return new AttemptOutcome<>(attemptResult, null, responseBody, null, 0, exception, cause);
         }
@@ -501,16 +502,16 @@ public class AligoHttpClient {
             boolean sensitive = responseBody == null;
             if (sensitive) {
                 log.error(
-                        "알리고 API HTTP 응답 실패: path={}, status={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                        path, httpStatus, cause.getClass().getSimpleName()
+                    "알리고 API HTTP 응답 실패: path={}, status={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    path, httpStatus, cause.getClass().getSimpleName()
                 );
                 return new AligoApiRequestFailedException(
-                        "알리고 API HTTP 응답 실패. path=" + path + ", status=" + httpStatus
+                    "알리고 API HTTP 응답 실패. path=" + path + ", status=" + httpStatus
                 );
             }
             log.error("알리고 API HTTP 응답 실패: path={}, status={}", path, httpStatus, cause);
             return new AligoApiRequestFailedException(
-                    "알리고 API HTTP 응답 실패. path=" + path + ", status=" + httpStatus, cause
+                "알리고 API HTTP 응답 실패. path=" + path + ", status=" + httpStatus, cause
             );
         }
 
@@ -518,8 +519,8 @@ public class AligoHttpClient {
             boolean sensitive = responseBody == null;
             if (sensitive) {
                 log.error(
-                        "알리고 API 응답 처리 실패: path={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                        path, cause.getClass().getSimpleName()
+                    "알리고 API 응답 처리 실패: path={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    path, cause.getClass().getSimpleName()
                 );
                 return new AligoApiRequestFailedException("알리고 API 응답 처리 실패. path=" + path);
             }

@@ -3,13 +3,7 @@ package com.personal.marketnote.user.service.user;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.authentication.Role;
-import com.personal.marketnote.user.domain.user.Nickname;
-import com.personal.marketnote.user.domain.user.ReferenceCode;
-import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserAuthProvider;
-import com.personal.marketnote.user.domain.user.UserSearchTarget;
-import com.personal.marketnote.user.domain.user.UserSnapshotState;
-import com.personal.marketnote.user.domain.user.UserSortProperty;
+import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.port.in.result.AccountResult;
 import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
 import com.personal.marketnote.user.port.in.result.GetUserResult;
@@ -56,8 +50,8 @@ class GetUserUseCaseTest {
         String referenceCode = "REF123";
         Role role = Role.getBuyer();
         List<UserAuthProvider> userAuthProviders = List.of(
-                UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc"),
-                UserAuthProvider.of(AuthVendor.GOOGLE, "google-oidc")
+            UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc"),
+            UserAuthProvider.of(AuthVendor.GOOGLE, "google-oidc")
         );
         LocalDateTime signedUpAt = LocalDateTime.of(2024, 1, 1, 10, 0);
         LocalDateTime lastLoggedInAt = LocalDateTime.of(2024, 1, 2, 11, 0);
@@ -66,19 +60,19 @@ class GetUserUseCaseTest {
         Long orderNum = 7L;
 
         User user = UserTestObjectFactory.createUser(
-                id,
-                nickname,
-                email,
-                fullName,
-                phoneNumber,
-                referenceCode,
-                role,
-                userAuthProviders,
-                signedUpAt,
-                lastLoggedInAt,
-                status,
-                withdrawalYn,
-                orderNum
+            id,
+            nickname,
+            email,
+            fullName,
+            phoneNumber,
+            referenceCode,
+            role,
+            userAuthProviders,
+            signedUpAt,
+            lastLoggedInAt,
+            status,
+            withdrawalYn,
+            orderNum
         );
 
         when(findUserPort.findById(id)).thenReturn(Optional.of(user));
@@ -101,8 +95,8 @@ class GetUserUseCaseTest {
         assertThat(result.orderNum()).isEqualTo(orderNum);
         assertThat(result.penaltyCount()).isEqualTo(0);
         assertThat(result.accountInfo().accounts()).containsExactly(
-                new AccountResult(AuthVendor.KAKAO, "kakao-oidc"),
-                new AccountResult(AuthVendor.GOOGLE, "google-oidc")
+            new AccountResult(AuthVendor.KAKAO, "kakao-oidc"),
+            new AccountResult(AuthVendor.GOOGLE, "google-oidc")
         );
 
         verify(findUserPort).findById(id);
@@ -118,8 +112,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getUserInfo(id))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
 
         verify(findUserPort).findById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -137,7 +131,7 @@ class GetUserUseCaseTest {
         String referenceCode = "REF456";
         Role role = Role.getBuyer();
         List<UserAuthProvider> userAuthProviders = List.of(
-                UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc-2")
+            UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc-2")
         );
         LocalDateTime signedUpAt = LocalDateTime.of(2024, 2, 1, 9, 0);
         LocalDateTime lastLoggedInAt = LocalDateTime.of(2024, 2, 2, 10, 0);
@@ -146,19 +140,19 @@ class GetUserUseCaseTest {
         Long orderNum = 3L;
 
         User user = UserTestObjectFactory.createUser(
-                id,
-                nickname,
-                email,
-                fullName,
-                phoneNumber,
-                referenceCode,
-                role,
-                userAuthProviders,
-                signedUpAt,
-                lastLoggedInAt,
-                status,
-                withdrawalYn,
-                orderNum
+            id,
+            nickname,
+            email,
+            fullName,
+            phoneNumber,
+            referenceCode,
+            role,
+            userAuthProviders,
+            signedUpAt,
+            lastLoggedInAt,
+            status,
+            withdrawalYn,
+            orderNum
         );
 
         when(findUserPort.findAllStatusUserById(id)).thenReturn(Optional.of(user));
@@ -181,7 +175,7 @@ class GetUserUseCaseTest {
         assertThat(result.orderNum()).isEqualTo(orderNum);
         assertThat(result.penaltyCount()).isEqualTo(0);
         assertThat(result.accountInfo().accounts()).containsExactly(
-                new AccountResult(AuthVendor.KAKAO, "kakao-oidc-2")
+            new AccountResult(AuthVendor.KAKAO, "kakao-oidc-2")
         );
 
         verify(findUserPort).findAllStatusUserById(id);
@@ -197,8 +191,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getAllStatusUserInfo(id))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
 
         verify(findUserPort).findAllStatusUserById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -249,8 +243,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getAllStatusUser(id))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
 
         verify(findUserPort).findAllStatusUserById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -283,8 +277,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getAllStatusUser(email))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE, email));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE, email));
 
         verify(findUserPort).findAllStatusUserByEmail(email);
         verifyNoMoreInteractions(findUserPort);
@@ -319,8 +313,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getAllStatusUser(authVendor, oidcId))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, oidcId));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, oidcId));
 
         verify(findUserPort).findByAuthVendorAndOidcId(authVendor, oidcId);
         verifyNoMoreInteractions(findUserPort);
@@ -335,8 +329,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getUser(id))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
 
         verify(findUserPort).findById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -371,8 +365,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getUser(authVendor, oidcId))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, oidcId));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, oidcId));
 
         verify(findUserPort).findByAuthVendorAndOidcId(authVendor, oidcId);
         verifyNoMoreInteractions(findUserPort);
@@ -405,8 +399,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getUser(referenceCode))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referenceCode));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referenceCode));
 
         verify(findUserPort).findByReferenceCode(referenceCode);
         verifyNoMoreInteractions(findUserPort);
@@ -439,8 +433,8 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getUserKey(id))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
 
         verify(findUserPort).findUserKeyById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -490,56 +484,56 @@ class GetUserUseCaseTest {
         String searchKeyword = "test";
 
         User user1 = UserTestObjectFactory.createUser(
-                30L,
-                "nick1",
-                "user1@test.com",
-                "홍길동",
-                "01010000001",
-                "REFONE",
-                Role.getBuyer(),
-                List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-1")),
-                LocalDateTime.of(2024, 3, 1, 9, 0),
-                LocalDateTime.of(2024, 3, 2, 10, 0),
-                EntityStatus.ACTIVE,
-                false,
-                1L
+            30L,
+            "nick1",
+            "user1@test.com",
+            "홍길동",
+            "01010000001",
+            "REFONE",
+            Role.getBuyer(),
+            List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-1")),
+            LocalDateTime.of(2024, 3, 1, 9, 0),
+            LocalDateTime.of(2024, 3, 2, 10, 0),
+            EntityStatus.ACTIVE,
+            false,
+            1L
         );
         User user2 = UserTestObjectFactory.createUser(
-                31L,
-                "nick2",
-                "user2@test.com",
-                "김철수",
-                "01010000002",
-                "REFTWO",
-                Role.getBuyer(),
-                List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-2")),
-                LocalDateTime.of(2024, 3, 3, 9, 0),
-                LocalDateTime.of(2024, 3, 4, 10, 0),
-                EntityStatus.INACTIVE,
-                true,
-                2L
+            31L,
+            "nick2",
+            "user2@test.com",
+            "김철수",
+            "01010000002",
+            "REFTWO",
+            Role.getBuyer(),
+            List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-2")),
+            LocalDateTime.of(2024, 3, 3, 9, 0),
+            LocalDateTime.of(2024, 3, 4, 10, 0),
+            EntityStatus.INACTIVE,
+            true,
+            2L
         );
 
         Page<User> users = new PageImpl<>(
-                List.of(user1, user2),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
-                4
+            List.of(user1, user2),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
+            4
         );
 
         when(findUserPort.findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         )).thenReturn(users);
 
         // when
         Page<GetUserResult> result = getUserService.getAllStatusUsers(
-                pageSize,
-                pageNumber,
-                sortDirection,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            pageSize,
+            pageNumber,
+            sortDirection,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         // then
@@ -561,7 +555,7 @@ class GetUserUseCaseTest {
         assertThat(first.orderNum()).isEqualTo(1L);
         assertThat(first.penaltyCount()).isEqualTo(0);
         assertThat(first.accountInfo().accounts()).containsExactly(
-                new AccountResult(AuthVendor.KAKAO, "kakao-1")
+            new AccountResult(AuthVendor.KAKAO, "kakao-1")
         );
 
         GetUserResult second = result.getContent().get(1);
@@ -579,14 +573,14 @@ class GetUserUseCaseTest {
         assertThat(second.orderNum()).isEqualTo(2L);
         assertThat(second.penaltyCount()).isEqualTo(0);
         assertThat(second.accountInfo().accounts()).containsExactly(
-                new AccountResult(AuthVendor.GOOGLE, "google-2")
+            new AccountResult(AuthVendor.GOOGLE, "google-2")
         );
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(findUserPort).findAllStatusUsersByPage(
-                pageableCaptor.capture(),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            pageableCaptor.capture(),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         );
 
         Pageable pageable = pageableCaptor.getValue();
@@ -611,25 +605,25 @@ class GetUserUseCaseTest {
         String searchKeyword = "none";
 
         Page<User> users = new PageImpl<>(
-                List.of(),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
-                0
+            List.of(),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
+            0
         );
 
         when(findUserPort.findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         )).thenReturn(users);
 
         // when
         Page<GetUserResult> result = getUserService.getAllStatusUsers(
-                pageSize,
-                pageNumber,
-                sortDirection,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            pageSize,
+            pageNumber,
+            sortDirection,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         // then
@@ -637,9 +631,9 @@ class GetUserUseCaseTest {
         assertThat(result.getContent()).isEmpty();
 
         verify(findUserPort).findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         );
         verifyNoMoreInteractions(findUserPort);
     }
@@ -671,7 +665,7 @@ class GetUserUseCaseTest {
         // given
         Long id = 3L;
         List<UserAuthProvider> userAuthProviders = List.of(
-                UserAuthProvider.of(AuthVendor.APPLE, "apple-oidc")
+            UserAuthProvider.of(AuthVendor.APPLE, "apple-oidc")
         );
         User user = UserTestObjectFactory.createDefaultUser(id, EntityStatus.UNEXPOSED, false, userAuthProviders);
 
@@ -684,7 +678,7 @@ class GetUserUseCaseTest {
         assertThat(result.status()).isEqualTo(EntityStatus.UNEXPOSED.name());
         assertThat(result.isWithdrawn()).isFalse();
         assertThat(result.accountInfo().accounts()).containsExactly(
-                new AccountResult(AuthVendor.APPLE, "apple-oidc")
+            new AccountResult(AuthVendor.APPLE, "apple-oidc")
         );
 
         verify(findUserPort).findById(id);
@@ -704,42 +698,42 @@ class GetUserUseCaseTest {
 
         LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 5, 1, 0, 0);
         User inactiveUser = UserTestObjectFactory.createUser(
-                40L,
-                "inactNick",
-                "inactive@test.com",
-                "비활성",
-                "01020000001",
-                "REF040",
-                Role.getBuyer(),
-                List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-40")),
-                LocalDateTime.of(2024, 4, 1, 9, 0),
-                LocalDateTime.of(2024, 4, 2, 10, 0),
-                EntityStatus.INACTIVE,
-                false,
-                1L,
-                deactivatedUntil
+            40L,
+            "inactNick",
+            "inactive@test.com",
+            "비활성",
+            "01020000001",
+            "REF040",
+            Role.getBuyer(),
+            List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-40")),
+            LocalDateTime.of(2024, 4, 1, 9, 0),
+            LocalDateTime.of(2024, 4, 2, 10, 0),
+            EntityStatus.INACTIVE,
+            false,
+            1L,
+            deactivatedUntil
         );
 
         Page<User> users = new PageImpl<>(
-                List.of(inactiveUser),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
-                1
+            List.of(inactiveUser),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
+            1
         );
 
         when(findUserPort.findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         )).thenReturn(users);
 
         // when
         Page<GetUserResult> result = getUserService.getAllStatusUsers(
-                pageSize,
-                pageNumber,
-                sortDirection,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            pageSize,
+            pageNumber,
+            sortDirection,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         // then
@@ -750,9 +744,9 @@ class GetUserUseCaseTest {
         assertThat(first.deactivatedUntil()).isEqualTo(deactivatedUntil);
 
         verify(findUserPort).findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         );
         verifyNoMoreInteractions(findUserPort);
     }
@@ -769,42 +763,42 @@ class GetUserUseCaseTest {
         String searchKeyword = "";
 
         User activeUser = UserTestObjectFactory.createUser(
-                41L,
-                "activeNick",
-                "active@test.com",
-                "활성",
-                "01020000002",
-                "REF041",
-                Role.getBuyer(),
-                List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-41")),
-                LocalDateTime.of(2024, 4, 3, 9, 0),
-                LocalDateTime.of(2024, 4, 4, 10, 0),
-                EntityStatus.ACTIVE,
-                false,
-                2L,
-                null
+            41L,
+            "activeNick",
+            "active@test.com",
+            "활성",
+            "01020000002",
+            "REF041",
+            Role.getBuyer(),
+            List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-41")),
+            LocalDateTime.of(2024, 4, 3, 9, 0),
+            LocalDateTime.of(2024, 4, 4, 10, 0),
+            EntityStatus.ACTIVE,
+            false,
+            2L,
+            null
         );
 
         Page<User> users = new PageImpl<>(
-                List.of(activeUser),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
-                1
+            List.of(activeUser),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
+            1
         );
 
         when(findUserPort.findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         )).thenReturn(users);
 
         // when
         Page<GetUserResult> result = getUserService.getAllStatusUsers(
-                pageSize,
-                pageNumber,
-                sortDirection,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            pageSize,
+            pageNumber,
+            sortDirection,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         // then
@@ -815,9 +809,9 @@ class GetUserUseCaseTest {
         assertThat(first.deactivatedUntil()).isNull();
 
         verify(findUserPort).findAllStatusUsersByPage(
-                ArgumentMatchers.any(Pageable.class),
-                ArgumentMatchers.eq(searchTarget),
-                ArgumentMatchers.eq(searchKeyword)
+            ArgumentMatchers.any(Pageable.class),
+            ArgumentMatchers.eq(searchTarget),
+            ArgumentMatchers.eq(searchKeyword)
         );
         verifyNoMoreInteractions(findUserPort);
     }
@@ -829,20 +823,20 @@ class GetUserUseCaseTest {
         Long id = 50L;
         LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 6, 1, 0, 0);
         User inactiveUser = UserTestObjectFactory.createUser(
-                id,
-                "inactInfo",
-                "inactinfo@test.com",
-                "비활성정보",
-                "01030000001",
-                "REF050",
-                Role.getBuyer(),
-                List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-50")),
-                LocalDateTime.of(2024, 5, 1, 9, 0),
-                LocalDateTime.of(2024, 5, 2, 10, 0),
-                EntityStatus.INACTIVE,
-                false,
-                3L,
-                deactivatedUntil
+            id,
+            "inactInfo",
+            "inactinfo@test.com",
+            "비활성정보",
+            "01030000001",
+            "REF050",
+            Role.getBuyer(),
+            List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-50")),
+            LocalDateTime.of(2024, 5, 1, 9, 0),
+            LocalDateTime.of(2024, 5, 2, 10, 0),
+            EntityStatus.INACTIVE,
+            false,
+            3L,
+            deactivatedUntil
         );
 
         when(findUserPort.findAllStatusUserById(id)).thenReturn(Optional.of(inactiveUser));
@@ -865,20 +859,20 @@ class GetUserUseCaseTest {
         // given
         Long id = 51L;
         User activeUser = UserTestObjectFactory.createUser(
-                id,
-                "activeInfo",
-                "activeinfo@test.com",
-                "활성정보",
-                "01030000002",
-                "REF051",
-                Role.getBuyer(),
-                List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-51")),
-                LocalDateTime.of(2024, 5, 3, 9, 0),
-                LocalDateTime.of(2024, 5, 4, 10, 0),
-                EntityStatus.ACTIVE,
-                false,
-                4L,
-                null
+            id,
+            "activeInfo",
+            "activeinfo@test.com",
+            "활성정보",
+            "01030000002",
+            "REF051",
+            Role.getBuyer(),
+            List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-51")),
+            LocalDateTime.of(2024, 5, 3, 9, 0),
+            LocalDateTime.of(2024, 5, 4, 10, 0),
+            EntityStatus.ACTIVE,
+            false,
+            4L,
+            null
         );
 
         when(findUserPort.findAllStatusUserById(id)).thenReturn(Optional.of(activeUser));
@@ -938,7 +932,7 @@ class GetUserUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getUserService.isReferredUserCodeRegistered(id))
-                .isInstanceOf(UserNotFoundException.class);
+            .isInstanceOf(UserNotFoundException.class);
 
         verify(findUserPort).findById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -946,33 +940,33 @@ class GetUserUseCaseTest {
 
     private User createUserWithReferredUserCode(Long id, String referredUserCode) {
         UserSnapshotState state = UserSnapshotState.builder()
-                .id(id)
-                .userKey(UUID.fromString("00000000-0000-0000-0000-000000000099"))
-                .nickname(Nickname.of("refuser"))
-                .referenceCode(ReferenceCode.of("OWNCD1"))
-                .referredUserCode(referredUserCode == null ? null : ReferenceCode.of(referredUserCode))
-                .role(Role.getBuyer())
-                .userAuthProviders(List.of())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build();
+            .id(id)
+            .userKey(UUID.fromString("00000000-0000-0000-0000-000000000099"))
+            .nickname(Nickname.of("refuser"))
+            .referenceCode(ReferenceCode.of("OWNCD1"))
+            .referredUserCode(referredUserCode == null ? null : ReferenceCode.of(referredUserCode))
+            .role(Role.getBuyer())
+            .userAuthProviders(List.of())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build();
         return User.from(state);
     }
 
     private User createUserWithSkippedAt(Long id, LocalDateTime skippedAt) {
         UserSnapshotState state = UserSnapshotState.builder()
-                .id(id)
-                .userKey(UUID.fromString("00000000-0000-0000-0000-000000000099"))
-                .nickname(Nickname.of("skpuser"))
-                .referenceCode(ReferenceCode.of("OWNCD2"))
-                .referredUserCodeSkippedAt(skippedAt)
-                .role(Role.getBuyer())
-                .userAuthProviders(List.of())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .withdrawalYn(false)
-                .build();
+            .id(id)
+            .userKey(UUID.fromString("00000000-0000-0000-0000-000000000099"))
+            .nickname(Nickname.of("skpuser"))
+            .referenceCode(ReferenceCode.of("OWNCD2"))
+            .referredUserCodeSkippedAt(skippedAt)
+            .role(Role.getBuyer())
+            .userAuthProviders(List.of())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .withdrawalYn(false)
+            .build();
         return User.from(state);
     }
 
@@ -1039,7 +1033,7 @@ class GetUserUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserService.getReferredUserCodeInputStatus(id))
-                .isInstanceOf(UserNotFoundException.class);
+            .isInstanceOf(UserNotFoundException.class);
 
         verify(findUserPort).findById(id);
         verifyNoMoreInteractions(findUserPort);

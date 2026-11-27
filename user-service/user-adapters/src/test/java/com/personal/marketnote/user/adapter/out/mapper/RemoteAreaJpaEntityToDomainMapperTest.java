@@ -17,13 +17,13 @@ class RemoteAreaJpaEntityToDomainMapperTest {
     void shouldMapAllFieldsToDomain() {
         // given
         RemoteArea source = RemoteArea.from(
-                RemoteAreaCreateState.builder()
-                        .province("제주특별자치도")
-                        .district("서귀포시")
-                        .village("성산읍")
-                        .subarea("오조리")
-                        .regionType(ShippingAddressRegionType.JEJU)
-                        .build()
+            RemoteAreaCreateState.builder()
+                .province("제주특별자치도")
+                .district("서귀포시")
+                .village("성산읍")
+                .subarea("오조리")
+                .regionType(ShippingAddressRegionType.JEJU)
+                .build()
         );
         RemoteAreaJpaEntity entity = RemoteAreaJpaEntity.from(source);
         ReflectionTestUtils.setField(entity, "id", 7L);
@@ -45,13 +45,13 @@ class RemoteAreaJpaEntityToDomainMapperTest {
     void shouldMapIslandRegionType() {
         // given
         RemoteArea source = RemoteArea.from(
-                RemoteAreaCreateState.builder()
-                        .province("인천광역시")
-                        .district("옹진군")
-                        .village("백령면")
-                        .subarea("진촌리")
-                        .regionType(ShippingAddressRegionType.ISLAND)
-                        .build()
+            RemoteAreaCreateState.builder()
+                .province("인천광역시")
+                .district("옹진군")
+                .village("백령면")
+                .subarea("진촌리")
+                .regionType(ShippingAddressRegionType.ISLAND)
+                .build()
         );
         RemoteAreaJpaEntity entity = RemoteAreaJpaEntity.from(source);
 
@@ -68,13 +68,13 @@ class RemoteAreaJpaEntityToDomainMapperTest {
     void shouldMapDeliveryImpossibleRegionType() {
         // given
         RemoteArea source = RemoteArea.from(
-                RemoteAreaCreateState.builder()
-                        .province("강원특별자치도")
-                        .district("양양군")
-                        .village("강현면")
-                        .subarea("정암리")
-                        .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
-                        .build()
+            RemoteAreaCreateState.builder()
+                .province("강원특별자치도")
+                .district("양양군")
+                .village("강현면")
+                .subarea("정암리")
+                .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
+                .build()
         );
         RemoteAreaJpaEntity entity = RemoteAreaJpaEntity.from(source);
 

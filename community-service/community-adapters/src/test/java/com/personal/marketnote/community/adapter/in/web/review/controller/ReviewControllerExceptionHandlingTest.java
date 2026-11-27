@@ -61,22 +61,22 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("집계가 존재하면 OK + 점수별 카운트를 매핑한다")
         void returnsAggregateWhenFound() {
             ProductReviewAggregate aggregate = ProductReviewAggregate.from(
-                    ProductReviewAggregateSnapshotState.builder()
-                            .productId(1L)
-                            .totalCount(3)
-                            .fivePointCount(2)
-                            .fourPointCount(1)
-                            .threePointCount(0)
-                            .twoPointCount(0)
-                            .onePointCount(0)
-                            .totalRating(14L)
-                            .averageRating(new java.math.BigDecimal("4.67"))
-                            .build()
+                ProductReviewAggregateSnapshotState.builder()
+                    .productId(1L)
+                    .totalCount(3)
+                    .fivePointCount(2)
+                    .fourPointCount(1)
+                    .threePointCount(0)
+                    .twoPointCount(0)
+                    .onePointCount(0)
+                    .totalRating(14L)
+                    .averageRating(new java.math.BigDecimal("4.67"))
+                    .build()
             );
             when(getReviewUseCase.getProductReviewAggregate(1L)).thenReturn(aggregate);
 
             ResponseEntity<BaseResponse<GetProductReviewAggregateResponse>> response =
-                    controller.getProductReviewAggregate(1L);
+                controller.getProductReviewAggregate(1L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -88,10 +88,10 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("ProductReviewAggregateNotFoundException 발생 시 0건 응답으로 fallback 한다")
         void returnsEmptyAggregateOnNotFound() {
             when(getReviewUseCase.getProductReviewAggregate(1L))
-                    .thenThrow(new ProductReviewAggregateNotFoundException());
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
             ResponseEntity<BaseResponse<GetProductReviewAggregateResponse>> response =
-                    controller.getProductReviewAggregate(1L);
+                controller.getProductReviewAggregate(1L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -108,13 +108,13 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("principal이 null이면 userId 없이 UseCase를 호출한다")
         void allowsAnonymousAccess() {
             when(getReviewUseCase.getProductReviews(eq(null), eq(1L), eq(false), any(), anyInt(), any(), any()))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             assertThatThrownBy(() -> controller.getProductReviews(
-                    1L, false, null, 4,
-                    org.springframework.data.domain.Sort.Direction.DESC,
-                    com.personal.marketnote.community.domain.review.ReviewSortProperty.ID,
-                    null
+                1L, false, null, 4,
+                org.springframework.data.domain.Sort.Direction.DESC,
+                com.personal.marketnote.community.domain.review.ReviewSortProperty.ID,
+                null
             )).isInstanceOf(NullPointerException.class);
             verify(getReviewUseCase).getProductReviews(eq(null), eq(1L), eq(false), any(), anyInt(), any(), any());
         }
@@ -125,10 +125,10 @@ class ReviewControllerExceptionHandlingTest {
             OAuth2AuthenticatedPrincipal principal = principal("-1", "ROLE_BUYER");
 
             assertThatThrownBy(() -> controller.getProductReviews(
-                    1L, false, null, 4,
-                    org.springframework.data.domain.Sort.Direction.DESC,
-                    com.personal.marketnote.community.domain.review.ReviewSortProperty.ID,
-                    principal
+                1L, false, null, 4,
+                org.springframework.data.domain.Sort.Direction.DESC,
+                com.personal.marketnote.community.domain.review.ReviewSortProperty.ID,
+                principal
             )).isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getReviewUseCase);
         }
@@ -142,7 +142,7 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("registerReview principal이 null이면 AuthenticationFailedException")
         void registerReviewThrowsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.registerReview(null, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(registerReviewUseCase);
         }
 
@@ -150,7 +150,7 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("updateReview principal이 null이면 AuthenticationFailedException")
         void updateReviewThrowsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.updateReview(1L, null, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(updateReviewUseCase);
         }
 
@@ -158,7 +158,7 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("deleteReview principal이 null이면 AuthenticationFailedException")
         void deleteReviewThrowsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.deleteReview(1L, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(deleteReviewUseCase);
         }
     }
@@ -171,10 +171,10 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("getMyReviews principal이 null이면 AuthenticationFailedException")
         void getMyReviewsThrowsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.getMyReviews(
-                    null, 4,
-                    org.springframework.data.domain.Sort.Direction.DESC,
-                    com.personal.marketnote.community.domain.review.ReviewSortProperty.ID,
-                    null
+                null, 4,
+                org.springframework.data.domain.Sort.Direction.DESC,
+                com.personal.marketnote.community.domain.review.ReviewSortProperty.ID,
+                null
             )).isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getReviewUseCase);
         }
@@ -183,7 +183,7 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("getMyReviewsCount principal이 null이면 AuthenticationFailedException")
         void getMyReviewsCountThrowsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.getMyReviewsCount(null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getReviewUseCase);
         }
 
@@ -191,7 +191,7 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("getReviewKey principal이 null이면 AuthenticationFailedException")
         void getReviewKeyThrowsWhenPrincipalNull() {
             assertThatThrownBy(() -> controller.getReviewKey(1L, null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getReviewKeyUseCase);
         }
     }
@@ -206,7 +206,7 @@ class ReviewControllerExceptionHandlingTest {
             when(getReviewUseCase.getReviewDetail(1L, null)).thenReturn(null);
 
             assertThatThrownBy(() -> controller.getReview(1L, null))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
             verify(getReviewUseCase).getReviewDetail(1L, null);
         }
     }

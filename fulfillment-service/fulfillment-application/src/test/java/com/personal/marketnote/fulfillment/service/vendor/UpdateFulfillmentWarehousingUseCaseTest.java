@@ -32,12 +32,12 @@ class UpdateFulfillmentWarehousingUseCaseTest {
     void shouldDelegateToPort() {
         // given
         UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.builder()
-                .orderDate("20260402")
-                .orderNumber("ORD001")
-                .warehousingMethod("01")
-                .slipNumber("SLIP001")
-                .products(List.of(UpdateFulfillmentWarehousingGoodsCommand.of("GOD001", "20260501", 10)))
-                .build();
+            .orderDate("20260402")
+            .orderNumber("ORD001")
+            .warehousingMethod("01")
+            .slipNumber("SLIP001")
+            .products(List.of(UpdateFulfillmentWarehousingGoodsCommand.of("GOD001", "20260501", 10)))
+            .build();
         UpdateFulfillmentWarehousingCommand command = UpdateFulfillmentWarehousingCommand.of("CUST001", "token", List.of(item));
         UpdateFulfillmentWarehousingResult expectedResult = UpdateFulfillmentWarehousingResult.of(0, List.of());
         when(updateFulfillmentWarehousingPort.updateWarehousing(any())).thenReturn(expectedResult);

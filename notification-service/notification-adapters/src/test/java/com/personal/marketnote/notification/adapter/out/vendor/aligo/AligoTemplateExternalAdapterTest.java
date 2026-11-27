@@ -3,9 +3,9 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.*;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -48,22 +48,22 @@ class AligoTemplateExternalAdapterTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoTemplateExternalAdapter(aligoHttpClient, objectMapper, properties);
     }
 
     private AligoTemplate basicTemplate() {
         return AligoTemplate.from(
-                AligoTemplateCreateState.builder()
-                        .senderKey("SK")
-                        .templateCode("TPL001")
-                        .templateName("템플릿명")
-                        .templateContent("본문")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .build()
+            AligoTemplateCreateState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .templateName("템플릿명")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .build()
         );
     }
 
@@ -77,9 +77,9 @@ class AligoTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/template/add/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             adapter.registerTemplate(basicTemplate());
@@ -99,8 +99,8 @@ class AligoTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/template/modify/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             adapter.updateTemplate(basicTemplate());
@@ -120,32 +120,32 @@ class AligoTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/template/add/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("tpl_button")))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("ordering")))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("linkType")))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("tpl_button")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("ordering")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("linkType")))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             AligoTemplateButton button = AligoTemplateButton.from(
-                    AligoTemplateButtonCreateState.builder()
-                            .ordering(1)
-                            .name("자세히 보기")
-                            .linkType(AligoTemplateButtonLinkType.WL)
-                            .linkMo("https://m.example.com")
-                            .linkPc("https://www.example.com")
-                            .build()
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(1)
+                    .name("자세히 보기")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkMo("https://m.example.com")
+                    .linkPc("https://www.example.com")
+                    .build()
             );
 
             AligoTemplate template = AligoTemplate.from(
-                    AligoTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL002")
-                            .templateName("버튼")
-                            .templateContent("본문")
-                            .templateType(AligoTemplateType.BA)
-                            .templateEmType(AligoTemplateEmType.NONE)
-                            .buttons(List.of(button))
-                            .build()
+                AligoTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL002")
+                    .templateName("버튼")
+                    .templateContent("본문")
+                    .templateType(AligoTemplateType.BA)
+                    .templateEmType(AligoTemplateEmType.NONE)
+                    .buttons(List.of(button))
+                    .build()
             );
 
             // when
@@ -165,30 +165,30 @@ class AligoTemplateExternalAdapterTest {
         void shouldThrowWhenTemplateContentMissing() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "list": [
-                            {
-                                "senderkey": "SK",
-                                "templt_code": "TPL001",
-                                "templt_name": "이름",
-                                "templt_content": null,
-                                "template_type": "BA",
-                                "inspStatus": "REG",
-                                "status": "R",
-                                "comments": null
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "list": [
+                        {
+                            "senderkey": "SK",
+                            "templt_code": "TPL001",
+                            "templt_name": "이름",
+                            "templt_content": null,
+                            "template_type": "BA",
+                            "inspStatus": "REG",
+                            "status": "R",
+                            "comments": null
+                        }
+                    ]
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/template/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when & then
             assertThatThrownBy(() -> adapter.getTemplateList("SK"))
-                    .isInstanceOf(InvalidAligoTemplateException.class);
+                .isInstanceOf(InvalidAligoTemplateException.class);
             mockServer.verify();
         }
 
@@ -197,27 +197,27 @@ class AligoTemplateExternalAdapterTest {
         void shouldMapValidResponseToTemplate() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "list": [
-                            {
-                                "senderkey": "SK",
-                                "templt_code": "TPL001",
-                                "templt_name": "이름",
-                                "templt_content": "본문",
-                                "template_type": "BA",
-                                "template_emphasize_type": "NONE",
-                                "inspStatus": "APR",
-                                "status": "A",
-                                "comments": "ok"
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "list": [
+                        {
+                            "senderkey": "SK",
+                            "templt_code": "TPL001",
+                            "templt_name": "이름",
+                            "templt_content": "본문",
+                            "template_type": "BA",
+                            "template_emphasize_type": "NONE",
+                            "inspStatus": "APR",
+                            "status": "A",
+                            "comments": "ok"
+                        }
+                    ]
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/template/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             List<AligoTemplate> result = adapter.getTemplateList("SK");
@@ -238,26 +238,26 @@ class AligoTemplateExternalAdapterTest {
         void shouldDefaultEmTypeToNoneWhenResponseMissing() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "list": [
-                            {
-                                "senderkey": "SK",
-                                "templt_code": "TPL001",
-                                "templt_name": "이름",
-                                "templt_content": "본문",
-                                "template_type": "BA",
-                                "inspStatus": "REG",
-                                "status": "R",
-                                "comments": null
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "list": [
+                        {
+                            "senderkey": "SK",
+                            "templt_code": "TPL001",
+                            "templt_name": "이름",
+                            "templt_content": "본문",
+                            "template_type": "BA",
+                            "inspStatus": "REG",
+                            "status": "R",
+                            "comments": null
+                        }
+                    ]
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/template/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             List<AligoTemplate> result = adapter.getTemplateList("SK");
@@ -279,10 +279,10 @@ class AligoTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/template/request/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("senderkey=SK")))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("tpl_code=TPL100")))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("senderkey=SK")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("tpl_code=TPL100")))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             adapter.requestInspection("SK", "TPL100");
@@ -297,10 +297,10 @@ class AligoTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/template/del/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("senderkey=SK")))
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("tpl_code=TPL200")))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("senderkey=SK")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("tpl_code=TPL200")))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             adapter.deleteTemplate("SK", "TPL200");

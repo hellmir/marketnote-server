@@ -17,16 +17,16 @@ class ProductTest {
     @DisplayName("CreateState로 생성하면 태그가 ProductTag로 변환된다")
     void shouldConvertTagsToProductTagsWhenCreatedFromCreateState() {
         ProductCreateState state = ProductCreateState.builder()
-                .sellerId(1L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상품 설명")
-                .findAllOptionsYn(false)
-                .tags(List.of(
-                        ProductTagCreateState.builder().productId(null).name("태그1").build(),
-                        ProductTagCreateState.builder().productId(null).name("태그2").build()
-                ))
-                .build();
+            .sellerId(1L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상품 설명")
+            .findAllOptionsYn(false)
+            .tags(List.of(
+                ProductTagCreateState.builder().productId(null).name("태그1").build(),
+                ProductTagCreateState.builder().productId(null).name("태그2").build()
+            ))
+            .build();
 
         Product product = Product.from(state);
 
@@ -40,13 +40,13 @@ class ProductTest {
     @DisplayName("CreateState에 태그가 null이면 빈 리스트로 설정된다")
     void shouldSetEmptyTagsWhenCreateStateTagsIsNull() {
         ProductCreateState state = ProductCreateState.builder()
-                .sellerId(1L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상품 설명")
-                .findAllOptionsYn(false)
-                .tags(null)
-                .build();
+            .sellerId(1L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상품 설명")
+            .findAllOptionsYn(false)
+            .tags(null)
+            .build();
 
         Product product = Product.from(state);
 
@@ -68,26 +68,26 @@ class ProductTest {
     @DisplayName("SnapshotState로 복원하면 모든 필드가 올바르게 매핑된다")
     void shouldRestoreAllFieldsFromSnapshotState() {
         List<ProductTag> tags = List.of(
-                ProductTag.from(ProductTagSnapshotState.builder()
-                        .id(10L).productId(1L).name("태그A").orderNum(1L).status(EntityStatus.ACTIVE).build())
+            ProductTag.from(ProductTagSnapshotState.builder()
+                .id(10L).productId(1L).name("태그A").orderNum(1L).status(EntityStatus.ACTIVE).build())
         );
         UUID productKey = UUID.randomUUID();
         ProductSnapshotState state = ProductSnapshotState.builder()
-                .id(1L)
-                .productKey(productKey)
-                .sellerId(100L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상품 상세 설명")
-                .sales(50)
-                .viewCount(1000L)
-                .popularity(500L)
-                .findAllOptionsYn(true)
-                .productTags(tags)
-                .orderNum(1L)
-                .status(EntityStatus.ACTIVE)
-                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                .build();
+            .id(1L)
+            .productKey(productKey)
+            .sellerId(100L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상품 상세 설명")
+            .sales(50)
+            .viewCount(1000L)
+            .popularity(500L)
+            .findAllOptionsYn(true)
+            .productTags(tags)
+            .orderNum(1L)
+            .status(EntityStatus.ACTIVE)
+            .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+            .build();
 
         Product product = Product.from(state);
 
@@ -110,17 +110,17 @@ class ProductTest {
     void shouldRestoreStatusFromSnapshotState() {
         UUID productKey = UUID.randomUUID();
         ProductSnapshotState state = ProductSnapshotState.builder()
-                .id(1L)
-                .productKey(productKey)
-                .sellerId(100L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상품 설명")
-                .findAllOptionsYn(false)
-                .productTags(List.of())
-                .status(EntityStatus.INACTIVE)
-                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                .build();
+            .id(1L)
+            .productKey(productKey)
+            .sellerId(100L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상품 설명")
+            .findAllOptionsYn(false)
+            .productTags(List.of())
+            .status(EntityStatus.INACTIVE)
+            .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+            .build();
 
         Product product = Product.from(state);
 
@@ -222,14 +222,14 @@ class ProductTest {
         void shouldUseProvidedFasstoProductCodeWhenImported() {
             String importedCode = "FASSTO0000000000000000001";
             ProductCreateState state = ProductCreateState.builder()
-                    .sellerId(1L)
-                    .name("import 상품")
-                    .brandName("브랜드")
-                    .detail("설명")
-                    .findAllOptionsYn(false)
-                    .tags(List.of())
-                    .fasstoProductCode(importedCode)
-                    .build();
+                .sellerId(1L)
+                .name("import 상품")
+                .brandName("브랜드")
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .tags(List.of())
+                .fasstoProductCode(importedCode)
+                .build();
 
             Product product = Product.from(state);
 
@@ -240,38 +240,38 @@ class ProductTest {
         @DisplayName("ProductCreateState fasstoProductCode가 null이면 productKey 기반으로 자동 발급한다")
         void shouldAutoGenerateFasstoProductCodeWhenNotImported() {
             ProductCreateState state = ProductCreateState.builder()
-                    .sellerId(1L)
-                    .name("자동 발급 상품")
-                    .brandName("브랜드")
-                    .detail("설명")
-                    .findAllOptionsYn(false)
-                    .tags(List.of())
-                    .fasstoProductCode(null)
-                    .build();
+                .sellerId(1L)
+                .name("자동 발급 상품")
+                .brandName("브랜드")
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .tags(List.of())
+                .fasstoProductCode(null)
+                .build();
 
             Product product = Product.from(state);
 
             assertThat(product.getFasstoProductCode())
-                    .isEqualTo(FasstoProductCodeGenerator.encode(product.getProductKey()));
+                .isEqualTo(FasstoProductCodeGenerator.encode(product.getProductKey()));
         }
 
         @Test
         @DisplayName("ProductCreateState fasstoProductCode가 빈 문자열이면 productKey 기반으로 자동 발급한다")
         void shouldAutoGenerateFasstoProductCodeWhenBlank() {
             ProductCreateState state = ProductCreateState.builder()
-                    .sellerId(1L)
-                    .name("자동 발급 상품")
-                    .brandName("브랜드")
-                    .detail("설명")
-                    .findAllOptionsYn(false)
-                    .tags(List.of())
-                    .fasstoProductCode("")
-                    .build();
+                .sellerId(1L)
+                .name("자동 발급 상품")
+                .brandName("브랜드")
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .tags(List.of())
+                .fasstoProductCode("")
+                .build();
 
             Product product = Product.from(state);
 
             assertThat(product.getFasstoProductCode())
-                    .isEqualTo(FasstoProductCodeGenerator.encode(product.getProductKey()));
+                .isEqualTo(FasstoProductCodeGenerator.encode(product.getProductKey()));
         }
     }
 
@@ -315,18 +315,18 @@ class ProductTest {
         void shouldPreserveProductKeyWhenRestoredFromSnapshotState() {
             UUID expectedKey = UUID.fromString("018f0000-0000-7000-8000-000000000001");
             ProductSnapshotState state = ProductSnapshotState.builder()
-                    .id(1L)
-                    .productKey(expectedKey)
-                    .sellerId(100L)
-                    .name("테스트 상품")
-                    .brandName("테스트 브랜드")
-                    .detail("상품 설명")
-                    .findAllOptionsYn(false)
-                    .productTags(List.of())
-                    .orderNum(1L)
-                    .status(EntityStatus.ACTIVE)
-                    .fasstoProductCode(FasstoProductCodeGenerator.encode(expectedKey))
-                    .build();
+                .id(1L)
+                .productKey(expectedKey)
+                .sellerId(100L)
+                .name("테스트 상품")
+                .brandName("테스트 브랜드")
+                .detail("상품 설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .orderNum(1L)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(expectedKey))
+                .build();
 
             Product product = Product.from(state);
 
@@ -340,36 +340,36 @@ class ProductTest {
         Product product = createActiveProduct();
 
         assertThatThrownBy(() -> product.update("이름", "브랜드", "설명", false, null))
-                .isInstanceOf(NullPointerException.class);
+            .isInstanceOf(NullPointerException.class);
     }
 
     private ProductCreateState createDefaultCreateState() {
         return ProductCreateState.builder()
-                .sellerId(1L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상품 설명")
-                .findAllOptionsYn(false)
-                .tags(List.of(
-                        ProductTagCreateState.builder().productId(null).name("태그1").build()
-                ))
-                .build();
+            .sellerId(1L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상품 설명")
+            .findAllOptionsYn(false)
+            .tags(List.of(
+                ProductTagCreateState.builder().productId(null).name("태그1").build()
+            ))
+            .build();
     }
 
     private Product createActiveProduct() {
         UUID productKey = UUID.randomUUID();
         return Product.from(ProductSnapshotState.builder()
-                .id(1L)
-                .productKey(productKey)
-                .sellerId(100L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상품 설명")
-                .findAllOptionsYn(false)
-                .productTags(List.of())
-                .orderNum(1L)
-                .status(EntityStatus.ACTIVE)
-                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                .build());
+            .id(1L)
+            .productKey(productKey)
+            .sellerId(100L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상품 설명")
+            .findAllOptionsYn(false)
+            .productTags(List.of())
+            .orderNum(1L)
+            .status(EntityStatus.ACTIVE)
+            .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+            .build());
     }
 }

@@ -33,37 +33,37 @@ public class RestoreProductInventoryService implements RestoreProductInventoryUs
     @Override
     public void restore(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
-                        )
-                );
+            .collect(
+                Collectors.groupingBy(
+                    OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
+                )
+            );
 
         inventoryLockPort.executeWithLock(stocksByPricePolicyId.keySet(), () -> {
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(stocksByPricePolicyId.keySet());
             inventories.forEach(inventory -> inventory.restore(
-                    stocksByPricePolicyId.get(inventory.getPricePolicyId())
+                stocksByPricePolicyId.get(inventory.getPricePolicyId())
             ));
 
             updateInventoryPort.update(inventories);
 
             Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
             inventories.forEach(inventory ->
-                    productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
+                productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
             );
             saveInventoryRestorationHistoryPort.save(
-                    InventoryRestorationHistories.from(
-                            stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason
-                    )
+                InventoryRestorationHistories.from(
+                    stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason
+                )
             );
 
             saveCacheStockPort.save(inventories);
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishInventoryChangedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            inventory.getStockValue(), InventoryChangeAction.UPDATED
-                    )
+                publishInventoryEventPort.publishInventoryChangedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    inventory.getStockValue(), InventoryChangeAction.UPDATED
+                )
             );
         });
     }

@@ -53,17 +53,17 @@ public class SendBrandTalkService implements SendBrandTalkUseCase {
         BrandTalkFailoverType failoverType = resolveFailoverType(command.failover());
 
         List<AligoBrandTalkMessageRecipientCreateState> recipientStates = command.recipients().stream()
-                .map(this::toRecipientCreateState)
-                .toList();
+            .map(this::toRecipientCreateState)
+            .toList();
 
         return AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageCommandToStateMapper.mapToState(
-                        command, kakaoTarget, failoverType,
-                        isFailoverEnabled(command.failover()),
-                        resolveFailoverSubject(command.failover()),
-                        LocalDateTime.now(clock),
-                        recipientStates
-                )
+            AligoBrandTalkMessageCommandToStateMapper.mapToState(
+                command, kakaoTarget, failoverType,
+                isFailoverEnabled(command.failover()),
+                resolveFailoverSubject(command.failover()),
+                LocalDateTime.now(clock),
+                recipientStates
+            )
         );
     }
 
@@ -84,7 +84,7 @@ public class SendBrandTalkService implements SendBrandTalkUseCase {
     }
 
     private SendBrandTalkExternalPort.BrandTalkSendResponse sendToExternal(
-            AligoBrandTalkMessage saved, List<byte[]> failoverImages, List<String> failoverImageFileNames
+        AligoBrandTalkMessage saved, List<byte[]> failoverImages, List<String> failoverImageFileNames
     ) {
         try {
             return sendBrandTalkExternalPort.send(saved, failoverImages, failoverImageFileNames);
@@ -98,22 +98,22 @@ public class SendBrandTalkService implements SendBrandTalkUseCase {
     private void markAsSent(AligoBrandTalkMessage message, SendBrandTalkExternalPort.BrandTalkSendResponse response) {
         BrandTalkMessageCostType costType = BrandTalkMessageCostType.from(response.costType());
         message.markAsSent(
-                response.mid(), costType,
-                response.unitCost(), response.totalCost(),
-                response.successCount(), response.failCount(),
-                LocalDateTime.now(clock)
+            response.mid(), costType,
+            response.unitCost(), response.totalCost(),
+            response.successCount(), response.failCount(),
+            LocalDateTime.now(clock)
         );
     }
 
     private SendBrandTalkResult toResult(AligoBrandTalkMessage message) {
         return new SendBrandTalkResult(
-                message.getId(),
-                message.getAligoMid(),
-                message.getSuccessCount(),
-                message.getFailCount(),
-                message.getCostType().name(),
-                message.getUnitCost(),
-                message.getTotalCost()
+            message.getId(),
+            message.getAligoMid(),
+            message.getSuccessCount(),
+            message.getFailCount(),
+            message.getCostType().name(),
+            message.getUnitCost(),
+            message.getTotalCost()
         );
     }
 

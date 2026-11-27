@@ -81,7 +81,7 @@ class FasstoProductCodeGeneratorTest {
         @DisplayName("null UUID 인코딩 시 NullPointerException 전파")
         void shouldThrowNpeForNullProductKey() {
             assertThatThrownBy(() -> FasstoProductCodeGenerator.encode(null))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
         }
 
         // 본 fixture는 fulfillment-adapters의 FasstoCustomerGoodsCodeEncoderTest와 동일한 expected를 공유한다.

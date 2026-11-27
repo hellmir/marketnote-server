@@ -100,7 +100,7 @@ class RestClientLoggingInterceptorTest {
 
         // when & then
         assertThatThrownBy(() -> interceptor.intercept(request, body, execution))
-                .isInstanceOf(IOException.class)
-                .hasMessage("Connection refused");
+            .isInstanceOf(IOException.class)
+            .hasMessage("Connection refused");
     }
 }

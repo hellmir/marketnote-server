@@ -20,87 +20,87 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
     Optional<NotificationJpaEntity> findByIdAndStatus(Long id, EntityStatus status);
 
     @Query("""
-            SELECT n FROM NotificationJpaEntity n
-            WHERE n.userId = :userId
-              AND n.status = :status
-              AND (:cursor = -1L OR n.id < :cursor)
-            ORDER BY n.id DESC
-            """)
+        SELECT n FROM NotificationJpaEntity n
+        WHERE n.userId = :userId
+          AND n.status = :status
+          AND (:cursor = -1L OR n.id < :cursor)
+        ORDER BY n.id DESC
+        """)
     List<NotificationJpaEntity> findByUserIdWithCursor(
-            @Param("userId") Long userId,
-            @Param("status") EntityStatus status,
-            @Param("cursor") Long cursor,
-            Pageable pageable
+        @Param("userId") Long userId,
+        @Param("status") EntityStatus status,
+        @Param("cursor") Long cursor,
+        Pageable pageable
     );
 
     @Query("""
-            SELECT n FROM NotificationJpaEntity n
-            WHERE n.userId = :userId
-              AND n.status = :status
-              AND (:cursor = -1L OR n.id < :cursor)
-              AND n.notificationType IN :types
-            ORDER BY n.id DESC
-            """)
+        SELECT n FROM NotificationJpaEntity n
+        WHERE n.userId = :userId
+          AND n.status = :status
+          AND (:cursor = -1L OR n.id < :cursor)
+          AND n.notificationType IN :types
+        ORDER BY n.id DESC
+        """)
     List<NotificationJpaEntity> findByUserIdWithCursorAndTypes(
-            @Param("userId") Long userId,
-            @Param("status") EntityStatus status,
-            @Param("cursor") Long cursor,
-            @Param("types") Set<NotificationType> types,
-            Pageable pageable
+        @Param("userId") Long userId,
+        @Param("status") EntityStatus status,
+        @Param("cursor") Long cursor,
+        @Param("types") Set<NotificationType> types,
+        Pageable pageable
     );
 
     long countByUserIdAndStatus(Long userId, EntityStatus status);
 
     @Query("""
-            SELECT COUNT(n) FROM NotificationJpaEntity n
-            WHERE n.userId = :userId
-              AND n.status = :status
-              AND n.notificationType IN :types
-            """)
+        SELECT COUNT(n) FROM NotificationJpaEntity n
+        WHERE n.userId = :userId
+          AND n.status = :status
+          AND n.notificationType IN :types
+        """)
     long countByUserIdAndStatusAndTypes(
-            @Param("userId") Long userId,
-            @Param("status") EntityStatus status,
-            @Param("types") Set<NotificationType> types
+        @Param("userId") Long userId,
+        @Param("status") EntityStatus status,
+        @Param("types") Set<NotificationType> types
     );
 
     long countByUserIdAndStatusAndIsRead(Long userId, EntityStatus status, boolean isRead);
 
     @Query("""
-            SELECT n FROM NotificationJpaEntity n
-            WHERE n.sendStatus = :sendStatus
-              AND n.scheduledAt <= :now
-              AND n.status = :status
-            ORDER BY n.scheduledAt ASC
-            """)
+        SELECT n FROM NotificationJpaEntity n
+        WHERE n.sendStatus = :sendStatus
+          AND n.scheduledAt <= :now
+          AND n.status = :status
+        ORDER BY n.scheduledAt ASC
+        """)
     List<NotificationJpaEntity> findScheduledNotificationsDue(
-            @Param("sendStatus") SendStatus sendStatus,
-            @Param("now") LocalDateTime now,
-            @Param("status") EntityStatus status
+        @Param("sendStatus") SendStatus sendStatus,
+        @Param("now") LocalDateTime now,
+        @Param("status") EntityStatus status
     );
 
     @Modifying
     @Query("""
-            UPDATE NotificationJpaEntity n
-            SET n.status = :inactiveStatus
-            WHERE n.createdAt < :threshold
-              AND n.status = :activeStatus
-            """)
+        UPDATE NotificationJpaEntity n
+        SET n.status = :inactiveStatus
+        WHERE n.createdAt < :threshold
+          AND n.status = :activeStatus
+        """)
     int deactivateExpiredNotifications(
-            @Param("threshold") LocalDateTime threshold,
-            @Param("activeStatus") EntityStatus activeStatus,
-            @Param("inactiveStatus") EntityStatus inactiveStatus
+        @Param("threshold") LocalDateTime threshold,
+        @Param("activeStatus") EntityStatus activeStatus,
+        @Param("inactiveStatus") EntityStatus inactiveStatus
     );
 
     @Modifying(clearAutomatically = true)
     @Query("""
-            UPDATE NotificationJpaEntity n
-            SET n.isRead = true
-            WHERE n.userId = :userId
-              AND n.status = :status
-              AND n.isRead = false
-            """)
+        UPDATE NotificationJpaEntity n
+        SET n.isRead = true
+        WHERE n.userId = :userId
+          AND n.status = :status
+          AND n.isRead = false
+        """)
     int markAllAsReadByUserIdAndStatus(
-            @Param("userId") Long userId,
-            @Param("status") EntityStatus status
+        @Param("userId") Long userId,
+        @Param("status") EntityStatus status
     );
 }

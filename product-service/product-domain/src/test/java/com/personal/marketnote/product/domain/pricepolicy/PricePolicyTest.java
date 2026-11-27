@@ -23,16 +23,16 @@ class PricePolicyTest {
     void shouldSetProductIdWhenProductExistsInCreateState() {
         Product product = createProduct(1L);
         PricePolicyCreateState state = PricePolicyCreateState.builder()
-                .product(product)
-                .price(10000L)
-                .discountPrice(8000L)
-                .discountRate(Rate.of(BigDecimal.valueOf(20)))
-                .accumulatedPoint(100L)
-                .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
-                .popularity(0L)
-                .orderNum(1L)
-                .optionIds(List.of(1L, 2L))
-                .build();
+            .product(product)
+            .price(10000L)
+            .discountPrice(8000L)
+            .discountRate(Rate.of(BigDecimal.valueOf(20)))
+            .accumulatedPoint(100L)
+            .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
+            .popularity(0L)
+            .orderNum(1L)
+            .optionIds(List.of(1L, 2L))
+            .build();
 
         PricePolicy pricePolicy = PricePolicy.from(state);
 
@@ -45,9 +45,9 @@ class PricePolicyTest {
     @DisplayName("CreateState에 product가 null이면 productId도 null이다")
     void shouldSetProductIdNullWhenProductIsNullInCreateState() {
         PricePolicyCreateState state = PricePolicyCreateState.builder()
-                .product(null)
-                .price(10000L)
-                .build();
+            .product(null)
+            .price(10000L)
+            .build();
 
         PricePolicy pricePolicy = PricePolicy.from(state);
 
@@ -58,18 +58,18 @@ class PricePolicyTest {
     @DisplayName("SnapshotState로 복원하면 모든 필드가 올바르게 매핑된다")
     void shouldRestoreAllFieldsFromSnapshotState() {
         PricePolicySnapshotState state = PricePolicySnapshotState.builder()
-                .id(10L)
-                .productId(1L)
-                .price(15000L)
-                .discountPrice(12000L)
-                .discountRate(Rate.of(BigDecimal.valueOf(20)))
-                .accumulatedPoint(150L)
-                .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
-                .popularity(50L)
-                .orderNum(3L)
-                .status(EntityStatus.ACTIVE)
-                .optionIds(List.of(1L, 2L))
-                .build();
+            .id(10L)
+            .productId(1L)
+            .price(15000L)
+            .discountPrice(12000L)
+            .discountRate(Rate.of(BigDecimal.valueOf(20)))
+            .accumulatedPoint(150L)
+            .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
+            .popularity(50L)
+            .orderNum(3L)
+            .status(EntityStatus.ACTIVE)
+            .optionIds(List.of(1L, 2L))
+            .build();
 
         PricePolicy pricePolicy = PricePolicy.from(state);
 
@@ -85,12 +85,12 @@ class PricePolicyTest {
     void shouldDeriveProductIdFromProductWhenProductIdIsNull() {
         Product product = createProduct(5L);
         PricePolicySnapshotState state = PricePolicySnapshotState.builder()
-                .id(10L)
-                .productId(null)
-                .product(product)
-                .price(10000L)
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .id(10L)
+            .productId(null)
+            .product(product)
+            .price(10000L)
+            .status(EntityStatus.ACTIVE)
+            .build();
 
         PricePolicy pricePolicy = PricePolicy.from(state);
 
@@ -101,9 +101,9 @@ class PricePolicyTest {
     @DisplayName("addProduct를 호출하면 product와 productId가 설정된다")
     void shouldSetProductAndProductIdWhenAddProductCalled() {
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(null)
-                .price(10000L)
-                .build());
+            .product(null)
+            .price(10000L)
+            .build());
 
         Product product = createProduct(3L);
         pricePolicy.addProduct(product);
@@ -116,10 +116,10 @@ class PricePolicyTest {
     @DisplayName("optionIds가 있으면 hasOptions는 true를 반환한다")
     void shouldReturnTrueWhenOptionIdsExist() {
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(null)
-                .price(10000L)
-                .optionIds(List.of(1L, 2L))
-                .build());
+            .product(null)
+            .price(10000L)
+            .optionIds(List.of(1L, 2L))
+            .build());
 
         assertThat(pricePolicy.hasOptions()).isTrue();
     }
@@ -128,10 +128,10 @@ class PricePolicyTest {
     @DisplayName("optionIds가 null이면 hasOptions는 false를 반환한다")
     void shouldReturnFalseWhenOptionIdsIsNull() {
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(null)
-                .price(10000L)
-                .optionIds(null)
-                .build());
+            .product(null)
+            .price(10000L)
+            .optionIds(null)
+            .build());
 
         assertThat(pricePolicy.hasOptions()).isFalse();
     }
@@ -140,10 +140,10 @@ class PricePolicyTest {
     @DisplayName("optionIds가 빈 리스트이면 hasOptions는 false를 반환한다")
     void shouldReturnFalseWhenOptionIdsIsEmpty() {
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(null)
-                .price(10000L)
-                .optionIds(List.of())
-                .build());
+            .product(null)
+            .price(10000L)
+            .optionIds(List.of())
+            .build());
 
         assertThat(pricePolicy.hasOptions()).isFalse();
     }
@@ -153,9 +153,9 @@ class PricePolicyTest {
     void shouldReturnTrueWhenProductIdExists() {
         Product product = createProduct(1L);
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(product)
-                .price(10000L)
-                .build());
+            .product(product)
+            .price(10000L)
+            .build());
 
         assertThat(pricePolicy.hasProduct()).isTrue();
     }
@@ -164,9 +164,9 @@ class PricePolicyTest {
     @DisplayName("productId가 null이면 hasProduct는 false를 반환한다")
     void shouldReturnFalseWhenProductIdIsNull() {
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(null)
-                .price(10000L)
-                .build());
+            .product(null)
+            .price(10000L)
+            .build());
 
         assertThat(pricePolicy.hasProduct()).isFalse();
     }
@@ -176,9 +176,9 @@ class PricePolicyTest {
     void shouldNotOverwriteExistingProductIdWhenAddProductCalled() {
         Product originalProduct = createProduct(1L);
         PricePolicy pricePolicy = PricePolicy.from(PricePolicyCreateState.builder()
-                .product(originalProduct)
-                .price(10000L)
-                .build());
+            .product(originalProduct)
+            .price(10000L)
+            .build());
 
         Product newProduct = createProduct(99L);
         pricePolicy.addProduct(newProduct);
@@ -191,16 +191,16 @@ class PricePolicyTest {
     @DisplayName("syncOptionIdsFromOptions를 호출하면 productOptions에서 id 목록이 추출된다")
     void shouldExtractOptionIdsFromProductOptions() {
         List<ProductOption> options = List.of(
-                createProductOption(10L),
-                createProductOption(20L)
+            createProductOption(10L),
+            createProductOption(20L)
         );
         PricePolicySnapshotState state = PricePolicySnapshotState.builder()
-                .id(1L)
-                .productId(1L)
-                .price(10000L)
-                .status(EntityStatus.ACTIVE)
-                .productOptions(options)
-                .build();
+            .id(1L)
+            .productId(1L)
+            .price(10000L)
+            .status(EntityStatus.ACTIVE)
+            .productOptions(options)
+            .build();
 
         PricePolicy pricePolicy = PricePolicy.from(state);
         pricePolicy.syncOptionIdsFromOptions();
@@ -211,20 +211,20 @@ class PricePolicyTest {
     private Product createProduct(Long id) {
         UUID productKey = UUID.randomUUID();
         return Product.from(ProductSnapshotState.builder()
-                .id(id)
-                .productKey(productKey)
-                .sellerId(1L)
-                .name("테스트 상품")
-                .status(EntityStatus.ACTIVE)
-                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                .build());
+            .id(id)
+            .productKey(productKey)
+            .sellerId(1L)
+            .name("테스트 상품")
+            .status(EntityStatus.ACTIVE)
+            .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+            .build());
     }
 
     private ProductOption createProductOption(Long id) {
         return ProductOption.from(ProductOptionSnapshotState.builder()
-                .id(id)
-                .content("옵션")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(id)
+            .content("옵션")
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 }

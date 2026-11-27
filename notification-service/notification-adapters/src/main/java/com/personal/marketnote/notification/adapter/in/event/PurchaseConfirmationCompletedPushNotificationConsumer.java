@@ -25,12 +25,12 @@ public class PurchaseConfirmationCompletedPushNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
-            groupId = "notification-purchase-confirmation-push"
+        topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
+        groupId = "notification-purchase-confirmation-push"
     )
     public void handleOrderPurchaseConfirmedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,21 +47,21 @@ public class PurchaseConfirmationCompletedPushNotificationConsumer {
         OrderPurchaseConfirmedEvent payload = envelope.getPayloadAs(OrderPurchaseConfirmedEvent.class, objectMapper);
 
         log.info("구매 확정 이벤트 수신 (푸시 알림 발송). eventId={}, orderId={}, buyerId={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId());
+            envelope.eventId(), payload.orderId(), payload.buyerId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         SendNotificationCommand command = new SendNotificationCommand(
-                payload.buyerId(),
-                "PURCHASE_CONFIRMATION_COMPLETED",
-                Map.of("order_id", String.valueOf(payload.orderId())),
-                "PUSH_ONLY",
-                null
+            payload.buyerId(),
+            "PURCHASE_CONFIRMATION_COMPLETED",
+            Map.of("order_id", String.valueOf(payload.orderId())),
+            "PUSH_ONLY",
+            null
         );
         sendNotificationUseCase.sendNotification(command);
 

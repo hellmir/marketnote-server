@@ -17,14 +17,14 @@ public class GetProductsResponse {
 
     public static GetProductsResponse from(GetProductsResult result) {
         return new GetProductsResponse(
-                new CursorResponse<>(
-                        result.totalElements(),
-                        result.hasNext(),
-                        result.nextCursor(),
-                        result.products().stream()
-                                .map(ProductItemResponse::from)
-                                .collect(Collectors.toList())
-                )
+            new CursorResponse<>(
+                result.totalElements(),
+                result.hasNext(),
+                result.nextCursor(),
+                result.products().stream()
+                    .map(ProductItemResponse::from)
+                    .collect(Collectors.toList())
+            )
         );
     }
 }

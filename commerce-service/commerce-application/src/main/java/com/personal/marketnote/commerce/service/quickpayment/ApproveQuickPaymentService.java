@@ -34,25 +34,25 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
     @Override
     public ApproveQuickPaymentResult approve(ApproveQuickPaymentCommand command) {
         log.info("빠른결제 승인 요청 - buyerId: {}, orderKey: {}, cardId: {}",
-                command.buyerId(), command.orderKey(), command.quickPaymentCardId()
+            command.buyerId(), command.orderKey(), command.quickPaymentCardId()
         );
 
         QuickPaymentCard card = findQuickPaymentCardPort
-                .findActiveByIdAndUserId(command.quickPaymentCardId(), command.buyerId())
-                .orElseThrow(() -> {
-                    log.warn(
-                            "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, buyerId={}",
-                            command.quickPaymentCardId(), command.buyerId()
-                    );
-                    return new QuickPaymentCardNotFoundException();
-                });
+            .findActiveByIdAndUserId(command.quickPaymentCardId(), command.buyerId())
+            .orElseThrow(() -> {
+                log.warn(
+                    "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, buyerId={}",
+                    command.quickPaymentCardId(), command.buyerId()
+                );
+                return new QuickPaymentCardNotFoundException();
+            });
 
         // TX-1: 검증 + PspPaymentEvent 생성 + EXECUTING
         PaymentApprovalContext context = txHelper.prepareExecutionForQuickPayment(
-                command.buyerId(),
-                command.orderKey(),
-                paymentVendorPort.getVendorKey(),
-                paymentVendorPort.getShopCode()
+            command.buyerId(),
+            command.orderKey(),
+            paymentVendorPort.getVendorKey(),
+            paymentVendorPort.getShopCode()
         );
 
         // PG사 호출 (트랜잭션 외부)
@@ -71,11 +71,11 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
     }
 
     private ApproveQuickPaymentPortResult requestBatchPaymentApproval(
-            ApproveQuickPaymentCommand command, QuickPaymentCard card, PaymentApprovalContext context
+        ApproveQuickPaymentCommand command, QuickPaymentCard card, PaymentApprovalContext context
     ) {
         try {
             ApproveQuickPaymentPortCommand portCommand = ApproveQuickPaymentPortCommand.of(
-                    command, card, context.payment()
+                command, card, context.payment()
             );
             return approveQuickPaymentPort.approvePayment(portCommand);
         } catch (PaymentVendorConnectionFailedException e) {

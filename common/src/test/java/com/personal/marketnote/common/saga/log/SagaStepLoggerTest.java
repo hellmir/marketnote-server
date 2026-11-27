@@ -101,7 +101,7 @@ class SagaStepLoggerTest {
         assertThatThrownBy(() -> SagaStepLogger.runWithMdc(context, () -> {
             throw new IllegalStateException("boom");
         })).isInstanceOf(IllegalStateException.class)
-                .hasMessage("boom");
+            .hasMessage("boom");
 
         assertThat(MDC.get(SagaMdcKeys.SAGA_ID)).isNull();
         assertThat(MDC.get(SagaMdcKeys.SAGA_TYPE)).isNull();

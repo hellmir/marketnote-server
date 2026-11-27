@@ -32,15 +32,15 @@ public class GetNotificationTemplateService implements GetNotificationTemplateUs
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public List<GetNotificationTemplateResult> getNotificationTemplates() {
         return findNotificationTemplatePort.findAllActive().stream()
-                .map(GetNotificationTemplateResult::from)
-                .toList();
+            .map(GetNotificationTemplateResult::from)
+            .toList();
     }
 
     private NotificationTemplate findNotificationTemplate(Long id) {
         return findNotificationTemplatePort.findActiveById(id)
-                .orElseThrow(() -> {
-                    log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
-                    return new NotificationTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
+                return new NotificationTemplateNotFoundException();
+            });
     }
 }

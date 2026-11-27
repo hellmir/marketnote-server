@@ -17,21 +17,21 @@ public class FulfillmentReturnGodDetailQuery {
     private String whCd;
 
     public static FulfillmentReturnGodDetailQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String rtnSlipNoList,
-            String whCd
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String rtnSlipNoList,
+        String whCd
     ) {
         FulfillmentReturnGodDetailQuery query = FulfillmentReturnGodDetailQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .rtnSlipNoList(rtnSlipNoList)
-                .whCd(whCd)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .rtnSlipNoList(rtnSlipNoList)
+            .whCd(whCd)
+            .build();
         query.validate();
         return query;
     }

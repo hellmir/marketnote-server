@@ -41,33 +41,33 @@ class AligoBrandTalkControllerTest {
     private SendBrandTalkUseCase sendBrandTalkUseCase;
 
     private SendBrandTalkRequest buildRequest(
-            String kakaoTarget,
-            SendBrandTalkRequest.FailoverRequest failover
+        String kakaoTarget,
+        SendBrandTalkRequest.FailoverRequest failover
     ) {
         return new SendBrandTalkRequest(
-                "sk-1",
-                "01012345678",
-                "CODE-1",
-                kakaoTarget,
-                false,
-                List.of(
-                        new SendBrandTalkRequest.RecipientRequest("01011112222", Map.of("name", "홍길동")),
-                        new SendBrandTalkRequest.RecipientRequest("01033334444", Map.of())
-                ),
-                failover
+            "sk-1",
+            "01012345678",
+            "CODE-1",
+            kakaoTarget,
+            false,
+            List.of(
+                new SendBrandTalkRequest.RecipientRequest("01011112222", Map.of("name", "홍길동")),
+                new SendBrandTalkRequest.RecipientRequest("01033334444", Map.of())
+            ),
+            failover
         );
     }
 
     private SendBrandTalkCommand captureCommand() {
         ArgumentCaptor<SendBrandTalkCommand> captor =
-                ArgumentCaptor.forClass(SendBrandTalkCommand.class);
+            ArgumentCaptor.forClass(SendBrandTalkCommand.class);
         verify(sendBrandTalkUseCase).sendBrandTalk(captor.capture());
         return captor.getValue();
     }
 
     private void stubUseCase() {
         when(sendBrandTalkUseCase.sendBrandTalk(any()))
-                .thenReturn(new SendBrandTalkResult(1L, "MID-1", 2, 0, "FT", 15, 30));
+            .thenReturn(new SendBrandTalkResult(1L, "MID-1", 2, 0, "FT", 15, 30));
     }
 
     @Nested
@@ -82,7 +82,7 @@ class AligoBrandTalkControllerTest {
 
             // when
             ResponseEntity<BaseResponse<SendBrandTalkResponse>> response =
-                    controller.sendBrandTalk(buildRequest("M", null));
+                controller.sendBrandTalk(buildRequest("M", null));
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -136,7 +136,7 @@ class AligoBrandTalkControllerTest {
             // given
             stubUseCase();
             SendBrandTalkRequest.FailoverRequest failover =
-                    new SendBrandTalkRequest.FailoverRequest(true, "제목", "LMS");
+                new SendBrandTalkRequest.FailoverRequest(true, "제목", "LMS");
 
             // when
             controller.sendBrandTalk(buildRequest("M", failover));
@@ -155,7 +155,7 @@ class AligoBrandTalkControllerTest {
             // given
             stubUseCase();
             SendBrandTalkRequest.FailoverRequest failover =
-                    new SendBrandTalkRequest.FailoverRequest(true, "제목", "SMS");
+                new SendBrandTalkRequest.FailoverRequest(true, "제목", "SMS");
 
             // when
             controller.sendBrandTalk(buildRequest("M", failover));
@@ -175,7 +175,7 @@ class AligoBrandTalkControllerTest {
         @DisplayName("sendBrandTalk 메서드에 관리자 전용 @PreAuthorize가 부착되어 있다")
         void shouldHaveAdminPreAuthorizeOnSendBrandTalk() throws NoSuchMethodException {
             Method method = AligoBrandTalkController.class.getMethod(
-                    "sendBrandTalk", SendBrandTalkRequest.class
+                "sendBrandTalk", SendBrandTalkRequest.class
             );
             PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
 
@@ -215,11 +215,11 @@ class AligoBrandTalkControllerTest {
             try {
                 Field field = recordClass.getDeclaredField(fieldName);
                 assertThat(field.getAnnotation(NotBlank.class))
-                        .as("%s.%s 필드에 @NotBlank가 부착되어야 한다", recordClass.getSimpleName(), fieldName)
-                        .isNotNull();
+                    .as("%s.%s 필드에 @NotBlank가 부착되어야 한다", recordClass.getSimpleName(), fieldName)
+                    .isNotNull();
             } catch (NoSuchFieldException e) {
                 throw new IllegalArgumentException(
-                        recordClass.getSimpleName() + "에 " + fieldName + " 필드가 없다", e
+                    recordClass.getSimpleName() + "에 " + fieldName + " 필드가 없다", e
                 );
             }
         }

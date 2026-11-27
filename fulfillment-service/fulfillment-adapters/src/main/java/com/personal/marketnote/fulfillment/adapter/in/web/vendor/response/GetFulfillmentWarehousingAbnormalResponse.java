@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentW
 import java.util.List;
 
 public record GetFulfillmentWarehousingAbnormalResponse(
-        Integer dataCount,
-        List<FulfillmentWarehousingAbnormalInfoResult> abnormals
+    Integer dataCount,
+    List<FulfillmentWarehousingAbnormalInfoResult> abnormals
 ) {
     public static GetFulfillmentWarehousingAbnormalResponse from(GetFulfillmentWarehousingAbnormalResult result) {
         return new GetFulfillmentWarehousingAbnormalResponse(result.dataCount(), result.abnormals());

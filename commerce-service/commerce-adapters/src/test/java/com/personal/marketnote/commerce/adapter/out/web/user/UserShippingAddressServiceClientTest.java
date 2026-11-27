@@ -32,12 +32,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserShippingAddressServiceClient ExternalCallLogger 통합 단위 테스트")
@@ -62,7 +58,7 @@ class UserShippingAddressServiceClientTest {
         RestTemplate restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.bindTo(restTemplate).build();
         RestClient.Builder builder = RestClient.builder().requestFactory((uri, httpMethod) ->
-                restTemplate.getRequestFactory().createRequest(uri, httpMethod)
+            restTemplate.getRequestFactory().createRequest(uri, httpMethod)
         );
 
         meterRegistry = new SimpleMeterRegistry();
@@ -100,8 +96,8 @@ class UserShippingAddressServiceClientTest {
         // given
         String expectedUrl = BASE_URL + "/api/v1/internal/shipping-addresses/123/delivery-request?userId=99";
         mockServer.expect(requestTo(expectedUrl))
-                .andExpect(method(HttpMethod.PATCH))
-                .andRespond(withSuccess());
+            .andExpect(method(HttpMethod.PATCH))
+            .andRespond(withSuccess());
 
         // when
         client.updateDeliveryRequest(123L, 99L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞");
@@ -109,8 +105,8 @@ class UserShippingAddressServiceClientTest {
         // then
         mockServer.verify();
         verify(hmacBuilder).applyHeaders(
-                any(HttpHeaders.class), eq("PATCH"),
-                eq("/api/v1/internal/shipping-addresses/123/delivery-request")
+            any(HttpHeaders.class), eq("PATCH"),
+            eq("/api/v1/internal/shipping-addresses/123/delivery-request")
         );
         assertSuccessTimerExists();
     }
@@ -120,11 +116,11 @@ class UserShippingAddressServiceClientTest {
     void shouldRecordFailureAndSwallowOn4xx() {
         // given: RestClient 기본 default handler가 4xx에서 HttpClientErrorException(RestClientException 하위) throw
         mockServer.expect(method(HttpMethod.PATCH))
-                .andRespond(withStatus(HttpStatus.BAD_REQUEST));
+            .andRespond(withStatus(HttpStatus.BAD_REQUEST));
 
         // when & then
         assertThatCode(() -> client.updateDeliveryRequest(
-                123L, 99L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞"
+            123L, 99L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞"
         )).doesNotThrowAnyException();
 
         assertFailureTimerExists();
@@ -135,11 +131,11 @@ class UserShippingAddressServiceClientTest {
     void shouldRecordFailureAndSwallowOnRestClientException() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andRespond(withServerError());
+            .andRespond(withServerError());
 
         // when & then
         assertThatCode(() -> client.updateDeliveryRequest(
-                123L, 99L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞"
+            123L, 99L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞"
         )).doesNotThrowAnyException();
 
         assertFailureTimerExists();
@@ -150,20 +146,20 @@ class UserShippingAddressServiceClientTest {
     void shouldIncludeShippingAddressIdAndUserIdInTags() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andRespond(withSuccess());
+            .andRespond(withSuccess());
 
         // when
         client.updateDeliveryRequest(777L, 555L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞");
 
         // then
         boolean foundShippingKey = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("shippingAddressId"));
+            .anyMatch(event -> event.getFormattedMessage().contains("shippingAddressId"));
         boolean foundShippingValue = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("777"));
+            .anyMatch(event -> event.getFormattedMessage().contains("777"));
         boolean foundUserKey = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("userId"));
+            .anyMatch(event -> event.getFormattedMessage().contains("userId"));
         boolean foundUserValue = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("555"));
+            .anyMatch(event -> event.getFormattedMessage().contains("555"));
         assertThat(foundShippingKey).isTrue();
         assertThat(foundShippingValue).isTrue();
         assertThat(foundUserKey).isTrue();
@@ -175,13 +171,13 @@ class UserShippingAddressServiceClientTest {
     void shouldOmitMessageInBodyWhenNull() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andExpect(jsonPath("$.deliveryRequestType").value("NONE"))
-                .andExpect(jsonPath("$.deliveryRequestMessage").doesNotExist())
-                .andRespond(withSuccess());
+            .andExpect(jsonPath("$.deliveryRequestType").value("NONE"))
+            .andExpect(jsonPath("$.deliveryRequestMessage").doesNotExist())
+            .andRespond(withSuccess());
 
         // when & then
         assertThatCode(() -> client.updateDeliveryRequest(
-                1L, 1L, DeliveryRequestType.NONE, null
+            1L, 1L, DeliveryRequestType.NONE, null
         )).doesNotThrowAnyException();
 
         mockServer.verify();
@@ -192,12 +188,12 @@ class UserShippingAddressServiceClientTest {
     void shouldOmitMessageInBodyWhenBlank() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andExpect(jsonPath("$.deliveryRequestMessage").doesNotExist())
-                .andRespond(withSuccess());
+            .andExpect(jsonPath("$.deliveryRequestMessage").doesNotExist())
+            .andRespond(withSuccess());
 
         // when & then
         assertThatCode(() -> client.updateDeliveryRequest(
-                1L, 1L, DeliveryRequestType.NONE, "   "
+            1L, 1L, DeliveryRequestType.NONE, "   "
         )).doesNotThrowAnyException();
 
         mockServer.verify();
@@ -208,13 +204,13 @@ class UserShippingAddressServiceClientTest {
     void shouldIncludeMessageInBodyWhenPresent() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andExpect(jsonPath("$.deliveryRequestType").value("LEAVE_AT_DOOR"))
-                .andExpect(jsonPath("$.deliveryRequestMessage").value("문앞에 두세요"))
-                .andRespond(withSuccess());
+            .andExpect(jsonPath("$.deliveryRequestType").value("LEAVE_AT_DOOR"))
+            .andExpect(jsonPath("$.deliveryRequestMessage").value("문앞에 두세요"))
+            .andRespond(withSuccess());
 
         // when & then
         assertThatCode(() -> client.updateDeliveryRequest(
-                1L, 1L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞에 두세요"
+            1L, 1L, DeliveryRequestType.LEAVE_AT_DOOR, "문앞에 두세요"
         )).doesNotThrowAnyException();
 
         mockServer.verify();
@@ -225,18 +221,18 @@ class UserShippingAddressServiceClientTest {
     void shouldUseExpectedOperationName() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andRespond(withSuccess());
+            .andRespond(withSuccess());
 
         // when
         client.updateDeliveryRequest(1L, 1L, DeliveryRequestType.NONE, null);
 
         // then
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", ExternalSystem.USER.metricTag(),
-                        "operation", OPERATION,
-                        "outcome", "success"
-                )
-                .timer();
+            .tags("system", ExternalSystem.USER.metricTag(),
+                "operation", OPERATION,
+                "outcome", "success"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
@@ -246,18 +242,18 @@ class UserShippingAddressServiceClientTest {
     void shouldUseUserSystemTag() {
         // given
         mockServer.expect(method(HttpMethod.PATCH))
-                .andRespond(withSuccess());
+            .andRespond(withSuccess());
 
         // when
         client.updateDeliveryRequest(1L, 1L, DeliveryRequestType.NONE, null);
 
         // then
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", "user",
-                        "operation", OPERATION,
-                        "outcome", "success"
-                )
-                .timer();
+            .tags("system", "user",
+                "operation", OPERATION,
+                "outcome", "success"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
         assertThat(ExternalSystem.USER.metricTag()).isEqualTo("user");
@@ -266,22 +262,22 @@ class UserShippingAddressServiceClientTest {
 
     private void assertSuccessTimerExists() {
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", ExternalSystem.USER.metricTag(),
-                        "operation", OPERATION,
-                        "outcome", "success"
-                )
-                .timer();
+            .tags("system", ExternalSystem.USER.metricTag(),
+                "operation", OPERATION,
+                "outcome", "success"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
 
     private void assertFailureTimerExists() {
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", ExternalSystem.USER.metricTag(),
-                        "operation", OPERATION,
-                        "outcome", "failure"
-                )
-                .timer();
+            .tags("system", ExternalSystem.USER.metricTag(),
+                "operation", OPERATION,
+                "outcome", "failure"
+            )
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }

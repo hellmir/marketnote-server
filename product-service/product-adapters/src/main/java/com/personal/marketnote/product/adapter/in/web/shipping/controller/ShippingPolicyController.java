@@ -70,20 +70,20 @@ public class ShippingPolicyController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @GetShippingPolicyApiDocs
     public ResponseEntity<BaseResponse<GetShippingPolicyResponse>> getShippingPolicy(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long sellerId = ElementExtractor.extractUserId(principal);
 
         GetShippingPolicyResult result = getShippingPolicyUseCase.getShippingPolicy(sellerId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetShippingPolicyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "판매자 배송비 정책 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetShippingPolicyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "판매자 배송비 정책 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -100,18 +100,18 @@ public class ShippingPolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetShippingPoliciesBySellerIdsApiDocs
     public ResponseEntity<BaseResponse<GetShippingPoliciesBySellerIdsResponse>> getShippingPoliciesBySellerIds(
-            @RequestParam @Size(max = 100, message = "판매자 ID는 최대 100개까지 조회 가능합니다") List<Long> sellerIds
+        @RequestParam @Size(max = 100, message = "판매자 ID는 최대 100개까지 조회 가능합니다") List<Long> sellerIds
     ) {
         List<GetShippingPolicyBySellerResult> results = getShippingPolicyUseCase.getShippingPolicies(sellerIds);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetShippingPoliciesBySellerIdsResponse.from(results),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "판매자별 배송비 정책 배치 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetShippingPoliciesBySellerIdsResponse.from(results),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "판매자별 배송비 정책 배치 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -129,30 +129,30 @@ public class ShippingPolicyController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @RegisterShippingPolicyApiDocs
     public ResponseEntity<BaseResponse<RegisterShippingPolicyResponse>> registerShippingPolicy(
-            @Valid @RequestBody RegisterShippingPolicyRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody RegisterShippingPolicyRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long sellerId = ElementExtractor.extractUserId(principal);
 
         RegisterShippingPolicyResult result = registerShippingPolicyUseCase.registerShippingPolicy(
-                sellerId,
-                new RegisterShippingPolicyCommand(
-                        request.deliveryCompany(),
-                        request.shippingFee(),
-                        request.freeShippingThreshold(),
-                        request.jejuSurcharge(),
-                        request.islandSurcharge()
-                )
+            sellerId,
+            new RegisterShippingPolicyCommand(
+                request.deliveryCompany(),
+                request.shippingFee(),
+                request.freeShippingThreshold(),
+                request.jejuSurcharge(),
+                request.islandSurcharge()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterShippingPolicyResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "판매자 배송비 정책 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterShippingPolicyResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "판매자 배송비 정책 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -170,30 +170,30 @@ public class ShippingPolicyController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @UpdateShippingPolicyApiDocs
     public ResponseEntity<BaseResponse<UpdateShippingPolicyResponse>> updateShippingPolicy(
-            @Valid @RequestBody UpdateShippingPolicyRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody UpdateShippingPolicyRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long sellerId = ElementExtractor.extractUserId(principal);
 
         UpdateShippingPolicyResult result = updateShippingPolicyUseCase.updateShippingPolicy(
-                sellerId,
-                new UpdateShippingPolicyCommand(
-                        request.deliveryCompany(),
-                        request.shippingFee(),
-                        request.freeShippingThreshold(),
-                        request.jejuSurcharge(),
-                        request.islandSurcharge()
-                )
+            sellerId,
+            new UpdateShippingPolicyCommand(
+                request.deliveryCompany(),
+                request.shippingFee(),
+                request.freeShippingThreshold(),
+                request.jejuSurcharge(),
+                request.islandSurcharge()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateShippingPolicyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "판매자 배송비 정책 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateShippingPolicyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "판매자 배송비 정책 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ReturnRejectedEvent(
-        Long orderId,
-        Long buyerId
+    Long orderId,
+    Long buyerId
 ) {
 }

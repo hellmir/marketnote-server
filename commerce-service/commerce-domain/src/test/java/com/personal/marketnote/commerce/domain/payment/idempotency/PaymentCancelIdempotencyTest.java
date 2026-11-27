@@ -23,11 +23,11 @@ class PaymentCancelIdempotencyTest {
         @DisplayName("신규 생성 시 상태는 IN_PROGRESS 이며 result/failedReason 은 null 이다")
         void shouldCreateInProgressWhenFromCreateState() {
             PaymentCancelIdempotency idempotency = PaymentCancelIdempotency.from(
-                    PaymentCancelIdempotencyCreateState.builder()
-                            .idempotencyKey(KEY)
-                            .paymentId(PAYMENT_ID)
-                            .buyerId(BUYER_ID)
-                            .build()
+                PaymentCancelIdempotencyCreateState.builder()
+                    .idempotencyKey(KEY)
+                    .paymentId(PAYMENT_ID)
+                    .buyerId(BUYER_ID)
+                    .build()
             );
 
             assertThat(idempotency.isInProgress()).isTrue();
@@ -64,7 +64,7 @@ class PaymentCancelIdempotencyTest {
             idempotency.complete(RESULT_JSON);
 
             assertThatThrownBy(() -> idempotency.complete(RESULT_JSON))
-                    .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
+                .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
         }
 
         @Test
@@ -74,7 +74,7 @@ class PaymentCancelIdempotencyTest {
             idempotency.fail("DB 오류");
 
             assertThatThrownBy(() -> idempotency.complete(RESULT_JSON))
-                    .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
+                .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
         }
     }
 
@@ -110,7 +110,7 @@ class PaymentCancelIdempotencyTest {
             idempotency.complete(RESULT_JSON);
 
             assertThatThrownBy(() -> idempotency.fail("reason"))
-                    .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
+                .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
         }
     }
 
@@ -136,7 +136,7 @@ class PaymentCancelIdempotencyTest {
             PaymentCancelIdempotency idempotency = newInProgress();
 
             assertThatThrownBy(idempotency::retry)
-                    .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
+                .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
         }
 
         @Test
@@ -146,7 +146,7 @@ class PaymentCancelIdempotencyTest {
             idempotency.complete(RESULT_JSON);
 
             assertThatThrownBy(idempotency::retry)
-                    .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
+                .isInstanceOf(InvalidPaymentCancelIdempotencyStatusTransitionException.class);
         }
     }
 
@@ -177,14 +177,14 @@ class PaymentCancelIdempotencyTest {
         @DisplayName("스냅샷 상태를 그대로 복원한다")
         void shouldRestoreFromSnapshot() {
             PaymentCancelIdempotency idempotency = PaymentCancelIdempotency.from(
-                    PaymentCancelIdempotencySnapshotState.builder()
-                            .id(1L)
-                            .idempotencyKey(KEY)
-                            .paymentId(PAYMENT_ID)
-                            .buyerId(BUYER_ID)
-                            .status(PaymentCancelIdempotencyStatus.COMPLETED)
-                            .result(RESULT_JSON)
-                            .build()
+                PaymentCancelIdempotencySnapshotState.builder()
+                    .id(1L)
+                    .idempotencyKey(KEY)
+                    .paymentId(PAYMENT_ID)
+                    .buyerId(BUYER_ID)
+                    .status(PaymentCancelIdempotencyStatus.COMPLETED)
+                    .result(RESULT_JSON)
+                    .build()
             );
 
             assertThat(idempotency.getId()).isEqualTo(1L);
@@ -195,11 +195,11 @@ class PaymentCancelIdempotencyTest {
 
     private PaymentCancelIdempotency newInProgress() {
         return PaymentCancelIdempotency.from(
-                PaymentCancelIdempotencyCreateState.builder()
-                        .idempotencyKey(KEY)
-                        .paymentId(PAYMENT_ID)
-                        .buyerId(BUYER_ID)
-                        .build()
+            PaymentCancelIdempotencyCreateState.builder()
+                .idempotencyKey(KEY)
+                .paymentId(PAYMENT_ID)
+                .buyerId(BUYER_ID)
+                .build()
         );
     }
 }

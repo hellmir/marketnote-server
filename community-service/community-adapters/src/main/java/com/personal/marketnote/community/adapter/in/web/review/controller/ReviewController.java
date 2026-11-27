@@ -67,21 +67,21 @@ public class ReviewController {
     @PostMapping("/reviews")
     @RegisterReviewApiDocs
     public ResponseEntity<BaseResponse<RegisterReviewResponse>> registerReview(
-            @Valid @RequestBody RegisterReviewRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody RegisterReviewRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         RegisterReviewResult result = registerReviewUseCase.registerReview(
-                ReviewRequestToCommandMapper.mapToCommand(request, ElementExtractor.extractUserId(principal))
+            ReviewRequestToCommandMapper.mapToCommand(request, ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterReviewResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterReviewResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -102,13 +102,13 @@ public class ReviewController {
     @GetProductReviewsApiDocs
     @RateLimited(key = "product-reviews", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetReviewsResponse>> getProductReviews(
-            @PathVariable("productId") Long productId,
-            @RequestParam(value = "isPhoto", required = false, defaultValue = FALSE) Boolean isPhoto,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ID") ReviewSortProperty sortProperty,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @RequestParam(value = "isPhoto", required = false, defaultValue = FALSE) Boolean isPhoto,
+        @RequestParam(value = "cursor", required = false) Long cursor,
+        @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ID") ReviewSortProperty sortProperty,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = null;
         if (FormatValidator.hasValue(principal)) {
@@ -116,23 +116,23 @@ public class ReviewController {
         }
 
         GetReviewsResult result = getReviewUseCase.getProductReviews(
-                userId,
-                productId,
-                isPhoto,
-                cursor,
-                pageSize,
-                sortDirection,
-                sortProperty
+            userId,
+            productId,
+            isPhoto,
+            cursor,
+            pageSize,
+            sortDirection,
+            sortProperty
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetReviewsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 리뷰 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetReviewsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 리뷰 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -152,28 +152,28 @@ public class ReviewController {
     @GetMyReviewsApiDocs
     @RateLimited(key = "my-reviews", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetMyReviewsResponse>> getMyReviews(
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ID") ReviewSortProperty sortProperty,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @RequestParam(value = "cursor", required = false) Long cursor,
+        @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ID") ReviewSortProperty sortProperty,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetMyReviewsResult result = getReviewUseCase.getWriterReviews(
-                ElementExtractor.extractUserId(principal),
-                cursor,
-                pageSize,
-                sortDirection,
-                sortProperty
+            ElementExtractor.extractUserId(principal),
+            cursor,
+            pageSize,
+            sortDirection,
+            sortProperty
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetMyReviewsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 리뷰 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetMyReviewsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 리뷰 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -188,23 +188,23 @@ public class ReviewController {
     @GetMapping("/reviews/{id}")
     @GetReviewApiDocs
     public ResponseEntity<BaseResponse<ReviewItemResponse>> getReview(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = FormatValidator.hasValue(principal)
-                ? ElementExtractor.extractUserId(principal)
-                : null;
+            ? ElementExtractor.extractUserId(principal)
+            : null;
 
         ReviewItemResult result = getReviewUseCase.getReviewDetail(id, userId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ReviewItemResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 상세 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ReviewItemResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 상세 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -221,21 +221,21 @@ public class ReviewController {
     @GetMapping("/reviews/{id}/review-key")
     @GetReviewKeyApiDocs
     public ResponseEntity<BaseResponse<GetReviewKeyResponse>> getReviewKey(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         GetReviewKeyResult result = getReviewKeyUseCase.getReviewKey(id, userId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetReviewKeyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 reviewKey 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetReviewKeyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 reviewKey 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -251,20 +251,20 @@ public class ReviewController {
     @GetMapping("/reviews/me/count")
     @GetMyReviewsCountApiDocs
     public ResponseEntity<BaseResponse<GetReviewsCountResponse>> getMyReviewsCount(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetReviewCountResult result = getReviewUseCase.getWriterReviewCount(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetReviewsCountResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 리뷰 개수 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetReviewsCountResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 리뷰 개수 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -281,22 +281,22 @@ public class ReviewController {
     @PatchMapping("/reviews/{id}")
     @UpdateReviewApiDocs
     public ResponseEntity<BaseResponse<UpdateReviewResponse>> updateReview(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody UpdateReviewRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody UpdateReviewRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         UpdateReviewResult result = updateReviewUseCase.updateReview(
-                ReviewRequestToCommandMapper.mapToCommand(id, request, ElementExtractor.extractUserId(principal))
+            ReviewRequestToCommandMapper.mapToCommand(id, request, ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateReviewResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateReviewResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -312,18 +312,18 @@ public class ReviewController {
     @DeleteMapping("/reviews/{id}")
     @DeleteReviewApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteReview(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteReviewUseCase.deleteReview(id, ElementExtractor.extractUserId(principal));
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -339,34 +339,34 @@ public class ReviewController {
     @GetMapping("products/{productId}/review-aggregate")
     @GetProductReviewAggregateApiDocs
     public ResponseEntity<BaseResponse<GetProductReviewAggregateResponse>> getProductReviewAggregate(
-            @PathVariable("productId") Long productId
+        @PathVariable("productId") Long productId
     ) {
         try {
             return new ResponseEntity<>(
-                    BaseResponse.of(
-                            GetProductReviewAggregateResponse.from(
-                                    ProductReviewAggregateResult.from(
-                                            getReviewUseCase.getProductReviewAggregate(productId)
-                                    )
-                            ),
-                            HttpStatus.OK,
-                            DEFAULT_SUCCESS_CODE,
-                            "상품 리뷰 평점 평균 및 점수별 개수 현황 조회 성공"
+                BaseResponse.of(
+                    GetProductReviewAggregateResponse.from(
+                        ProductReviewAggregateResult.from(
+                            getReviewUseCase.getProductReviewAggregate(productId)
+                        )
                     ),
-                    HttpStatus.OK
+                    HttpStatus.OK,
+                    DEFAULT_SUCCESS_CODE,
+                    "상품 리뷰 평점 평균 및 점수별 개수 현황 조회 성공"
+                ),
+                HttpStatus.OK
             );
         } catch (ProductReviewAggregateNotFoundException ignored) {
             // 집계 미존재는 정상 응답: 리뷰가 없는 상품은 빈 집계 결과를 반환
             return new ResponseEntity<>(
-                    BaseResponse.of(
-                            GetProductReviewAggregateResponse.from(
-                                    ProductReviewAggregateResult.from(null)
-                            ),
-                            HttpStatus.OK,
-                            DEFAULT_SUCCESS_CODE,
-                            "상품 리뷰 평점 평균 및 점수별 개수 현황 조회 성공"
+                BaseResponse.of(
+                    GetProductReviewAggregateResponse.from(
+                        ProductReviewAggregateResult.from(null)
                     ),
-                    HttpStatus.OK
+                    HttpStatus.OK,
+                    DEFAULT_SUCCESS_CODE,
+                    "상품 리뷰 평점 평균 및 점수별 개수 현황 조회 성공"
+                ),
+                HttpStatus.OK
             );
         }
     }
@@ -384,18 +384,18 @@ public class ReviewController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetProductReviewAggregatesApiDocs
     public ResponseEntity<BaseResponse<GetProductReviewAggregatesResponse>> getProductReviewAggregates(
-            @RequestParam("productIds") List<Long> productIds
+        @RequestParam("productIds") List<Long> productIds
     ) {
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetProductReviewAggregatesResponse.from(
-                                getReviewUseCase.getProductReviewAggregates(productIds)
-                        ),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 리뷰 집계 목록 조회 성공"
+            BaseResponse.of(
+                GetProductReviewAggregatesResponse.from(
+                    getReviewUseCase.getProductReviewAggregates(productIds)
                 ),
-                HttpStatus.OK
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 리뷰 집계 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -416,24 +416,24 @@ public class ReviewController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUserReviewsApiDocs
     public ResponseEntity<BaseResponse<GetUserReviewsResponse>> getUserReviews(
-            @PathVariable("userId") Long userId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(value = "sort-property", required = false, defaultValue = "ID") ReviewSortProperty sortProperty
+        @PathVariable("userId") Long userId,
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(value = "sort-property", required = false, defaultValue = "ID") ReviewSortProperty sortProperty
     ) {
         GetUserReviewsResult result = getUserReviewsUseCase.getUserReviews(
-                new GetUserReviewsCommand(userId, page, pageSize, sortDirection, sortProperty)
+            new GetUserReviewsCommand(userId, page, pageSize, sortDirection, sortProperty)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetUserReviewsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 리뷰 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetUserReviewsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 리뷰 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

@@ -43,7 +43,7 @@ class RedisPubSubConfigTest {
 
         // when
         RedisMessageListenerContainer container = config.sseRedisMessageListenerContainer(
-                redisConnectionFactory, sseEventRedisSubscriber, topic
+            redisConnectionFactory, sseEventRedisSubscriber, topic
         );
 
         // then

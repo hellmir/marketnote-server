@@ -31,7 +31,7 @@ class DltSlackNotifierTest {
         // given
         when(kafkaSlackProperties.getWebhookUrl()).thenReturn(null);
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(
-                "some.topic.dlt", 0, 0L, "key-123", "value"
+            "some.topic.dlt", 0, 0L, "key-123", "value"
         );
 
         // when — 예외 없이 정상 반환
@@ -47,7 +47,7 @@ class DltSlackNotifierTest {
         // given
         when(kafkaSlackProperties.getWebhookUrl()).thenReturn("");
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(
-                "some.topic.dlt", 0, 0L, "key-123", "value"
+            "some.topic.dlt", 0, 0L, "key-123", "value"
         );
 
         // when — 예외 없이 정상 반환

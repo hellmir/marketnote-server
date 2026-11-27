@@ -11,8 +11,8 @@ public class GifticonCategoryCreateState {
 
     public static GifticonCategoryCreateState of(String categoryCode, String categoryName) {
         return GifticonCategoryCreateState.builder()
-                .categoryCode(categoryCode)
-                .categoryName(categoryName)
-                .build();
+            .categoryCode(categoryCode)
+            .categoryName(categoryName)
+            .build();
     }
 }

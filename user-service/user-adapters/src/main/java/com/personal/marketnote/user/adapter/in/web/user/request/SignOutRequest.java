@@ -6,16 +6,16 @@ import lombok.Getter;
 @Getter
 public class SignOutRequest {
     @Schema(
-            name = "accessToken",
-            description = "액세스 토큰",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "accessToken",
+        description = "액세스 토큰",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private String accessToken;
 
     @Schema(
-            name = "refreshToken",
-            description = "리프레시 토큰",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "refreshToken",
+        description = "리프레시 토큰",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private String refreshToken;
 }

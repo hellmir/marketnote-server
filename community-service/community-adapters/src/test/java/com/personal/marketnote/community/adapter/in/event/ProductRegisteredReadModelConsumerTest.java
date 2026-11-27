@@ -40,17 +40,17 @@ class ProductRegisteredReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_REGISTERED, 0, 0, "1", envelope
+            KafkaTopicConstants.PRODUCT_REGISTERED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<ProductRegisteredEvent> createEnvelope(ProductRegisteredEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.PRODUCT_REGISTERED,
-                "product-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.PRODUCT_REGISTERED,
+            "product-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
@@ -59,8 +59,8 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_validEvent_upsertsReadModel() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            1L, null, 100L, 10L, "테스트 상품", "1",
+            "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -69,7 +69,7 @@ class ProductRegisteredReadModelConsumerTest {
 
         // then
         verify(saveProductReadModelPort).upsert(
-                100L, 1L, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
+            100L, 1L, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
         );
         verify(acknowledgment).acknowledge();
     }
@@ -79,7 +79,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_REGISTERED, 0, 0, "1", null
+            KafkaTopicConstants.PRODUCT_REGISTERED, 0, 0, "1", null
         );
 
         // when
@@ -95,14 +95,14 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_eventTypeMismatch_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            1L, null, 100L, 10L, "테스트 상품", "1",
+            "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "product-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "product-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -119,8 +119,8 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_invalidProductId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                -1L, null, 100L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            -1L, null, 100L, 10L, "테스트 상품", "1",
+            "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -137,8 +137,8 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_invalidPricePolicyId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 0L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            1L, null, 0L, 10L, "테스트 상품", "1",
+            "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -155,8 +155,8 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullableFields_upsertsReadModel() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, 10L, "테스트 상품", "1",
-                null, null, null, null, 0L, null, null, null, false);
+            1L, null, 100L, 10L, "테스트 상품", "1",
+            null, null, null, null, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -165,7 +165,7 @@ class ProductRegisteredReadModelConsumerTest {
 
         // then
         verify(saveProductReadModelPort).upsert(
-                100L, 1L, 10L, "테스트 상품", null, null, null, null
+            100L, 1L, 10L, "테스트 상품", null, null, null, null
         );
         verify(acknowledgment).acknowledge();
     }

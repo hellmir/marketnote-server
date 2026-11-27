@@ -30,27 +30,27 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
     @Override
     public Optional<GetFilesResult> findImagesByProductIdAndSort(Long productId, FileSort sort) {
         List<ImageReadModelJpaEntity> entities =
-                imageReadModelJpaRepository.findByTargetIdAndFileSortAndStatusOrderBySortOrderAsc(
-                        productId, sort.name(), EntityStatus.ACTIVE
-                );
+            imageReadModelJpaRepository.findByTargetIdAndFileSortAndStatusOrderBySortOrderAsc(
+                productId, sort.name(), EntityStatus.ACTIVE
+            );
 
         if (FormatValidator.hasNoValue(entities)) {
             return Optional.empty();
         }
 
         List<GetFileResult> fileResults = entities.stream()
-                .map(entity -> new GetFileResult(
-                        entity.getImageId(),
-                        entity.getFileSort(),
-                        null,
-                        null,
-                        entity.getImageUrl(),
-                        entity.getResizedFiles().stream()
-                                .map(ImageReadModelResizedFileJpaEntity::getStorageUrl)
-                                .toList(),
-                        entity.getSortOrder().longValue()
-                ))
-                .toList();
+            .map(entity -> new GetFileResult(
+                entity.getImageId(),
+                entity.getFileSort(),
+                null,
+                null,
+                entity.getImageUrl(),
+                entity.getResizedFiles().stream()
+                    .map(ImageReadModelResizedFileJpaEntity::getStorageUrl)
+                    .toList(),
+                entity.getSortOrder().longValue()
+            ))
+            .toList();
 
         return Optional.of(new GetFilesResult(fileResults));
     }
@@ -58,8 +58,8 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long imageId, Long targetId, String targetType, String fileSort,
-            String imageUrl, Integer sortOrder, List<ResizedImageInput> resizedImages
+        Long imageId, Long targetId, String targetType, String fileSort,
+        String imageUrl, Integer sortOrder, List<ResizedImageInput> resizedImages
     ) {
         List<ImageReadModelJpaEntity.ResizedFileInput> resizedInputs = toEntityInputs(resizedImages);
         Optional<ImageReadModelJpaEntity> existing = imageReadModelJpaRepository.findByImageId(imageId);
@@ -71,7 +71,7 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
 
         try {
             ImageReadModelJpaEntity entity = ImageReadModelJpaEntity.of(
-                    imageId, targetId, targetType, fileSort, imageUrl, sortOrder
+                imageId, targetId, targetType, fileSort, imageUrl, sortOrder
             );
             entity.addResizedFiles(resizedInputs);
             imageReadModelJpaRepository.saveAndFlush(entity);
@@ -79,14 +79,14 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 resized 파일 교체로 복원
             log.info("이미지 Read Model 중복 저장 (멱등 처리). imageId={}", imageId);
             imageReadModelJpaRepository.findByImageId(imageId).ifPresent(entity -> replaceExistingResizedFiles(
-                    entity, targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs
+                entity, targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs
             ));
         }
     }
 
     private void replaceExistingResizedFiles(
-            ImageReadModelJpaEntity entity, Long targetId, String targetType, String fileSort,
-            String imageUrl, Integer sortOrder, List<ImageReadModelJpaEntity.ResizedFileInput> resizedInputs
+        ImageReadModelJpaEntity entity, Long targetId, String targetType, String fileSort,
+        String imageUrl, Integer sortOrder, List<ImageReadModelJpaEntity.ResizedFileInput> resizedInputs
     ) {
         entity.updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder);
         entity.clearResizedFiles();
@@ -98,7 +98,7 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
     @Transactional(isolation = READ_COMMITTED)
     public void deactivateByImageId(Long imageId) {
         imageReadModelJpaRepository.findByImageId(imageId)
-                .ifPresent(ImageReadModelJpaEntity::markInactive);
+            .ifPresent(ImageReadModelJpaEntity::markInactive);
     }
 
     private List<ImageReadModelJpaEntity.ResizedFileInput> toEntityInputs(List<ResizedImageInput> resizedImages) {
@@ -106,7 +106,7 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
             return List.of();
         }
         return resizedImages.stream()
-                .map(input -> new ImageReadModelJpaEntity.ResizedFileInput(input.size(), input.storageUrl()))
-                .toList();
+            .map(input -> new ImageReadModelJpaEntity.ResizedFileInput(input.size(), input.storageUrl()))
+            .toList();
     }
 }

@@ -10,25 +10,25 @@ import java.util.List;
 
 public interface CategoryJpaRepository extends JpaRepository<CategoryJpaEntity, Long> {
     @Query("""
-            SELECT c
-            FROM CategoryJpaEntity c
-            WHERE 1 = 1
-              AND c.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND (
-                    (:parentId = -1 AND c.parentCategoryId IS NULL)
-                    OR (:parentId <> -1 AND c.parentCategoryId = :parentId)
-                  )
-            ORDER BY c.id ASC
-            """)
+        SELECT c
+        FROM CategoryJpaEntity c
+        WHERE 1 = 1
+          AND c.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+          AND (
+                (:parentId = -1 AND c.parentCategoryId IS NULL)
+                OR (:parentId <> -1 AND c.parentCategoryId = :parentId)
+              )
+        ORDER BY c.id ASC
+        """)
     List<CategoryJpaEntity> findActiveByParentId(@Param("parentId") Long parentId);
 
     @Query("""
-            SELECT c
-            FROM CategoryJpaEntity c
-            WHERE 1 = 1
-              AND c.id IN :ids
-              AND c.status = :status
-            """)
+        SELECT c
+        FROM CategoryJpaEntity c
+        WHERE 1 = 1
+          AND c.id IN :ids
+          AND c.status = :status
+        """)
     List<CategoryJpaEntity> findAllByIdInAndStatus(@Param("ids") List<Long> ids, @Param("status") EntityStatus status);
 
     boolean existsByParentCategoryIdAndStatus(Long parentCategoryId, EntityStatus status);

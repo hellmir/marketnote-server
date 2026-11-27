@@ -24,18 +24,18 @@ public class GetShippingStatusService implements GetShippingStatusUseCase {
     @Override
     public GetShippingStatusResult getShippingStatus(GetShippingStatusCommand command) {
         ShippingTracker tracker = findShippingTrackerPort.findByOrderId(command.orderId())
-                .orElseThrow(() -> {
-                    log.warn("배송 추적 정보를 찾을 수 없습니다. orderId={}", command.orderId());
-                    return new ShippingTrackerNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("배송 추적 정보를 찾을 수 없습니다. orderId={}", command.orderId());
+                return new ShippingTrackerNotFoundException();
+            });
 
         return new GetShippingStatusResult(
-                tracker.getOrderId(),
-                tracker.getShippingStatus().name(),
-                tracker.isPreparing(),
-                tracker.getTrackingNumberValue(),
-                tracker.getCarrierCodeValue(),
-                tracker.getLastPolledAt()
+            tracker.getOrderId(),
+            tracker.getShippingStatus().name(),
+            tracker.isPreparing(),
+            tracker.getTrackingNumberValue(),
+            tracker.getCarrierCodeValue(),
+            tracker.getLastPolledAt()
         );
     }
 }

@@ -45,11 +45,11 @@ class InitializeNotificationPreferenceUseCaseTest {
             assertThat(preference.getUserId()).isEqualTo(100L);
             assertThat(preference.getConsentedAt()).isNull();
             assertThat(preference.isEnabled())
-                    .isEqualTo(preference.getNotificationType().isDefaultEnabled());
+                .isEqualTo(preference.getNotificationType().isDefaultEnabled());
         });
         assertThat(saved)
-                .extracting(NotificationPreference::getNotificationType)
-                .containsExactlyInAnyOrder(NotificationType.values());
+            .extracting(NotificationPreference::getNotificationType)
+            .containsExactlyInAnyOrder(NotificationType.values());
     }
 
     @Test
@@ -65,9 +65,9 @@ class InitializeNotificationPreferenceUseCaseTest {
         // then
         verify(saveNotificationPreferencePort).saveAll(captor.capture());
         NotificationPreference marketing = captor.getValue().stream()
-                .filter(preference -> preference.getNotificationType() == NotificationType.MARKETING)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("MARKETING 수신 설정이 초기화되지 않았습니다"));
+            .filter(preference -> preference.getNotificationType() == NotificationType.MARKETING)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("MARKETING 수신 설정이 초기화되지 않았습니다"));
         assertThat(marketing.isEnabled()).isFalse();
         assertThat(marketing.getConsentedAt()).isNull();
     }
@@ -85,10 +85,10 @@ class InitializeNotificationPreferenceUseCaseTest {
         // then
         verify(saveNotificationPreferencePort).saveAll(captor.capture());
         List<NotificationPreference> nonMarketing = captor.getValue().stream()
-                .filter(preference -> preference.getNotificationType() != NotificationType.MARKETING)
-                .toList();
+            .filter(preference -> preference.getNotificationType() != NotificationType.MARKETING)
+            .toList();
         assertThat(nonMarketing).allSatisfy(preference ->
-                assertThat(preference.isEnabled()).isTrue()
+            assertThat(preference.isEnabled()).isTrue()
         );
     }
 }

@@ -53,7 +53,7 @@ class GetReviewKeyServiceTest {
         when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
 
         assertThatThrownBy(() -> getReviewKeyService.getReviewKey(reviewId, otherUserId))
-                .isInstanceOf(ReviewNotFoundException.class);
+            .isInstanceOf(ReviewNotFoundException.class);
     }
 
     @Test
@@ -64,25 +64,25 @@ class GetReviewKeyServiceTest {
         when(findReviewPort.findById(reviewId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getReviewKeyService.getReviewKey(reviewId, reviewerId))
-                .isInstanceOf(ReviewNotFoundException.class);
+            .isInstanceOf(ReviewNotFoundException.class);
     }
 
     private Review createReview(Long id, Long reviewerId, UUID reviewKey) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(id)
-                .reviewKey(reviewKey)
-                .reviewerId(reviewerId)
-                .orderId(200L)
-                .productId(300L)
-                .pricePolicyId(400L)
-                .reviewerName("홍길동")
-                .maskedReviewerName("홍**")
-                .rating(Rating.of(5.0f))
-                .content("테스트 리뷰 내용")
-                .isPhoto(false)
-                .isEdited(false)
-                .likeCount(0)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(id)
+            .reviewKey(reviewKey)
+            .reviewerId(reviewerId)
+            .orderId(200L)
+            .productId(300L)
+            .pricePolicyId(400L)
+            .reviewerName("홍길동")
+            .maskedReviewerName("홍**")
+            .rating(Rating.of(5.0f))
+            .content("테스트 리뷰 내용")
+            .isPhoto(false)
+            .isEdited(false)
+            .likeCount(0)
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 }

@@ -19,9 +19,9 @@ public class RedisPubSubConfig {
 
     @Bean
     public RedisMessageListenerContainer sseRedisMessageListenerContainer(
-            RedisConnectionFactory redisConnectionFactory,
-            SseEventRedisSubscriber sseEventRedisSubscriber,
-            ChannelTopic sseNotificationEventsTopic
+        RedisConnectionFactory redisConnectionFactory,
+        SseEventRedisSubscriber sseEventRedisSubscriber,
+        ChannelTopic sseNotificationEventsTopic
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);

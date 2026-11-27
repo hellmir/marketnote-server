@@ -75,22 +75,22 @@ public class OrderProductJpaEntity extends BaseEntity {
 
     public static OrderProductJpaEntity from(OrderProduct orderProduct, OrderJpaEntity orderJpaEntity) {
         return OrderProductJpaEntity.builder()
-                .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
-                .orderJpaEntity(orderJpaEntity)
-                .productId(orderProduct.getProductId())
-                .productKey(orderProduct.getProductKey())
-                .sellerId(orderProduct.getSellerId())
-                .orderProductKey(orderProduct.getOrderProductKey())
-                .sharerKey(orderProduct.getSharerKey())
-                .quantity(orderProduct.getQuantity().getValue())
-                .unitAmount(orderProduct.getUnitAmount().getValue())
-                .imageUrl(orderProduct.getImageUrl())
-                .accumulatedPoint(orderProduct.getAccumulatedPoint().getValue())
-                .orderStatus(orderProduct.getOrderStatus())
-                .confirmedAt(orderProduct.getConfirmedAt())
-                .deliveredAt(orderProduct.getDeliveredAt())
-                .scheduledAutoConfirmAt(orderProduct.getScheduledAutoConfirmAt())
-                .build();
+            .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
+            .orderJpaEntity(orderJpaEntity)
+            .productId(orderProduct.getProductId())
+            .productKey(orderProduct.getProductKey())
+            .sellerId(orderProduct.getSellerId())
+            .orderProductKey(orderProduct.getOrderProductKey())
+            .sharerKey(orderProduct.getSharerKey())
+            .quantity(orderProduct.getQuantity().getValue())
+            .unitAmount(orderProduct.getUnitAmount().getValue())
+            .imageUrl(orderProduct.getImageUrl())
+            .accumulatedPoint(orderProduct.getAccumulatedPoint().getValue())
+            .orderStatus(orderProduct.getOrderStatus())
+            .confirmedAt(orderProduct.getConfirmedAt())
+            .deliveredAt(orderProduct.getDeliveredAt())
+            .scheduledAutoConfirmAt(orderProduct.getScheduledAutoConfirmAt())
+            .build();
     }
 
     public void updateFrom(OrderProduct orderProduct) {

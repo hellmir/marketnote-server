@@ -5,12 +5,7 @@ import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowBrandCodeException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowGoodsCodeException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowPhoneNoException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowTrIdException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowUserIdException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.*;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -31,15 +26,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.matchesRegex;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -92,8 +82,8 @@ class GiftishowApiClientTest {
         VendorCommunicationPayloadGenerator payloadGenerator = new VendorCommunicationPayloadGenerator(objectMapper);
         GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
         giftishowApiClient = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger,
-                vendorCommunicationRecorder, payloadGenerator, resolver
+            properties, builder.build(), objectMapper, externalCallLogger,
+            vendorCommunicationRecorder, payloadGenerator, resolver
         );
     }
 
@@ -114,19 +104,19 @@ class GiftishowApiClientTest {
             expectedFormData.add("size", "20");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "listNum": 0,
-                                    "goodsList": []
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "listNum": 0,
+                            "goodsList": []
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getProductList(0, 20);
@@ -140,37 +130,37 @@ class GiftishowApiClientTest {
         void shouldReturnProductListWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "listNum": 1,
-                                    "goodsList": [
-                                        {
-                                            "goodsCode": "G001",
-                                            "goodsName": "테스트 상품",
-                                            "goodsImgB": "http://img.test.com/goods.jpg",
-                                            "brandCode": "B001",
-                                            "brandName": "테스트 브랜드",
-                                            "brandIconImg": "http://img.test.com/brand.jpg",
-                                            "category1Seq": "1",
-                                            "salePrice": 10000,
-                                            "realPrice": 12000,
-                                            "limitDay": 30,
-                                            "content": "테스트 상품 설명",
-                                            "goodsStateCd": "SALE"
-                                        }
-                                    ]
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "listNum": 1,
+                            "goodsList": [
+                                {
+                                    "goodsCode": "G001",
+                                    "goodsName": "테스트 상품",
+                                    "goodsImgB": "http://img.test.com/goods.jpg",
+                                    "brandCode": "B001",
+                                    "brandName": "테스트 브랜드",
+                                    "brandIconImg": "http://img.test.com/brand.jpg",
+                                    "category1Seq": "1",
+                                    "salePrice": 10000,
+                                    "realPrice": 12000,
+                                    "limitDay": 30,
+                                    "content": "테스트 상품 설명",
+                                    "goodsStateCd": "SALE"
                                 }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                            ]
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowProductListResponse> response =
-                    giftishowApiClient.getProductList(0, 20);
+                giftishowApiClient.getProductList(0, 20);
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -179,7 +169,7 @@ class GiftishowApiClientTest {
             assertThat(response.result().goodsList()).hasSize(1);
 
             GiftishowProductListResponse.GiftishowProductItem item =
-                    response.result().goodsList().getFirst();
+                response.result().goodsList().getFirst();
             assertThat(item.goodsCode()).isEqualTo("G001");
             assertThat(item.goodsName()).isEqualTo("테스트 상품");
             assertThat(item.brandCode()).isEqualTo("B001");
@@ -194,13 +184,13 @@ class GiftishowApiClientTest {
         void shouldThrowExceptionWhenResponseBodyIsEmpty() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
             // when & then
             assertThatThrownBy(() -> giftishowApiClient.getProductList(0, 20))
-                    .isInstanceOf(GiftishowCommunicationException.class)
-                    .hasMessageContaining("응답 본문이 비어 있습니다");
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("응답 본문이 비어 있습니다");
 
             mockServer.verify();
         }
@@ -210,13 +200,13 @@ class GiftishowApiClientTest {
         void shouldThrowExceptionWhenResponseJsonIsInvalid() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("invalid json", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("invalid json", MediaType.APPLICATION_JSON));
 
             // when & then
             assertThatThrownBy(() -> giftishowApiClient.getProductList(0, 20))
-                    .isInstanceOf(GiftishowCommunicationException.class)
-                    .hasMessageContaining("응답 파싱 실패");
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("응답 파싱 실패");
 
             mockServer.verify();
         }
@@ -237,35 +227,35 @@ class GiftishowApiClientTest {
             expectedFormData.add("api_code", "0111");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods/G001"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "goodsDetail": {
-                                        "goodsCode": "G001",
-                                        "goodsName": "테스트 상품",
-                                        "goodsImgB": "http://img.test.com/goods.jpg",
-                                        "brandCode": "B001",
-                                        "brandName": "테스트 브랜드",
-                                        "brandIconImg": "http://img.test.com/brand.jpg",
-                                        "category1Seq": "1",
-                                        "salePrice": 10000,
-                                        "realPrice": 12000,
-                                        "limitDay": 30,
-                                        "content": "테스트 상품 설명",
-                                        "goodsStateCd": "SALE"
-                                    }
-                                }
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "goodsDetail": {
+                                "goodsCode": "G001",
+                                "goodsName": "테스트 상품",
+                                "goodsImgB": "http://img.test.com/goods.jpg",
+                                "brandCode": "B001",
+                                "brandName": "테스트 브랜드",
+                                "brandIconImg": "http://img.test.com/brand.jpg",
+                                "category1Seq": "1",
+                                "salePrice": 10000,
+                                "realPrice": 12000,
+                                "limitDay": 30,
+                                "content": "테스트 상품 설명",
+                                "goodsStateCd": "SALE"
                             }
-                            """, MediaType.APPLICATION_JSON));
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowProductDetailResponse> response =
-                    giftishowApiClient.getProductDetail("G001");
+                giftishowApiClient.getProductDetail("G001");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -292,19 +282,19 @@ class GiftishowApiClientTest {
             expectedFormData.add("api_code", "0102");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/brands"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "listNum": 0,
-                                    "brandList": []
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "listNum": 0,
+                            "brandList": []
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBrandList();
@@ -318,36 +308,36 @@ class GiftishowApiClientTest {
         void shouldReturnBrandListWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/brands"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "listNum": 1,
-                                    "brandList": [
-                                        {
-                                            "brandCode": "B001",
-                                            "brandName": "테스트 브랜드",
-                                            "brandIconImg": "http://img.test.com/brand.jpg",
-                                            "category1Seq": "1",
-                                            "category1Name": "카페/음료"
-                                        }
-                                    ]
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "listNum": 1,
+                            "brandList": [
+                                {
+                                    "brandCode": "B001",
+                                    "brandName": "테스트 브랜드",
+                                    "brandIconImg": "http://img.test.com/brand.jpg",
+                                    "category1Seq": "1",
+                                    "category1Name": "카페/음료"
                                 }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                            ]
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowBrandListResponse> response =
-                    giftishowApiClient.getBrandList();
+                giftishowApiClient.getBrandList();
 
             // then
             assertThat(response.isSuccess()).isTrue();
             assertThat(response.result().brandList()).hasSize(1);
 
             GiftishowBrandListResponse.GiftishowBrandItem item =
-                    response.result().brandList().getFirst();
+                response.result().brandList().getFirst();
             assertThat(item.brandCode()).isEqualTo("B001");
             assertThat(item.brandName()).isEqualTo("테스트 브랜드");
             assertThat(item.category1Name()).isEqualTo("카페/음료");
@@ -371,28 +361,28 @@ class GiftishowApiClientTest {
             expectedFormData.add("api_code", "0112");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/brands/B001"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "brandDetail": {
-                                        "brandCode": "B001",
-                                        "brandName": "테스트 브랜드",
-                                        "brandIconImg": "http://img.test.com/brand.jpg",
-                                        "category1Seq": "1",
-                                        "category1Name": "카페/음료"
-                                    }
-                                }
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "brandDetail": {
+                                "brandCode": "B001",
+                                "brandName": "테스트 브랜드",
+                                "brandIconImg": "http://img.test.com/brand.jpg",
+                                "category1Seq": "1",
+                                "category1Name": "카페/음료"
                             }
-                            """, MediaType.APPLICATION_JSON));
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowBrandDetailResponse> response =
-                    giftishowApiClient.getBrandDetail("B001");
+                giftishowApiClient.getBrandDetail("B001");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -426,34 +416,34 @@ class GiftishowApiClientTest {
             expectedFormData.add("mms_title", "마켓노트");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
-                    "NTCASH_1_20260403120000",
-                    "G001",
-                    "01012345678",
-                    "user1",
-                    "기프티콘 발송",
-                    "마켓노트",
-                    null
+                "NTCASH_1_20260403120000",
+                "G001",
+                "01012345678",
+                "user1",
+                "기프티콘 발송",
+                "마켓노트",
+                null
             );
 
             // then
@@ -465,35 +455,35 @@ class GiftishowApiClientTest {
         void shouldReturnCouponSendResponseWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponSendResponse> response =
-                    giftishowApiClient.sendCoupon(
-                            "NTCASH_1_20260403120000",
-                            "G001",
-                            "01012345678",
-                            "user1",
-                            "기프티콘 발송",
-                            "마켓노트",
-                            null
-                    );
+                giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000",
+                    "G001",
+                    "01012345678",
+                    "user1",
+                    "기프티콘 발송",
+                    "마켓노트",
+                    null
+                );
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -528,29 +518,29 @@ class GiftishowApiClientTest {
             expectedFormData.add("template_id", "TPL_001");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
-                    "NTCASH_1_20260403120000", "G001", "01012345678",
-                    "user1", "기프티콘 발송", "마켓노트", null
+                "NTCASH_1_20260403120000", "G001", "01012345678",
+                "user1", "기프티콘 발송", "마켓노트", null
             );
 
             // then
@@ -579,29 +569,29 @@ class GiftishowApiClientTest {
             expectedFormData.add("banner_id", "BNR_001");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
-                    "NTCASH_1_20260403120000", "G001", "01012345678",
-                    "user1", "기프티콘 발송", "마켓노트", null
+                "NTCASH_1_20260403120000", "G001", "01012345678",
+                "user1", "기프티콘 발송", "마켓노트", null
             );
 
             // then
@@ -613,32 +603,32 @@ class GiftishowApiClientTest {
         void shouldNotSendTemplateIdAndBannerIdWhenPropertiesAreNotSet() {
             // given — properties.templateId/bannerId 둘 다 미설정 (기본 setUp 그대로)
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(not(matchesRegex("(^|.*&)template_id=.*"))))
-                    .andExpect(content().string(not(matchesRegex("(^|.*&)banner_id=.*"))))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(not(matchesRegex("(^|.*&)template_id=.*"))))
+                .andExpect(content().string(not(matchesRegex("(^|.*&)banner_id=.*"))))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponSendResponse> response =
-                    giftishowApiClient.sendCoupon(
-                            "NTCASH_1_20260403120000", "G001", "01012345678",
-                            "user1", "기프티콘 발송", "마켓노트", null
-                    );
+                giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000", "G001", "01012345678",
+                    "user1", "기프티콘 발송", "마켓노트", null
+                );
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -665,29 +655,29 @@ class GiftishowApiClientTest {
             expectedFormData.add("order_no", "ORD123456");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD123456",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD123456",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
-                    "NTCASH_1_20260403120000", "G001", "01012345678",
-                    "user1", "기프티콘 발송", "마켓노트", "ORD123456"
+                "NTCASH_1_20260403120000", "G001", "01012345678",
+                "user1", "기프티콘 발송", "마켓노트", "ORD123456"
             );
 
             // then
@@ -699,29 +689,29 @@ class GiftishowApiClientTest {
         void shouldNotSendOrderNoWhenOrderNoIsNullOrBlank() {
             // given — orderNo=blank (null도 동일 분기, FormatValidator.hasValue가 둘 다 false)
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(not(matchesRegex("(^|.*&)order_no=.*"))))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(not(matchesRegex("(^|.*&)order_no=.*"))))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
-                    "NTCASH_1_20260403120000", "G001", "01012345678",
-                    "user1", "기프티콘 발송", "마켓노트", "  "
+                "NTCASH_1_20260403120000", "G001", "01012345678",
+                "user1", "기프티콘 발송", "마켓노트", "  "
             );
 
             // then
@@ -745,30 +735,30 @@ class GiftishowApiClientTest {
             expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": [
-                                    {
-                                        "couponInfoList": [
-                                            {
-                                                "trId": "NTCASH_1_20260403120000",
-                                                "orderNo": "ORD001",
-                                                "pinStatusCd": "01",
-                                                "pinStatusNm": "발행",
-                                                "validPrdEndDt": "20260503",
-                                                "goodsCd": "G001",
-                                                "goodsNm": "테스트 상품"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": [
+                                                        {
+                                                            "couponInfoList": [
+                                                                {
+                                                                    "trId": "NTCASH_1_20260403120000",
+                                                                    "orderNo": "ORD001",
+                                                                    "pinStatusCd": "01",
+                                                                    "pinStatusNm": "발행",
+                                                                    "validPrdEndDt": "20260503",
+                                                                    "goodsCd": "G001",
+                                                                    "goodsNm": "테스트 상품"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
@@ -782,32 +772,32 @@ class GiftishowApiClientTest {
         void shouldReturnCouponDetailWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": [
-                                    {
-                                        "couponInfoList": [
-                                            {
-                                                "trId": "NTCASH_1_20260403120000",
-                                                "orderNo": "ORD001",
-                                                "pinStatusCd": "01",
-                                                "pinStatusNm": "발행",
-                                                "validPrdEndDt": "20260503",
-                                                "goodsCd": "G001",
-                                                "goodsNm": "테스트 상품"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": [
+                                                        {
+                                                            "couponInfoList": [
+                                                                {
+                                                                    "trId": "NTCASH_1_20260403120000",
+                                                                    "orderNo": "ORD001",
+                                                                    "pinStatusCd": "01",
+                                                                    "pinStatusNm": "발행",
+                                                                    "validPrdEndDt": "20260503",
+                                                                    "goodsCd": "G001",
+                                                                    "goodsNm": "테스트 상품"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<java.util.List<GiftishowCouponDetailResponse>> response =
-                    giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
+                giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -840,19 +830,19 @@ class GiftishowApiClientTest {
             expectedFormData.add("user_id", "user1");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.cancelCoupon("NTCASH_1_20260403120000", "user1");
@@ -866,21 +856,21 @@ class GiftishowApiClientTest {
         void shouldReturnCancelResponseWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponCancelResponse> response =
-                    giftishowApiClient.cancelCoupon("NTCASH_1_20260403120000", "user1");
+                giftishowApiClient.cancelCoupon("NTCASH_1_20260403120000", "user1");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -907,19 +897,19 @@ class GiftishowApiClientTest {
             expectedFormData.add("phone_no", "01012345678");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.resendCoupon("NTCASH_1_20260403120000", "01012345678");
@@ -933,21 +923,21 @@ class GiftishowApiClientTest {
         void shouldReturnResendResponseWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponResendResponse> response =
-                    giftishowApiClient.resendCoupon("NTCASH_1_20260403120000", "01012345678");
+                giftishowApiClient.resendCoupon("NTCASH_1_20260403120000", "01012345678");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -973,16 +963,16 @@ class GiftishowApiClientTest {
             expectedFormData.add("user_id", "user1");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "balance": 500000
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "balance": 500000
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");
@@ -996,18 +986,18 @@ class GiftishowApiClientTest {
         void shouldReturnBizMoneyBalanceWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "balance": 500000
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "balance": 500000
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowBizMoneyResponse> response =
-                    giftishowApiClient.getBizMoneyBalance("user1");
+                giftishowApiClient.getBizMoneyBalance("user1");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -1035,19 +1025,19 @@ class GiftishowApiClientTest {
             expectedFormData.add("user_id", "user1");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/sendFail/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().formData(expectedFormData))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(expectedFormData))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.cancelSendFailedCoupon("NTCASH_1_20260403120000", "user1");
@@ -1061,21 +1051,21 @@ class GiftishowApiClientTest {
         void shouldReturnCancelResponseWhenRequestSucceeds() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/sendFail/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponCancelResponse> response =
-                    giftishowApiClient.cancelSendFailedCoupon("NTCASH_1_20260403120000", "user1");
+                giftishowApiClient.cancelSendFailedCoupon("NTCASH_1_20260403120000", "user1");
 
             // then
             assertThat(response.isSuccess()).isTrue();
@@ -1093,35 +1083,35 @@ class GiftishowApiClientTest {
         @DisplayName("getProductDetail에 null goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
         void shouldThrowWhenGetProductDetailGoodsCodeIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.getProductDetail(null))
-                    .isInstanceOf(InvalidGiftishowGoodsCodeException.class);
+                .isInstanceOf(InvalidGiftishowGoodsCodeException.class);
         }
 
         @Test
         @DisplayName("getProductDetail에 blank goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
         void shouldThrowWhenGetProductDetailGoodsCodeIsBlank() {
             assertThatThrownBy(() -> giftishowApiClient.getProductDetail("  "))
-                    .isInstanceOf(InvalidGiftishowGoodsCodeException.class);
+                .isInstanceOf(InvalidGiftishowGoodsCodeException.class);
         }
 
         @Test
         @DisplayName("getBrandDetail에 null brandCode를 전달하면 InvalidGiftishowBrandCodeException이 발생한다")
         void shouldThrowWhenGetBrandDetailBrandCodeIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.getBrandDetail(null))
-                    .isInstanceOf(InvalidGiftishowBrandCodeException.class);
+                .isInstanceOf(InvalidGiftishowBrandCodeException.class);
         }
 
         @Test
         @DisplayName("getBrandDetail에 blank brandCode를 전달하면 InvalidGiftishowBrandCodeException이 발생한다")
         void shouldThrowWhenGetBrandDetailBrandCodeIsBlank() {
             assertThatThrownBy(() -> giftishowApiClient.getBrandDetail("  "))
-                    .isInstanceOf(InvalidGiftishowBrandCodeException.class);
+                .isInstanceOf(InvalidGiftishowBrandCodeException.class);
         }
 
         @Test
         @DisplayName("sendCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
         void shouldThrowWhenSendCouponTrIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    null, "G001", "01012345678", "user1", "msg", "title", null
+                null, "G001", "01012345678", "user1", "msg", "title", null
             )).isInstanceOf(InvalidGiftishowTrIdException.class);
         }
 
@@ -1129,7 +1119,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
         void shouldThrowWhenSendCouponGoodsCodeIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    "TR001", null, "01012345678", "user1", "msg", "title", null
+                "TR001", null, "01012345678", "user1", "msg", "title", null
             )).isInstanceOf(InvalidGiftishowGoodsCodeException.class);
         }
 
@@ -1137,7 +1127,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null phoneNo를 전달하면 InvalidGiftishowPhoneNoException이 발생한다")
         void shouldThrowWhenSendCouponPhoneNoIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    "TR001", "G001", null, "user1", "msg", "title", null
+                "TR001", "G001", null, "user1", "msg", "title", null
             )).isInstanceOf(InvalidGiftishowPhoneNoException.class);
         }
 
@@ -1145,7 +1135,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
         void shouldThrowWhenSendCouponUserIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    "TR001", "G001", "01012345678", null, "msg", "title", null
+                "TR001", "G001", "01012345678", null, "msg", "title", null
             )).isInstanceOf(InvalidGiftishowUserIdException.class);
         }
 
@@ -1153,56 +1143,56 @@ class GiftishowApiClientTest {
         @DisplayName("getCouponDetail에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
         void shouldThrowWhenGetCouponDetailTrIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.getCouponDetail(null))
-                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+                .isInstanceOf(InvalidGiftishowTrIdException.class);
         }
 
         @Test
         @DisplayName("cancelCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
         void shouldThrowWhenCancelCouponTrIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.cancelCoupon(null, "user1"))
-                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+                .isInstanceOf(InvalidGiftishowTrIdException.class);
         }
 
         @Test
         @DisplayName("cancelCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
         void shouldThrowWhenCancelCouponUserIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.cancelCoupon("TR001", null))
-                    .isInstanceOf(InvalidGiftishowUserIdException.class);
+                .isInstanceOf(InvalidGiftishowUserIdException.class);
         }
 
         @Test
         @DisplayName("resendCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
         void shouldThrowWhenResendCouponTrIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.resendCoupon(null, "01012345678"))
-                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+                .isInstanceOf(InvalidGiftishowTrIdException.class);
         }
 
         @Test
         @DisplayName("resendCoupon에 null phoneNo를 전달하면 InvalidGiftishowPhoneNoException이 발생한다")
         void shouldThrowWhenResendCouponPhoneNoIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.resendCoupon("TR001", null))
-                    .isInstanceOf(InvalidGiftishowPhoneNoException.class);
+                .isInstanceOf(InvalidGiftishowPhoneNoException.class);
         }
 
         @Test
         @DisplayName("cancelSendFailedCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
         void shouldThrowWhenCancelSendFailedCouponTrIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon(null, "user1"))
-                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+                .isInstanceOf(InvalidGiftishowTrIdException.class);
         }
 
         @Test
         @DisplayName("cancelSendFailedCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
         void shouldThrowWhenCancelSendFailedCouponUserIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon("TR001", null))
-                    .isInstanceOf(InvalidGiftishowUserIdException.class);
+                .isInstanceOf(InvalidGiftishowUserIdException.class);
         }
 
         @Test
         @DisplayName("getBizMoneyBalance에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
         void shouldThrowWhenGetBizMoneyBalanceUserIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.getBizMoneyBalance(null))
-                    .isInstanceOf(InvalidGiftishowUserIdException.class);
+                .isInstanceOf(InvalidGiftishowUserIdException.class);
         }
     }
 
@@ -1215,35 +1205,35 @@ class GiftishowApiClientTest {
         void shouldDispatchToRecordSensitiveWhenSendCoupon() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "code": "0000",
-                                    "message": "success",
-                                    "result": {
-                                        "orderNo": "ORD001",
-                                        "pinNo": "1234-5678-9012",
-                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
-                                    }
-                                }
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": {
+                                                        "code": "0000",
+                                                        "message": "success",
+                                                        "result": {
+                                                            "orderNo": "ORD001",
+                                                            "pinNo": "1234-5678-9012",
+                                                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                                        }
+                                                    }
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
-                    "NTCASH_1_20260403120000", "G001", "01012345678",
-                    "user1", "msg", "title", null
+                "NTCASH_1_20260403120000", "G001", "01012345678",
+                "user1", "msg", "title", null
             );
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.send"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.send"), any(), any()
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.send"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.send"), any(), any()
             );
             mockServer.verify();
         }
@@ -1253,38 +1243,38 @@ class GiftishowApiClientTest {
         void shouldDispatchToRecordSensitiveWhenGetCouponDetail() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": [
-                                    {
-                                        "couponInfoList": [
-                                            {
-                                                "trId": "NTCASH_1_20260403120000",
-                                                "orderNo": "ORD001",
-                                                "pinStatusCd": "01",
-                                                "pinStatusNm": "발행",
-                                                "validPrdEndDt": "20260503",
-                                                "goodsCd": "G001",
-                                                "goodsNm": "테스트 상품"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "result": [
+                                                        {
+                                                            "couponInfoList": [
+                                                                {
+                                                                    "trId": "NTCASH_1_20260403120000",
+                                                                    "orderNo": "ORD001",
+                                                                    "pinStatusCd": "01",
+                                                                    "pinStatusNm": "발행",
+                                                                    "validPrdEndDt": "20260503",
+                                                                    "goodsCd": "G001",
+                                                                    "goodsNm": "테스트 상품"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.detail"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.detail"), any(), any()
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.detail"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.detail"), any(), any()
             );
             mockServer.verify();
         }
@@ -1294,27 +1284,27 @@ class GiftishowApiClientTest {
         void shouldDispatchToRecordSensitiveWhenResendCoupon() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.resendCoupon("NTCASH_1_20260403120000", "01012345678");
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.resend"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.resend"), any(), any()
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.resend"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.resend"), any(), any()
             );
             mockServer.verify();
         }
@@ -1324,27 +1314,27 @@ class GiftishowApiClientTest {
         void shouldDispatchToRecordWhenGetProductList() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "listNum": 0,
-                                    "goodsList": []
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "listNum": 0,
+                            "goodsList": []
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getProductList(0, 20);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.GIFTISHOW), eq("product.list"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("product.list"), any(), any()
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.GIFTISHOW), eq("product.list"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("product.list"), any(), any()
             );
             mockServer.verify();
         }
@@ -1354,27 +1344,27 @@ class GiftishowApiClientTest {
         void shouldDispatchToRecordWhenCancelCoupon() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001"
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "trId": "NTCASH_1_20260403120000",
+                            "orderNo": "ORD001"
+                        }
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.cancelCoupon("NTCASH_1_20260403120000", "user1");
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.cancel"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.cancel"), any(), any()
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.GIFTISHOW), eq("coupon.cancel"), any(), any()
+                eq(ExternalSystem.GIFTISHOW), eq("coupon.cancel"), any(), any()
             );
             mockServer.verify();
         }
@@ -1389,18 +1379,18 @@ class GiftishowApiClientTest {
         void shouldReturnFalseWhenCodeIsNotSuccess() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "9999",
-                                "message": "인증 실패",
-                                "balance": 0
-                            }
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                    {
+                        "code": "9999",
+                        "message": "인증 실패",
+                        "balance": 0
+                    }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowBizMoneyResponse> response =
-                    giftishowApiClient.getBizMoneyBalance("user1");
+                giftishowApiClient.getBizMoneyBalance("user1");
 
             // then
             assertThat(response.isSuccess()).isFalse();
@@ -1420,17 +1410,17 @@ class GiftishowApiClientTest {
         void shouldSendCustomAuthParamsOnAllCalls() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(containsString("custom_auth_code=" + AUTH_CODE)))
-                    .andExpect(content().string(containsString("custom_auth_token=" + AUTH_TOKEN)))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "balance": 0
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(containsString("custom_auth_code=" + AUTH_CODE)))
+                .andExpect(content().string(containsString("custom_auth_token=" + AUTH_TOKEN)))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "balance": 0
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");
@@ -1445,17 +1435,17 @@ class GiftishowApiClientTest {
             // given — 본문 어디에도 (^|&)auth_code= / (^|&)auth_token= 가 등장하지 않아야 함
             //         (custom_auth_code/custom_auth_token 은 토큰 boundary 가 다르므로 통과)
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(not(matchesRegex("(^|.*&)auth_code=.*"))))
-                    .andExpect(content().string(not(matchesRegex("(^|.*&)auth_token=.*"))))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "balance": 0
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(not(matchesRegex("(^|.*&)auth_code=.*"))))
+                .andExpect(content().string(not(matchesRegex("(^|.*&)auth_token=.*"))))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "balance": 0
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");
@@ -1469,17 +1459,17 @@ class GiftishowApiClientTest {
         void shouldAlwaysSendDevYnAsN() {
             // given
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(containsString("dev_yn=N")))
-                    .andExpect(content().string(not(containsString("dev_yn=Y"))))
-                    .andRespond(withSuccess("""
-                            {
-                                "code": "0000",
-                                "message": "success",
-                                "balance": 0
-                            }
-""", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(containsString("dev_yn=N")))
+                .andExpect(content().string(not(containsString("dev_yn=Y"))))
+                .andRespond(withSuccess("""
+                                                {
+                                                    "code": "0000",
+                                                    "message": "success",
+                                                    "balance": 0
+                                                }
+                    """, MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");

@@ -35,11 +35,11 @@ public class ReviewVersionHistoryJpaEntity extends BaseEntity {
 
     public static ReviewVersionHistoryJpaEntity from(ReviewVersionHistory versionHistory) {
         return ReviewVersionHistoryJpaEntity.builder()
-                .reviewId(versionHistory.getReviewId())
-                .rating((float) versionHistory.getRating().getValue())
-                .content(versionHistory.getContent())
-                .isPhoto(versionHistory.getIsPhoto())
-                .build();
+            .reviewId(versionHistory.getReviewId())
+            .rating((float) versionHistory.getRating().getValue())
+            .content(versionHistory.getContent())
+            .isPhoto(versionHistory.getIsPhoto())
+            .build();
     }
 }
 

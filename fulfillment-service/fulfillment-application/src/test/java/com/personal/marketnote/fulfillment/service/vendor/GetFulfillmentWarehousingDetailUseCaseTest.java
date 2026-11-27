@@ -31,7 +31,7 @@ class GetFulfillmentWarehousingDetailUseCaseTest {
     void shouldReturnWarehousingDetailFromPort() {
         // given
         GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                "CUST001", "token", "SLIP001", "ORD001"
+            "CUST001", "token", "SLIP001", "ORD001"
         );
         GetFulfillmentWarehousingDetailResult expectedResult = GetFulfillmentWarehousingDetailResult.of(0, List.of());
         when(getFulfillmentWarehousingDetailPort.getWarehousingDetail(any())).thenReturn(expectedResult);

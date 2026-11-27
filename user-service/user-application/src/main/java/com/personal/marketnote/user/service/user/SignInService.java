@@ -54,7 +54,7 @@ public class SignInService implements SignInUseCase {
         }
 
         saveLoginHistoryPort.saveLoginHistory(
-                LoginHistory.of(signedUpUser, authVendor, ipAddress)
+            LoginHistory.of(signedUpUser, authVendor, ipAddress)
         );
 
         publishFingerprintEvent(signedUpUser.getId(), signInCommand.getFingerprint());
@@ -109,7 +109,7 @@ public class SignInService implements SignInUseCase {
         }
 
         applicationEventPublisher.publishEvent(
-                new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.LOGIN)
+            new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.LOGIN)
         );
     }
 }

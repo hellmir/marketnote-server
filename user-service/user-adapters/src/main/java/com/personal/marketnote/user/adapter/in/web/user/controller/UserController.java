@@ -80,9 +80,9 @@ public class UserController {
     @PostMapping("/sign-up")
     @SignUpApiDocs
     public ResponseEntity<BaseResponse<SignUpResponse>> signUpUser(
-            @Valid @RequestBody SignUpRequest signUpRequest,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            HttpServletRequest request
+        @Valid @RequestBody SignUpRequest signUpRequest,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        HttpServletRequest request
     ) {
         AuthVendor authVendor = AuthVendor.NATIVE;
         String oidcId = null;
@@ -94,29 +94,29 @@ public class UserController {
         }
 
         SignUpResult signUpResult = signUpUseCase.signUp(
-                UserRequestToCommandMapper.mapToCommand(signUpRequest), authVendor, oidcId, extractClientIp(request)
+            UserRequestToCommandMapper.mapToCommand(signUpRequest), authVendor, oidcId, extractClientIp(request)
         );
 
         HttpStatus httpStatus = signUpResult.isNewUser() ? HttpStatus.CREATED : HttpStatus.OK;
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", signUpResult.refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("Strict")
-                .build();
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("Strict")
+            .build();
 
         return ResponseEntity
-                .status(httpStatus)
-                .header("Set-Cookie", refreshTokenCookie.toString())
-                .body(
-                        BaseResponse.of(
-                                SignUpResponse.of(signUpResult.accessToken(), signUpResult.isNewUser()),
-                                httpStatus,
-                                DEFAULT_SUCCESS_CODE,
-                                "회원 가입 성공"
-                        )
-                );
+            .status(httpStatus)
+            .header("Set-Cookie", refreshTokenCookie.toString())
+            .body(
+                BaseResponse.of(
+                    SignUpResponse.of(signUpResult.accessToken(), signUpResult.isNewUser()),
+                    httpStatus,
+                    DEFAULT_SUCCESS_CODE,
+                    "회원 가입 성공"
+                )
+            );
     }
 
     /**
@@ -131,21 +131,21 @@ public class UserController {
     @PatchMapping("/referred-user-code")
     @RegisterReferredUserCodeApiDocs
     public ResponseEntity<BaseResponse<Void>> registerReferredUserCode(
-            @Valid @RequestParam String referredUserCode,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestParam String referredUserCode,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         registerReferredUserCodeUseCase.registerReferredUserCode(
-                ElementExtractor.extractUserId(principal), referredUserCode
+            ElementExtractor.extractUserId(principal), referredUserCode
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "초대 코드 등록 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "초대 코드 등록 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -161,20 +161,20 @@ public class UserController {
     @GetMapping("/referred-user-code")
     @IsReferredUserCodeRegisteredApiDocs
     public ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> isReferredUserCodeRegistered(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         IsReferredUserCodeRegisteredResponse response = IsReferredUserCodeRegisteredResponse.from(
-                getUserUseCase.getReferredUserCodeInputStatus(ElementExtractor.extractUserId(principal))
+            getUserUseCase.getReferredUserCodeInputStatus(ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        response,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "추천 회원 초대 코드 등록 여부 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                response,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "추천 회원 초대 코드 등록 여부 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -189,20 +189,20 @@ public class UserController {
     @PatchMapping("/referred-user-code/skip")
     @SkipReferredUserCodeInputApiDocs
     public ResponseEntity<BaseResponse<Void>> skipReferredUserCodeInput(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         skipReferredUserCodeInputUseCase.skipReferredUserCodeInput(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "초대 코드 입력 건너뛰기 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "초대 코드 입력 건너뛰기 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -218,19 +218,19 @@ public class UserController {
     @GetMapping("/referred-user-code/exists")
     @IsReferredUserCodeExistsApiDocs
     public ResponseEntity<BaseResponse<IsReferredUserCodeExistsResponse>> existsReferredUserCode(
-            @RequestParam String code
+        @RequestParam String code
     ) {
         ReferenceCode referenceCode = ReferenceCode.of(code);
         boolean exists = getUserUseCase.existsUser(referenceCode.getValue());
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        IsReferredUserCodeExistsResponse.of(exists),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "초대 코드 존재 여부 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                IsReferredUserCodeExistsResponse.of(exists),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "초대 코드 존재 여부 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -247,9 +247,9 @@ public class UserController {
     @PostMapping("/sign-in")
     @SignInApiDocs
     public ResponseEntity<BaseResponse<SignInResponse>> signInUser(
-            @Valid @RequestBody SignInRequest signInRequest,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            HttpServletRequest request
+        @Valid @RequestBody SignInRequest signInRequest,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        HttpServletRequest request
     ) {
         AuthVendor authVendor = AuthVendor.NATIVE;
         String oidcId = null;
@@ -263,27 +263,27 @@ public class UserController {
         String clientIp = extractClientIp(request);
 
         SignInResult signInResult = signInUseCase.signIn(
-                UserRequestToCommandMapper.mapToCommand(signInRequest), authVendor, oidcId, clientIp
+            UserRequestToCommandMapper.mapToCommand(signInRequest), authVendor, oidcId, clientIp
         );
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", signInResult.refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("Strict")
-                .build();
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("Strict")
+            .build();
 
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .header("Set-Cookie", refreshTokenCookie.toString())
-                .body(
-                        BaseResponse.of(
-                                SignInResponse.of(signInResult.accessToken(), signInResult.isRequiredTermsAgreed()),
-                                HttpStatus.OK,
-                                DEFAULT_SUCCESS_CODE,
-                                "회원 로그인 성공"
-                        )
-                );
+            .status(HttpStatus.OK)
+            .header("Set-Cookie", refreshTokenCookie.toString())
+            .body(
+                BaseResponse.of(
+                    SignInResponse.of(signInResult.accessToken(), signInResult.isRequiredTermsAgreed()),
+                    HttpStatus.OK,
+                    DEFAULT_SUCCESS_CODE,
+                    "회원 로그인 성공"
+                )
+            );
     }
 
     private String extractClientIp(HttpServletRequest request) {
@@ -328,23 +328,23 @@ public class UserController {
     @GetMapping("/nickname/check")
     @CheckNicknameApiDocs
     public ResponseEntity<BaseResponse<CheckNicknameResponse>> checkNickname(
-            @RequestParam
-            @Pattern(regexp = RegularExpressionConstant.NICKNAME_PATTERN,
-                    message = "닉네임은 한글, 영어 대소문자, 숫자만 가능하며, 2~10글자여야 합니다.")
-            @NotBlank(message = "닉네임은 필수입니다")
-            String nickname
+        @RequestParam
+        @Pattern(regexp = RegularExpressionConstant.NICKNAME_PATTERN,
+            message = "닉네임은 한글, 영어 대소문자, 숫자만 가능하며, 2~10글자여야 합니다.")
+        @NotBlank(message = "닉네임은 필수입니다")
+        String nickname
     ) {
         CheckNicknameResult checkNicknameResult = checkNicknameUseCase.checkNickname(nickname);
         CheckNicknameResponse checkNicknameResponse = CheckNicknameResponse.from(checkNicknameResult);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        checkNicknameResponse,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "닉네임 중복 여부 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                checkNicknameResponse,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "닉네임 중복 여부 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -360,20 +360,20 @@ public class UserController {
     @GetMapping("/my-key")
     @GetMyKeyApiDocs
     public ResponseEntity<BaseResponse<GetUserKeyResponse>> getMyKey(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetUserKeyResponse getUserKeyResponse = GetUserKeyResponse.of(
-                getUserUseCase.getUserKey(ElementExtractor.extractUserId(principal))
+            getUserUseCase.getUserKey(ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        getUserKeyResponse,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "자신의 회원 키 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                getUserKeyResponse,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "자신의 회원 키 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -389,20 +389,20 @@ public class UserController {
     @GetMapping("/me")
     @GetMyInfoApiDocs
     public ResponseEntity<BaseResponse<GetUserInfoResponse>> getMyInfo(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetUserInfoResponse getUserInfoResponse = GetUserInfoResponse.from(
-                getUserUseCase.getUserInfo(ElementExtractor.extractUserId(principal))
+            getUserUseCase.getUserInfo(ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        getUserInfoResponse,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "자신의 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                getUserInfoResponse,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "자신의 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -419,23 +419,23 @@ public class UserController {
     @PatchMapping
     @UpdateMyInfoApiDocs
     public ResponseEntity<BaseResponse<Void>> updateMyInfo(
-            @Valid @RequestBody UpdateUserInfoRequest updateUserInfoRequest,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody UpdateUserInfoRequest updateUserInfoRequest,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         updateUserUseCase.updateUserInfo(
-                false,
-                ElementExtractor.extractUserId(principal),
-                UserRequestToCommandMapper.mapToCommand(updateUserInfoRequest)
+            false,
+            ElementExtractor.extractUserId(principal),
+            UserRequestToCommandMapper.mapToCommand(updateUserInfoRequest)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "자신의 정보 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "자신의 정보 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -453,14 +453,14 @@ public class UserController {
         HttpHeaders httpHeaders = signOutUseCase.signOut(refreshToken);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 로그아웃 성공"
-                ),
-                httpHeaders,
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 로그아웃 성공"
+            ),
+            httpHeaders,
+            HttpStatus.OK
         );
     }
 
@@ -477,22 +477,22 @@ public class UserController {
     @DeleteMapping
     @WithdrawalApiDocs
     public ResponseEntity<BaseResponse<WithdrawResponse>> withdrawUser(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestHeader(value = "X-Google-Access-Token", required = false) String googleAccessToken
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestHeader(value = "X-Google-Access-Token", required = false) String googleAccessToken
     ) {
         Map<AuthVendor, String> vendorCredentials = buildVendorCredentials(googleAccessToken);
         WithdrawResult result = withdrawUseCase.withdrawUser(
-                ElementExtractor.extractUserId(principal), vendorCredentials
+            ElementExtractor.extractUserId(principal), vendorCredentials
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        WithdrawResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 탈퇴 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                WithdrawResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 탈퇴 성공"
+            ),
+            HttpStatus.OK
         );
     }
 

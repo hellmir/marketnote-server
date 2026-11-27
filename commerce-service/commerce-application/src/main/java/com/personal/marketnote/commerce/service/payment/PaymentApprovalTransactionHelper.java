@@ -2,7 +2,6 @@ package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.inventory.ReserveInventoryCommand;
@@ -63,10 +62,10 @@ public class PaymentApprovalTransactionHelper {
     public PaymentApprovalContext prepareExecution(ApprovePaymentCommand command) {
         UUID orderKey = UUID.fromString(command.orderKey());
         Payment payment = findPaymentPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                return new PaymentNotFoundException();
+            });
 
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
         verifyPaymentAmount(order, payment);
@@ -74,10 +73,10 @@ public class PaymentApprovalTransactionHelper {
         reserveInventory(order);
 
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> {
-                    log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
-                    return new PaymentEventNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                return new PaymentEventNotFoundException();
+            });
         event.startExecution();
         updatePspPaymentEventPort.update(event);
 
@@ -94,24 +93,24 @@ public class PaymentApprovalTransactionHelper {
      */
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public PaymentApprovalContext prepareExecutionForQuickPayment(
-            Long buyerId, String orderKey, String pgCompanyKey, String pgShopKey
+        Long buyerId, String orderKey, String pgCompanyKey, String pgShopKey
     ) {
         UUID orderKeyUuid = UUID.fromString(orderKey);
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                return new PaymentNotFoundException();
+            });
 
         Order order = findVerifiedOrder(payment.getOrderId(), buyerId);
         verifyPaymentAmount(order, payment);
 
         findPspPaymentEventPort.findByOrderKey(orderKey)
-                .filter(PspPaymentEvent::isUnresolved)
-                .ifPresent(event -> {
-                    log.warn("빠른결제 중복 결제 시도. orderKey={}, 기존 이벤트 상태={}", orderKey, event.getPoStatus());
-                    throw new DuplicatePaymentReadyException();
-                });
+            .filter(PspPaymentEvent::isUnresolved)
+            .ifPresent(event -> {
+                log.warn("빠른결제 중복 결제 시도. orderKey={}, 기존 이벤트 상태={}", orderKey, event.getPoStatus());
+                throw new DuplicatePaymentReadyException();
+            });
 
         reserveInventory(order);
 
@@ -139,7 +138,7 @@ public class PaymentApprovalTransactionHelper {
      */
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public ApprovePaymentResult commitSuccess(
-            PaymentApprovalContext context, PaymentApprovalVendorResult vendorResult, Installment installment
+        PaymentApprovalContext context, PaymentApprovalVendorResult vendorResult, Installment installment
     ) {
         Payment payment = context.payment();
         PspPaymentEvent event = context.event();
@@ -148,26 +147,26 @@ public class PaymentApprovalTransactionHelper {
         updatePaymentPort.update(payment);
 
         PaymentApprovalInfo approvalInfo = PaymentApprovalInfo.builder()
-                .pgPaymentKey(vendorResult.transactionId())
-                .method(vendorResult.payMethod())
-                .cardNumber(MaskedCardNumber.fromNullable(vendorResult.cardNumber()))
-                .approvalNumber(vendorResult.approvalNumber())
-                .installment(installment)
-                .issueCompanyCode(vendorResult.cardCode())
-                .issueCompanyName(vendorResult.cardName())
-                .resultCode(vendorResult.resultCode())
-                .resultMessage(vendorResult.resultMessage())
-                .pgApprovalResult(vendorResult.rawResponse())
-                .appTime(appTimeParser.parse(vendorResult.approvalTime()))
-                .build();
+            .pgPaymentKey(vendorResult.transactionId())
+            .method(vendorResult.payMethod())
+            .cardNumber(MaskedCardNumber.fromNullable(vendorResult.cardNumber()))
+            .approvalNumber(vendorResult.approvalNumber())
+            .installment(installment)
+            .issueCompanyCode(vendorResult.cardCode())
+            .issueCompanyName(vendorResult.cardName())
+            .resultCode(vendorResult.resultCode())
+            .resultMessage(vendorResult.resultMessage())
+            .pgApprovalResult(vendorResult.rawResponse())
+            .appTime(appTimeParser.parse(vendorResult.approvalTime()))
+            .build();
         event.completeWithApproval(approvalInfo);
         updatePspPaymentEventPort.update(event);
 
         Order order = findOrderPort.findById(payment.getOrderId())
-                .orElseThrow(() -> {
-                    log.warn("주문을 찾을 수 없습니다. orderId={}", payment.getOrderId());
-                    return new OrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문을 찾을 수 없습니다. orderId={}", payment.getOrderId());
+                return new OrderNotFoundException();
+            });
 
         if (orderPaymentSagaStarter.isPresent()) {
             changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toPaidSkipSubsequent(payment));
@@ -221,14 +220,14 @@ public class PaymentApprovalTransactionHelper {
         Long couponAmount = order.getAmount().getCouponAmount().getValue();
         Long pointAmount = order.getAmount().getPointAmount().getValue();
         Long expectedAmount = Math.subtractExact(
-                Math.subtractExact(order.getAmount().getTotalAmount().getValue(), couponAmount),
-                pointAmount
+            Math.subtractExact(order.getAmount().getTotalAmount().getValue(), couponAmount),
+            pointAmount
         );
 
         if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount().getValue())) {
             log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
-                    order.getId(), order.getAmount().getTotalAmount().getValue(), couponAmount, pointAmount,
-                    expectedAmount, payment.getPaymentAmount().getValue()
+                order.getId(), order.getAmount().getTotalAmount().getValue(), couponAmount, pointAmount,
+                expectedAmount, payment.getPaymentAmount().getValue()
             );
             throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount().getValue());
         }
@@ -236,10 +235,10 @@ public class PaymentApprovalTransactionHelper {
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> {
-                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
-                    return new OrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                return new OrderNotFoundException();
+            });
         if (!order.isBuyer(buyerId)) {
             log.warn("결제 승인 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();
@@ -250,35 +249,35 @@ public class PaymentApprovalTransactionHelper {
     private void startOrderPaymentSaga(Order order, Payment payment) {
         List<OrderProduct> orderProducts = order.getOrderProducts();
         List<Long> pricePolicyIds = orderProducts.stream()
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
+            .map(OrderProduct::getPricePolicyId)
+            .toList();
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts, pricePolicyIds);
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
-                .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
-                        op.getQuantity().getValue(), op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new OrderPaymentSagaContext.OrderProductItem(
+                op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
+                op.getQuantity().getValue(), op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         Long pointAmount = order.getAmount().getPointAmount().getValue();
         ShippingSnapshot shipping = extractShippingSnapshot(order);
 
         OrderPaymentSagaContext sagaContext = new OrderPaymentSagaContext(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                payment.getPaymentAmount().getValue(),
-                order.getAmount().getTotalAmount().getValue(),
-                pointAmount,
-                totalAccumulatedPoint,
-                shipping.recipientName(),
-                shipping.recipientPhoneNumber(),
-                shipping.zipCode(),
-                shipping.address(),
-                shipping.addressDetail(),
-                shipping.deliveryRequestMessage(),
-                sagaOrderProducts
+            order.getId(),
+            order.getOrderKey().toString(),
+            order.getBuyerId(),
+            payment.getPaymentAmount().getValue(),
+            order.getAmount().getTotalAmount().getValue(),
+            pointAmount,
+            totalAccumulatedPoint,
+            shipping.recipientName(),
+            shipping.recipientPhoneNumber(),
+            shipping.zipCode(),
+            shipping.address(),
+            shipping.addressDetail(),
+            shipping.deliveryRequestMessage(),
+            sagaOrderProducts
         );
 
         orderPaymentSagaStarter.get().start(sagaContext);
@@ -290,28 +289,28 @@ public class PaymentApprovalTransactionHelper {
             return new ShippingSnapshot(null, null, null, null, null, null);
         }
         return new ShippingSnapshot(
-                FormatValidator.hasValue(shippingAddress.getRecipientName())
-                        ? shippingAddress.getRecipientName().getValue()
-                        : null,
-                FormatValidator.hasValue(shippingAddress.getRecipientPhoneNumber())
-                        ? shippingAddress.getRecipientPhoneNumber().getValue()
-                        : null,
-                shippingAddress.getZipCode(),
-                shippingAddress.getAddress(),
-                shippingAddress.getAddressDetail(),
-                FormatValidator.hasValue(shippingAddress.getDeliveryRequestMessage())
-                        ? shippingAddress.getDeliveryRequestMessage().getValue()
-                        : null
+            FormatValidator.hasValue(shippingAddress.getRecipientName())
+                ? shippingAddress.getRecipientName().getValue()
+                : null,
+            FormatValidator.hasValue(shippingAddress.getRecipientPhoneNumber())
+                ? shippingAddress.getRecipientPhoneNumber().getValue()
+                : null,
+            shippingAddress.getZipCode(),
+            shippingAddress.getAddress(),
+            shippingAddress.getAddressDetail(),
+            FormatValidator.hasValue(shippingAddress.getDeliveryRequestMessage())
+                ? shippingAddress.getDeliveryRequestMessage().getValue()
+                : null
         );
     }
 
     private record ShippingSnapshot(
-            String recipientName,
-            String recipientPhoneNumber,
-            String zipCode,
-            String address,
-            String addressDetail,
-            String deliveryRequestMessage
+        String recipientName,
+        String recipientPhoneNumber,
+        String zipCode,
+        String address,
+        String addressDetail,
+        String deliveryRequestMessage
     ) {
     }
 
@@ -333,8 +332,8 @@ public class PaymentApprovalTransactionHelper {
                 continue;
             }
             totalAccumulatedPoint = Math.addExact(
-                    totalAccumulatedPoint,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+                totalAccumulatedPoint,
+                Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
             );
         }
 
@@ -343,7 +342,7 @@ public class PaymentApprovalTransactionHelper {
 
     private Long calculateSnapshotAccumulatedPoint(List<OrderProduct> orderProducts) {
         boolean allHaveSnapshot = orderProducts.stream()
-                .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
+            .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
         if (!allHaveSnapshot) {
             return null;
         }
@@ -351,8 +350,8 @@ public class PaymentApprovalTransactionHelper {
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
             total = Math.addExact(
-                    total,
-                    orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+                total,
+                orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
             );
         }
         return total;
@@ -361,9 +360,9 @@ public class PaymentApprovalTransactionHelper {
     private void publishPaymentApprovedEvent(Payment payment) {
         try {
             publishPaymentEventPort.publishPaymentApprovedEvent(
-                    payment.getOrderId(),
-                    payment.getOrderKey().toString(),
-                    payment.getPaymentAmount().getValue()
+                payment.getOrderId(),
+                payment.getOrderKey().toString(),
+                payment.getPaymentAmount().getValue()
             );
         } catch (Exception e) {
             // boundary swallow: 결제 승인 후속 이벤트 발행 실패 시에도 결제 승인 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
@@ -374,10 +373,10 @@ public class PaymentApprovalTransactionHelper {
     private void publishPaymentFailedEvent(Payment payment, String resultCode, String resultMessage) {
         try {
             publishPaymentEventPort.publishPaymentFailedEvent(
-                    payment.getOrderId(),
-                    payment.getOrderKey().toString(),
-                    resultCode,
-                    resultMessage
+                payment.getOrderId(),
+                payment.getOrderKey().toString(),
+                resultCode,
+                resultMessage
             );
         } catch (Exception e) {
             // boundary swallow: 결제 실패 후속 이벤트 발행 실패 시에도 결제 실패 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort

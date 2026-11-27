@@ -28,9 +28,9 @@ public class OutboxEventCleaner {
 
     @Scheduled(cron = "${outbox.cleanup-cron:0 0 3 * * ?}")
     @SchedulerLock(
-            name = "${spring.application.name}-" + ShedLockNames.OUTBOX_CLEANUP_PUBLISHED,
-            lockAtMostFor = "PT10M",
-            lockAtLeastFor = "PT1M"
+        name = "${spring.application.name}-" + ShedLockNames.OUTBOX_CLEANUP_PUBLISHED,
+        lockAtMostFor = "PT10M",
+        lockAtLeastFor = "PT1M"
     )
     @Transactional(isolation = READ_COMMITTED)
     public void cleanupPublishedEvents() {
@@ -41,9 +41,9 @@ public class OutboxEventCleaner {
 
     @Scheduled(cron = "${outbox.discard-cleanup-cron:0 30 3 * * ?}")
     @SchedulerLock(
-            name = "${spring.application.name}-" + ShedLockNames.OUTBOX_CLEANUP_DISCARDED,
-            lockAtMostFor = "PT10M",
-            lockAtLeastFor = "PT1M"
+        name = "${spring.application.name}-" + ShedLockNames.OUTBOX_CLEANUP_DISCARDED,
+        lockAtMostFor = "PT10M",
+        lockAtLeastFor = "PT1M"
     )
     @Transactional(isolation = READ_COMMITTED)
     public void cleanupDiscardedEvents() {

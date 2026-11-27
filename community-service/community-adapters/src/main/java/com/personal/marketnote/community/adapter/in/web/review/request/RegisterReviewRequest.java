@@ -7,9 +7,9 @@ import lombok.Getter;
 @Getter
 public class RegisterReviewRequest {
     @Schema(
-            name = "orderId",
-            description = "주문 ID",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "orderId",
+        description = "주문 ID",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "주문 ID는 필수값입니다.")
     @Positive(message = "주문 ID는 자연수만 입력 가능합니다.")
@@ -18,9 +18,9 @@ public class RegisterReviewRequest {
     private Long orderId;
 
     @Schema(
-            name = "productId",
-            description = "상품 ID",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "productId",
+        description = "상품 ID",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "상품 ID는 필수값입니다.")
     @Positive(message = "상품 ID는 자연수만 입력 가능합니다.")
@@ -29,9 +29,9 @@ public class RegisterReviewRequest {
     private Long productId;
 
     @Schema(
-            name = "pricePolicyId",
-            description = "가격 정책 ID",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "pricePolicyId",
+        description = "가격 정책 ID",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "가격 정책 ID는 필수값입니다.")
     @Positive(message = "가격 정책 ID는 자연수만 입력 가능합니다.")
@@ -40,24 +40,24 @@ public class RegisterReviewRequest {
     private Long pricePolicyId;
 
     @Schema(
-            name = "productImageUrl",
-            description = "상품 이미지 URL",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "productImageUrl",
+        description = "상품 이미지 URL",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private String productImageUrl;
 
     @Schema(
-            name = "selectedOptions",
-            description = "선택된 옵션 목록",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "selectedOptions",
+        description = "선택된 옵션 목록",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @Size(min = 1, max = 127, message = "선택된 옵션 목록은 1자 이상 127자 이하로 입력해야 합니다.")
     private String selectedOptions;
 
     @Schema(
-            name = "quantity",
-            description = "주문 수량",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "quantity",
+        description = "주문 수량",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "주문 수량은 필수값입니다.")
     @Positive(message = "주문 수량은 자연수만 입력 가능합니다.")
@@ -66,18 +66,18 @@ public class RegisterReviewRequest {
     private Integer quantity;
 
     @Schema(
-            name = "reviewerName",
-            description = "리뷰 작성자 이름",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "reviewerName",
+        description = "리뷰 작성자 이름",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "리뷰 작성자 이름은 필수값입니다.")
     @Size(min = 2, max = 15, message = "리뷰 작성자 이름은 2자 이상 15자 이하로 입력해야 합니다.")
     private String reviewerName;
 
     @Schema(
-            name = "rating",
-            description = "리뷰 평점(1 ~ 5 정수)",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "rating",
+        description = "리뷰 평점(1 ~ 5 정수)",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "리뷰 평점은 필수값입니다.")
     @Digits(integer = 1, fraction = 0, message = "리뷰 평점은 정수만 입력 가능합니다.")
@@ -86,27 +86,27 @@ public class RegisterReviewRequest {
     private Float rating;
 
     @Schema(
-            name = "content",
-            description = "리뷰 내용",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "content",
+        description = "리뷰 내용",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "리뷰 내용은 필수값입니다.")
     @Size(min = 20, max = 1000, message = "리뷰 내용은 20자 이상 1,000자 이하로 입력해야 합니다.")
     private String content;
 
     @Schema(
-            name = "isPhoto",
-            description = "포토 리뷰 여부",
-            defaultValue = "false",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "isPhoto",
+        description = "포토 리뷰 여부",
+        defaultValue = "false",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "포토 리뷰 여부는 필수값입니다.")
     private Boolean isPhoto;
 
     @Schema(
-            name = "unitAmount",
-            description = "주문 상품 구매 시점 단가",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "unitAmount",
+        description = "주문 상품 구매 시점 단가",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Positive(message = "주문 상품 구매 시점 단가는 양수만 입력 가능합니다.")
     private Long unitAmount;

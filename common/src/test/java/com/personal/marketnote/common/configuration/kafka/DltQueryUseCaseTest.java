@@ -58,16 +58,16 @@ class DltQueryUseCaseTest {
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record = buildDltRecord(dltTopic, 0, 0L, "key-1", originalTopic,
-                "java.lang.RuntimeException", "DB 연결 오류"
+            "java.lang.RuntimeException", "DB 연결 오류"
         );
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record))
+            Map.of(topicPartition, List.of(record))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         when(resolutionRepository.findByOriginalTopic(originalTopic)).thenReturn(List.of());
 
@@ -136,8 +136,8 @@ class DltQueryUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> dltQueryService.queryDltMessages(invalidTopic, 100))
-                .isInstanceOf(InvalidDltTopicException.class)
-                .hasMessageContaining(invalidTopic);
+            .isInstanceOf(InvalidDltTopicException.class)
+            .hasMessageContaining(invalidTopic);
     }
 
     @Test
@@ -157,7 +157,7 @@ class DltQueryUseCaseTest {
         ConsumerRecord<String, Object> record2 = buildDltRecord(dltTopic, 0, 1L, "key-2", originalTopic, "Error", "msg2");
         ConsumerRecord<String, Object> record3 = buildDltRecord(dltTopic, 0, 2L, "key-3", originalTopic, "Error", "msg3");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record1, record2, record3))
+            Map.of(topicPartition, List.of(record1, record2, record3))
         );
 
         when(consumer.poll(any(Duration.class))).thenReturn(records);
@@ -183,12 +183,12 @@ class DltQueryUseCaseTest {
         PartitionInfo partitionInfo = new PartitionInfo("commerce.order.payment-completed.dlt", 0, null, null, null);
 
         when(consumer.partitionsFor(anyString()))
-                .thenReturn(List.of(partitionInfo));
+            .thenReturn(List.of(partitionInfo));
 
         when(consumer.beginningOffsets(anyCollection()))
-                .thenReturn(Map.of(partition, 0L));
+            .thenReturn(Map.of(partition, 0L));
         when(consumer.endOffsets(anyCollection()))
-                .thenReturn(Map.of(partition, 5L));
+            .thenReturn(Map.of(partition, 5L));
 
         // when
         List<DltTopicSummaryResponse> result = dltQueryService.queryAllDltTopicSummaries();
@@ -216,23 +216,23 @@ class DltQueryUseCaseTest {
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record1 = buildDltRecord(dltTopic, 0, 0L, "key-1", originalTopic,
-                "RuntimeException", "에러 1"
+            "RuntimeException", "에러 1"
         );
         ConsumerRecord<String, Object> record2 = buildDltRecord(dltTopic, 0, 1L, "key-2", originalTopic,
-                "RuntimeException", "에러 2"
+            "RuntimeException", "에러 2"
         );
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record1, record2))
+            Map.of(topicPartition, List.of(record1, record2))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         DltMessageResolutionJpaEntity retriedEntity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now(), null
+            originalTopic, dltTopic, 0, 0L,
+            DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic)).thenReturn(List.of(retriedEntity));
 
@@ -259,33 +259,33 @@ class DltQueryUseCaseTest {
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record1 = buildDltRecord(dltTopic, 0, 0L, "key-1", originalTopic,
-                "RuntimeException", "에러 1"
+            "RuntimeException", "에러 1"
         );
         ConsumerRecord<String, Object> record2 = buildDltRecord(dltTopic, 0, 1L, "key-2", originalTopic,
-                "RuntimeException", "에러 2"
+            "RuntimeException", "에러 2"
         );
         ConsumerRecord<String, Object> record3 = buildDltRecord(dltTopic, 0, 2L, "key-3", originalTopic,
-                "RuntimeException", "에러 3"
+            "RuntimeException", "에러 3"
         );
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record1, record2, record3))
+            Map.of(topicPartition, List.of(record1, record2, record3))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         DltMessageResolutionJpaEntity retriedEntity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now(), null
+            originalTopic, dltTopic, 0, 0L,
+            DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now(), null
         );
         DltMessageResolutionJpaEntity discardedEntity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 1L,
-                DltResolutionStatus.DISCARDED, "admin@personal.com", LocalDateTime.now(), null
+            originalTopic, dltTopic, 0, 1L,
+            DltResolutionStatus.DISCARDED, "admin@personal.com", LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic))
-                .thenReturn(List.of(retriedEntity, discardedEntity));
+            .thenReturn(List.of(retriedEntity, discardedEntity));
 
         // when
         List<DltMessageResponse> result = dltQueryService.queryDltMessages(originalTopic, 100);
@@ -298,14 +298,14 @@ class DltQueryUseCaseTest {
     }
 
     private ConsumerRecord<String, Object> buildDltRecord(
-            String dltTopic, int partition, long offset, String key,
-            String originalTopic, String errorFqcn, String errorMessage
+        String dltTopic, int partition, long offset, String key,
+        String originalTopic, String errorFqcn, String errorMessage
     ) {
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(dltTopic, partition, offset, key, "value");
         record.headers()
-                .add("kafka_dlt-original-topic", originalTopic.getBytes(StandardCharsets.UTF_8))
-                .add("kafka_dlt-exception-fqcn", errorFqcn.getBytes(StandardCharsets.UTF_8))
-                .add("kafka_dlt-exception-message", errorMessage.getBytes(StandardCharsets.UTF_8));
+            .add("kafka_dlt-original-topic", originalTopic.getBytes(StandardCharsets.UTF_8))
+            .add("kafka_dlt-exception-fqcn", errorFqcn.getBytes(StandardCharsets.UTF_8))
+            .add("kafka_dlt-exception-message", errorMessage.getBytes(StandardCharsets.UTF_8));
         return record;
     }
 }

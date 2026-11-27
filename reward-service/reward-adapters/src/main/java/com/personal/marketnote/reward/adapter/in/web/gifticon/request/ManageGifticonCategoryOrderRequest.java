@@ -27,10 +27,10 @@ public class ManageGifticonCategoryOrderRequest {
 
     public ManageGifticonCategoryOrderCommand toCommand() {
         List<ManageGifticonCategoryOrderCommand.OrderItem> commandItems = items.stream()
-                .map(item -> new ManageGifticonCategoryOrderCommand.OrderItem(
-                        item.getCategoryId(), item.getOrderNum()
-                ))
-                .toList();
+            .map(item -> new ManageGifticonCategoryOrderCommand.OrderItem(
+                item.getCategoryId(), item.getOrderNum()
+            ))
+            .toList();
         return new ManageGifticonCategoryOrderCommand(commandItems);
     }
 }

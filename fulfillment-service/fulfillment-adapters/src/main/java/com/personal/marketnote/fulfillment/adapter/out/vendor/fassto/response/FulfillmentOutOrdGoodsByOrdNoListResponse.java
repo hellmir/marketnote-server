@@ -7,9 +7,9 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentOutOrdGoodsByOrdNoListResponse(
-        FulfillmentResponseHeader header,
-        List<FulfillmentOutOrdGoodsByOrdNoItemResponse> data,
-        FulfillmentErrorInfo errorInfo
+    FulfillmentResponseHeader header,
+    List<FulfillmentOutOrdGoodsByOrdNoItemResponse> data,
+    FulfillmentErrorInfo errorInfo
 ) implements FulfillmentApiResponse {
     public boolean isSuccess() {
         return FormatValidator.hasValue(header) && header.isSuccess();

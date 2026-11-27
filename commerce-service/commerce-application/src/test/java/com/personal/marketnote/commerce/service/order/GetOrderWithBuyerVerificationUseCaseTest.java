@@ -67,7 +67,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId, buyerId);
 
@@ -87,10 +87,10 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
+                1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId, buyerId);
 
@@ -113,7 +113,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId, requestedBuyerId))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
 
         @Test
@@ -127,10 +127,10 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId, requestedBuyerId))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class)
-                    .hasMessageContaining("ERR_ORDER_AUTH_01")
-                    .hasMessageNotContaining("123")
-                    .hasMessageNotContaining("999");
+                .isInstanceOf(UnauthorizedOrderAccessException.class)
+                .hasMessageContaining("ERR_ORDER_AUTH_01")
+                .hasMessageNotContaining("123")
+                .hasMessageNotContaining("999");
         }
 
         @Test
@@ -144,7 +144,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId, requestedBuyerId))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(findProductByPricePolicyPort);
         }
@@ -158,7 +158,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId, buyerId))
-                    .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class);
         }
     }
 
@@ -201,7 +201,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(() -> getOrderService.getOrderKey(orderId, requestedBuyerId))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
 
         @Test
@@ -213,7 +213,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getOrderService.getOrderKey(orderId, buyerId))
-                    .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class);
         }
     }
 
@@ -255,15 +255,15 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             Long requestedBuyerId = 999L;
             Long pricePolicyId = 200L;
             Order order = createOrderWithBuyerIdAndProductKey(
-                    orderId, ownerBuyerId, pricePolicyId, UUID.randomUUID()
+                orderId, ownerBuyerId, pricePolicyId, UUID.randomUUID()
             );
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(
-                    () -> getOrderService.getOrderProductKey(orderId, pricePolicyId, requestedBuyerId)
+                () -> getOrderService.getOrderProductKey(orderId, pricePolicyId, requestedBuyerId)
             )
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
 
         @Test
@@ -276,7 +276,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getOrderService.getOrderProductKey(orderId, pricePolicyId, buyerId))
-                    .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class);
         }
 
         @Test
@@ -287,15 +287,15 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             Long existingPricePolicyId = 200L;
             Long requestedPricePolicyId = 999L;
             Order order = createOrderWithBuyerIdAndProductKey(
-                    orderId, buyerId, existingPricePolicyId, UUID.randomUUID()
+                orderId, buyerId, existingPricePolicyId, UUID.randomUUID()
             );
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(
-                    () -> getOrderService.getOrderProductKey(orderId, requestedPricePolicyId, buyerId)
+                () -> getOrderService.getOrderProductKey(orderId, requestedPricePolicyId, buyerId)
             )
-                    .isInstanceOf(OrderProductNotFoundException.class);
+                .isInstanceOf(OrderProductNotFoundException.class);
         }
     }
 
@@ -328,71 +328,71 @@ class GetOrderWithBuyerVerificationUseCaseTest {
 
     private Order createOrderWithBuyerId(Long orderId, Long buyerId) {
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithBuyerIdAndProductKey(
-            Long orderId, Long buyerId, Long pricePolicyId, UUID orderProductKey
+        Long orderId, Long buyerId, Long pricePolicyId, UUID orderProductKey
     ) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .orderId(orderId)
-                .sellerId(10L)
-                .pricePolicyId(pricePolicyId)
-                .orderProductKey(orderProductKey)
-                .quantity(1)
-                .unitAmount(50000L)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build();
+            .orderId(orderId)
+            .sellerId(10L)
+            .pricePolicyId(pricePolicyId)
+            .orderProductKey(orderProductKey)
+            .quantity(1)
+            .unitAmount(50000L)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build();
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(productState))
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(productState))
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithBuyerIdAndProducts(Long orderId, Long buyerId, List<Long> pricePolicyIds) {
         List<OrderProductSnapshotState> productStates = pricePolicyIds.stream()
-                .map(pricePolicyId -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAID)
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .map(pricePolicyId -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAID)
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

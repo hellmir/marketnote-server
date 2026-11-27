@@ -55,9 +55,9 @@ class FileControllerTest {
 
     private OAuth2AuthenticatedPrincipal buyerPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId),
-                Map.of("name", String.valueOf(userId)),
-                List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
+            String.valueOf(userId),
+            Map.of("name", String.valueOf(userId)),
+            List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
         );
     }
 
@@ -70,16 +70,16 @@ class FileControllerTest {
         void delegatesUpdateFilesWithRequesterContext() {
             // given
             MockMultipartFile multipartFile = new MockMultipartFile(
-                    "file", "image.jpg", "image/jpeg", "payload".getBytes()
+                "file", "image.jpg", "image/jpeg", "payload".getBytes()
             );
             UpdateFilesRequest request = new UpdateFilesRequest(
-                    List.of(multipartFile),
-                    List.of("PRODUCT_CATALOG_IMAGE"),
-                    List.of("jpg"),
-                    List.of("상품-이미지"),
-                    "PRODUCT",
-                    1L,
-                    "owner-key-1"
+                List.of(multipartFile),
+                List.of("PRODUCT_CATALOG_IMAGE"),
+                List.of("jpg"),
+                List.of("상품-이미지"),
+                "PRODUCT",
+                1L,
+                "owner-key-1"
             );
 
             // when
@@ -110,13 +110,13 @@ class FileControllerTest {
         void delegatesUpdateFilesWithEmptyFileList() {
             // given
             UpdateFilesRequest request = new UpdateFilesRequest(
-                    null,
-                    null,
-                    null,
-                    null,
-                    "REVIEW",
-                    200L,
-                    "owner-key-review"
+                null,
+                null,
+                null,
+                null,
+                "REVIEW",
+                200L,
+                "owner-key-review"
             );
 
             // when
@@ -141,21 +141,21 @@ class FileControllerTest {
         void throwsWhenPrincipalIsAnonymous() {
             // given
             UpdateFilesRequest request = new UpdateFilesRequest(
-                    null,
-                    null,
-                    null,
-                    null,
-                    "PRODUCT",
-                    1L,
-                    "owner-key"
+                null,
+                null,
+                null,
+                null,
+                "PRODUCT",
+                1L,
+                "owner-key"
             );
             OAuth2AuthenticatedPrincipal anonymous = new DefaultOAuth2AuthenticatedPrincipal(
-                    "-1", Map.of("name", "-1"), List.of()
+                "-1", Map.of("name", "-1"), List.of()
             );
 
             // when & then
             assertThatThrownBy(() -> controller.updateFiles(request, anonymous))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(updateFileUseCase);
         }
     }
@@ -169,16 +169,16 @@ class FileControllerTest {
         void returnsFilesByOwnerAndSort() {
             // given
             GetFilesResult result = new GetFilesResult(
-                    List.of(GetFilesResult.FileItem.from(
-                            buildFileDomain(1L),
-                            Map.of(1L, List.of("https://bucket/resized/1.jpg"))
-                    ))
+                List.of(GetFilesResult.FileItem.from(
+                    buildFileDomain(1L),
+                    Map.of(1L, List.of("https://bucket/resized/1.jpg"))
+                ))
             );
             when(getFileUseCase.getFiles("PRODUCT", 1L, "PRODUCT_CATALOG_IMAGE")).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetFilesResult>> response = controller.getFiles(
-                    "PRODUCT", 1L, "PRODUCT_CATALOG_IMAGE"
+                "PRODUCT", 1L, "PRODUCT_CATALOG_IMAGE"
             );
 
             // then
@@ -225,18 +225,18 @@ class FileControllerTest {
 
     private FileDomain buildFileDomain(Long id) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(1L)
-                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("jpg")
-                .name("test.jpg")
-                .storageUrl("https://bucket/product/1/test.jpg")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(id)
-                .userId(10L)
-                .ownerKey("owner-key-1")
-                .build());
+            .id(id)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(1L)
+            .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("jpg")
+            .name("test.jpg")
+            .storageUrl("https://bucket/product/1/test.jpg")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(id)
+            .userId(10L)
+            .ownerKey("owner-key-1")
+            .build());
     }
 }

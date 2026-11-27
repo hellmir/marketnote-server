@@ -35,21 +35,21 @@ public class FulfillmentDeliveryRegistrationJpaEntity {
 
     public static FulfillmentDeliveryRegistrationJpaEntity from(FulfillmentDeliveryRegistration registration) {
         return FulfillmentDeliveryRegistrationJpaEntity.builder()
-                .id(registration.getId())
-                .orderId(registration.getOrderId())
-                .workStatus(registration.getWorkStatus())
-                .createdAt(registration.getCreatedAt())
-                .build();
+            .id(registration.getId())
+            .orderId(registration.getOrderId())
+            .workStatus(registration.getWorkStatus())
+            .createdAt(registration.getCreatedAt())
+            .build();
     }
 
     public FulfillmentDeliveryRegistration toDomain() {
         return FulfillmentDeliveryRegistration.from(
-                FulfillmentDeliveryRegistrationSnapshotState.builder()
-                        .id(id)
-                        .orderId(orderId)
-                        .workStatus(workStatus)
-                        .createdAt(createdAt)
-                        .build()
+            FulfillmentDeliveryRegistrationSnapshotState.builder()
+                .id(id)
+                .orderId(orderId)
+                .workStatus(workStatus)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

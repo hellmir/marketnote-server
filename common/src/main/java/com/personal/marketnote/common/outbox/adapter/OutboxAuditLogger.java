@@ -11,19 +11,19 @@ public class OutboxAuditLogger {
 
     public void logFailed(String topic, String eventId, int retryCount, Throwable cause) {
         log.error("[OUTBOX-AUDIT] action=FAILED, topic={}, eventId={}, retryCount={}, error={}",
-                topic, eventId, retryCount, cause.getMessage(), cause
+            topic, eventId, retryCount, cause.getMessage(), cause
         );
     }
 
     public void logResolve(String topic, String eventId, String action, String reason) {
         log.info("[OUTBOX-AUDIT] action=RESOLVE, topic={}, eventId={}, resolution={}, reason={}",
-                topic, eventId, action, reason
+            topic, eventId, action, reason
         );
     }
 
     public void logResolveError(String topic, String eventId, String action, Exception ex) {
         log.error("[OUTBOX-AUDIT] action=RESOLVE_ERROR, topic={}, eventId={}, resolution={}, error={}",
-                topic, eventId, action, ex.getMessage(), ex
+            topic, eventId, action, ex.getMessage(), ex
         );
     }
 }

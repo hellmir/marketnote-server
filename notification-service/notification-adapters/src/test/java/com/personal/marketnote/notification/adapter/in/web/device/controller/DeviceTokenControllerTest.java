@@ -41,9 +41,9 @@ class DeviceTokenControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId),
-                Map.of("name", String.valueOf(userId)),
-                List.of()
+            String.valueOf(userId),
+            Map.of("name", String.valueOf(userId)),
+            List.of()
         );
     }
 
@@ -57,14 +57,14 @@ class DeviceTokenControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             RegisterDeviceTokenRequest request = new RegisterDeviceTokenRequest(
-                    "fcm-token-123", "ANDROID", "device-001"
+                "fcm-token-123", "ANDROID", "device-001"
             );
             when(registerDeviceTokenUseCase.registerDeviceToken(any(RegisterDeviceTokenCommand.class)))
-                    .thenReturn(RegisterDeviceTokenResult.ofCreated(1L));
+                .thenReturn(RegisterDeviceTokenResult.ofCreated(1L));
 
             // when
             ResponseEntity<BaseResponse<RegisterDeviceTokenResponse>> response =
-                    controller.registerDeviceToken(request, principal);
+                controller.registerDeviceToken(request, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -79,14 +79,14 @@ class DeviceTokenControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
             RegisterDeviceTokenRequest request = new RegisterDeviceTokenRequest(
-                    "fcm-token-updated", "IOS", "device-001"
+                "fcm-token-updated", "IOS", "device-001"
             );
             when(registerDeviceTokenUseCase.registerDeviceToken(any(RegisterDeviceTokenCommand.class)))
-                    .thenReturn(RegisterDeviceTokenResult.ofUpdated(1L));
+                .thenReturn(RegisterDeviceTokenResult.ofUpdated(1L));
 
             // when
             ResponseEntity<BaseResponse<RegisterDeviceTokenResponse>> response =
-                    controller.registerDeviceToken(request, principal);
+                controller.registerDeviceToken(request, principal);
 
             // then
             assertThat(response.getBody().getContent().isNew()).isFalse();
@@ -105,7 +105,7 @@ class DeviceTokenControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    controller.deleteDeviceToken("device-001", principal);
+                controller.deleteDeviceToken("device-001", principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

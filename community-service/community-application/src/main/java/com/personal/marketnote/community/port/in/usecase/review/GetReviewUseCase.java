@@ -58,13 +58,13 @@ public interface GetReviewUseCase {
      * @Description 상품 리뷰 목록을 조회합니다.
      */
     GetReviewsResult getProductReviews(
-            Long userId,
-            Long productId,
-            Boolean isPhoto,
-            Long cursor,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ReviewSortProperty sortProperty
+        Long userId,
+        Long productId,
+        Boolean isPhoto,
+        Long cursor,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ReviewSortProperty sortProperty
     );
 
     /**
@@ -115,7 +115,7 @@ public interface GetReviewUseCase {
      * @Description 나의 리뷰 목록을 조회합니다.
      */
     GetMyReviewsResult getWriterReviews(
-            Long userId, Long cursor, int pageSize, Sort.Direction sortDirection, ReviewSortProperty sortProperty
+        Long userId, Long cursor, int pageSize, Sort.Direction sortDirection, ReviewSortProperty sortProperty
     );
 
     /**

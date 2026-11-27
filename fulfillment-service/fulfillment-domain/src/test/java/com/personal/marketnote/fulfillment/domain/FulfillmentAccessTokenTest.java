@@ -29,14 +29,14 @@ class FulfillmentAccessTokenTest {
         @DisplayName("value가 null이면 FulfillmentQueryParameterNoValueException이 발생한다")
         void of_withNullValue_throwsException() {
             assertThatThrownBy(() -> FulfillmentAccessToken.of(null, "20260101120000"))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("expreDatetime 형식이 잘못되면 ParsingLocalDateTimeException이 발생한다")
         void of_withInvalidDatetimeFormat_throwsException() {
             assertThatThrownBy(() -> FulfillmentAccessToken.of("valid-token", "invalid-format"))
-                    .isInstanceOf(ParsingLocalDateTimeException.class);
+                .isInstanceOf(ParsingLocalDateTimeException.class);
         }
     }
 

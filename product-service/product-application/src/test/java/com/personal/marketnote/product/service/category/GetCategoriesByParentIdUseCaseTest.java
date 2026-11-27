@@ -76,17 +76,17 @@ class GetCategoriesByParentIdUseCaseTest {
         when(findCategoryPort.findActiveByParentId(parentId)).thenThrow(exception);
 
         assertThatThrownBy(() -> getCategoryService.getCategoriesByParentId(parentId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private Category buildCategory(Long id, Long parentId, String name, EntityStatus status) {
         return Category.from(
-                CategorySnapshotState.builder()
-                        .id(id)
-                        .parentCategoryId(parentId)
-                        .name(name)
-                        .status(status)
-                        .build()
+            CategorySnapshotState.builder()
+                .id(id)
+                .parentCategoryId(parentId)
+                .name(name)
+                .status(status)
+                .build()
         );
     }
 }

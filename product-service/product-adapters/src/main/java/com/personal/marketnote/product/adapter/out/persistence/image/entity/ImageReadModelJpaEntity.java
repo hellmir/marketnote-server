@@ -10,9 +10,9 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "image_read_models",
-        uniqueConstraints = @UniqueConstraint(name = "uk_image_read_model_image_id", columnNames = "imageId"),
-        indexes = @Index(name = "idx_image_read_model_target_sort", columnList = "targetId, fileSort, status")
+    name = "image_read_models",
+    uniqueConstraints = @UniqueConstraint(name = "uk_image_read_model_image_id", columnNames = "imageId"),
+    indexes = @Index(name = "idx_image_read_model_target_sort", columnList = "targetId, fileSort, status")
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -39,33 +39,33 @@ public class ImageReadModelJpaEntity extends BaseGeneralEntity {
     private Integer sortOrder;
 
     @OneToMany(
-            mappedBy = "imageReadModel",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
+        mappedBy = "imageReadModel",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
     )
     @OrderBy("sortOrder ASC")
     @Builder.Default
     private List<ImageReadModelResizedFileJpaEntity> resizedFiles = new ArrayList<>();
 
     public static ImageReadModelJpaEntity of(
-            Long imageId, Long targetId, String targetType,
-            String fileSort, String imageUrl, Integer sortOrder
+        Long imageId, Long targetId, String targetType,
+        String fileSort, String imageUrl, Integer sortOrder
     ) {
         return ImageReadModelJpaEntity.builder()
-                .imageId(imageId)
-                .targetId(targetId)
-                .targetType(targetType)
-                .fileSort(fileSort)
-                .imageUrl(imageUrl)
-                .sortOrder(sortOrder)
-                .resizedFiles(new ArrayList<>())
-                .build();
+            .imageId(imageId)
+            .targetId(targetId)
+            .targetType(targetType)
+            .fileSort(fileSort)
+            .imageUrl(imageUrl)
+            .sortOrder(sortOrder)
+            .resizedFiles(new ArrayList<>())
+            .build();
     }
 
     public void updateFrom(
-            Long targetId, String targetType, String fileSort,
-            String imageUrl, Integer sortOrder
+        Long targetId, String targetType, String fileSort,
+        String imageUrl, Integer sortOrder
     ) {
         this.targetId = targetId;
         this.targetType = targetType;

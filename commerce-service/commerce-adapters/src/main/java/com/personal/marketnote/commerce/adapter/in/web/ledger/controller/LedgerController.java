@@ -56,29 +56,29 @@ public class LedgerController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetLedgerTransactionsApiDocs
     public ResponseEntity<BaseResponse<List<GetLedgerTransactionResponse>>> getLedgerTransactions(
-            @RequestParam(value = "start-date", required = false) LocalDateTime startDate,
-            @RequestParam(value = "end-date", required = false) LocalDateTime endDate,
-            @RequestParam(value = "transaction-type", required = false) LedgerTransactionType transactionType
+        @RequestParam(value = "start-date", required = false) LocalDateTime startDate,
+        @RequestParam(value = "end-date", required = false) LocalDateTime endDate,
+        @RequestParam(value = "transaction-type", required = false) LedgerTransactionType transactionType
     ) {
         GetLedgerTransactionsQuery query = GetLedgerTransactionsQuery.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .transactionType(transactionType)
-                .build();
+            .startDate(startDate)
+            .endDate(endDate)
+            .transactionType(transactionType)
+            .build();
 
         List<GetLedgerTransactionResult> results = getLedgerTransactionsUseCase.getLedgerTransactions(query);
         List<GetLedgerTransactionResponse> responses = results.stream()
-                .map(GetLedgerTransactionResponse::from)
-                .toList();
+            .map(GetLedgerTransactionResponse::from)
+            .toList();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        responses,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "거래 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                responses,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "거래 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -94,25 +94,25 @@ public class LedgerController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetAccountBalancesApiDocs
     public ResponseEntity<BaseResponse<List<GetAccountBalanceResponse>>> getAccountBalances(
-            @RequestParam(value = "as-of", required = false) LocalDateTime asOf
+        @RequestParam(value = "as-of", required = false) LocalDateTime asOf
     ) {
         LocalDateTime effectiveAsOf = (FormatValidator.hasValue(asOf))
-                ? asOf
-                : LocalDateTime.now();
+            ? asOf
+            : LocalDateTime.now();
 
         List<GetAccountBalanceResult> results = getAccountBalanceUseCase.getAccountBalances(effectiveAsOf);
         List<GetAccountBalanceResponse> responses = results.stream()
-                .map(GetAccountBalanceResponse::from)
-                .toList();
+            .map(GetAccountBalanceResponse::from)
+            .toList();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        responses,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "계정별 잔액 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                responses,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "계정별 잔액 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

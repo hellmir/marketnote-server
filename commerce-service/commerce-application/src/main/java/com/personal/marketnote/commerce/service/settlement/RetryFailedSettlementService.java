@@ -36,10 +36,10 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
     @Transactional(isolation = READ_COMMITTED)
     public void retrySettlement(Long settlementId) {
         Settlement settlement = findSettlementPort.findById(settlementId)
-                .orElseThrow(() -> {
-                    log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
-                    return new SettlementNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
+                return new SettlementNotFoundException();
+            });
 
         settlement.resetToPending();
 
@@ -53,7 +53,7 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
 
             long sellerSettlementDebit = sellerPayoutAmount + platformFeeAmount;
             recordLedgerEntryUseCase.recordSellerSettlement(
-                    settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount
+                settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount
             );
 
             settlement.complete();
@@ -68,7 +68,7 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
         updateSettlementPort.update(settlement);
 
         log.info("정산 재시도 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}",
-                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
+            settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
         );
     }
 }

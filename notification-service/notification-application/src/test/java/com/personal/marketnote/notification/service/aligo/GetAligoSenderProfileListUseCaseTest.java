@@ -45,15 +45,15 @@ class GetAligoSenderProfileListUseCaseTest {
     void shouldFetchFromExternalAndSaveNewProfile() {
         // given
         AligoSenderProfile externalProfile = AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey("sender-key-1")
-                        .plusId("@channel1")
-                        .name("채널1")
-                        .categoryCode("cat-001")
-                        .profileInspectionStatus(AligoProfileInspectionStatus.A)
-                        .senderProfileStatus(AligoSenderProfileStatus.A)
-                        .alimUseYn(true)
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey("sender-key-1")
+                .plusId("@channel1")
+                .name("채널1")
+                .categoryCode("cat-001")
+                .profileInspectionStatus(AligoProfileInspectionStatus.A)
+                .senderProfileStatus(AligoSenderProfileStatus.A)
+                .alimUseYn(true)
+                .build()
         );
         when(getAligoSenderProfileListExternalPort.getProfileList()).thenReturn(List.of(externalProfile));
         when(findAligoSenderProfilePort.findAll()).thenReturn(List.of());
@@ -74,23 +74,23 @@ class GetAligoSenderProfileListUseCaseTest {
     void shouldUpdateExistingProfile() {
         // given
         AligoSenderProfile externalProfile = AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey("existing-key")
-                        .plusId("@existingChannel")
-                        .name("기존채널")
-                        .profileInspectionStatus(AligoProfileInspectionStatus.A)
-                        .senderProfileStatus(AligoSenderProfileStatus.A)
-                        .alimUseYn(true)
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey("existing-key")
+                .plusId("@existingChannel")
+                .name("기존채널")
+                .profileInspectionStatus(AligoProfileInspectionStatus.A)
+                .senderProfileStatus(AligoSenderProfileStatus.A)
+                .alimUseYn(true)
+                .build()
         );
         AligoSenderProfile localProfile = AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey("existing-key")
-                        .plusId("@existingChannel")
-                        .profileInspectionStatus(AligoProfileInspectionStatus.C)
-                        .senderProfileStatus(AligoSenderProfileStatus.S)
-                        .alimUseYn(false)
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey("existing-key")
+                .plusId("@existingChannel")
+                .profileInspectionStatus(AligoProfileInspectionStatus.C)
+                .senderProfileStatus(AligoSenderProfileStatus.S)
+                .alimUseYn(false)
+                .build()
         );
         when(getAligoSenderProfileListExternalPort.getProfileList()).thenReturn(List.of(externalProfile));
         when(findAligoSenderProfilePort.findAll()).thenReturn(List.of(localProfile));

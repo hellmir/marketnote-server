@@ -5,12 +5,12 @@ import lombok.Builder;
 
 @Builder
 public record KcpTradeRegisterRequest(
-        @JsonProperty("site_cd") String siteCd,
-        @JsonProperty("ordr_idxx") String ordrIdxx,
-        @JsonProperty("good_mny") String goodMny,
-        @JsonProperty("pay_method") String payMethod,
-        @JsonProperty("good_name") String goodName,
-        @JsonProperty("Ret_URL") String retUrl,
-        @JsonProperty("batch_cardno_return_yn") String batchCardnoReturnYn
+    @JsonProperty("site_cd") String siteCd,
+    @JsonProperty("ordr_idxx") String ordrIdxx,
+    @JsonProperty("good_mny") String goodMny,
+    @JsonProperty("pay_method") String payMethod,
+    @JsonProperty("good_name") String goodName,
+    @JsonProperty("Ret_URL") String retUrl,
+    @JsonProperty("batch_cardno_return_yn") String batchCardnoReturnYn
 ) {
 }

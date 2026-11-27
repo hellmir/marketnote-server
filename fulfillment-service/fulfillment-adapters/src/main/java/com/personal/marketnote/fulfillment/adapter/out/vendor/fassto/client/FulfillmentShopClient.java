@@ -70,14 +70,14 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     private final Sleeper sleeper;
 
     public FulfillmentShopClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -148,10 +148,10 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -159,12 +159,12 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -192,22 +192,22 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             String exception = isSuccess ? null : resolveShopsException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -223,9 +223,9 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             }
 
             log.warn("Fulfillment shop list request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -244,9 +244,9 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     private URI buildShopUri(String customerCode) {
         validateShopProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getShopPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getShopPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders(String accessToken) {
@@ -295,10 +295,10 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     private boolean isSuccessResponse(ResponseEntity<String> response, RegisterFulfillmentShopResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess()
-                && FormatValidator.hasValue(parsedResponse.data());
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess()
+            && FormatValidator.hasValue(parsedResponse.data());
     }
 
     private String resolveResponseException(ResponseEntity<String> response, RegisterFulfillmentShopResponse parsedResponse) {
@@ -321,10 +321,10 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     }
 
     private JsonNode buildRequestPayloadJson(
-            FulfillmentShopMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentShopMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.PATCH.name());
@@ -375,9 +375,9 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     }
 
     private RegisterFulfillmentShopResult executeShopMutation(
-            FulfillmentShopMapper request,
-            String action,
-            boolean isUpdate
+        FulfillmentShopMapper request,
+        String action,
+        boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment shop request is required.");
@@ -400,11 +400,11 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             ResponseEntity<String> response;
             try {
                 response = restClient.method(HttpMethod.PATCH)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -412,12 +412,12 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -427,7 +427,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment shop", attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment shop", attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -447,29 +447,29 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             String exception = isSuccess ? null : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
                 return RegisterFulfillmentShopResult.of(
-                        parsedResponse.data().msg(),     // message
-                        parsedResponse.data().code(),    // code
-                        parsedResponse.data().shopCd()   // shopCode
+                    parsedResponse.data().msg(),     // message
+                    parsedResponse.data().code(),    // code
+                    parsedResponse.data().shopCd()   // shopCode
                 );
             }
 
@@ -482,10 +482,10 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             }
 
             log.warn("Fulfillment shop {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -498,7 +498,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment shop", uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment shop", uri, path, error
         );
 
         if (isUpdate) {
@@ -537,14 +537,14 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     private boolean isShopsSuccess(ResponseEntity<String> response, FulfillmentShopsResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveShopsException(
-            ResponseEntity<String> response,
-            FulfillmentShopsResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentShopsResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -566,37 +566,37 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     private GetFulfillmentShopsResult mapShopsResult(FulfillmentShopsResponse response) {
         List<FulfillmentShopInfoResult> shops = response.data().stream()
-                .map(this::mapShopInfo)
-                .toList();
+            .map(this::mapShopInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentShopsResult.of(dataCount, shops);
     }
 
     private FulfillmentShopInfoResult mapShopInfo(FulfillmentShopItemResponse item) {
         return FulfillmentShopInfoResult.builder()
-                .shopCode(item.shopCd())
-                .shopName(item.shopNm())
-                .customerShopCode(item.cstShopCd())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .shopType(item.shopTp())
-                .dealStartDate(item.dealStrDt())
-                .dealEndDate(item.dealEndDt())
-                .zipCode(item.zipNo())
-                .address1(item.addr1())
-                .address2(item.addr2())
-                .ceoName(item.ceoNm())
-                .businessNumber(item.busNo())
-                .phoneNumber(item.telNo())
-                .unloadMethod(item.unloadWay())
-                .inspectionMethod(item.checkWay())
-                .standbyYn(item.standYn())
-                .formType(item.formType())
-                .managerName(item.empNm())
-                .managerPosition(item.empPosit())
-                .managerPhoneNumber(item.empTelNo())
-                .useYn(item.useYn())
-                .build();
+            .shopCode(item.shopCd())
+            .shopName(item.shopNm())
+            .customerShopCode(item.cstShopCd())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .shopType(item.shopTp())
+            .dealStartDate(item.dealStrDt())
+            .dealEndDate(item.dealEndDt())
+            .zipCode(item.zipNo())
+            .address1(item.addr1())
+            .address2(item.addr2())
+            .ceoName(item.ceoNm())
+            .businessNumber(item.busNo())
+            .phoneNumber(item.telNo())
+            .unloadMethod(item.unloadWay())
+            .inspectionMethod(item.checkWay())
+            .standbyYn(item.standYn())
+            .formType(item.formType())
+            .managerName(item.empNm())
+            .managerPosition(item.empPosit())
+            .managerPhoneNumber(item.empTelNo())
+            .useYn(item.useYn())
+            .build();
     }
 
     private String resolveVendorMessage(FulfillmentShopsResponse response, String rawBody) {
@@ -656,8 +656,8 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -667,8 +667,8 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

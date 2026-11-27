@@ -14,17 +14,17 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 @FunctionalInterface
 public interface ServiceCommunicationHistoryDispatcher<
-        T extends Enum<T>,
-        C extends Enum<C>,
-        S extends Enum<S>
-        > {
+    T extends Enum<T>,
+    C extends Enum<C>,
+    S extends Enum<S>
+    > {
     void dispatch(
-            T targetType,
-            String targetId,
-            C communicationType,
-            S sender,
-            String exception,
-            String payload,
-            JsonNode payloadJson
+        T targetType,
+        String targetId,
+        C communicationType,
+        S sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson
     );
 }

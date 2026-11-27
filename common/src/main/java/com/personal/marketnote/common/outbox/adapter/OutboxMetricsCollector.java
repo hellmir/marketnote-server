@@ -22,9 +22,9 @@ public class OutboxMetricsCollector {
             return;
         }
         counterRegistryHelper.increment(
-                "outbox.events.failed.total",
-                "Outbox 이벤트 최대 재시도 초과로 FAILED 전환된 건수",
-                "topic", topic
+            "outbox.events.failed.total",
+            "Outbox 이벤트 최대 재시도 초과로 FAILED 전환된 건수",
+            "topic", topic
         );
     }
 
@@ -33,10 +33,10 @@ public class OutboxMetricsCollector {
             return;
         }
         counterRegistryHelper.increment(
-                "outbox.events.resolved.total",
-                "Outbox FAILED 이벤트 해결 건수",
-                "topic", topic,
-                "action", action
+            "outbox.events.resolved.total",
+            "Outbox FAILED 이벤트 해결 건수",
+            "topic", topic,
+            "action", action
         );
     }
 }

@@ -19,7 +19,7 @@ class HmacSignatureValidatorTest {
     private static final String REQUEST_PATH = "/api/v1/products";
     private static final long FIXED_TIME_MILLIS = 1710000000000L;
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.ofEpochMilli(FIXED_TIME_MILLIS), ZoneId.of("Asia/Seoul"));
+        Instant.ofEpochMilli(FIXED_TIME_MILLIS), ZoneId.of("Asia/Seoul"));
 
     @Test
     @DisplayName("유효한 서명과 Timestamp로 검증하면 예외가 발생하지 않는다")
@@ -28,7 +28,7 @@ class HmacSignatureValidatorTest {
         String signature = HmacSignatureGenerator.generate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH);
 
         assertThatCode(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
         ).doesNotThrowAnyException();
     }
 
@@ -40,7 +40,7 @@ class HmacSignatureValidatorTest {
         String signature = HmacSignatureGenerator.generate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH);
 
         assertThatCode(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
         ).doesNotThrowAnyException();
     }
 
@@ -52,7 +52,7 @@ class HmacSignatureValidatorTest {
         String signature = HmacSignatureGenerator.generate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH);
 
         assertThatCode(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
         ).doesNotThrowAnyException();
     }
 
@@ -64,7 +64,7 @@ class HmacSignatureValidatorTest {
         String signature = HmacSignatureGenerator.generate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH);
 
         assertThatThrownBy(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
         ).isInstanceOf(HmacTimestampExpiredException.class);
     }
 
@@ -76,7 +76,7 @@ class HmacSignatureValidatorTest {
         String signature = HmacSignatureGenerator.generate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH);
 
         assertThatThrownBy(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
         ).isInstanceOf(HmacTimestampExpiredException.class);
     }
 
@@ -87,7 +87,7 @@ class HmacSignatureValidatorTest {
         String invalidSignature = "00000000000000000000000000000000";
 
         assertThatThrownBy(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, invalidSignature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, invalidSignature, FIXED_CLOCK)
         ).isInstanceOf(HmacSignatureMismatchException.class);
     }
 
@@ -98,7 +98,7 @@ class HmacSignatureValidatorTest {
         String signature = HmacSignatureGenerator.generate("wrong-key", timestamp, NONCE, HTTP_METHOD, REQUEST_PATH);
 
         assertThatThrownBy(() ->
-                HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
+            HmacSignatureValidator.validate(SECRET_KEY, timestamp, NONCE, HTTP_METHOD, REQUEST_PATH, signature, FIXED_CLOCK)
         ).isInstanceOf(HmacSignatureMismatchException.class);
     }
 
@@ -106,7 +106,7 @@ class HmacSignatureValidatorTest {
     @DisplayName("비숫자 Timestamp는 HmacTimestampExpiredException이 발생한다")
     void shouldThrowWhenTimestampIsNotNumeric() {
         assertThatThrownBy(() ->
-                HmacSignatureValidator.validateTimestamp("not-a-number", FIXED_CLOCK)
+            HmacSignatureValidator.validateTimestamp("not-a-number", FIXED_CLOCK)
         ).isInstanceOf(HmacTimestampExpiredException.class);
     }
 
@@ -114,7 +114,7 @@ class HmacSignatureValidatorTest {
     @DisplayName("빈 Timestamp는 HmacTimestampExpiredException이 발생한다")
     void shouldThrowWhenTimestampIsEmpty() {
         assertThatThrownBy(() ->
-                HmacSignatureValidator.validateTimestamp("", FIXED_CLOCK)
+            HmacSignatureValidator.validateTimestamp("", FIXED_CLOCK)
         ).isInstanceOf(HmacTimestampExpiredException.class);
     }
 }

@@ -54,9 +54,9 @@ class GetMyOrderingProductsUseCaseTest {
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item1, item2));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L, 20L)))
-                .thenReturn(List.of(policy1, policy2));
+            .thenReturn(List.of(policy1, policy2));
         when(getProductInventoryUseCase.getProductStocks(List.of(10L, 20L)))
-                .thenReturn(Map.of(10L, 5, 20L, 0));
+            .thenReturn(Map.of(10L, 5, 20L, 0));
 
         GetMyOrderProductsResult result = getMyOrderingProductsService.getMyOrderingProducts(query);
 
@@ -90,9 +90,9 @@ class GetMyOrderingProductsUseCaseTest {
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L)))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
         when(getProductInventoryUseCase.getProductStocks(List.of(10L)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         GetMyOrderProductsResult result = getMyOrderingProductsService.getMyOrderingProducts(query);
 
@@ -111,9 +111,9 @@ class GetMyOrderingProductsUseCaseTest {
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item1, item2));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L, 20L)))
-                .thenReturn(List.of(policy1));
+            .thenReturn(List.of(policy1));
         when(getProductInventoryUseCase.getProductStocks(List.of(10L, 20L)))
-                .thenReturn(Map.of(10L, 9));
+            .thenReturn(Map.of(10L, 9));
 
         GetMyOrderProductsResult result = getMyOrderingProductsService.getMyOrderingProducts(query);
 
@@ -130,9 +130,9 @@ class GetMyOrderingProductsUseCaseTest {
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L)))
-                .thenReturn(List.of(policy));
+            .thenReturn(List.of(policy));
         when(getProductInventoryUseCase.getProductStocks(List.of(10L)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         GetMyOrderProductsResult result = getMyOrderingProductsService.getMyOrderingProducts(query);
 
@@ -146,9 +146,9 @@ class GetMyOrderingProductsUseCaseTest {
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of());
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of()))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
         when(getProductInventoryUseCase.getProductStocks(List.of()))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         GetMyOrderProductsResult result = getMyOrderingProductsService.getMyOrderingProducts(query);
 
@@ -167,7 +167,7 @@ class GetMyOrderingProductsUseCaseTest {
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L))).thenThrow(exception);
 
         assertThatThrownBy(() -> getMyOrderingProductsService.getMyOrderingProducts(query))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(getProductInventoryUseCase);
     }
@@ -182,44 +182,44 @@ class GetMyOrderingProductsUseCaseTest {
         RuntimeException exception = new RuntimeException("inventory fail");
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L)))
-                .thenReturn(List.of(policy));
+            .thenReturn(List.of(policy));
         when(getProductInventoryUseCase.getProductStocks(List.of(10L)))
-                .thenThrow(exception);
+            .thenThrow(exception);
 
         assertThatThrownBy(() -> getMyOrderingProductsService.getMyOrderingProducts(query))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private Product buildProduct(Long id) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("상품-" + id)
-                        .brandName("브랜드-" + id)
-                        .detail("설명-" + id)
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("상품-" + id)
+                .brandName("브랜드-" + id)
+                .detail("설명-" + id)
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private PricePolicy buildPricePolicy(Long id, Product product) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .product(product)
-                        .price(10000L)
-                        .discountPrice(9000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .product(product)
+                .price(10000L)
+                .discountPrice(9000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(10)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

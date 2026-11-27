@@ -53,12 +53,12 @@ public class ActivateExpiredDeactivationService implements ActivateExpiredDeacti
         user.activateFromDeactivation();
         updateUserPort.update(user);
         saveUserStatusHistoryPort.save(
-                UserStatusHistory.bySystem(
-                        user.getId(),
-                        UserStatusAction.ACTIVATE,
-                        SYSTEM_AUTO_ACTIVATION_REASON,
-                        null
-                )
+            UserStatusHistory.bySystem(
+                user.getId(),
+                UserStatusAction.ACTIVATE,
+                SYSTEM_AUTO_ACTIVATION_REASON,
+                null
+            )
         );
     }
 }

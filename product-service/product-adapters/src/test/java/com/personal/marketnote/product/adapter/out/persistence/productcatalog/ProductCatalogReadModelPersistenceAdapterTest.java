@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Import;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -37,11 +37,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({
-        AuditConfig.class,
-        ObjectMapperConfig.class,
-        QuerydslConfig.class,
-        ProductCatalogReadModelPersistenceAdapter.class,
-        ProductCatalogReadModelQueryRepositoryImpl.class
+    AuditConfig.class,
+    ObjectMapperConfig.class,
+    QuerydslConfig.class,
+    ProductCatalogReadModelPersistenceAdapter.class,
+    ProductCatalogReadModelQueryRepositoryImpl.class
 })
 class ProductCatalogReadModelPersistenceAdapterTest {
 
@@ -68,11 +68,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("신규 pricePolicyId면 ReadModel 레코드를 insert한다")
         void insertsNewEntry() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L,
-                    "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0),
-                    100L, BigDecimal.valueOf(1.0),
-                    0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L,
+                "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0),
+                100L, BigDecimal.valueOf(1.0),
+                0L, 0L, 0L, null, null);
 
             Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
@@ -88,12 +88,12 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("동일 pricePolicyId로 다시 upsert하면 기존 레코드를 업데이트한다 (멱등)")
         void updatesExistingEntry() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 20L, "상품B", "브랜드B",
-                    12000L, 10000L, BigDecimal.valueOf(16.6), 200L, BigDecimal.valueOf(2.0), 5L, 10L, 0L, null, null);
+                1L, 100L, 200L, 20L, "상품B", "브랜드B",
+                12000L, 10000L, BigDecimal.valueOf(16.6), 200L, BigDecimal.valueOf(2.0), 5L, 10L, 0L, null, null);
 
             Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
@@ -110,12 +110,12 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("기존 row 에 대해 brandName 이 null 인 upsert 가 들어오면 기존 brandName 이 유지된다")
         void preservesBrandNameWhenNull() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품A", null,
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
@@ -126,12 +126,12 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("기존 row 에 대해 price/discountPrice/accumulatedPoint/orderNum/popularity 가 null 로 오면 기존 값이 유지된다 (partial update)")
         void preservesFieldsWhenNullPartialUpdate() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 5L, 7L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 5L, 7L, 0L, null, null);
 
             adapter.upsertCatalog(
-                    1L, 100L, 200L, null, "상품A", null,
-                    null, null, null, null, null, null, null, 0L, null, null);
+                1L, 100L, 200L, null, "상품A", null,
+                null, null, null, null, null, null, null, 0L, null, null);
 
             Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
@@ -156,8 +156,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("delta가 null이면 아무 동작도 하지 않는다")
         void doesNothingWhenDeltaNull() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
 
             adapter.increaseSales(1L, null);
 
@@ -168,8 +168,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("delta가 0 이하이면 아무 동작도 하지 않는다")
         void doesNothingWhenDeltaNonPositive() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
 
             adapter.increaseSales(1L, 0L);
             adapter.increaseSales(1L, -3L);
@@ -189,8 +189,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("기존 레코드의 판매량을 delta만큼 증가시킨다")
         void increasesSales() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
 
             adapter.increaseSales(1L, 3L);
 
@@ -206,8 +206,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("신규 레코드인데 name이 null이면 저장하지 않는다")
         void skipsWhenNameMissing() {
             adapter.upsertCatalog(
-                    99L, 100L, 200L, 10L, null, "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                99L, 100L, 200L, 10L, null, "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             assertThat(repository.findByPricePolicyId(99L)).isEmpty();
         }
@@ -221,11 +221,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("동일 productId의 모든 ReadModel 레코드 태그 JSON을 갱신한다")
         void updatesAllByProductId() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, "[\"old\"]", null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, "[\"old\"]", null);
             adapter.upsertCatalog(
-                    2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, "[\"old\"]", null);
+                2L, 100L, 200L, 10L, "상품", "브랜드",
+                11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, "[\"old\"]", null);
 
             adapter.updateProductTags(100L, "[\"new\"]");
 
@@ -276,8 +276,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("기존 레코드의 재고 수량을 부분 업데이트한다")
         void updatesStockQuantity() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateStockQuantity(1L, 77);
 
@@ -303,11 +303,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("updateProductInfo 호출 시 productId 기준 전체 ReadModel 레코드의 name/brandName 이 갱신된다")
         void updatesAllByProductId() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
-                    2L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                2L, 100L, 200L, 10L, "상품A", "브랜드A",
+                11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateProductInfo(100L, "수정된 상품", "수정된 브랜드");
 
@@ -337,8 +337,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void preservesPrimaryCategoryId() {
             // given
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             // when
             adapter.updateProductInfo(100L, "새이름", "새브랜드");
@@ -360,24 +360,24 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("동일 productId의 여러 pricePolicy 레코드 대표 이미지(+ resized URL JSON) 를 모두 업데이트한다")
         void updatesAllByProductId() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
-                    2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                2L, 100L, 200L, 10L, "상품", "브랜드",
+                11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateRepresentativeImage(
-                    100L,
-                    "https://img.example/new.png",
-                    List.of("https://img.example/new-sm.png", "https://img.example/new-md.png")
+                100L,
+                "https://img.example/new.png",
+                List.of("https://img.example/new-sm.png", "https://img.example/new-md.png")
             );
 
             ProductCatalogReadModelJpaEntity entity1 = repository.findByPricePolicyId(1L).orElseThrow();
             ProductCatalogReadModelJpaEntity entity2 = repository.findByPricePolicyId(2L).orElseThrow();
             assertThat(entity1.getRepresentativeImageUrl()).isEqualTo("https://img.example/new.png");
             assertThat(entity1.getResizedImageUrls())
-                    .contains("new-sm.png")
-                    .contains("new-md.png");
+                .contains("new-sm.png")
+                .contains("new-md.png");
             assertThat(entity2.getRepresentativeImageUrl()).isEqualTo("https://img.example/new.png");
         }
 
@@ -385,8 +385,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("resized URL 목록이 비어있으면 JSON 필드를 null 로 저장한다")
         void storesNullWhenResizedEmpty() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateRepresentativeImage(100L, "https://img.example/a.png", List.of());
 
@@ -402,11 +402,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("동일 productId의 여러 pricePolicy 레코드 리뷰 집계를 모두 업데이트한다")
         void updatesAllByProductId() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
-                    2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                2L, 100L, 200L, 10L, "상품", "브랜드",
+                11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateReviewAggregate(100L, 12, new BigDecimal("4.50"));
 
@@ -424,8 +424,8 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("deleteByPricePolicyId는 해당 레코드를 제거한다")
         void deletesByPricePolicyId() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.deleteByPricePolicyId(1L);
 
@@ -436,11 +436,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("deleteByProductId는 동일 productId의 모든 레코드를 제거한다")
         void deletesByProductId() {
             adapter.upsertCatalog(
-                    1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                1L, 100L, 200L, 10L, "상품", "브랜드",
+                10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
-                    2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+                2L, 100L, 200L, 10L, "상품", "브랜드",
+                11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.deleteByProductId(100L);
 
@@ -457,14 +457,14 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("discountPrice 오름차순 정렬을 반환한다")
         void returnsSortedByDiscountPriceAsc() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(3L, 102L, 200L, null, "C", null,
-                    15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             List<ProductCatalogItemResult> results = adapter.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).hasSize(3);
@@ -477,18 +477,18 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("카테고리 필터 + 검색어로 조회한다")
         void filtersByCategoryAndSearch() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "사과", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "배", "브랜드B",
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(3L, 102L, 200L, null, "사과파이", "브랜드C",
-                    15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 10L));
             productCategoryRepository.save(ProductCategoryJpaEntity.of(101L, 10L));
             productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 20L));
 
             List<ProductCatalogItemResult> results = adapter.findCatalogItems(
-                    10L, null, null, 10, true, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, "사과"
+                10L, null, null, 10, true, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, "사과"
             );
 
             assertThat(results).hasSize(1);
@@ -499,9 +499,9 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("countCatalogItems는 status=ACTIVE 건수를 반환한다")
         void countsActiveItems() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             long count = adapter.countCatalogItems(null, null, null);
 
@@ -512,12 +512,12 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("커서 pricePolicyId 가 존재하지 않으면 (하드 삭제) 빈 결과를 반환하여 1페이지 재조회를 방지한다")
         void returnsEmptyWhenCursorRecordDeleted() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             List<ProductCatalogItemResult> results = adapter.findCatalogItems(
-                    null, null, 999L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, 999L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).isEmpty();
@@ -527,15 +527,15 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("커서 pricePolicyId 가 null 또는 0 이하이면 1페이지부터 정상 조회한다")
         void returnsFirstPageWhenCursorAbsent() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+                8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             List<ProductCatalogItemResult> withNullCursor = adapter.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
             List<ProductCatalogItemResult> withZeroCursor = adapter.findCatalogItems(
-                    null, null, 0L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, 0L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(withNullCursor).hasSize(2);
@@ -552,9 +552,9 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @BeforeEach
         void setUpExpression() throws NoSuchMethodException {
             Method method = ProductCatalogReadModelPersistenceAdapter.class.getMethod(
-                    "findCatalogItems",
-                    Long.class, List.class, Long.class, int.class, boolean.class,
-                    ProductSortProperty.class, ProductSearchTarget.class, String.class
+                "findCatalogItems",
+                Long.class, List.class, Long.class, int.class, boolean.class,
+                ProductSortProperty.class, ProductSearchTarget.class, String.class
             );
             String keyExpression = method.getAnnotation(Cacheable.class).key();
             SpelExpressionParser parser = new SpelExpressionParser();
@@ -565,9 +565,9 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("findCatalogItems 메서드에 product:list:first Cacheable 애노테이션이 적용되어 있다")
         void findCatalogItems_hasCacheableAnnotation() throws NoSuchMethodException {
             Method method = ProductCatalogReadModelPersistenceAdapter.class.getMethod(
-                    "findCatalogItems",
-                    Long.class, List.class, Long.class, int.class, boolean.class,
-                    ProductSortProperty.class, ProductSearchTarget.class, String.class
+                "findCatalogItems",
+                Long.class, List.class, Long.class, int.class, boolean.class,
+                ProductSortProperty.class, ProductSearchTarget.class, String.class
             );
 
             Cacheable cacheable = method.getAnnotation(Cacheable.class);
@@ -575,9 +575,9 @@ class ProductCatalogReadModelPersistenceAdapterTest {
             assertThat(cacheable).isNotNull();
             assertThat(cacheable.value()).containsExactly("product:list:first");
             assertThat(cacheable.key())
-                    .isEqualTo("#categoryId + ':' + (#pricePolicyIds == null ? 'null' : #pricePolicyIds.stream().distinct().sorted().toList()) + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget");
+                .isEqualTo("#categoryId + ':' + (#pricePolicyIds == null ? 'null' : #pricePolicyIds.stream().distinct().sorted().toList()) + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget");
             assertThat(cacheable.condition())
-                    .isEqualTo("#cursor != null and #cursor == -1L and #searchKeyword == null");
+                .isEqualTo("#cursor != null and #cursor == -1L and #searchKeyword == null");
         }
 
         @Test
@@ -612,7 +612,7 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("countCatalogItems 메서드에 product:list:first Cacheable 애노테이션이 적용되어 있다")
         void countCatalogItems_hasCacheableAnnotation() throws NoSuchMethodException {
             Method method = ProductCatalogReadModelPersistenceAdapter.class.getMethod(
-                    "countCatalogItems", Long.class, ProductSearchTarget.class, String.class
+                "countCatalogItems", Long.class, ProductSearchTarget.class, String.class
             );
 
             Cacheable cacheable = method.getAnnotation(Cacheable.class);

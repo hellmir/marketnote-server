@@ -40,11 +40,11 @@ class ReportPersistenceAdapterTest {
         @DisplayName("도메인을 엔티티로 변환해 저장한다")
         void savesDomainAsEntity() {
             Report report = Report.from(ReportCreateState.builder()
-                    .targetType(ReportTargetType.REVIEW)
-                    .targetId(100L)
-                    .reporterId(10L)
-                    .reason("광고성 리뷰")
-                    .build()
+                .targetType(ReportTargetType.REVIEW)
+                .targetId(100L)
+                .reporterId(10L)
+                .reason("광고성 리뷰")
+                .build()
             );
             ArgumentCaptor<ReportJpaEntity> captor = ArgumentCaptor.forClass(ReportJpaEntity.class);
 
@@ -67,11 +67,11 @@ class ReportPersistenceAdapterTest {
         @DisplayName("리포지토리 결과가 true이면 true를 반환한다")
         void delegatesExistsReturningTrue() {
             when(reportJpaRepository.existsByTargetTypeAndTargetIdAndReporterId(
-                    ReportTargetType.REVIEW, 100L, 10L
+                ReportTargetType.REVIEW, 100L, 10L
             )).thenReturn(true);
 
             boolean result = adapter.existsByTargetTypeAndTargetIdAndReporterId(
-                    ReportTargetType.REVIEW, 100L, 10L
+                ReportTargetType.REVIEW, 100L, 10L
             );
 
             assertThat(result).isTrue();
@@ -81,11 +81,11 @@ class ReportPersistenceAdapterTest {
         @DisplayName("리포지토리 결과가 false이면 false를 반환한다")
         void delegatesExistsReturningFalse() {
             when(reportJpaRepository.existsByTargetTypeAndTargetIdAndReporterId(
-                    ReportTargetType.POST, 200L, 20L
+                ReportTargetType.POST, 200L, 20L
             )).thenReturn(false);
 
             boolean result = adapter.existsByTargetTypeAndTargetIdAndReporterId(
-                    ReportTargetType.POST, 200L, 20L
+                ReportTargetType.POST, 200L, 20L
             );
 
             assertThat(result).isFalse();
@@ -102,7 +102,7 @@ class ReportPersistenceAdapterTest {
             ReportJpaEntity first = newPersistedEntity(ReportTargetType.REVIEW, 100L, 10L, "광고성");
             ReportJpaEntity second = newPersistedEntity(ReportTargetType.REVIEW, 100L, 20L, "욕설");
             when(reportJpaRepository.findByTargetTypeAndTargetId(ReportTargetType.REVIEW, 100L))
-                    .thenReturn(List.of(first, second));
+                .thenReturn(List.of(first, second));
 
             List<Report> result = adapter.findByTargetTypeAndTargetId(ReportTargetType.REVIEW, 100L);
 
@@ -117,7 +117,7 @@ class ReportPersistenceAdapterTest {
         @DisplayName("엔티티가 없으면 빈 리스트를 반환한다")
         void returnsEmptyListWhenNoEntities() {
             when(reportJpaRepository.findByTargetTypeAndTargetId(ReportTargetType.POST, 999L))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             List<Report> result = adapter.findByTargetTypeAndTargetId(ReportTargetType.POST, 999L);
 
@@ -126,14 +126,14 @@ class ReportPersistenceAdapterTest {
     }
 
     private ReportJpaEntity newPersistedEntity(
-            ReportTargetType targetType, Long targetId, Long reporterId, String reason
+        ReportTargetType targetType, Long targetId, Long reporterId, String reason
     ) {
         Report report = Report.from(ReportCreateState.builder()
-                .targetType(targetType)
-                .targetId(targetId)
-                .reporterId(reporterId)
-                .reason(reason)
-                .build()
+            .targetType(targetType)
+            .targetId(targetId)
+            .reporterId(reporterId)
+            .reason(reason)
+            .build()
         );
         ReportJpaEntity entity = ReportJpaEntity.from(report);
         ReflectionTestUtils.setField(entity, "createdAt", LocalDateTime.now());

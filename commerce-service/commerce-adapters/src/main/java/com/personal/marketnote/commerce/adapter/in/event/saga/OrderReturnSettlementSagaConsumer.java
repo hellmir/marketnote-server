@@ -42,12 +42,12 @@ public class OrderReturnSettlementSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_RETURN_SETTLEMENT,
-            groupId = "saga-order-return-settlement"
+        topics = KafkaTopicConstants.SAGA_ORDER_RETURN_SETTLEMENT,
+        groupId = "saga-order-return-settlement"
     )
     public void handleSettlementStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -74,7 +74,7 @@ public class OrderReturnSettlementSagaConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 정산 취소 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -84,7 +84,7 @@ public class OrderReturnSettlementSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             ReturnSettlementSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnSettlementSagaPayload.class);
+                stepMessage.payload(), ReturnSettlementSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -94,23 +94,23 @@ public class OrderReturnSettlementSagaConsumer {
             createReturnAllocations(payload.orderId());
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 반품 정산 역배분 생성 완료. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (DataIntegrityViolationException e) {
             log.info("이미 처리된 반품 정산 역배분 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 정산 역배분 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 정산 역배분 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 정산 역배분 처리 실패"
             );
         }
     }
@@ -118,7 +118,7 @@ public class OrderReturnSettlementSagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             ReturnSettlementSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnSettlementSagaPayload.class);
+                stepMessage.payload(), ReturnSettlementSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -128,19 +128,19 @@ public class OrderReturnSettlementSagaConsumer {
             deletePaymentAllocationPort.deleteReturnAllocationsByOrderId(payload.orderId());
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 반품 정산 역배분 보상 완료 (삭제). sagaId={}, orderId={}",
-                    stepMessage.sagaId(), payload.orderId()
+                stepMessage.sagaId(), payload.orderId()
             );
         } catch (Exception e) {
             // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 정산 역배분 보상 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 정산 역배분 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 정산 역배분 보상 처리 실패"
             );
         }
     }
@@ -149,21 +149,21 @@ public class OrderReturnSettlementSagaConsumer {
         List<PaymentAllocation> originalAllocations = findPaymentAllocationPort.findByOrderId(orderId);
 
         List<PaymentAllocation> returnAllocations = originalAllocations.stream()
-                .filter(allocation -> allocation.getTransactionType().isPositiveContribution())
-                .map(allocation -> PaymentAllocation.from(
-                        PaymentAllocationCreateState.builder()
-                                .orderId(orderId)
-                                .sellerId(allocation.getSellerId())
-                                .allocatedAmount(allocation.getAllocatedAmount().getValue())
-                                .shippingFee(allocation.getShippingFee().getValue())
-                                .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
-                                .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey(IdempotencyKey.of(
-                                        IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()
-                                ))
-                                .build()
-                ))
-                .toList();
+            .filter(allocation -> allocation.getTransactionType().isPositiveContribution())
+            .map(allocation -> PaymentAllocation.from(
+                PaymentAllocationCreateState.builder()
+                    .orderId(orderId)
+                    .sellerId(allocation.getSellerId())
+                    .allocatedAmount(allocation.getAllocatedAmount().getValue())
+                    .shippingFee(allocation.getShippingFee().getValue())
+                    .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey(IdempotencyKey.of(
+                        IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()
+                    ))
+                    .build()
+            ))
+            .toList();
 
         if (!returnAllocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(returnAllocations);
@@ -173,8 +173,8 @@ public class OrderReturnSettlementSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 반품 정산 취소 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

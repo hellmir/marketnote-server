@@ -28,12 +28,12 @@ public class PaymentCancelledPointRefundConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
-            groupId = "reward-point-refund"
+        topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+        groupId = "reward-point-refund"
     )
     public void handlePaymentCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -49,15 +49,15 @@ public class PaymentCancelledPointRefundConsumer {
 
         try {
             PaymentCancelledEvent payload = envelope.getPayloadAs(
-                    PaymentCancelledEvent.class, objectMapper
+                PaymentCancelledEvent.class, objectMapper
             );
 
             log.info("결제 취소 이벤트 수신 (포인트 환불). eventId={}, orderId={}, buyerId={}, pointAmount={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullCancel()
+                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullCancel()
             );
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -69,7 +69,7 @@ public class PaymentCancelledPointRefundConsumer {
             }
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -83,10 +83,10 @@ public class PaymentCancelledPointRefundConsumer {
             modifyUserPointIdempotent(envelope.eventId(), payload.buyerId(), payload.pointAmount(), payload.orderId());
 
             log.info("포인트 환불 완료. orderId={}, buyerId={}, pointAmount={}",
-                    payload.orderId(), payload.buyerId(), payload.pointAmount());
+                payload.orderId(), payload.buyerId(), payload.pointAmount());
         } catch (Exception e) {
             log.error("포인트 환불 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -96,17 +96,17 @@ public class PaymentCancelledPointRefundConsumer {
     private void modifyUserPointIdempotent(String eventId, Long buyerId, Long pointAmount, Long orderId) {
         try {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(buyerId)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(pointAmount)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(orderId)
-                    .reason(POINT_REFUND_REASON)
-                    .build();
+                .userId(buyerId)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(pointAmount)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(POINT_REFUND_REASON)
+                .build();
             modifyUserPointUseCase.modify(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 포인트 환불 이벤트 (멱등 처리). eventId={}, buyerId={}, message={}",
-                    eventId, buyerId, e.getMessage());
+                eventId, buyerId, e.getMessage());
         }
     }
 }

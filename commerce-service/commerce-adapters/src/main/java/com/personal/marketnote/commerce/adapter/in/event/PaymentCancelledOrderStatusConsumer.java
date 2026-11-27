@@ -27,12 +27,12 @@ public class PaymentCancelledOrderStatusConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
-            groupId = "commerce-order-status"
+        topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+        groupId = "commerce-order-status"
     )
     public void handlePaymentCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -50,11 +50,11 @@ public class PaymentCancelledOrderStatusConsumer {
             PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
             log.info("결제 취소 이벤트 수신 (주문 상태 변경). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel()
+                envelope.eventId(), payload.orderId(), payload.isFullCancel()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -70,14 +70,14 @@ public class PaymentCancelledOrderStatusConsumer {
             changeOrderStatusUseCase.changeOrderStatus(command);
 
             log.info("Kafka 이벤트로 주문 상태 변경 완료. orderId={}, isFullCancel={}",
-                    payload.orderId(), payload.isFullCancel());
+                payload.orderId(), payload.isFullCancel());
         } catch (OrderStatusAlreadyChangedException e) {
             log.warn("멱등 처리: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
+                envelope.eventId(), record.key(), e.getMessage());
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("주문 상태 CANCELLED 변경 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -87,9 +87,9 @@ public class PaymentCancelledOrderStatusConsumer {
     private ChangeOrderStatusCommand buildCancelStatusCommand(PaymentCancelledEvent payload) {
         if (payload.isFullCancel()) {
             return ChangeOrderStatusCommand.builder()
-                    .id(payload.orderId())
-                    .orderStatus(OrderStatus.CANCELLED)
-                    .build();
+                .id(payload.orderId())
+                .orderStatus(OrderStatus.CANCELLED)
+                .build();
         }
 
         List<Long> cancelPricePolicyIds = extractCancelPricePolicyIds(payload);
@@ -100,10 +100,10 @@ public class PaymentCancelledOrderStatusConsumer {
         }
 
         return ChangeOrderStatusCommand.builder()
-                .id(payload.orderId())
-                .pricePolicyIds(cancelPricePolicyIds)
-                .orderStatus(OrderStatus.CANCELLED)
-                .build();
+            .id(payload.orderId())
+            .pricePolicyIds(cancelPricePolicyIds)
+            .orderStatus(OrderStatus.CANCELLED)
+            .build();
     }
 
     private List<Long> extractCancelPricePolicyIds(PaymentCancelledEvent payload) {
@@ -111,7 +111,7 @@ public class PaymentCancelledOrderStatusConsumer {
             return List.of();
         }
         return payload.cancelProducts().stream()
-                .map(PaymentCancelledEvent.OrderProductItem::pricePolicyId)
-                .toList();
+            .map(PaymentCancelledEvent.OrderProductItem::pricePolicyId)
+            .toList();
     }
 }

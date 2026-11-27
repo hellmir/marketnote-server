@@ -61,10 +61,10 @@ class ResizedFilePersistenceAdapterTest {
         void savesResizedFilesWithFileReference() {
             // given
             ResizedFile resizedFile = ResizedFile.from(ResizedFileCreateState.builder()
-                    .fileId(1L)
-                    .size("THUMBNAIL")
-                    .storageUrl("https://bucket.s3.amazonaws.com/resized/thumb.jpg")
-                    .build());
+                .fileId(1L)
+                .size("THUMBNAIL")
+                .storageUrl("https://bucket.s3.amazonaws.com/resized/thumb.jpg")
+                .build());
 
             FileJpaEntity fileRef = mock(FileJpaEntity.class);
             when(fileJpaRepository.getReferenceById(1L)).thenReturn(fileRef);
@@ -82,15 +82,15 @@ class ResizedFilePersistenceAdapterTest {
         void savesMultipleResizedFilesWithIndividualReferences() {
             // given
             ResizedFile resized1 = ResizedFile.from(ResizedFileCreateState.builder()
-                    .fileId(1L)
-                    .size("THUMBNAIL")
-                    .storageUrl("https://bucket.s3.amazonaws.com/resized/thumb1.jpg")
-                    .build());
+                .fileId(1L)
+                .size("THUMBNAIL")
+                .storageUrl("https://bucket.s3.amazonaws.com/resized/thumb1.jpg")
+                .build());
             ResizedFile resized2 = ResizedFile.from(ResizedFileCreateState.builder()
-                    .fileId(2L)
-                    .size("MEDIUM")
-                    .storageUrl("https://bucket.s3.amazonaws.com/resized/medium2.jpg")
-                    .build());
+                .fileId(2L)
+                .size("MEDIUM")
+                .storageUrl("https://bucket.s3.amazonaws.com/resized/medium2.jpg")
+                .build());
 
             FileJpaEntity fileRef1 = mock(FileJpaEntity.class);
             FileJpaEntity fileRef2 = mock(FileJpaEntity.class);

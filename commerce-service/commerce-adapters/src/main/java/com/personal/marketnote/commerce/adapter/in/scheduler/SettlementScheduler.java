@@ -33,9 +33,9 @@ public class SettlementScheduler {
 
         try {
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(year)
-                    .month(month)
-                    .build();
+                .year(year)
+                .month(month)
+                .build();
 
             executeSettlementUseCase.executeSettlement(command);
             log.info("월별 자동 정산 실행 완료 - year: {}, month: {}", year, month);

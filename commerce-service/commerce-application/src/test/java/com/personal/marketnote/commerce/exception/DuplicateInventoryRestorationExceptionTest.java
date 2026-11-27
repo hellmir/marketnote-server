@@ -22,7 +22,7 @@ class DuplicateInventoryRestorationExceptionTest {
         RuntimeException root = new RuntimeException("DataIntegrityViolation");
 
         DuplicateInventoryRestorationException ex =
-                new DuplicateInventoryRestorationException(100L, root);
+            new DuplicateInventoryRestorationException(100L, root);
 
         assertThat(ex.getMessage()).contains("100");
         assertThat(ex.getCause()).isSameAs(root);

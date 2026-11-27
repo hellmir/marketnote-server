@@ -13,21 +13,21 @@ class UserPointHistoryFilterTest {
     @DisplayName("ACCRUAL 필터는 toChangeType()에서 UserPointChangeType.ACCRUAL을 반환한다")
     void shouldReturnAccrualChangeType() {
         assertThat(UserPointHistoryFilter.ACCRUAL.toChangeType())
-                .isEqualTo(UserPointChangeType.ACCRUAL);
+            .isEqualTo(UserPointChangeType.ACCRUAL);
     }
 
     @Test
     @DisplayName("DEDUCTION 필터는 toChangeType()에서 UserPointChangeType.DEDUCTION을 반환한다")
     void shouldReturnDeductionChangeType() {
         assertThat(UserPointHistoryFilter.DEDUCTION.toChangeType())
-                .isEqualTo(UserPointChangeType.DEDUCTION);
+            .isEqualTo(UserPointChangeType.DEDUCTION);
     }
 
     @Test
     @DisplayName("ALL 필터는 toChangeType() 호출 시 도메인 예외를 던진다")
     void shouldThrowExceptionWhenFilterIsAll() {
         assertThatThrownBy(() -> UserPointHistoryFilter.ALL.toChangeType())
-                .isInstanceOf(InvalidUserPointHistoryFilterException.class);
+            .isInstanceOf(InvalidUserPointHistoryFilterException.class);
     }
 
     @Test

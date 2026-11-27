@@ -9,8 +9,8 @@ public class CreateShippingTrackerCommandToStateMapper {
 
     public static ShippingTrackerCreateState mapToCreateState(CreateShippingTrackerCommand command) {
         return ShippingTrackerCreateState.builder()
-                .orderId(command.orderId())
-                .buyerId(command.buyerId())
-                .build();
+            .orderId(command.orderId())
+            .buyerId(command.buyerId())
+            .build();
     }
 }

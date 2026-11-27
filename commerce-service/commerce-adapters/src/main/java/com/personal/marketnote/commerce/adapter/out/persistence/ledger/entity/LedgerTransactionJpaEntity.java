@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ledger_transaction",
-        uniqueConstraints = @UniqueConstraint(columnNames = "idempotency_key"))
+    uniqueConstraints = @UniqueConstraint(columnNames = "idempotency_key"))
 @DynamicInsert
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -47,11 +47,11 @@ public class LedgerTransactionJpaEntity {
 
     public static LedgerTransactionJpaEntity from(LedgerTransaction transaction) {
         return LedgerTransactionJpaEntity.builder()
-                .transactionType(transaction.getTransactionType())
-                .targetType(transaction.getTargetType())
-                .targetId(transaction.getTargetId())
-                .description(transaction.getDescription())
-                .idempotencyKey(transaction.getIdempotencyKey().getValue())
-                .build();
+            .transactionType(transaction.getTransactionType())
+            .targetType(transaction.getTargetType())
+            .targetId(transaction.getTargetId())
+            .description(transaction.getDescription())
+            .idempotencyKey(transaction.getIdempotencyKey().getValue())
+            .build();
     }
 }

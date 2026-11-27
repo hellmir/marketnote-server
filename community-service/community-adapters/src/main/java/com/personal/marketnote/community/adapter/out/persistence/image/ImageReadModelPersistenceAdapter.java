@@ -39,25 +39,25 @@ public class ImageReadModelPersistenceAdapter implements FindPostImagesPort, Fin
 
     private Optional<GetFilesResult> findImagesByTargetIdAndSort(Long targetId, FileSort sort) {
         List<ImageReadModelJpaEntity> entities =
-                imageReadModelJpaRepository.findByTargetIdAndFileSortAndStatusOrderBySortOrderAsc(
-                        targetId, sort.name(), EntityStatus.ACTIVE
-                );
+            imageReadModelJpaRepository.findByTargetIdAndFileSortAndStatusOrderBySortOrderAsc(
+                targetId, sort.name(), EntityStatus.ACTIVE
+            );
 
         if (FormatValidator.hasNoValue(entities)) {
             return Optional.empty();
         }
 
         List<GetFileResult> fileResults = entities.stream()
-                .map(entity -> new GetFileResult(
-                        entity.getImageId(),
-                        entity.getFileSort(),
-                        null,
-                        null,
-                        entity.getImageUrl(),
-                        List.of(),
-                        entity.getSortOrder().longValue()
-                ))
-                .toList();
+            .map(entity -> new GetFileResult(
+                entity.getImageId(),
+                entity.getFileSort(),
+                null,
+                null,
+                entity.getImageUrl(),
+                List.of(),
+                entity.getSortOrder().longValue()
+            ))
+            .toList();
 
         return Optional.of(new GetFilesResult(fileResults));
     }
@@ -65,7 +65,7 @@ public class ImageReadModelPersistenceAdapter implements FindPostImagesPort, Fin
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long imageId, Long targetId, String targetType, String fileSort, String imageUrl, Integer sortOrder
+        Long imageId, Long targetId, String targetType, String fileSort, String imageUrl, Integer sortOrder
     ) {
         Optional<ImageReadModelJpaEntity> existing = imageReadModelJpaRepository.findByImageId(imageId);
 
@@ -76,14 +76,14 @@ public class ImageReadModelPersistenceAdapter implements FindPostImagesPort, Fin
 
         try {
             ImageReadModelJpaEntity entity = ImageReadModelJpaEntity.of(
-                    imageId, targetId, targetType, fileSort, imageUrl, sortOrder
+                imageId, targetId, targetType, fileSort, imageUrl, sortOrder
             );
             imageReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 멱등 Upsert: 동시 INSERT race로 중복 발생 시 기존 엔티티를 조회해 update로 전환
             log.info("이미지 Read Model 중복 저장 (멱등 처리). imageId={}", imageId);
             imageReadModelJpaRepository.findByImageId(imageId)
-                    .ifPresent(entity -> entity.updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder));
+                .ifPresent(entity -> entity.updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder));
         }
     }
 
@@ -91,6 +91,6 @@ public class ImageReadModelPersistenceAdapter implements FindPostImagesPort, Fin
     @Transactional(isolation = READ_COMMITTED)
     public void deactivateByImageId(Long imageId) {
         imageReadModelJpaRepository.findByImageId(imageId)
-                .ifPresent(ImageReadModelJpaEntity::markInactive);
+            .ifPresent(ImageReadModelJpaEntity::markInactive);
     }
 }

@@ -14,10 +14,10 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @param <S> SenderType enum 타입
  */
 public class ServiceCommunicationRecorder<
-        T extends Enum<T>,
-        C extends Enum<C>,
-        S extends Enum<S>
-        > {
+    T extends Enum<T>,
+    C extends Enum<C>,
+    S extends Enum<S>
+    > {
     private final ServiceCommunicationHistoryDispatcher<T, C, S> dispatcher;
 
     public ServiceCommunicationRecorder(ServiceCommunicationHistoryDispatcher<T, C, S> dispatcher) {
@@ -29,35 +29,35 @@ public class ServiceCommunicationRecorder<
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String targetId,
-            String payload,
-            JsonNode payloadJson
+        T targetType,
+        C communicationType,
+        S sender,
+        String targetId,
+        String payload,
+        JsonNode payloadJson
     ) {
         dispatcher.dispatch(targetType, targetId, communicationType, sender, null, payload, payloadJson);
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String payload,
-            JsonNode payloadJson,
-            String exception
+        T targetType,
+        C communicationType,
+        S sender,
+        String payload,
+        JsonNode payloadJson,
+        String exception
     ) {
         dispatcher.dispatch(targetType, null, communicationType, sender, exception, payload, payloadJson);
     }
 
     public void record(
-            T targetType,
-            C communicationType,
-            S sender,
-            String targetId,
-            String payload,
-            JsonNode payloadJson,
-            String exception
+        T targetType,
+        C communicationType,
+        S sender,
+        String targetId,
+        String payload,
+        JsonNode payloadJson,
+        String exception
     ) {
         dispatcher.dispatch(targetType, targetId, communicationType, sender, exception, payload, payloadJson);
     }

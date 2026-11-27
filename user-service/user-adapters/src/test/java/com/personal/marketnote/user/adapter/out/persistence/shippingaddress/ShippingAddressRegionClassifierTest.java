@@ -62,7 +62,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "인천광역시 옹진군 영흥면 선재리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("인천", "옹진군", "", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("인천", "옹진군", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -78,7 +78,7 @@ class ShippingAddressRegionClassifierTest {
         // given
         String address = "서울특별시 강남구 테헤란로 123";
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("서울", "강남구", EntityStatus.ACTIVE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -94,7 +94,7 @@ class ShippingAddressRegionClassifierTest {
         // given
         String address = "경기도 성남시 분당구 판교로 123";
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경기", "성남시", EntityStatus.ACTIVE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -111,7 +111,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "경상남도 통영시 한산면 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("경남", "통영시", "", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -127,7 +127,7 @@ class ShippingAddressRegionClassifierTest {
         // given
         String address = "세종특별자치시 한누리대로 123";
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("세종", "한누리대로", EntityStatus.ACTIVE))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -179,7 +179,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "충청남도 보령시 오천면 삽시도리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("충남", "보령시", "", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -196,7 +196,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "전라남도 신안군 지도읍 선도리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("전남", "신안군", "", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("전남", "신안군", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -213,7 +213,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "경상남도 통영시 한산면 추봉리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("경남", "통영시", "한산면", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -229,7 +229,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "경상남도 통영시 광도면 죽림리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("경남", "통영시", "한산면", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -245,7 +245,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "충청남도 보령시 오천면 외연도리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("충남", "보령시", "오천면", "외연도리", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -261,7 +261,7 @@ class ShippingAddressRegionClassifierTest {
         String address = "충청남도 보령시 오천면 삽시도리 123";
         RemoteAreaJpaEntity entity = createRemoteAreaEntity("충남", "보령시", "오천면", "외연도리", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -278,7 +278,7 @@ class ShippingAddressRegionClassifierTest {
         RemoteAreaJpaEntity islandEntity = createRemoteAreaEntity("충남", "보령시", "", "", ShippingAddressRegionType.ISLAND);
         RemoteAreaJpaEntity impossibleEntity = createRemoteAreaEntity("충남", "보령시", "오천면", "외연도리", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(islandEntity, impossibleEntity));
+            .thenReturn(List.of(islandEntity, impossibleEntity));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -295,7 +295,7 @@ class ShippingAddressRegionClassifierTest {
         RemoteAreaJpaEntity entity1 = createRemoteAreaEntity("경남", "통영시", "사량면", "", ShippingAddressRegionType.ISLAND);
         RemoteAreaJpaEntity entity2 = createRemoteAreaEntity("경남", "통영시", "한산면", "", ShippingAddressRegionType.ISLAND);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(entity1, entity2));
+            .thenReturn(List.of(entity1, entity2));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -312,7 +312,7 @@ class ShippingAddressRegionClassifierTest {
         RemoteAreaJpaEntity districtLevel = createRemoteAreaEntity("충남", "보령시", "", "", ShippingAddressRegionType.ISLAND);
         RemoteAreaJpaEntity villageLevel = createRemoteAreaEntity("충남", "보령시", "오천면", "", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
         when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
-                .thenReturn(List.of(districtLevel, villageLevel));
+            .thenReturn(List.of(districtLevel, villageLevel));
 
         // when
         ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
@@ -322,16 +322,16 @@ class ShippingAddressRegionClassifierTest {
     }
 
     private RemoteAreaJpaEntity createRemoteAreaEntity(
-            String province, String district, String village, String subarea, ShippingAddressRegionType regionType
+        String province, String district, String village, String subarea, ShippingAddressRegionType regionType
     ) {
         RemoteArea remoteArea = RemoteArea.from(RemoteAreaSnapshotState.builder()
-                .id(1L)
-                .province(province)
-                .district(district)
-                .village(village)
-                .subarea(subarea)
-                .regionType(regionType)
-                .build());
+            .id(1L)
+            .province(province)
+            .district(district)
+            .village(village)
+            .subarea(subarea)
+            .regionType(regionType)
+            .build());
         return RemoteAreaJpaEntity.from(remoteArea);
     }
 }

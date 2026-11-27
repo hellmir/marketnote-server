@@ -4,5 +4,5 @@ import com.personal.marketnote.community.adapter.out.persistence.servicecommunic
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommunityServiceCommunicationHistoryJpaRepository
-        extends JpaRepository<CommunityServiceCommunicationHistoryJpaEntity, Long> {
+    extends JpaRepository<CommunityServiceCommunicationHistoryJpaEntity, Long> {
 }

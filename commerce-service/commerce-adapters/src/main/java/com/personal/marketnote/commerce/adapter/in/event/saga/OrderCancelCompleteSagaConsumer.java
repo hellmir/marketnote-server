@@ -35,12 +35,12 @@ public class OrderCancelCompleteSagaConsumer {
     private final PublishOrderEventPort publishOrderEventPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED,
-            groupId = "saga-order-cancel-completed"
+        topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED,
+        groupId = "saga-order-cancel-completed"
     )
     public void handleCompleteCancellationStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -60,7 +60,7 @@ public class OrderCancelCompleteSagaConsumer {
         }
 
         log.warn("주문 취소 완료 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType()
+            stepMessage.sagaId(), stepMessage.messageType()
         );
         acknowledgment.acknowledge();
     }
@@ -83,37 +83,37 @@ public class OrderCancelCompleteSagaConsumer {
 
         try {
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(payload.orderId())
-                    .orderKey(payload.orderKey())
-                    .buyerId(payload.buyerId())
-                    .cancelAmount(payload.cancelAmount())
-                    .paymentAmount(payload.paymentAmount())
-                    .pointAmount(payload.pointAmount())
-                    .shippingFee(payload.shippingFee())
-                    .isFullCancel(payload.isFullCancel())
-                    .alreadyRefunded(payload.alreadyRefunded())
-                    .reasonCategory(payload.reasonCategory())
-                    .reason(payload.reason())
-                    .cancelProducts(mapToCancelProductItemCommands(payload.cancelProducts()))
-                    .cancelId(payload.cancelId())
-                    .build();
+                .orderId(payload.orderId())
+                .orderKey(payload.orderKey())
+                .buyerId(payload.buyerId())
+                .cancelAmount(payload.cancelAmount())
+                .paymentAmount(payload.paymentAmount())
+                .pointAmount(payload.pointAmount())
+                .shippingFee(payload.shippingFee())
+                .isFullCancel(payload.isFullCancel())
+                .alreadyRefunded(payload.alreadyRefunded())
+                .reasonCategory(payload.reasonCategory())
+                .reason(payload.reason())
+                .cancelProducts(mapToCancelProductItemCommands(payload.cancelProducts()))
+                .cancelId(payload.cancelId())
+                .build();
 
             completeCancelOrderUseCase.completeCancellation(command);
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 주문 취소 완료 처리 성공. sagaId={}, orderId={}, orderKey={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.orderKey()
+                stepMessage.sagaId(), payload.orderId(), payload.orderKey()
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 주문 취소 완료 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "주문 취소 완료 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "주문 취소 완료 처리 실패"
             );
             publishOrderCancelFailedSafely(payload);
         }
@@ -124,11 +124,11 @@ public class OrderCancelCompleteSagaConsumer {
             return objectMapper.readValue(stepMessage.payload(), CompleteCancellationSagaPayload.class);
         } catch (JsonProcessingException e) {
             log.error("SAGA 주문 취소 완료 스텝 페이로드 역직렬화 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "페이로드 역직렬화 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "페이로드 역직렬화 실패"
             );
             return null;
         }
@@ -136,8 +136,8 @@ public class OrderCancelCompleteSagaConsumer {
 
     private void publishOrderCancelFailedSafely(CompleteCancellationSagaPayload payload) {
         if (FormatValidator.hasNoValue(payload)
-                || FormatValidator.hasNoValue(payload.orderId())
-                || FormatValidator.hasNoValue(payload.buyerId())) {
+            || FormatValidator.hasNoValue(payload.orderId())
+            || FormatValidator.hasNoValue(payload.buyerId())) {
             return;
         }
         try {
@@ -145,31 +145,31 @@ public class OrderCancelCompleteSagaConsumer {
         } catch (Exception e) {
             // boundary swallow: SAGA 실패 알림 publish 자체 실패 시 SAGA 본 흐름은 계속 진행 (best-effort 보상 publish)
             log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
-                    payload.orderId(), payload.buyerId(), e
+                payload.orderId(), payload.buyerId(), e
             );
         }
     }
 
     private List<CancelProductItemCommand> mapToCancelProductItemCommands(
-            List<CompleteCancellationSagaPayload.OrderProductItem> items
+        List<CompleteCancellationSagaPayload.OrderProductItem> items
     ) {
         if (FormatValidator.hasNoValue(items)) {
             return List.of();
         }
         return items.stream()
-                .map(item -> new CancelProductItemCommand(
-                        item.pricePolicyId(), item.sharerKey(), item.quantity(), item.unitAmount()
-                ))
-                .toList();
+            .map(item -> new CancelProductItemCommand(
+                item.pricePolicyId(), item.sharerKey(), item.quantity(), item.unitAmount()
+            ))
+            .toList();
     }
 
     private void publishValidationFailure(
-            SagaStepMessage stepMessage, CompleteCancellationSagaPayload payload, String reason
+        SagaStepMessage stepMessage, CompleteCancellationSagaPayload payload, String reason
     ) {
         log.warn("SAGA 주문 취소 완료 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
         publishOrderCancelFailedSafely(payload);
     }

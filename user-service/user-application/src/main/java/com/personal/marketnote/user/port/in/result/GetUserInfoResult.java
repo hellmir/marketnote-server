@@ -13,40 +13,40 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetUserInfoResult(
-        Long id,
-        AccountInfoResult accountInfo,
-        String nickname,
-        String email,
-        String fullName,
-        String phoneNumber,
-        String referenceCode,
-        String roleId,
-        LocalDateTime signedUpAt,
-        LocalDateTime lastLoggedInAt,
-        String status,
-        boolean isWithdrawn,
-        Long orderNum,
-        int penaltyCount,
-        LocalDateTime deactivatedUntil
+    Long id,
+    AccountInfoResult accountInfo,
+    String nickname,
+    String email,
+    String fullName,
+    String phoneNumber,
+    String referenceCode,
+    String roleId,
+    LocalDateTime signedUpAt,
+    LocalDateTime lastLoggedInAt,
+    String status,
+    boolean isWithdrawn,
+    Long orderNum,
+    int penaltyCount,
+    LocalDateTime deactivatedUntil
 ) {
     public static GetUserInfoResult from(User user) {
         return GetUserInfoResult.builder()
-                .id(user.getId())
-                .accountInfo(AccountInfoResult.from(user.getUserAuthProviders()))
-                .nickname(toNicknameValue(user.getNickname()))
-                .email(toEmailValue(user.getEmail()))
-                .fullName(user.getFullName())
-                .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
-                .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
-                .roleId(user.getRole().getId())
-                .signedUpAt(user.getSignedUpAt())
-                .lastLoggedInAt(user.getLastLoggedInAt())
-                .status(user.getStatus().name())
-                .isWithdrawn(user.isWithdrawn())
-                .orderNum(user.getOrderNum())
-                .penaltyCount(user.getPenaltyCount())
-                .deactivatedUntil(user.getDeactivatedUntil())
-                .build();
+            .id(user.getId())
+            .accountInfo(AccountInfoResult.from(user.getUserAuthProviders()))
+            .nickname(toNicknameValue(user.getNickname()))
+            .email(toEmailValue(user.getEmail()))
+            .fullName(user.getFullName())
+            .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
+            .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
+            .roleId(user.getRole().getId())
+            .signedUpAt(user.getSignedUpAt())
+            .lastLoggedInAt(user.getLastLoggedInAt())
+            .status(user.getStatus().name())
+            .isWithdrawn(user.isWithdrawn())
+            .orderNum(user.getOrderNum())
+            .penaltyCount(user.getPenaltyCount())
+            .deactivatedUntil(user.getDeactivatedUntil())
+            .build();
     }
 
     private static String toNicknameValue(Nickname nickname) {

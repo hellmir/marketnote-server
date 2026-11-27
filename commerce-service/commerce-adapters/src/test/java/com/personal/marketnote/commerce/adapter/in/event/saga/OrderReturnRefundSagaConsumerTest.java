@@ -62,15 +62,15 @@ class OrderReturnRefundSagaConsumerTest {
         @BeforeEach
         void setUp() throws Exception {
             actionPayload = new ObjectMapper().writeValueAsString(
-                    Map.of(
-                            "orderId", 1L,
-                            "orderKey", "order-key-1",
-                            "buyerId", 100L,
-                            "returnAmount", 50000L,
-                            "paymentAmount", 60000L,
-                            "isFullReturn", true,
-                            "returnShippingFee", 0L
-                    )
+                Map.of(
+                    "orderId", 1L,
+                    "orderKey", "order-key-1",
+                    "buyerId", 100L,
+                    "returnAmount", 50000L,
+                    "paymentAmount", 60000L,
+                    "isFullReturn", true,
+                    "returnShippingFee", 0L
+                )
             );
         }
 
@@ -78,14 +78,14 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("PG 환불 성공 시 성공 응답을 발행한다")
         void shouldPublishSuccessOnRefundCompleted() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleRefundStep(record, acknowledgment);
 
             verify(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -93,13 +93,13 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("PG 환불 성공 시 올바른 Command가 전달된다")
         void shouldPassCorrectCommandOnRefund() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleRefundStep(record, acknowledgment);
 
             ArgumentCaptor<CompleteReturnRefundCommand> captor =
-                    ArgumentCaptor.forClass(CompleteReturnRefundCommand.class);
+                ArgumentCaptor.forClass(CompleteReturnRefundCommand.class);
             verify(completeReturnRefundUseCase).completeReturnRefund(captor.capture());
             CompleteReturnRefundCommand captured = captor.getValue();
             assertThat(captured.orderId()).isEqualTo(1L);
@@ -113,17 +113,17 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("이미 환불된 결제는 멱등 처리로 성공 응답을 발행한다")
         void shouldPublishSuccessOnAlreadyRefunded() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new PaymentAlreadyRefundedException("order-key-1"))
-                    .when(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
+                .when(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
 
             consumer.handleRefundStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("idempotent"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("idempotent"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -131,17 +131,17 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("PG 환불 처리 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnRefundError() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("PG 통신 오류"))
-                    .when(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
+                .when(completeReturnRefundUseCase).completeReturnRefund(any(CompleteReturnRefundCommand.class));
 
             consumer.handleRefundStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("반품 PG 환불 처리 실패"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("반품 PG 환불 처리 실패"));
             verify(acknowledgment).acknowledge();
         }
     }
@@ -154,9 +154,9 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("보상 메시지 수신 시 보상 없음 로그만 남기고 acknowledge한다")
         void shouldLogWarningOnCompensationMessage() throws Exception {
             String payload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "orderKey", "order-key-1"));
+                Map.of("orderId", 1L, "orderKey", "order-key-1"));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleRefundStep(record, acknowledgment);
@@ -175,17 +175,17 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("orderId가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderId() throws Exception {
             String invalidPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderKey", "order-key-1", "buyerId", 100L));
+                Map.of("orderKey", "order-key-1", "buyerId", 100L));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleRefundStep(record, acknowledgment);
 
             verifyNoInteractions(completeReturnRefundUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("orderId"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("orderId"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -193,17 +193,17 @@ class OrderReturnRefundSagaConsumerTest {
         @DisplayName("orderKey가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderKey() throws Exception {
             String invalidPayload = new ObjectMapper().writeValueAsString(
-                    Map.of("orderId", 1L, "buyerId", 100L));
+                Map.of("orderId", 1L, "buyerId", 100L));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleRefundStep(record, acknowledgment);
 
             verifyNoInteractions(completeReturnRefundUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("orderKey"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("orderKey"));
             verify(acknowledgment).acknowledge();
         }
     }
@@ -211,12 +211,12 @@ class OrderReturnRefundSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-10-11T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_RETURN.REFUND_PAYMENT.action", "saga-orchestrator", stepMessage, clock);
+            "saga.ORDER_RETURN.REFUND_PAYMENT.action", "saga-orchestrator", stepMessage, clock);
 
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>("saga.order-return.refund", 0, 0, SAGA_ID,
-                        (EventEnvelope<?>) (EventEnvelope) envelope);
+            new ConsumerRecord<>("saga.order-return.refund", 0, 0, SAGA_ID,
+                (EventEnvelope<?>) (EventEnvelope) envelope);
         return record;
     }
 }

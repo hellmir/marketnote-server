@@ -54,8 +54,8 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
         saveLedgerEntryPort.saveAll(entries);
 
         log.info("장부 거래 기록 완료 - transactionId: {}, type: {}, targetType: {}, targetId: {}, idempotencyKey: {}",
-                savedTransaction.getId(), command.transactionType(),
-                command.targetType(), command.targetId(), command.idempotencyKey()
+            savedTransaction.getId(), command.transactionType(),
+            command.targetType(), command.targetId(), command.idempotencyKey()
         );
     }
 
@@ -63,22 +63,22 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordPaymentApproval(Long orderId, long paymentAmount) {
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                return new AccountNotFoundException();
+            });
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                return new AccountNotFoundException();
+            });
 
         RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forPaymentApproval(
-                orderId,
-                List.of(
-                        RecordLedgerEntryCommand.EntryLine.debit(pgReceivable.getId(), paymentAmount),
-                        RecordLedgerEntryCommand.EntryLine.credit(sellerPayable.getId(), paymentAmount)
-                )
+            orderId,
+            List.of(
+                RecordLedgerEntryCommand.EntryLine.debit(pgReceivable.getId(), paymentAmount),
+                RecordLedgerEntryCommand.EntryLine.credit(sellerPayable.getId(), paymentAmount)
+            )
         );
 
         record(command);
@@ -88,23 +88,23 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordPaymentCancellation(Long orderId, long cancelAmount, String idempotencyKey) {
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                return new AccountNotFoundException();
+            });
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                return new AccountNotFoundException();
+            });
 
         RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forPaymentCancellation(
-                orderId,
-                idempotencyKey,
-                List.of(
-                        RecordLedgerEntryCommand.EntryLine.debit(sellerPayable.getId(), cancelAmount),
-                        RecordLedgerEntryCommand.EntryLine.credit(pgReceivable.getId(), cancelAmount)
-                )
+            orderId,
+            idempotencyKey,
+            List.of(
+                RecordLedgerEntryCommand.EntryLine.debit(sellerPayable.getId(), cancelAmount),
+                RecordLedgerEntryCommand.EntryLine.credit(pgReceivable.getId(), cancelAmount)
+            )
         );
 
         record(command);
@@ -114,20 +114,20 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordPgSettlement(Long settlementId, long totalAmount, long pgFeeAmount) {
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                return new AccountNotFoundException();
+            });
         Account pgFeeAccount = findAccountPort.findByName(ACCOUNT_PG_FEE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_FEE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_FEE);
+                return new AccountNotFoundException();
+            });
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                return new AccountNotFoundException();
+            });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
@@ -148,23 +148,23 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordSellerSettlement(
-            Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount
+        Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount
     ) {
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                return new AccountNotFoundException();
+            });
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                return new AccountNotFoundException();
+            });
         Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PLATFORM_FEE_REVENUE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PLATFORM_FEE_REVENUE);
+                return new AccountNotFoundException();
+            });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
@@ -196,10 +196,10 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     private void validateAccounts(List<RecordLedgerEntryCommand.EntryLine> entryLines) {
         for (RecordLedgerEntryCommand.EntryLine entryLine : entryLines) {
             Account account = findAccountPort.findById(entryLine.accountId())
-                    .orElseThrow(() -> {
-                        log.warn("계정과목을 찾을 수 없습니다. accountId={}", entryLine.accountId());
-                        return new AccountNotFoundException();
-                    });
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountId={}", entryLine.accountId());
+                    return new AccountNotFoundException();
+                });
             if (!account.isActive()) {
                 throw new InactiveAccountException(account.getName());
             }
@@ -210,7 +210,7 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
         List<LedgerEntry> entries = new ArrayList<>();
         for (RecordLedgerEntryCommand.EntryLine entryLine : entryLines) {
             LedgerEntry entry = LedgerEntry.from(LedgerEntryCreateState.of(
-                    entryLine.accountId(), entryLine.amount(), entryLine.transactionType()
+                entryLine.accountId(), entryLine.amount(), entryLine.transactionType()
             ));
             entries.add(entry);
         }
@@ -219,11 +219,11 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
 
     private LedgerTransaction createTransaction(RecordLedgerEntryCommand command) {
         return LedgerTransaction.from(LedgerTransactionCreateState.forTransaction(
-                command.transactionType(),
-                command.targetType(),
-                command.targetId(),
-                command.description(),
-                IdempotencyKey.of(command.idempotencyKey())
+            command.transactionType(),
+            command.targetType(),
+            command.targetId(),
+            command.description(),
+            IdempotencyKey.of(command.idempotencyKey())
         ));
     }
 }

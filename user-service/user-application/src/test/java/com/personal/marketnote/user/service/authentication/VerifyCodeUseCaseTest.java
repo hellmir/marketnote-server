@@ -73,8 +73,8 @@ class VerifyCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> verifyCodeService.verifyCode(command))
-                .isInstanceOf(InvalidVerificationCodeException.class)
-                .hasMessage(new InvalidVerificationCodeException().getMessage());
+            .isInstanceOf(InvalidVerificationCodeException.class)
+            .hasMessage(new InvalidVerificationCodeException().getMessage());
 
         verify(verifyCodePort).verify(email, code);
         verifyNoInteractions(getUserUseCase);
@@ -96,8 +96,8 @@ class VerifyCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> verifyCodeService.verifyCode(command))
-                .isInstanceOf(UserNotActiveException.class)
-                .hasMessage(new UserNotActiveException(SECOND_ERROR_CODE, email).getMessage());
+            .isInstanceOf(UserNotActiveException.class)
+            .hasMessage(new UserNotActiveException(SECOND_ERROR_CODE, email).getMessage());
 
         verify(verifyCodePort).verify(email, code);
         verify(getUserUseCase).getAllStatusUser(email);
@@ -121,7 +121,7 @@ class VerifyCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> verifyCodeService.verifyCode(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(verifyCodePort).verify(email, code);
         verify(getUserUseCase).getAllStatusUser(email);

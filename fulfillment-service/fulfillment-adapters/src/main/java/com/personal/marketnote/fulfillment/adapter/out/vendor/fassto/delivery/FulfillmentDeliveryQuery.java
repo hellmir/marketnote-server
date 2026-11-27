@@ -18,34 +18,34 @@ public class FulfillmentDeliveryQuery {
     private String ordNo;
 
     public static FulfillmentDeliveryQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String status,
-            String outDiv
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String status,
+        String outDiv
     ) {
         return FulfillmentDeliveryQuery.of(customerCode, accessToken, startDate, endDate, status, outDiv, null);
     }
 
     public static FulfillmentDeliveryQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String status,
-            String outDiv,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String status,
+        String outDiv,
+        String ordNo
     ) {
         FulfillmentDeliveryQuery query = FulfillmentDeliveryQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .status(status)
-                .outDiv(outDiv)
-                .ordNo(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .status(status)
+            .outDiv(outDiv)
+            .ordNo(ordNo)
+            .build();
         query.validate();
         return query;
     }

@@ -71,7 +71,7 @@ class CartJpaRepositoryTest {
 
             assertThat(results).hasSize(2);
             assertThat(results).extracting(c -> c.getId().getPricePolicyId())
-                    .containsExactlyInAnyOrder(policy1.getId(), policy2.getId());
+                .containsExactlyInAnyOrder(policy1.getId(), policy2.getId());
         }
 
         @Test
@@ -113,7 +113,7 @@ class CartJpaRepositoryTest {
             entityManager.clear();
 
             Optional<CartProductJpaEntity> result = cartJpaRepository
-                    .findByIdUserIdAndPricePolicyId(100L, policy.getId());
+                .findByIdUserIdAndPricePolicyId(100L, policy.getId());
 
             assertThat(result).isPresent();
             assertThat(result.get().getQuantity()).isEqualTo((short) 4);
@@ -123,7 +123,7 @@ class CartJpaRepositoryTest {
         @DisplayName("매칭되는 항목이 없으면 빈 Optional을 반환한다")
         void returnsEmptyWhenNotFound() {
             Optional<CartProductJpaEntity> result = cartJpaRepository
-                    .findByIdUserIdAndPricePolicyId(100L, 999L);
+                .findByIdUserIdAndPricePolicyId(100L, 999L);
 
             assertThat(result).isEmpty();
         }
@@ -244,17 +244,17 @@ class CartJpaRepositoryTest {
     private ProductJpaEntity saveProduct(String name, String brandName) {
         UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName(brandName)
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName(brandName)
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);
         ProductJpaEntity saved = productJpaRepository.save(entity);
@@ -264,13 +264,13 @@ class CartJpaRepositoryTest {
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(10000L)
-                        .discountPrice(9000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(10000L)
+                .discountPrice(9000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
         PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);
@@ -280,13 +280,13 @@ class CartJpaRepositoryTest {
 
     private void saveCartProduct(Long userId, PricePolicyJpaEntity policyEntity, short quantity) {
         CartProduct cartProduct = CartProduct.from(
-                CartProductCreateState.builder()
-                        .userId(userId)
-                        .sharerKey(UUID.randomUUID())
-                        .pricePolicy(null)
-                        .imageUrl("http://example.com/image.jpg")
-                        .quantity(quantity)
-                        .build()
+            CartProductCreateState.builder()
+                .userId(userId)
+                .sharerKey(UUID.randomUUID())
+                .pricePolicy(null)
+                .imageUrl("http://example.com/image.jpg")
+                .quantity(quantity)
+                .build()
         );
         CartProductJpaEntity entity = CartProductJpaEntity.from(cartProduct, policyEntity);
         cartJpaRepository.save(entity);

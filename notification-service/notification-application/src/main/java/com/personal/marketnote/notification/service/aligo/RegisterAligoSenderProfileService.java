@@ -37,10 +37,10 @@ public class RegisterAligoSenderProfileService implements RegisterAligoSenderPro
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public AligoSenderProfile findProfile(String senderKey) {
         return findAligoSenderProfilePort.findBySenderKey(senderKey)
-                .orElseThrow(() -> {
-                    log.warn("발신프로필을 찾을 수 없습니다. senderKey={}", senderKey);
-                    return new AligoSenderProfileNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("발신프로필을 찾을 수 없습니다. senderKey={}", senderKey);
+                return new AligoSenderProfileNotFoundException();
+            });
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)

@@ -17,37 +17,37 @@ public class FulfillmentDeliveryCarMapper {
     private List<FulfillmentDeliveryCarItemMapper> deliveryRequests;
 
     public static FulfillmentDeliveryCarMapper register(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentDeliveryCarItemMapper> deliveryRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentDeliveryCarItemMapper> deliveryRequests
     ) {
         FulfillmentDeliveryCarMapper mapper = FulfillmentDeliveryCarMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .deliveryRequests(deliveryRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .deliveryRequests(deliveryRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public static FulfillmentDeliveryCarMapper update(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentDeliveryCarItemMapper> deliveryRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentDeliveryCarItemMapper> deliveryRequests
     ) {
         FulfillmentDeliveryCarMapper mapper = FulfillmentDeliveryCarMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .deliveryRequests(deliveryRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .deliveryRequests(deliveryRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public List<Map<String, Object>> toPayload() {
         return deliveryRequests.stream()
-                .map(FulfillmentDeliveryCarItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentDeliveryCarItemMapper::toPayload)
+            .toList();
     }
 
     public String getOrdNo() {

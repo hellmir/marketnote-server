@@ -11,21 +11,21 @@ public class SettlementPolicyRequestToCommandMapper {
 
     public static RegisterSettlementPolicyCommand mapToRegisterCommand(RegisterSettlementPolicyRequest request) {
         return RegisterSettlementPolicyCommand.builder()
-                .sellerId(request.getSellerId())
-                .pgFeeRate(request.getPgFeeRate())
-                .platformFeeRate(request.getPlatformFeeRate())
-                .settlementCycle(request.getSettlementCycle())
-                .minPayoutAmount(request.getMinPayoutAmount())
-                .build();
+            .sellerId(request.getSellerId())
+            .pgFeeRate(request.getPgFeeRate())
+            .platformFeeRate(request.getPlatformFeeRate())
+            .settlementCycle(request.getSettlementCycle())
+            .minPayoutAmount(request.getMinPayoutAmount())
+            .build();
     }
 
     public static UpdateSettlementPolicyCommand mapToUpdateCommand(Long id, UpdateSettlementPolicyRequest request) {
         return UpdateSettlementPolicyCommand.builder()
-                .id(id)
-                .pgFeeRate(request.getPgFeeRate())
-                .platformFeeRate(request.getPlatformFeeRate())
-                .settlementCycle(request.getSettlementCycle())
-                .minPayoutAmount(request.getMinPayoutAmount())
-                .build();
+            .id(id)
+            .pgFeeRate(request.getPgFeeRate())
+            .platformFeeRate(request.getPlatformFeeRate())
+            .settlementCycle(request.getSettlementCycle())
+            .minPayoutAmount(request.getMinPayoutAmount())
+            .build();
     }
 }

@@ -5,17 +5,17 @@ import com.personal.marketnote.community.port.in.result.review.ProductReviewAggr
 import java.math.BigDecimal;
 
 public record ProductReviewAggregateSummaryResponse(
-        Long productId,
-        int totalCount,
-        BigDecimal averageRating
+    Long productId,
+    int totalCount,
+    BigDecimal averageRating
 ) {
     public static ProductReviewAggregateSummaryResponse from(
-            ProductReviewAggregateSummaryResult result
+        ProductReviewAggregateSummaryResult result
     ) {
         return new ProductReviewAggregateSummaryResponse(
-                result.productId(),
-                result.totalCount(),
-                result.averageRating()
+            result.productId(),
+            result.totalCount(),
+            result.averageRating()
         );
     }
 }

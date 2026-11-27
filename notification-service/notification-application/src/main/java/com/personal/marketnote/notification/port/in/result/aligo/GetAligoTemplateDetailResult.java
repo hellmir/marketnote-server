@@ -36,23 +36,23 @@ public class GetAligoTemplateDetailResult {
 
     @JsonCreator
     public GetAligoTemplateDetailResult(
-            @JsonProperty("id") Long id,
-            @JsonProperty("senderKey") String senderKey,
-            @JsonProperty("templateCode") String templateCode,
-            @JsonProperty("templateName") String templateName,
-            @JsonProperty("templateContent") String templateContent,
-            @JsonProperty("templateTitle") String templateTitle,
-            @JsonProperty("templateSubtitle") String templateSubtitle,
-            @JsonProperty("templateType") String templateType,
-            @JsonProperty("templateEmType") String templateEmType,
-            @JsonProperty("templateSecure") boolean templateSecure,
-            @JsonProperty("templateAdvert") boolean templateAdvert,
-            @JsonProperty("imageUrl") String imageUrl,
-            @JsonProperty("imageName") String imageName,
-            @JsonProperty("inspStatus") String inspStatus,
-            @JsonProperty("templateStatus") String templateStatus,
-            @JsonProperty("comments") String comments,
-            @JsonProperty("buttons") List<ButtonResult> buttons
+        @JsonProperty("id") Long id,
+        @JsonProperty("senderKey") String senderKey,
+        @JsonProperty("templateCode") String templateCode,
+        @JsonProperty("templateName") String templateName,
+        @JsonProperty("templateContent") String templateContent,
+        @JsonProperty("templateTitle") String templateTitle,
+        @JsonProperty("templateSubtitle") String templateSubtitle,
+        @JsonProperty("templateType") String templateType,
+        @JsonProperty("templateEmType") String templateEmType,
+        @JsonProperty("templateSecure") boolean templateSecure,
+        @JsonProperty("templateAdvert") boolean templateAdvert,
+        @JsonProperty("imageUrl") String imageUrl,
+        @JsonProperty("imageName") String imageName,
+        @JsonProperty("inspStatus") String inspStatus,
+        @JsonProperty("templateStatus") String templateStatus,
+        @JsonProperty("comments") String comments,
+        @JsonProperty("buttons") List<ButtonResult> buttons
     ) {
         this.id = id;
         this.senderKey = senderKey;
@@ -153,13 +153,13 @@ public class GetAligoTemplateDetailResult {
 
         @JsonCreator
         public ButtonResult(
-                @JsonProperty("ordering") int ordering,
-                @JsonProperty("name") String name,
-                @JsonProperty("linkType") String linkType,
-                @JsonProperty("linkMo") String linkMo,
-                @JsonProperty("linkPc") String linkPc,
-                @JsonProperty("linkIos") String linkIos,
-                @JsonProperty("linkAnd") String linkAnd
+            @JsonProperty("ordering") int ordering,
+            @JsonProperty("name") String name,
+            @JsonProperty("linkType") String linkType,
+            @JsonProperty("linkMo") String linkMo,
+            @JsonProperty("linkPc") String linkPc,
+            @JsonProperty("linkIos") String linkIos,
+            @JsonProperty("linkAnd") String linkAnd
         ) {
             this.ordering = ordering;
             this.name = name;

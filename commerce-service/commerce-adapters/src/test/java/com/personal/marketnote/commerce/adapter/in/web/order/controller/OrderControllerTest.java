@@ -78,7 +78,7 @@ class OrderControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -107,7 +107,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<RegisterOrderResponse>> response =
-                    orderController.registerOrder(request, principal);
+                orderController.registerOrder(request, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -116,7 +116,7 @@ class OrderControllerTest {
             assertThat(response.getBody().getContent().orderKey()).isEqualTo("ORDER_KEY_1");
             verify(registerOrderUseCase).registerOrder(any(RegisterOrderCommand.class));
             verify(updateUserShippingAddressDeliveryRequestPort, never())
-                    .updateDeliveryRequest(any(), any(), any(), any());
+                .updateDeliveryRequest(any(), any(), any(), any());
         }
 
         @Test
@@ -134,7 +134,7 @@ class OrderControllerTest {
             when(request.getOrderProducts()).thenReturn(List.of());
 
             when(registerOrderUseCase.registerOrder(any(RegisterOrderCommand.class)))
-                    .thenReturn(new RegisterOrderResult(1L, "ORDER_KEY_1"));
+                .thenReturn(new RegisterOrderResult(1L, "ORDER_KEY_1"));
 
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
 
@@ -143,12 +143,12 @@ class OrderControllerTest {
 
             // then
             verify(updateUserShippingAddressDeliveryRequestPort)
-                    .updateDeliveryRequest(
-                            100L,
-                            200L,
-                            DeliveryRequestType.LEAVE_AT_DOOR,
-                            "문앞에 놓아주세요"
-                    );
+                .updateDeliveryRequest(
+                    100L,
+                    200L,
+                    DeliveryRequestType.LEAVE_AT_DOOR,
+                    "문앞에 놓아주세요"
+                );
         }
     }
 
@@ -163,11 +163,11 @@ class OrderControllerTest {
             Long orderId = 1L;
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             when(getOrderUseCase.getOrderKey(orderId, 200L))
-                    .thenReturn(new GetOrderKeyResult("ORDER_KEY_1"));
+                .thenReturn(new GetOrderKeyResult("ORDER_KEY_1"));
 
             // when
             ResponseEntity<BaseResponse<GetOrderKeyResponse>> response =
-                    orderController.getOrderKey(orderId, principal);
+                orderController.getOrderKey(orderId, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -187,11 +187,11 @@ class OrderControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             when(getOrderUseCase.getOrderProductKey(1L, 10L, 200L))
-                    .thenReturn(new GetOrderProductKeyResult("ORDER_PRODUCT_KEY_1"));
+                .thenReturn(new GetOrderProductKeyResult("ORDER_PRODUCT_KEY_1"));
 
             // when
             ResponseEntity<BaseResponse<GetOrderProductKeyResponse>> response =
-                    orderController.getOrderProductKey(1L, 10L, principal);
+                orderController.getOrderProductKey(1L, 10L, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -216,7 +216,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetOrderResponse>> response =
-                    orderController.getOrder(orderId, principal);
+                orderController.getOrder(orderId, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -236,14 +236,14 @@ class OrderControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             when(getOrderUseCase.getBuyerOrderHistory(any(GetBuyerOrderHistoryQuery.class)))
-                    .thenReturn(GetBuyerOrdersResult.of(List.of(), Map.of()));
+                .thenReturn(GetBuyerOrdersResult.of(List.of(), Map.of()));
 
             // when
             ResponseEntity<BaseResponse<GetMyOrdersResponse>> response = orderController.getMyOrderHistory(
-                    principal,
-                    OrderPeriod.ONE_MONTH,
-                    OrderStatusFilter.ALL,
-                    null
+                principal,
+                OrderPeriod.ONE_MONTH,
+                OrderStatusFilter.ALL,
+                null
             );
 
             // then
@@ -268,14 +268,14 @@ class OrderControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             when(getOrderUseCase.getBuyerOrderCount(any(GetBuyerOrderHistoryQuery.class)))
-                    .thenReturn(GetOrderCountResult.of(5L));
+                .thenReturn(GetOrderCountResult.of(5L));
 
             // when
             ResponseEntity<BaseResponse<GetOrderCountResponse>> response = orderController.getMyOrderCount(
-                    principal,
-                    OrderPeriod.ALL,
-                    OrderStatusFilter.ALL,
-                    "상품명"
+                principal,
+                OrderPeriod.ALL,
+                OrderStatusFilter.ALL,
+                "상품명"
             );
 
             // then
@@ -302,7 +302,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    orderController.cancelOrder(orderId, request, principal);
+                orderController.cancelOrder(orderId, request, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -332,7 +332,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    orderController.requestReturn(orderId, request, principal);
+                orderController.requestReturn(orderId, request, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -393,7 +393,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    orderController.rejectReturn(orderId, request);
+                orderController.rejectReturn(orderId, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -412,23 +412,23 @@ class OrderControllerTest {
             Long orderId = 1L;
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             GetReturnRefundInfoResult result = GetReturnRefundInfoResult.builder()
-                    .totalProductAmount(10_000L)
-                    .returnShippingFee(3_000L)
-                    .refundMethod("CARD")
-                    .estimatedRefundAmount(7_000L)
-                    .estimatedRefundCash(7_000L)
-                    .build();
+                .totalProductAmount(10_000L)
+                .returnShippingFee(3_000L)
+                .refundMethod("CARD")
+                .estimatedRefundAmount(7_000L)
+                .estimatedRefundCash(7_000L)
+                .build();
             when(getReturnRefundInfoUseCase.getReturnRefundInfo(any(GetReturnRefundInfoCommand.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetReturnRefundInfoResponse>> response =
-                    orderController.getReturnRefundInfo(
-                            orderId,
-                            OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND,
-                            List.of(1L, 2L),
-                            principal
-                    );
+                orderController.getReturnRefundInfo(
+                    orderId,
+                    OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND,
+                    List.of(1L, 2L),
+                    principal
+                );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -453,7 +453,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    orderController.confirmOrder(orderId, principal);
+                orderController.confirmOrder(orderId, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -481,7 +481,7 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    orderController.changeOrderStatus(orderId, request);
+                orderController.changeOrderStatus(orderId, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -498,12 +498,12 @@ class OrderControllerTest {
         void shouldReturnOkWhenUpdateReviewStatusSucceeds() {
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    orderController.updateOrderProductReviewStatus(1L, 10L, true);
+                orderController.updateOrderProductReviewStatus(1L, 10L, true);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<UpdateOrderProductReviewStatusCommand> captor =
-                    ArgumentCaptor.forClass(UpdateOrderProductReviewStatusCommand.class);
+                ArgumentCaptor.forClass(UpdateOrderProductReviewStatusCommand.class);
             verify(updateOrderProductUseCase).updateReviewStatus(captor.capture());
             assertThat(captor.getValue().orderId()).isEqualTo(1L);
             assertThat(captor.getValue().pricePolicyId()).isEqualTo(10L);
@@ -523,10 +523,10 @@ class OrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetAdminOrdersResponse>> response = orderController.getAdminOrders(
-                    null,
-                    LocalDateTime.of(2026, 1, 1, 0, 0),
-                    LocalDateTime.of(2026, 1, 31, 23, 59),
-                    OrderStatus.PAID
+                null,
+                LocalDateTime.of(2026, 1, 1, 0, 0),
+                LocalDateTime.of(2026, 1, 31, 23, 59),
+                OrderStatus.PAID
             );
 
             // then
@@ -547,11 +547,11 @@ class OrderControllerTest {
             // given
             Long orderId = 1L;
             when(getOrderStatusHistoryUseCase.getOrderStatusHistory(orderId))
-                    .thenReturn(new GetOrderStatusHistoryResult(orderId, List.of()));
+                .thenReturn(new GetOrderStatusHistoryResult(orderId, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetOrderStatusHistoryResponse>> response =
-                    orderController.getOrderStatusHistory(orderId);
+                orderController.getOrderStatusHistory(orderId);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

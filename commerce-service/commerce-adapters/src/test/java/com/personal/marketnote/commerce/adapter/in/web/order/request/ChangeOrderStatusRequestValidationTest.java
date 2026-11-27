@@ -32,7 +32,7 @@ class ChangeOrderStatusRequestValidationTest {
 
         assertThat(violations).isNotEmpty();
         assertThat(violations).anyMatch(v ->
-                v.getPropertyPath().toString().equals("orderStatus")
-                        && v.getMessage().equals("주문 상태는 필수값입니다."));
+            v.getPropertyPath().toString().equals("orderStatus")
+                && v.getMessage().equals("주문 상태는 필수값입니다."));
     }
 }

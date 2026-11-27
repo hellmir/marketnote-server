@@ -32,8 +32,8 @@ public class SseEventRedisSubscriber implements MessageListener {
         }
 
         SseEmitter.SseEventBuilder event = SseEmitter.event()
-                .name(sseEventMessage.eventType())
-                .data(sseEventMessage.payload());
+            .name(sseEventMessage.eventType())
+            .data(sseEventMessage.payload());
 
         sseConnectionRegistry.sendToUser(sseEventMessage.userId(), event);
     }

@@ -62,55 +62,55 @@ class DeleteReviewUseCaseTest {
         inOrder.verify(getReviewUseCase).getProductReviewAggregate(productId);
         inOrder.verify(updateReviewPort).update(aggregate);
         inOrder.verify(publishReviewEventPort).publishReviewDeletedEvent(
-                eq(reviewId), eq(productId),
-                eq(aggregate.getTotalCount()), eq(aggregate.getAverageRating()),
-                eq(reviewerId)
+            eq(reviewId), eq(productId),
+            eq(aggregate.getTotalCount()), eq(aggregate.getAverageRating()),
+            eq(reviewerId)
         );
     }
 
     private Review buildReview(Long id, Long reviewerId, Long productId, Float rating) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(1000L)
-                        .productId(productId)
-                        .pricePolicyId(3000L)
-                        .productImageUrl("https://example.com/product.jpg")
-                        .selectedOptions("옵션")
-                        .quantity(1)
-                        .reviewerName("작성자")
-                        .maskedReviewerName("작*자")
-                        .rating(Rating.of(rating))
-                        .content("리뷰 내용")
-                        .isPhoto(false)
-                        .isEdited(false)
-                        .likeCount(0)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(1000L)
+                .productId(productId)
+                .pricePolicyId(3000L)
+                .productImageUrl("https://example.com/product.jpg")
+                .selectedOptions("옵션")
+                .quantity(1)
+                .reviewerName("작성자")
+                .maskedReviewerName("작*자")
+                .rating(Rating.of(rating))
+                .content("리뷰 내용")
+                .isPhoto(false)
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 
     private ProductReviewAggregate buildProductReviewAggregate(Long productId, int totalCount, long totalRating) {
         BigDecimal average = BigDecimal.valueOf(totalRating)
-                .divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
+            .divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
         return ProductReviewAggregate.from(
-                ProductReviewAggregateSnapshotState.builder()
-                        .productId(productId)
-                        .totalCount(totalCount)
-                        .fivePointCount(totalCount)
-                        .fourPointCount(0)
-                        .threePointCount(0)
-                        .twoPointCount(0)
-                        .onePointCount(0)
-                        .totalRating(totalRating)
-                        .averageRating(average)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            ProductReviewAggregateSnapshotState.builder()
+                .productId(productId)
+                .totalCount(totalCount)
+                .fivePointCount(totalCount)
+                .fourPointCount(0)
+                .threePointCount(0)
+                .twoPointCount(0)
+                .onePointCount(0)
+                .totalRating(totalRating)
+                .averageRating(average)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

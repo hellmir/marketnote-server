@@ -26,12 +26,12 @@ public class ReviewRegisteredPointConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.REVIEW_REGISTERED,
-            groupId = "reward-review-point"
+        topics = KafkaTopicConstants.REVIEW_REGISTERED,
+        groupId = "reward-review-point"
     )
     public void handleReviewRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,15 +47,15 @@ public class ReviewRegisteredPointConsumer {
 
         try {
             ReviewRegisteredEvent payload = envelope.getPayloadAs(
-                    ReviewRegisteredEvent.class, objectMapper
+                ReviewRegisteredEvent.class, objectMapper
             );
 
             log.info("리뷰 등록 이벤트 수신 (포인트 적립). eventId={}, reviewerId={}, reviewId={}",
-                    envelope.eventId(), payload.reviewerId(), payload.reviewId());
+                envelope.eventId(), payload.reviewerId(), payload.reviewId());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("reviewerId", payload.reviewerId()),
-                    EventPayloadValidator.id("reviewId", payload.reviewId()))) {
+                EventPayloadValidator.id("reviewerId", payload.reviewerId()),
+                EventPayloadValidator.id("reviewId", payload.reviewId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -63,10 +63,10 @@ public class ReviewRegisteredPointConsumer {
             accrueReviewPointIdempotent(envelope.eventId(), payload.reviewerId(), payload.reviewId());
 
             log.info("리뷰 포인트 적립 완료. reviewerId={}, reviewId={}, amount={}",
-                    payload.reviewerId(), payload.reviewId(), AccrualPointAmountConstant.REVIEW_POINT_AMOUNT);
+                payload.reviewerId(), payload.reviewId(), AccrualPointAmountConstant.REVIEW_POINT_AMOUNT);
         } catch (Exception e) {
             log.error("리뷰 포인트 적립 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -76,17 +76,17 @@ public class ReviewRegisteredPointConsumer {
     private void accrueReviewPointIdempotent(String eventId, Long reviewerId, Long reviewId) {
         try {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(reviewerId)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount((long) AccrualPointAmountConstant.REVIEW_POINT_AMOUNT)
-                    .sourceType(UserPointSourceType.REVIEW)
-                    .sourceId(reviewId)
-                    .reason(AccrualPointAmountConstant.REVIEW_POINT_REASON)
-                    .build();
+                .userId(reviewerId)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount((long) AccrualPointAmountConstant.REVIEW_POINT_AMOUNT)
+                .sourceType(UserPointSourceType.REVIEW)
+                .sourceId(reviewId)
+                .reason(AccrualPointAmountConstant.REVIEW_POINT_REASON)
+                .build();
             modifyUserPointUseCase.modify(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 리뷰 포인트 적립 이벤트 (멱등 처리). eventId={}, reviewerId={}, message={}",
-                    eventId, reviewerId, e.getMessage());
+                eventId, reviewerId, e.getMessage());
         }
     }
 }

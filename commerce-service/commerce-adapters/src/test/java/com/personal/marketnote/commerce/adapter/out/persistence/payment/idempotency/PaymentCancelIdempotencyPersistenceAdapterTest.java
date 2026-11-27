@@ -72,7 +72,7 @@ class PaymentCancelIdempotencyPersistenceAdapterTest {
             entityManager.clear();
 
             assertThatThrownBy(() -> adapter.save(newIdempotency(KEY)))
-                    .isInstanceOf(DuplicateIdempotencyKeyException.class);
+                .isInstanceOf(DuplicateIdempotencyKeyException.class);
         }
     }
 
@@ -149,11 +149,11 @@ class PaymentCancelIdempotencyPersistenceAdapterTest {
 
     private PaymentCancelIdempotency newIdempotency(String key) {
         return PaymentCancelIdempotency.from(
-                PaymentCancelIdempotencyCreateState.builder()
-                        .idempotencyKey(key)
-                        .paymentId(1L)
-                        .buyerId(100L)
-                        .build()
+            PaymentCancelIdempotencyCreateState.builder()
+                .idempotencyKey(key)
+                .paymentId(1L)
+                .buyerId(100L)
+                .build()
         );
     }
 }

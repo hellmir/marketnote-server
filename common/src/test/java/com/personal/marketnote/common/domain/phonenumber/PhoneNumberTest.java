@@ -67,56 +67,56 @@ class PhoneNumberTest {
         @DisplayName("하이픈 제거 후에도 자릿수가 부족한 값(010-1234-56)이면 InvalidPhoneNumberException을 던진다")
         void shouldThrowWhenHyphenRemovedStillInvalid() {
             assertThatThrownBy(() -> PhoneNumber.of("010-1234-56"))
-                    .isInstanceOf(InvalidPhoneNumberException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
         @Test
         @DisplayName("비허용 앞자리(01212345678)로 생성 시 InvalidPhoneNumberException을 던진다")
         void shouldThrowWhenInvalidPrefix() {
             assertThatThrownBy(() -> PhoneNumber.of("01212345678"))
-                    .isInstanceOf(InvalidPhoneNumberException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
         @Test
         @DisplayName("공백 포함 입력(010 1234 5678)은 하이픈만 제거하므로 InvalidPhoneNumberException을 던진다")
         void shouldThrowWhenSpaceDelimiterIncluded() {
             assertThatThrownBy(() -> PhoneNumber.of("010 1234 5678"))
-                    .isInstanceOf(InvalidPhoneNumberException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
         @Test
         @DisplayName("괄호 포함 입력((010)1234-5678)은 하이픈만 제거하므로 InvalidPhoneNumberException을 던진다")
         void shouldThrowWhenParenthesisIncluded() {
             assertThatThrownBy(() -> PhoneNumber.of("(010)1234-5678"))
-                    .isInstanceOf(InvalidPhoneNumberException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
         @Test
         @DisplayName("온점 포함 입력(010.1234.5678)은 하이픈만 제거하므로 InvalidPhoneNumberException을 던진다")
         void shouldThrowWhenDotDelimiterIncluded() {
             assertThatThrownBy(() -> PhoneNumber.of("010.1234.5678"))
-                    .isInstanceOf(InvalidPhoneNumberException.class);
+                .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
         @Test
         @DisplayName("null로 생성 시 PhoneNumberNoValueException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> PhoneNumber.of(null))
-                    .isInstanceOf(PhoneNumberNoValueException.class);
+                .isInstanceOf(PhoneNumberNoValueException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 PhoneNumberNoValueException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> PhoneNumber.of(""))
-                    .isInstanceOf(PhoneNumberNoValueException.class);
+                .isInstanceOf(PhoneNumberNoValueException.class);
         }
 
         @Test
         @DisplayName("공백만 있는 문자열로 생성 시 PhoneNumberNoValueException을 던진다")
         void shouldThrowWhenBlank() {
             assertThatThrownBy(() -> PhoneNumber.of("   "))
-                    .isInstanceOf(PhoneNumberNoValueException.class);
+                .isInstanceOf(PhoneNumberNoValueException.class);
         }
     }
 

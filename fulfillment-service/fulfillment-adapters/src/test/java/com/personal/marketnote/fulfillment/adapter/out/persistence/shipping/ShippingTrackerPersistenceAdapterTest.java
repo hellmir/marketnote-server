@@ -39,18 +39,18 @@ class ShippingTrackerPersistenceAdapterTest {
 
     private ShippingTracker buildTracker(Long id, Long orderId, ShippingStatus status, boolean pollingActive) {
         return ShippingTracker.from(
-                ShippingTrackerSnapshotState.builder()
-                        .id(id)
-                        .orderId(orderId)
-                        .buyerId(1L)
-                        .trackingNumber(TrackingNumber.of("TRACK001"))
-                        .carrierCode(CarrierCode.of("CJ"))
-                        .shippingStatus(status)
-                        .pollingActive(pollingActive)
-                        .lastPolledAt(LocalDateTime.of(2026, 4, 14, 10, 0))
-                        .createdAt(LocalDateTime.of(2026, 4, 14, 9, 0))
-                        .modifiedAt(LocalDateTime.of(2026, 4, 14, 10, 0))
-                        .build()
+            ShippingTrackerSnapshotState.builder()
+                .id(id)
+                .orderId(orderId)
+                .buyerId(1L)
+                .trackingNumber(TrackingNumber.of("TRACK001"))
+                .carrierCode(CarrierCode.of("CJ"))
+                .shippingStatus(status)
+                .pollingActive(pollingActive)
+                .lastPolledAt(LocalDateTime.of(2026, 4, 14, 10, 0))
+                .createdAt(LocalDateTime.of(2026, 4, 14, 9, 0))
+                .modifiedAt(LocalDateTime.of(2026, 4, 14, 10, 0))
+                .build()
         );
     }
 
@@ -87,11 +87,11 @@ class ShippingTrackerPersistenceAdapterTest {
             // given
             ShippingTracker tracker = buildTracker(null, 100L, ShippingStatus.PREPARING, true);
             when(repository.saveAndFlush(any(ShippingTrackerJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
+                .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(tracker))
-                    .isInstanceOf(ShippingTrackerAlreadyExistsException.class);
+                .isInstanceOf(ShippingTrackerAlreadyExistsException.class);
         }
     }
 
@@ -106,7 +106,7 @@ class ShippingTrackerPersistenceAdapterTest {
             ShippingTrackerJpaEntity entity1 = buildEntity(1L, 100L, ShippingStatus.SHIPPING, true);
             ShippingTrackerJpaEntity entity2 = buildEntity(2L, 200L, ShippingStatus.PREPARING, true);
             when(repository.findPollingActiveChunk(eq(0L), any(Pageable.class)))
-                    .thenReturn(List.of(entity1, entity2));
+                .thenReturn(List.of(entity1, entity2));
 
             // when
             List<ShippingTracker> result = adapter.findPollingActiveChunk(0L, 100);
@@ -236,7 +236,7 @@ class ShippingTrackerPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(tracker))
-                    .isInstanceOf(ShippingTrackerNotFoundException.class);
+                .isInstanceOf(ShippingTrackerNotFoundException.class);
         }
     }
 }

@@ -65,9 +65,9 @@ public class CacheConfig implements CachingConfigurer {
 
         // 폴리모픽 화이트리스트 정책(#4856) — CachePolymorphicTypeValidatorFactory javadoc 참조.
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
@@ -84,21 +84,21 @@ public class CacheConfig implements CachingConfigurer {
     @Bean
     public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext
-                        .SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext
-                        .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper())))
-                .entryTtl(Duration.ofMinutes(10));
+            .serializeKeysWith(RedisSerializationContext
+                .SerializationPair.fromSerializer(new StringRedisSerializer()))
+            .serializeValuesWith(RedisSerializationContext
+                .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper())))
+            .entryTtl(Duration.ofMinutes(10));
 
         Map<String, RedisCacheConfiguration> perCacheTtl = new HashMap<>();
         perCacheTtl.put("account:detail", redisCacheConfiguration.entryTtl(Duration.ofMinutes(30)));
         perCacheTtl.put("account:name", redisCacheConfiguration.entryTtl(Duration.ofMinutes(30)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
-                .withInitialCacheConfigurations(perCacheTtl)
-                .enableStatistics()
-                .build();
+            .cacheDefaults(redisCacheConfiguration)
+            .withInitialCacheConfigurations(perCacheTtl)
+            .enableStatistics()
+            .build();
     }
 
     @Bean

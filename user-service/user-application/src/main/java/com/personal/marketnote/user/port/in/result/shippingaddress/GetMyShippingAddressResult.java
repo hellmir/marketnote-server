@@ -11,34 +11,34 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetMyShippingAddressResult(
-        Long id,
-        ShippingAddressType addressType,
-        String address,
-        String addressDetail,
-        String companyName,
-        String addressAlias,
-        String recipientName,
-        String recipientPhoneNumber,
-        DeliveryRequestType deliveryRequestType,
-        String deliveryRequestMessage,
-        boolean isDefault,
-        ShippingAddressRegionType regionType
+    Long id,
+    ShippingAddressType addressType,
+    String address,
+    String addressDetail,
+    String companyName,
+    String addressAlias,
+    String recipientName,
+    String recipientPhoneNumber,
+    DeliveryRequestType deliveryRequestType,
+    String deliveryRequestMessage,
+    boolean isDefault,
+    ShippingAddressRegionType regionType
 ) {
     public static GetMyShippingAddressResult from(ShippingAddress shippingAddress) {
         return GetMyShippingAddressResult.builder()
-                .id(shippingAddress.getId())
-                .addressType(shippingAddress.getAddressType())
-                .address(shippingAddress.getAddress())
-                .addressDetail(shippingAddress.getAddressDetail())
-                .companyName(shippingAddress.getCompanyName())
-                .addressAlias(shippingAddress.getAddressAlias())
-                .recipientName(shippingAddress.getRecipientName().getValue())
-                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
-                .deliveryRequestType(shippingAddress.getDeliveryRequestType())
-                .deliveryRequestMessage(toValueOrNull(shippingAddress.getDeliveryRequestMessage()))
-                .isDefault(shippingAddress.isDefault())
-                .regionType(shippingAddress.getRegionType())
-                .build();
+            .id(shippingAddress.getId())
+            .addressType(shippingAddress.getAddressType())
+            .address(shippingAddress.getAddress())
+            .addressDetail(shippingAddress.getAddressDetail())
+            .companyName(shippingAddress.getCompanyName())
+            .addressAlias(shippingAddress.getAddressAlias())
+            .recipientName(shippingAddress.getRecipientName().getValue())
+            .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
+            .deliveryRequestType(shippingAddress.getDeliveryRequestType())
+            .deliveryRequestMessage(toValueOrNull(shippingAddress.getDeliveryRequestMessage()))
+            .isDefault(shippingAddress.isDefault())
+            .regionType(shippingAddress.getRegionType())
+            .build();
     }
 
     private static String toValueOrNull(DeliveryRequestMessage deliveryRequestMessage) {

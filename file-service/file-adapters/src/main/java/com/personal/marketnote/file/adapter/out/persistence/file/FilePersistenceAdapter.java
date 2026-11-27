@@ -50,9 +50,9 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
         savedList.forEach(FileJpaEntity::setIdToOrderNum);
 
         return savedList.stream()
-                .map(FileJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .map(FileJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     @Override
@@ -63,9 +63,9 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
     @Override
     public List<FileDomain> findByOwner(OwnerType ownerType, Long ownerId) {
         return fileJpaRepository.findAllByOwnerTypeAndOwnerIdOrderByIdAsc(ownerType, ownerId).stream()
-                .map(FileJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .map(FileJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     @Override
@@ -73,15 +73,15 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
         List<FileJpaEntity> entities = getEntities(ownerType, ownerId, sort);
 
         return entities.stream()
-                .map(FileJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .map(FileJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     private List<FileJpaEntity> getEntities(OwnerType ownerType, Long ownerId, FileSort sort) {
         return fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
-                ownerType, ownerId, sort.name(),
-                PageRequest.of(0, sort.getMaxCount())
+            ownerType, ownerId, sort.name(),
+            PageRequest.of(0, sort.getMaxCount())
         );
     }
 
@@ -89,18 +89,18 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
     public void update(FileDomain file) {
         Long id = file.getId();
         FileJpaEntity entity = fileJpaRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("파일을 찾을 수 없습니다. fileId={}", id);
-                    return new FileNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("파일을 찾을 수 없습니다. fileId={}", id);
+                return new FileNotFoundException();
+            });
         entity.updateFrom(file);
     }
 
     @Override
     public void update(List<FileDomain> files, List<ResizedFile> resizedFiles) {
         List<Long> fileIds = files.stream()
-                .map(FileDomain::getId)
-                .toList();
+            .map(FileDomain::getId)
+            .toList();
 
         updateFiles(files, fileIds);
         updateResizedFiles(resizedFiles, fileIds);

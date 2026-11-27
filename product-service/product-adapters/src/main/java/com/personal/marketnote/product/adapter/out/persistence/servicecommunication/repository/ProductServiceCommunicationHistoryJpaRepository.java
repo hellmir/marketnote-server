@@ -4,5 +4,5 @@ import com.personal.marketnote.product.adapter.out.persistence.servicecommunicat
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductServiceCommunicationHistoryJpaRepository
-        extends JpaRepository<ProductServiceCommunicationHistoryJpaEntity, Long> {
+    extends JpaRepository<ProductServiceCommunicationHistoryJpaEntity, Long> {
 }

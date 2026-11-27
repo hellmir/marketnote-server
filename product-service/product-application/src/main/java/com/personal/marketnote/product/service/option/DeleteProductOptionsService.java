@@ -21,7 +21,7 @@ public class DeleteProductOptionsService implements DeleteProductOptionsUseCase 
 
     @Override
     public void deleteProductOptions(
-            Long userId, boolean isAdmin, Long productId, Long optionCategoryId
+        Long userId, boolean isAdmin, Long productId, Long optionCategoryId
     ) {
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
             log.warn("상품 소유자가 아닙니다. productId={}", productId);

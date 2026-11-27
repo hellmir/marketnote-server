@@ -40,7 +40,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
  * 빠른결제 컨트롤러
  *
  * @Author 성효빈
- * @Date 2026-04-16
+ * @Date 2026-10-11
  * @Description 빠른결제 관련 API를 제공합니다.
  */
 @RestController
@@ -58,30 +58,30 @@ public class QuickPaymentController {
      *
      * @return 거래등록 응답 {@link RegisterQuickPaymentTransactionResponse}
      * @Author 성효빈
-     * @Date 2026-04-16
+     * @Date 2026-10-11
      * @Description 빠른결제 카드 등록을 위한 KCP 거래등록 API를 호출합니다.
      */
     @PostMapping("/api/v1/quick-payments/transactions")
     @RegisterQuickPaymentTransactionApiDocs
     public ResponseEntity<BaseResponse<RegisterQuickPaymentTransactionResponse>> registerTransaction(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         RegisterQuickPaymentTransactionResult result = registerQuickPaymentTransactionUseCase.register(
-                RegisterQuickPaymentTransactionCommand.builder()
-                        .userId(userId)
-                        .build()
+            RegisterQuickPaymentTransactionCommand.builder()
+                .userId(userId)
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterQuickPaymentTransactionResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "빠른결제 거래 등록 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                RegisterQuickPaymentTransactionResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "빠른결제 거래 등록 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -91,34 +91,34 @@ public class QuickPaymentController {
      * @param request 배치키 발급 요청
      * @return 배치키 발급 응답 {@link IssueBatchKeyResponse}
      * @Author 성효빈
-     * @Date 2026-04-16
+     * @Date 2026-10-11
      * @Description 결제창 인증 완료 후 enc_data/enc_info로 KCP 배치키를 발급합니다.
      */
     @PostMapping("/api/v1/quick-payments/cards")
     @IssueBatchKeyApiDocs
     public ResponseEntity<BaseResponse<IssueBatchKeyResponse>> issueBatchKey(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @Valid @RequestBody IssueBatchKeyRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @Valid @RequestBody IssueBatchKeyRequest request
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         IssueBatchKeyResult result = issueBatchKeyUseCase.issueBatchKey(
-                IssueBatchKeyCommand.builder()
-                        .userId(userId)
-                        .encData(request.getEncData())
-                        .encInfo(request.getEncInfo())
-                        .maskedCardNumber(request.getCardMaskNo())
-                        .build()
+            IssueBatchKeyCommand.builder()
+                .userId(userId)
+                .encData(request.getEncData())
+                .encInfo(request.getEncInfo())
+                .maskedCardNumber(request.getCardMaskNo())
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        IssueBatchKeyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "빠른결제 카드 배치키 발급 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                IssueBatchKeyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "빠른결제 카드 배치키 발급 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -128,34 +128,34 @@ public class QuickPaymentController {
      * @param request 빠른결제 승인 요청
      * @return 승인 응답 {@link ApproveQuickPaymentResponse}
      * @Author 성효빈
-     * @Date 2026-04-16
+     * @Date 2026-10-11
      * @Description 저장된 배치키로 KCP 서버 투 서버 결제 승인을 수행합니다.
      */
     @PostMapping("/api/v1/quick-payments/approve")
     @ApproveQuickPaymentApiDocs
     public ResponseEntity<BaseResponse<ApproveQuickPaymentResponse>> approveQuickPayment(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @Valid @RequestBody ApproveQuickPaymentRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @Valid @RequestBody ApproveQuickPaymentRequest request
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         ApproveQuickPaymentResult result = approveQuickPaymentUseCase.approve(
-                ApproveQuickPaymentCommand.builder()
-                        .buyerId(userId)
-                        .orderKey(request.getOrderKey())
-                        .quickPaymentCardId(request.getQuickPaymentCardId())
-                        .goodName(request.getGoodName())
-                        .build()
+            ApproveQuickPaymentCommand.builder()
+                .buyerId(userId)
+                .orderKey(request.getOrderKey())
+                .quickPaymentCardId(request.getQuickPaymentCardId())
+                .goodName(request.getGoodName())
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ApproveQuickPaymentResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "빠른결제 승인 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ApproveQuickPaymentResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "빠른결제 승인 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -164,32 +164,32 @@ public class QuickPaymentController {
      *
      * @param quickPaymentCardId 빠른결제 카드 ID
      * @Author 성효빈
-     * @Date 2026-04-16
+     * @Date 2026-10-11
      * @Description KCP에 배치키 삭제 요청 후 DB에서 카드를 비활성화합니다.
      */
     @DeleteMapping("/api/v1/quick-payments/cards/{quickPaymentCardId}")
     @DeleteQuickPaymentCardApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteQuickPaymentCard(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @PathVariable("quickPaymentCardId") @NotNull @Min(1) Long quickPaymentCardId
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @PathVariable("quickPaymentCardId") @NotNull @Min(1) Long quickPaymentCardId
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         deleteQuickPaymentCardUseCase.delete(
-                DeleteQuickPaymentCardCommand.builder()
-                        .quickPaymentCardId(quickPaymentCardId)
-                        .userId(userId)
-                        .build()
+            DeleteQuickPaymentCardCommand.builder()
+                .quickPaymentCardId(quickPaymentCardId)
+                .userId(userId)
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "빠른결제 카드 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "빠른결제 카드 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

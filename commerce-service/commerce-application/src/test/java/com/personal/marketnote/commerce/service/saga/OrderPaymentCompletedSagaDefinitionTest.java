@@ -124,23 +124,23 @@ class OrderPaymentCompletedSagaDefinitionTest {
         @BeforeEach
         void setUp() {
             context = OrderPaymentCompletedSagaContext.builder()
-                    .orderId(1L)
-                    .buyerId(100L)
-                    .totalAmount(60000L)
-                    .pointAmount(10000L)
-                    .totalAccumulatedPoint(500L)
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("01012345678")
-                    .zipCode("06236")
-                    .address("서울특별시 강남구 테헤란로 100")
-                    .addressDetail("101호")
-                    .deliveryRequestMessage("부재시 경비실")
-                    .orderProducts(List.of(
-                            new OrderProductItem(10L, 1000L, null,
-                                    UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L),
-                            new OrderProductItem(20L, 2000L, null, null, 1, 10000L)
-                    ))
-                    .build();
+                .orderId(1L)
+                .buyerId(100L)
+                .totalAmount(60000L)
+                .pointAmount(10000L)
+                .totalAccumulatedPoint(500L)
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .zipCode("06236")
+                .address("서울특별시 강남구 테헤란로 100")
+                .addressDetail("101호")
+                .deliveryRequestMessage("부재시 경비실")
+                .orderProducts(List.of(
+                    new OrderProductItem(10L, 1000L, null,
+                        UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L),
+                    new OrderProductItem(20L, 2000L, null, null, 1, 10000L)
+                ))
+                .build();
         }
 
         @Test
@@ -218,16 +218,16 @@ class OrderPaymentCompletedSagaDefinitionTest {
         @BeforeEach
         void setUp() {
             context = OrderPaymentCompletedSagaContext.builder()
-                    .orderId(1L)
-                    .buyerId(100L)
-                    .totalAmount(60000L)
-                    .pointAmount(10000L)
-                    .totalAccumulatedPoint(500L)
-                    .orderProducts(List.of(
-                            new OrderProductItem(10L, 1000L, null,
-                                    UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L)
-                    ))
-                    .build();
+                .orderId(1L)
+                .buyerId(100L)
+                .totalAmount(60000L)
+                .pointAmount(10000L)
+                .totalAccumulatedPoint(500L)
+                .orderProducts(List.of(
+                    new OrderProductItem(10L, 1000L, null,
+                        UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L)
+                ))
+                .build();
         }
 
         @Test
@@ -289,20 +289,20 @@ class OrderPaymentCompletedSagaDefinitionTest {
             UUID productKey1 = UUID.fromString("11111111-1111-1111-1111-111111111111");
             UUID productKey2 = UUID.fromString("22222222-2222-2222-2222-222222222222");
             OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
-                    .orderId(1L)
-                    .buyerId(100L)
-                    .totalAmount(60000L)
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("01012345678")
-                    .zipCode("06236")
-                    .address("서울특별시 강남구")
-                    .addressDetail("101호")
-                    .deliveryRequestMessage("부재시")
-                    .orderProducts(List.of(
-                            new OrderProductItem(10L, 1000L, productKey1, null, 2, 25000L),
-                            new OrderProductItem(20L, 2000L, productKey2, null, 1, 10000L)
-                    ))
-                    .build();
+                .orderId(1L)
+                .buyerId(100L)
+                .totalAmount(60000L)
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .zipCode("06236")
+                .address("서울특별시 강남구")
+                .addressDetail("101호")
+                .deliveryRequestMessage("부재시")
+                .orderProducts(List.of(
+                    new OrderProductItem(10L, 1000L, productKey1, null, 2, 25000L),
+                    new OrderProductItem(20L, 2000L, productKey2, null, 1, 10000L)
+                ))
+                .build();
 
             // when
             String actionJson = definition.getSteps().get(0).action().apply(context);
@@ -318,19 +318,19 @@ class OrderPaymentCompletedSagaDefinitionTest {
         void shouldSerializeNullProductKey() {
             // given
             OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
-                    .orderId(1L)
-                    .buyerId(100L)
-                    .totalAmount(30000L)
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("01012345678")
-                    .zipCode("06236")
-                    .address("서울특별시")
-                    .addressDetail("101호")
-                    .deliveryRequestMessage("부재시")
-                    .orderProducts(List.of(
-                            new OrderProductItem(10L, 1000L, null, null, 2, 25000L)
-                    ))
-                    .build();
+                .orderId(1L)
+                .buyerId(100L)
+                .totalAmount(30000L)
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .zipCode("06236")
+                .address("서울특별시")
+                .addressDetail("101호")
+                .deliveryRequestMessage("부재시")
+                .orderProducts(List.of(
+                    new OrderProductItem(10L, 1000L, null, null, 2, 25000L)
+                ))
+                .build();
 
             // when
             String actionJson = definition.getSteps().get(0).action().apply(context);
@@ -345,17 +345,17 @@ class OrderPaymentCompletedSagaDefinitionTest {
         void shouldSerializeEmptyOrderProducts() {
             // given
             OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
-                    .orderId(1L)
-                    .buyerId(100L)
-                    .totalAmount(0L)
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("01012345678")
-                    .zipCode("06236")
-                    .address("서울특별시")
-                    .addressDetail("101호")
-                    .deliveryRequestMessage("부재시")
-                    .orderProducts(List.of())
-                    .build();
+                .orderId(1L)
+                .buyerId(100L)
+                .totalAmount(0L)
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .zipCode("06236")
+                .address("서울특별시")
+                .addressDetail("101호")
+                .deliveryRequestMessage("부재시")
+                .orderProducts(List.of())
+                .build();
 
             // when
             String actionJson = definition.getSteps().get(0).action().apply(context);

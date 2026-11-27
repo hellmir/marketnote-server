@@ -10,12 +10,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.slf4j.MDC;
 import org.springframework.kafka.test.EmbeddedKafkaKraftBroker;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -169,21 +164,21 @@ class MdcContextPropagationIntegrationTest {
     @SuppressWarnings("unchecked")
     private ProducerRecord<String, String> applyInterceptor(ProducerRecord<String, String> record) {
         ProducerRecord<String, Object> casted = new ProducerRecord<>(
-                record.topic(),
-                record.partition(),
-                record.timestamp(),
-                record.key(),
-                record.value(),
-                record.headers()
+            record.topic(),
+            record.partition(),
+            record.timestamp(),
+            record.key(),
+            record.value(),
+            record.headers()
         );
         ProducerRecord<String, Object> result = producerInterceptor.onSend(casted);
         return new ProducerRecord<>(
-                result.topic(),
-                result.partition(),
-                result.timestamp(),
-                result.key(),
-                (String) result.value(),
-                result.headers()
+            result.topic(),
+            result.partition(),
+            result.timestamp(),
+            result.key(),
+            (String) result.value(),
+            result.headers()
         );
     }
 

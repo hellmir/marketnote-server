@@ -31,12 +31,12 @@ public class OrderPaymentCompletedAlimTalkConsumer {
     private final AligoProperties aligoProperties;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "notification-alimtalk-order"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "notification-alimtalk-order"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -53,39 +53,39 @@ public class OrderPaymentCompletedAlimTalkConsumer {
         OrderPaymentCompletedEvent payload = envelope.getPayloadAs(OrderPaymentCompletedEvent.class, objectMapper);
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         if (FormatValidator.hasNoValue(payload.recipientPhoneNumber())) {
             log.warn("주문 결제 완료 알림톡 발송 생략: 수신자 전화번호 없음. eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId());
+                envelope.eventId(), payload.orderId());
             acknowledgment.acknowledge();
             return;
         }
 
         log.info("주문 결제 완료 이벤트 수신 (알림톡 발송). eventId={}, orderId={}, buyerId={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId());
+            envelope.eventId(), payload.orderId(), payload.buyerId());
 
         try {
             SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                    AligoTemplateCodes.ORDER_PAYMENT_COMPLETED,
-                    aligoProperties.getSender(),
-                    Map.of("order_id", String.valueOf(payload.orderId())),
-                    List.of(new AligoAlimTalkRecipientCommand(
-                            payload.recipientPhoneNumber(), payload.recipientName()
-                    )),
-                    null
+                AligoTemplateCodes.ORDER_PAYMENT_COMPLETED,
+                aligoProperties.getSender(),
+                Map.of("order_id", String.valueOf(payload.orderId())),
+                List.of(new AligoAlimTalkRecipientCommand(
+                    payload.recipientPhoneNumber(), payload.recipientName()
+                )),
+                null
             );
             sendAligoAlimTalkUseCase.sendAlimTalk(command);
 
             log.info("주문 결제 완료 알림톡 발송 완료. orderId={}, buyerId={}",
-                    payload.orderId(), payload.buyerId());
+                payload.orderId(), payload.buyerId());
         } catch (Exception e) {
             log.error("주문 결제 완료 알림톡 발송 실패. eventId={}, orderId={}, buyerId={}, error={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
+                envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

@@ -20,19 +20,19 @@ class FileJpaEntityTest {
 
     private FileDomain buildDomain(EntityStatus status, String storageUrl) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(1L)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(100L)
-                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("png")
-                .name("image.png")
-                .storageUrl(storageUrl)
-                .createdAt(NOW)
-                .status(status)
-                .orderNum(1L)
-                .userId(200L)
-                .ownerKey("owner-key")
-                .build());
+            .id(1L)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(100L)
+            .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("png")
+            .name("image.png")
+            .storageUrl(storageUrl)
+            .createdAt(NOW)
+            .status(status)
+            .orderNum(1L)
+            .userId(200L)
+            .ownerKey("owner-key")
+            .build());
     }
 
     @Nested
@@ -67,18 +67,18 @@ class FileJpaEntityTest {
             FileDomain original = buildDomain(EntityStatus.ACTIVE, "https://cdn.example.com/orig.png");
             FileJpaEntity entity = FileJpaEntity.from(original, "https://cdn.example.com/orig.png");
             FileDomain updated = FileDomain.from(FileDomainSnapshotState.builder()
-                    .id(1L)
-                    .ownerType(OwnerType.REVIEW)
-                    .ownerId(300L)
-                    .sort(FileSort.REVIEW_IMAGE)
-                    .extension("jpg")
-                    .name("review.jpg")
-                    .storageUrl("https://cdn.example.com/updated.jpg")
-                    .status(EntityStatus.ACTIVE)
-                    .orderNum(2L)
-                    .userId(500L)
-                    .ownerKey("updated-owner-key")
-                    .build());
+                .id(1L)
+                .ownerType(OwnerType.REVIEW)
+                .ownerId(300L)
+                .sort(FileSort.REVIEW_IMAGE)
+                .extension("jpg")
+                .name("review.jpg")
+                .storageUrl("https://cdn.example.com/updated.jpg")
+                .status(EntityStatus.ACTIVE)
+                .orderNum(2L)
+                .userId(500L)
+                .ownerKey("updated-owner-key")
+                .build());
 
             entity.updateFrom(updated);
 

@@ -18,20 +18,20 @@ public class BrandTalkButtonCommandToStateMapper {
             return List.of();
         }
         return buttonCommands.stream()
-                .map(BrandTalkButtonCommandToStateMapper::mapButton)
-                .toList();
+            .map(BrandTalkButtonCommandToStateMapper::mapButton)
+            .toList();
     }
 
     static BrandTalkButton mapButton(BrandTalkButtonCommand btn) {
         return BrandTalkButton.from(
-                BrandTalkButtonCreateState.builder()
-                        .name(btn.name())
-                        .linkType(AligoTemplateButtonLinkType.from(btn.linkType()))
-                        .linkM(btn.linkM())
-                        .linkP(btn.linkP())
-                        .linkI(btn.linkI())
-                        .linkA(btn.linkA())
-                        .build()
+            BrandTalkButtonCreateState.builder()
+                .name(btn.name())
+                .linkType(AligoTemplateButtonLinkType.from(btn.linkType()))
+                .linkM(btn.linkM())
+                .linkP(btn.linkP())
+                .linkI(btn.linkI())
+                .linkA(btn.linkA())
+                .build()
         );
     }
 }

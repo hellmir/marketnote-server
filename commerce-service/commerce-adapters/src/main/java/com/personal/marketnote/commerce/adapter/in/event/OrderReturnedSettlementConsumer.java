@@ -36,12 +36,12 @@ public class OrderReturnedSettlementConsumer {
     private final SavePaymentAllocationPort savePaymentAllocationPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_RETURNED,
-            groupId = "commerce-order-returned-settlement"
+        topics = KafkaTopicConstants.ORDER_RETURNED,
+        groupId = "commerce-order-returned-settlement"
     )
     public void handleOrderReturnedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -58,11 +58,11 @@ public class OrderReturnedSettlementConsumer {
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
         log.info("반품 완료 이벤트 수신 (정산 역배분). eventId={}, orderId={}, returnId={}, isFullReturn={}",
-                envelope.eventId(), payload.orderId(), payload.returnId(), payload.isFullReturn()
+            envelope.eventId(), payload.orderId(), payload.returnId(), payload.isFullReturn()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -71,11 +71,11 @@ public class OrderReturnedSettlementConsumer {
         try {
             createReturnAllocations(payload.orderId(), payload.returnId());
             log.info("반품 완료 역배분 생성 완료. orderId={}, returnId={}",
-                    payload.orderId(), payload.returnId()
+                payload.orderId(), payload.returnId()
             );
         } catch (DataIntegrityViolationException e) {
             log.info("이미 처리된 반품 완료 역배분 이벤트 (멱등 처리). eventId={}, orderId={}, returnId={}",
-                    envelope.eventId(), payload.orderId(), payload.returnId()
+                envelope.eventId(), payload.orderId(), payload.returnId()
             );
         }
 
@@ -86,21 +86,21 @@ public class OrderReturnedSettlementConsumer {
         List<PaymentAllocation> originalAllocations = findPaymentAllocationPort.findByOrderId(orderId);
 
         List<PaymentAllocation> returnAllocations = originalAllocations.stream()
-                .filter(allocation -> allocation.getTransactionType().isPositiveContribution())
-                .map(allocation -> PaymentAllocation.from(
-                        PaymentAllocationCreateState.builder()
-                                .orderId(orderId)
-                                .sellerId(allocation.getSellerId())
-                                .allocatedAmount(allocation.getAllocatedAmount().getValue())
-                                .shippingFee(allocation.getShippingFee().getValue())
-                                .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
-                                .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey(IdempotencyKey.of(
-                                        buildIdempotencyKey(orderId, allocation.getSellerId(), returnId)
-                                ))
-                                .build()
-                ))
-                .toList();
+            .filter(allocation -> allocation.getTransactionType().isPositiveContribution())
+            .map(allocation -> PaymentAllocation.from(
+                PaymentAllocationCreateState.builder()
+                    .orderId(orderId)
+                    .sellerId(allocation.getSellerId())
+                    .allocatedAmount(allocation.getAllocatedAmount().getValue())
+                    .shippingFee(allocation.getShippingFee().getValue())
+                    .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey(IdempotencyKey.of(
+                        buildIdempotencyKey(orderId, allocation.getSellerId(), returnId)
+                    ))
+                    .build()
+            ))
+            .toList();
 
         if (!returnAllocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(returnAllocations);

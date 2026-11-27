@@ -48,17 +48,17 @@ class AddCartProductUseCaseTest {
     @DisplayName("장바구니 추가 시 가격 정책을 조회하고 장바구니 상품을 저장한다")
     void addCartProduct_success_savesCartProduct() {
         AddCartProductCommand command = AddCartProductCommand.builder()
-                .userId(1L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                .pricePolicyId(100L)
-                .imageUrl("https://example.com/image.png")
-                .quantity((short) 3)
-                .build();
+            .userId(1L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+            .pricePolicyId(100L)
+            .imageUrl("https://example.com/image.png")
+            .quantity((short) 3)
+            .build();
         PricePolicy pricePolicy = buildPricePolicy(100L);
 
         when(getPricePolicyUseCase.getPricePolicy(100L)).thenReturn(pricePolicy);
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(1L, 100L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(saveCartProductPort.save(any(CartProduct.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         addCartProductService.addCartProduct(command);
@@ -81,18 +81,18 @@ class AddCartProductUseCaseTest {
     @DisplayName("장바구니 상품 추가 시 가격 정책 조회에 실패하면 예외를 전파한다")
     void addCartProduct_getPricePolicyFails_propagates() {
         AddCartProductCommand command = AddCartProductCommand.builder()
-                .userId(1L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                .pricePolicyId(101L)
-                .imageUrl("https://example.com/image.png")
-                .quantity((short) 1)
-                .build();
+            .userId(1L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+            .pricePolicyId(101L)
+            .imageUrl("https://example.com/image.png")
+            .quantity((short) 1)
+            .build();
         RuntimeException exception = new RuntimeException("price policy fail");
 
         when(getPricePolicyUseCase.getPricePolicy(101L)).thenThrow(exception);
 
         assertThatThrownBy(() -> addCartProductService.addCartProduct(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(findCartProductPort);
         verifyNoInteractions(updateCartProductPort);
@@ -103,40 +103,40 @@ class AddCartProductUseCaseTest {
     @DisplayName("장바구니 상품 추가 시 저장에 실패하면 예외를 전파한다")
     void addCartProduct_saveFails_propagates() {
         AddCartProductCommand command = AddCartProductCommand.builder()
-                .userId(1L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                .pricePolicyId(102L)
-                .imageUrl("https://example.com/image.png")
-                .quantity((short) 2)
-                .build();
+            .userId(1L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+            .pricePolicyId(102L)
+            .imageUrl("https://example.com/image.png")
+            .quantity((short) 2)
+            .build();
         PricePolicy pricePolicy = buildPricePolicy(102L);
         RuntimeException exception = new RuntimeException("save fail");
 
         when(getPricePolicyUseCase.getPricePolicy(102L)).thenReturn(pricePolicy);
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(1L, 102L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(saveCartProductPort.save(any(CartProduct.class))).thenThrow(exception);
 
         assertThatThrownBy(() -> addCartProductService.addCartProduct(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
     @DisplayName("장바구니에 이미 존재하는 상품 추가 시 기존 상품의 수량을 누적한다")
     void addCartProduct_existingProduct_addsQuantity() {
         AddCartProductCommand command = AddCartProductCommand.builder()
-                .userId(1L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                .pricePolicyId(100L)
-                .imageUrl("https://example.com/image.png")
-                .quantity((short) 3)
-                .build();
+            .userId(1L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+            .pricePolicyId(100L)
+            .imageUrl("https://example.com/image.png")
+            .quantity((short) 3)
+            .build();
         PricePolicy pricePolicy = buildPricePolicy(100L);
         CartProduct existingCartProduct = buildExistingCartProduct(1L, (short) 2, pricePolicy);
 
         when(getPricePolicyUseCase.getPricePolicy(100L)).thenReturn(pricePolicy);
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(1L, 100L))
-                .thenReturn(Optional.of(existingCartProduct));
+            .thenReturn(Optional.of(existingCartProduct));
 
         addCartProductService.addCartProduct(command);
 
@@ -149,23 +149,23 @@ class AddCartProductUseCaseTest {
     @DisplayName("장바구니에 이미 존재하는 상품 수량 누적 후 업데이트에 실패하면 예외를 전파한다")
     void addCartProduct_existingProduct_updateFails_propagates() {
         AddCartProductCommand command = AddCartProductCommand.builder()
-                .userId(1L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                .pricePolicyId(100L)
-                .imageUrl("https://example.com/image.png")
-                .quantity((short) 3)
-                .build();
+            .userId(1L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+            .pricePolicyId(100L)
+            .imageUrl("https://example.com/image.png")
+            .quantity((short) 3)
+            .build();
         PricePolicy pricePolicy = buildPricePolicy(100L);
         CartProduct existingCartProduct = buildExistingCartProduct(1L, (short) 2, pricePolicy);
         RuntimeException exception = new RuntimeException("update fail");
 
         when(getPricePolicyUseCase.getPricePolicy(100L)).thenReturn(pricePolicy);
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(1L, 100L))
-                .thenReturn(Optional.of(existingCartProduct));
+            .thenReturn(Optional.of(existingCartProduct));
         doThrow(exception).when(updateCartProductPort).update(any(CartProduct.class), eq(100L));
 
         assertThatThrownBy(() -> addCartProductService.addCartProduct(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(saveCartProductPort);
     }
@@ -174,21 +174,21 @@ class AddCartProductUseCaseTest {
     @DisplayName("장바구니에 이미 존재하는 상품 수량 누적 시 합계가 Short 최대값을 초과하면 예외를 전파한다")
     void addCartProduct_existingProduct_quantityOverflow_throwsException() {
         AddCartProductCommand command = AddCartProductCommand.builder()
-                .userId(1L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                .pricePolicyId(100L)
-                .imageUrl("https://example.com/image.png")
-                .quantity(Short.MAX_VALUE)
-                .build();
+            .userId(1L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+            .pricePolicyId(100L)
+            .imageUrl("https://example.com/image.png")
+            .quantity(Short.MAX_VALUE)
+            .build();
         PricePolicy pricePolicy = buildPricePolicy(100L);
         CartProduct existingCartProduct = buildExistingCartProduct(1L, (short) 1, pricePolicy);
 
         when(getPricePolicyUseCase.getPricePolicy(100L)).thenReturn(pricePolicy);
         when(findCartProductPort.findCartProductByUserIdAndPricePolicyId(1L, 100L))
-                .thenReturn(Optional.of(existingCartProduct));
+            .thenReturn(Optional.of(existingCartProduct));
 
         assertThatThrownBy(() -> addCartProductService.addCartProduct(command))
-                .isInstanceOf(InvalidCartProductQuantityException.class);
+            .isInstanceOf(InvalidCartProductQuantityException.class);
 
         verifyNoInteractions(updateCartProductPort);
         verifyNoInteractions(saveCartProductPort);
@@ -196,28 +196,28 @@ class AddCartProductUseCaseTest {
 
     private PricePolicy buildPricePolicy(Long id) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(new BigDecimal("20.0")))
-                        .accumulatedPoint(200L)
-                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(new BigDecimal("20.0")))
+                .accumulatedPoint(200L)
+                .accumulationRate(Rate.of(new BigDecimal("2.5")))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
     private CartProduct buildExistingCartProduct(Long userId, Short quantity, PricePolicy pricePolicy) {
         return CartProduct.from(
-                CartProductSnapshotState.builder()
-                        .userId(userId)
-                        .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-                        .pricePolicy(pricePolicy)
-                        .imageUrl("https://example.com/image.png")
-                        .quantity(quantity)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CartProductSnapshotState.builder()
+                .userId(userId)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
+                .pricePolicy(pricePolicy)
+                .imageUrl("https://example.com/image.png")
+                .quantity(quantity)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

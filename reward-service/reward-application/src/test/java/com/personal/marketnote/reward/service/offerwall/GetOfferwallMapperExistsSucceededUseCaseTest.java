@@ -31,7 +31,7 @@ class GetOfferwallMapperExistsSucceededUseCaseTest {
         String rewardKey = "reward-123";
 
         when(findOfferwallMapperPort.existsByOfferwallTypeAndRewardKeyAndIsSuccess(type, rewardKey, true))
-                .thenReturn(true);
+            .thenReturn(true);
 
         // when
         boolean result = getOfferwallMapperService.existsSucceededOfferwallMapper(type, rewardKey);
@@ -49,7 +49,7 @@ class GetOfferwallMapperExistsSucceededUseCaseTest {
         String rewardKey = "reward-456";
 
         when(findOfferwallMapperPort.existsByOfferwallTypeAndRewardKeyAndIsSuccess(type, rewardKey, true))
-                .thenReturn(false);
+            .thenReturn(false);
 
         // when
         boolean result = getOfferwallMapperService.existsSucceededOfferwallMapper(type, rewardKey);

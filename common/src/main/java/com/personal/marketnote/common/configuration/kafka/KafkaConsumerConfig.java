@@ -74,7 +74,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            CommonErrorHandler commonErrorHandler
+        CommonErrorHandler commonErrorHandler
     ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
@@ -87,7 +87,7 @@ public class KafkaConsumerConfig {
     // DLT 재처리에서도 원본 traceId를 유지해 cross-attempt 추적 가능하도록 동일 RecordInterceptor를 적용한다.
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> dltKafkaListenerContainerFactory(
-            CommonErrorHandler dltErrorHandler
+        CommonErrorHandler dltErrorHandler
     ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());

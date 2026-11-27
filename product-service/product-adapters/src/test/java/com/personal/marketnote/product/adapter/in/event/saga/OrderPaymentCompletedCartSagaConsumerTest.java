@@ -57,16 +57,16 @@ class OrderPaymentCompletedCartSagaConsumerTest {
         @DisplayName("장바구니 삭제 성공 시 성공 응답을 발행한다")
         void shouldPublishSuccessOnCartDeletion() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of(10L, 20L)
+                "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of(10L, 20L)
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleCartStep(createRecord(stepMessage), acknowledgment);
 
             verify(deleteCartProductUseCase).deleteCartProducts(any(DeleteCartProductCommand.class));
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -75,17 +75,17 @@ class OrderPaymentCompletedCartSagaConsumerTest {
         @DisplayName("pricePolicyIds가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingPricePolicyIds() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of()
+                "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of()
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleCartStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(deleteCartProductUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("pricePolicyIds")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("pricePolicyIds")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -94,18 +94,18 @@ class OrderPaymentCompletedCartSagaConsumerTest {
         @DisplayName("장바구니 삭제 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnError() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of(10L)
+                "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of(10L)
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             doThrow(new RuntimeException("DB 오류"))
-                    .when(deleteCartProductUseCase).deleteCartProducts(any());
+                .when(deleteCartProductUseCase).deleteCartProducts(any());
 
             consumer.handleCartStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "장바구니 삭제 처리 실패"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "장바구니 삭제 처리 실패"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -119,10 +119,10 @@ class OrderPaymentCompletedCartSagaConsumerTest {
         @DisplayName("COMPENSATION 메시지 수신 시 아무 작업도 하지 않고 acknowledge 한다")
         void shouldNotProcessCompensation() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of(10L)
+                "orderId", 1L, "buyerId", 100L, "pricePolicyIds", List.of(10L)
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
 
             consumer.handleCartStep(createRecord(stepMessage), acknowledgment);
 
@@ -136,12 +136,12 @@ class OrderPaymentCompletedCartSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-10-17T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT_COMPLETED.DELETE_CART.action",
-                "saga-orchestrator", stepMessage, clock
+            "saga.ORDER_PAYMENT_COMPLETED.DELETE_CART.action",
+            "saga-orchestrator", stepMessage, clock
         );
         return new ConsumerRecord<>(
-                "saga.order-payment-downstream.cart", 0, 0, SAGA_ID,
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "saga.order-payment-downstream.cart", 0, 0, SAGA_ID,
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
     }
 }

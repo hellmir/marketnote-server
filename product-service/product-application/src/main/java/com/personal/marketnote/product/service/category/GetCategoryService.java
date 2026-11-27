@@ -24,10 +24,10 @@ public class GetCategoryService implements GetCategoryUseCase {
     @Override
     public Category getCategory(Long id) {
         return findCategoryPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("존재하지 않는 카테고리입니다. categoryId={}", id);
-                    return new CategoryNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("존재하지 않는 카테고리입니다. categoryId={}", id);
+                return new CategoryNotFoundException();
+            });
     }
 
     @Override

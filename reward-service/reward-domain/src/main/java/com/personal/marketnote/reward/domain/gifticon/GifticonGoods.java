@@ -34,47 +34,47 @@ public class GifticonGoods {
 
     public static GifticonGoods from(GifticonGoodsCreateState state) {
         return GifticonGoods.builder()
-                .goodsCode(GoodsCode.of(state.getGoodsCode()))
-                .goodsName(state.getGoodsName())
-                .brandCode(BrandCode.of(state.getBrandCode()))
-                .brandName(state.getBrandName())
-                .brandImageUrl(state.getBrandImageUrl())
-                .categoryCode(toNullableCategoryCode(state.getCategoryCode()))
-                .realPrice(resolveMoneyOrZero(state.getRealPrice()))
-                .salePrice(resolveMoneyOrZero(state.getSalePrice()))
-                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
-                .imageUrl(state.getImageUrl())
-                .description(state.getDescription())
-                .validDays(toNullableValidDays(state.getValidDays()))
-                .goodsStatus(state.getGoodsStatus())
-                .exposed(false)
-                .popular(false)
-                .orderNum(null)
-                .build();
+            .goodsCode(GoodsCode.of(state.getGoodsCode()))
+            .goodsName(state.getGoodsName())
+            .brandCode(BrandCode.of(state.getBrandCode()))
+            .brandName(state.getBrandName())
+            .brandImageUrl(state.getBrandImageUrl())
+            .categoryCode(toNullableCategoryCode(state.getCategoryCode()))
+            .realPrice(resolveMoneyOrZero(state.getRealPrice()))
+            .salePrice(resolveMoneyOrZero(state.getSalePrice()))
+            .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
+            .imageUrl(state.getImageUrl())
+            .description(state.getDescription())
+            .validDays(toNullableValidDays(state.getValidDays()))
+            .goodsStatus(state.getGoodsStatus())
+            .exposed(false)
+            .popular(false)
+            .orderNum(null)
+            .build();
     }
 
     public static GifticonGoods from(GifticonGoodsSnapshotState state) {
         return GifticonGoods.builder()
-                .id(state.getId())
-                .goodsCode(GoodsCode.fromSnapshot(state.getGoodsCode()))
-                .goodsName(state.getGoodsName())
-                .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
-                .brandName(state.getBrandName())
-                .brandImageUrl(state.getBrandImageUrl())
-                .categoryCode(toNullableCategoryCodeFromSnapshot(state.getCategoryCode()))
-                .realPrice(resolveMoneyOrZero(state.getRealPrice()))
-                .salePrice(resolveMoneyOrZero(state.getSalePrice()))
-                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
-                .imageUrl(state.getImageUrl())
-                .description(state.getDescription())
-                .validDays(toNullableValidDaysFromSnapshot(state.getValidDays()))
-                .goodsStatus(state.getGoodsStatus())
-                .exposed(state.isExposed())
-                .popular(state.isPopular())
-                .orderNum(state.getOrderNum())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .goodsCode(GoodsCode.fromSnapshot(state.getGoodsCode()))
+            .goodsName(state.getGoodsName())
+            .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
+            .brandName(state.getBrandName())
+            .brandImageUrl(state.getBrandImageUrl())
+            .categoryCode(toNullableCategoryCodeFromSnapshot(state.getCategoryCode()))
+            .realPrice(resolveMoneyOrZero(state.getRealPrice()))
+            .salePrice(resolveMoneyOrZero(state.getSalePrice()))
+            .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
+            .imageUrl(state.getImageUrl())
+            .description(state.getDescription())
+            .validDays(toNullableValidDaysFromSnapshot(state.getValidDays()))
+            .goodsStatus(state.getGoodsStatus())
+            .exposed(state.isExposed())
+            .popular(state.isPopular())
+            .orderNum(state.getOrderNum())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void syncFromApi(GifticonGoodsSyncState state) {
@@ -163,7 +163,7 @@ public class GifticonGoods {
     public int getValidDaysValue() {
         if (!hasValidDays()) {
             throw new GifticonGoodsValidDaysNoValueException(
-                    FormatValidator.hasValue(goodsCode) ? goodsCode.getValue() : null
+                FormatValidator.hasValue(goodsCode) ? goodsCode.getValue() : null
             );
         }
         return validDays.getValue();

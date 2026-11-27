@@ -35,12 +35,12 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
-            groupId = "saga-order-payment-downstream-order-point"
+        topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
+        groupId = "saga-order-payment-downstream-order-point"
     )
     public void handleOrderPointStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -52,7 +52,7 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
             log.info("SAGA 결제 완료 주문 포인트 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
 
             if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
@@ -66,11 +66,11 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
             }
 
             log.warn("알 수 없는 messageType. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
             log.error("SAGA 결제 완료 주문 포인트 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -80,22 +80,22 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             OrderPointSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), OrderPointSagaPayload.class
+                stepMessage.payload(), OrderPointSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())
-                    || FormatValidator.hasNoValue(payload.buyerId())) {
+                || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.pointAmount()) || payload.pointAmount() <= 0) {
                 log.info("포인트 미사용 주문 (차감 생략). sagaId={}, orderId={}",
-                        stepMessage.sagaId(), payload.orderId()
+                    stepMessage.sagaId(), payload.orderId()
                 );
                 sagaResponsePublisher.publishSuccess(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
                 );
                 return;
             }
@@ -103,20 +103,20 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
             deductOrderPointIdempotent(payload);
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 주문 포인트 차감 성공. sagaId={}, orderId={}, pointAmount={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.pointAmount()
+                stepMessage.sagaId(), payload.orderId(), payload.pointAmount()
             );
         } catch (Exception e) {
             log.error("SAGA 주문 포인트 차감 처리 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "주문 포인트 차감 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "주문 포인트 차감 처리 실패"
             );
         }
     }
@@ -124,11 +124,11 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             OrderPointSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), OrderPointSagaPayload.class
+                stepMessage.payload(), OrderPointSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())
-                    || FormatValidator.hasNoValue(payload.buyerId())) {
+                || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
                 return;
             }
@@ -136,8 +136,8 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
             if (FormatValidator.hasNoValue(payload.pointAmount()) || payload.pointAmount() <= 0) {
                 log.info("보상할 주문 포인트 없음 (skip). sagaId={}", stepMessage.sagaId());
                 sagaResponsePublisher.publishSuccess(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "{\"compensated\":true,\"skipped\":true}"
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "{\"compensated\":true,\"skipped\":true}"
                 );
                 return;
             }
@@ -145,20 +145,20 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
             restoreOrderPointIdempotent(payload);
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 주문 포인트 환원 보상 완료. sagaId={}, orderId={}, pointAmount={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.pointAmount()
+                stepMessage.sagaId(), payload.orderId(), payload.pointAmount()
             );
         } catch (Exception e) {
             log.error("SAGA 주문 포인트 환원 보상 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "주문 포인트 환원 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "주문 포인트 환원 보상 처리 실패"
             );
         }
     }
@@ -166,17 +166,17 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
     private void deductOrderPointIdempotent(OrderPointSagaPayload payload) {
         try {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(payload.buyerId())
-                    .changeType(UserPointChangeType.DEDUCTION)
-                    .amount(payload.pointAmount())
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(payload.orderId())
-                    .reason(DEDUCTION_REASON)
-                    .build();
+                .userId(payload.buyerId())
+                .changeType(UserPointChangeType.DEDUCTION)
+                .amount(payload.pointAmount())
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(payload.orderId())
+                .reason(DEDUCTION_REASON)
+                .build();
             modifyUserPointUseCase.modify(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 주문 포인트 차감 (멱등 처리). orderId={}, message={}",
-                    payload.orderId(), e.getMessage()
+                payload.orderId(), e.getMessage()
             );
         }
     }
@@ -184,17 +184,17 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
     private void restoreOrderPointIdempotent(OrderPointSagaPayload payload) {
         try {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(payload.buyerId())
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(payload.pointAmount())
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(payload.orderId())
-                    .reason(COMPENSATION_REASON)
-                    .build();
+                .userId(payload.buyerId())
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(payload.pointAmount())
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(payload.orderId())
+                .reason(COMPENSATION_REASON)
+                .build();
             modifyUserPointUseCase.modify(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 주문 포인트 환원 (멱등 처리). orderId={}, message={}",
-                    payload.orderId(), e.getMessage()
+                payload.orderId(), e.getMessage()
             );
         }
     }
@@ -202,8 +202,8 @@ public class OrderPaymentCompletedOrderPointSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 주문 포인트 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

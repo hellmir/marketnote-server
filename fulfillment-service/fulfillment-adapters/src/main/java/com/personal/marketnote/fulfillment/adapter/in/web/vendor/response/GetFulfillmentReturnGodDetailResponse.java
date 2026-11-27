@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentR
 import java.util.List;
 
 public record GetFulfillmentReturnGodDetailResponse(
-        Integer dataCount,
-        List<FulfillmentReturnGodDetailInfoResult> returnGodInfos
+    Integer dataCount,
+    List<FulfillmentReturnGodDetailInfoResult> returnGodInfos
 ) {
     public static GetFulfillmentReturnGodDetailResponse from(GetFulfillmentReturnGodDetailResult result) {
         return new GetFulfillmentReturnGodDetailResponse(result.dataCount(), result.returnGodInfos());

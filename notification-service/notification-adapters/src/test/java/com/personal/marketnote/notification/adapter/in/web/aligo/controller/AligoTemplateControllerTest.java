@@ -62,21 +62,21 @@ class AligoTemplateControllerTest {
 
     private RegisterAligoTemplateRequest buildRegisterRequest() {
         return new RegisterAligoTemplateRequest(
-                "sk-1", "CODE-1", "템플릿명", "본문내용",
-                "제목", "부제목", "BA", "NONE",
-                false, false, null, null,
-                List.of(new RegisterAligoTemplateRequest.ButtonRequest(
-                        1, "링크 버튼", "WL", "https://m.example.com",
-                        "https://pc.example.com", null, null
-                ))
+            "sk-1", "CODE-1", "템플릿명", "본문내용",
+            "제목", "부제목", "BA", "NONE",
+            false, false, null, null,
+            List.of(new RegisterAligoTemplateRequest.ButtonRequest(
+                1, "링크 버튼", "WL", "https://m.example.com",
+                "https://pc.example.com", null, null
+            ))
         );
     }
 
     private UpdateAligoTemplateRequest buildUpdateRequest() {
         return new UpdateAligoTemplateRequest(
-                "sk-1", "템플릿명 수정", "본문 수정",
-                "제목 수정", "부제목 수정",
-                List.of()
+            "sk-1", "템플릿명 수정", "본문 수정",
+            "제목 수정", "부제목 수정",
+            List.of()
         );
     }
 
@@ -89,20 +89,20 @@ class AligoTemplateControllerTest {
         void shouldReturnTemplateListAndDelegateWithSenderKey() {
             // given
             GetAligoTemplateListResult result = new GetAligoTemplateListResult(List.of(
-                    new GetAligoTemplateListResult.AligoTemplateResult(
-                            1L, "CODE-1", "템플릿명", "BA",
-                            "APR", "A", "정상"
-                    ),
-                    new GetAligoTemplateListResult.AligoTemplateResult(
-                            2L, "CODE-2", "템플릿명2", "BA",
-                            "REG", "W", null
-                    )
+                new GetAligoTemplateListResult.AligoTemplateResult(
+                    1L, "CODE-1", "템플릿명", "BA",
+                    "APR", "A", "정상"
+                ),
+                new GetAligoTemplateListResult.AligoTemplateResult(
+                    2L, "CODE-2", "템플릿명2", "BA",
+                    "REG", "W", null
+                )
             ));
             when(getAligoTemplateListUseCase.getTemplateList("sk-1")).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetAligoTemplateListResponse>> response =
-                    controller.getTemplateList("sk-1");
+                controller.getTemplateList("sk-1");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -122,20 +122,20 @@ class AligoTemplateControllerTest {
         void shouldReturnTemplateDetailWithButtons() {
             // given
             GetAligoTemplateDetailResult result = new GetAligoTemplateDetailResult(
-                    1L, "sk-1", "CODE-1", "템플릿명",
-                    "본문", "제목", "부제목", "BA", "NONE",
-                    false, false, null, null,
-                    "APR", "A", "정상",
-                    List.of(new GetAligoTemplateDetailResult.ButtonResult(
-                            1, "버튼명", "WL",
-                            "mo-link", "pc-link", "ios-link", "and-link"
-                    ))
+                1L, "sk-1", "CODE-1", "템플릿명",
+                "본문", "제목", "부제목", "BA", "NONE",
+                false, false, null, null,
+                "APR", "A", "정상",
+                List.of(new GetAligoTemplateDetailResult.ButtonResult(
+                    1, "버튼명", "WL",
+                    "mo-link", "pc-link", "ios-link", "and-link"
+                ))
             );
             when(getAligoTemplateByCodeUseCase.getTemplateByCode("CODE-1")).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetAligoTemplateDetailResponse>> response =
-                    controller.getTemplateDetail("CODE-1");
+                controller.getTemplateDetail("CODE-1");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -156,16 +156,16 @@ class AligoTemplateControllerTest {
         void shouldMapRequestToCommandAndReturnCreated() {
             // given
             when(registerAligoTemplateUseCase.registerTemplate(any()))
-                    .thenReturn(new RegisterAligoTemplateResult(1L, "CODE-1", "템플릿명"));
+                .thenReturn(new RegisterAligoTemplateResult(1L, "CODE-1", "템플릿명"));
 
             // when
             ResponseEntity<BaseResponse<RegisterAligoTemplateResponse>> response =
-                    controller.registerTemplate(buildRegisterRequest());
+                controller.registerTemplate(buildRegisterRequest());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterAligoTemplateCommand> captor =
-                    ArgumentCaptor.forClass(RegisterAligoTemplateCommand.class);
+                ArgumentCaptor.forClass(RegisterAligoTemplateCommand.class);
             verify(registerAligoTemplateUseCase).registerTemplate(captor.capture());
             RegisterAligoTemplateCommand command = captor.getValue();
             assertThat(command.senderKey()).isEqualTo("sk-1");
@@ -181,12 +181,12 @@ class AligoTemplateControllerTest {
         void shouldMapNullButtonsToEmptyList() {
             // given
             when(registerAligoTemplateUseCase.registerTemplate(any()))
-                    .thenReturn(new RegisterAligoTemplateResult(1L, "CODE-1", "템플릿명"));
+                .thenReturn(new RegisterAligoTemplateResult(1L, "CODE-1", "템플릿명"));
             RegisterAligoTemplateRequest request = new RegisterAligoTemplateRequest(
-                    "sk-1", "CODE-1", "템플릿명", "본문내용",
-                    null, null, "BA", "NONE",
-                    false, false, null, null,
-                    null
+                "sk-1", "CODE-1", "템플릿명", "본문내용",
+                null, null, "BA", "NONE",
+                false, false, null, null,
+                null
             );
 
             // when
@@ -194,7 +194,7 @@ class AligoTemplateControllerTest {
 
             // then
             ArgumentCaptor<RegisterAligoTemplateCommand> captor =
-                    ArgumentCaptor.forClass(RegisterAligoTemplateCommand.class);
+                ArgumentCaptor.forClass(RegisterAligoTemplateCommand.class);
             verify(registerAligoTemplateUseCase).registerTemplate(captor.capture());
             assertThat(captor.getValue().buttons()).isEmpty();
         }
@@ -209,16 +209,16 @@ class AligoTemplateControllerTest {
         void shouldMapPathAndBodyToCommand() {
             // given
             when(updateAligoTemplateUseCase.updateTemplate(any()))
-                    .thenReturn(new UpdateAligoTemplateResult(1L, "CODE-1", "템플릿명 수정"));
+                .thenReturn(new UpdateAligoTemplateResult(1L, "CODE-1", "템플릿명 수정"));
 
             // when
             ResponseEntity<BaseResponse<UpdateAligoTemplateResponse>> response =
-                    controller.updateTemplate("CODE-1", buildUpdateRequest());
+                controller.updateTemplate("CODE-1", buildUpdateRequest());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<UpdateAligoTemplateCommand> captor =
-                    ArgumentCaptor.forClass(UpdateAligoTemplateCommand.class);
+                ArgumentCaptor.forClass(UpdateAligoTemplateCommand.class);
             verify(updateAligoTemplateUseCase).updateTemplate(captor.capture());
             UpdateAligoTemplateCommand command = captor.getValue();
             assertThat(command.templateCode()).isEqualTo("CODE-1");
@@ -237,11 +237,11 @@ class AligoTemplateControllerTest {
         void shouldCallInspectionUseCaseAndReturnOk() {
             // given
             when(requestAligoTemplateInspectionUseCase.requestInspection("CODE-1"))
-                    .thenReturn(new RequestAligoTemplateInspectionResult("CODE-1", "REG"));
+                .thenReturn(new RequestAligoTemplateInspectionResult("CODE-1", "REG"));
 
             // when
             ResponseEntity<BaseResponse<RequestAligoTemplateInspectionResult>> response =
-                    controller.requestInspection("CODE-1");
+                controller.requestInspection("CODE-1");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -266,7 +266,7 @@ class AligoTemplateControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<DeleteAligoTemplateCommand> captor =
-                    ArgumentCaptor.forClass(DeleteAligoTemplateCommand.class);
+                ArgumentCaptor.forClass(DeleteAligoTemplateCommand.class);
             verify(deleteAligoTemplateUseCase).deleteTemplate(captor.capture());
             DeleteAligoTemplateCommand command = captor.getValue();
             assertThat(command.templateCode()).isEqualTo("CODE-1");
@@ -290,11 +290,11 @@ class AligoTemplateControllerTest {
                 }
                 PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
                 assertThat(annotation)
-                        .as("메서드 %s 에 @PreAuthorize가 부착되어야 한다", method.getName())
-                        .isNotNull();
+                    .as("메서드 %s 에 @PreAuthorize가 부착되어야 한다", method.getName())
+                    .isNotNull();
                 assertThat(annotation.value())
-                        .as("메서드 %s 의 @PreAuthorize 값은 ADMIN_POINTCUT이어야 한다", method.getName())
-                        .isEqualTo(expected);
+                    .as("메서드 %s 의 @PreAuthorize 값은 ADMIN_POINTCUT이어야 한다", method.getName())
+                    .isEqualTo(expected);
             }
         }
     }
@@ -342,11 +342,11 @@ class AligoTemplateControllerTest {
                 Field field = recordClass.getDeclaredField(fieldName);
                 NotBlank annotation = field.getAnnotation(NotBlank.class);
                 assertThat(annotation)
-                        .as("%s.%s 필드에 @NotBlank가 부착되어야 한다", recordClass.getSimpleName(), fieldName)
-                        .isNotNull();
+                    .as("%s.%s 필드에 @NotBlank가 부착되어야 한다", recordClass.getSimpleName(), fieldName)
+                    .isNotNull();
             } catch (NoSuchFieldException e) {
                 throw new IllegalArgumentException(
-                        recordClass.getSimpleName() + "에 " + fieldName + " 필드가 없다", e
+                    recordClass.getSimpleName() + "에 " + fieldName + " 필드가 없다", e
                 );
             }
         }

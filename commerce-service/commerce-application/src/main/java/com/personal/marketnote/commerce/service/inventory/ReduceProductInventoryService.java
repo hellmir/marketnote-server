@@ -37,21 +37,21 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
     @Override
     public void reduce(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
-                        )
-                );
+            .collect(
+                Collectors.groupingBy(
+                    OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
+                )
+            );
 
         // Redisson Pub/Sub 모델 분산 락 기반의 동시성 제어
         inventoryLockPort.executeWithLock(stocksByPricePolicyId.keySet(), () -> {
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(stocksByPricePolicyId.keySet());
 
             List<InventoryReservation> reservations = findInventoryReservationPort
-                    .findByOrderIdAndPricePolicyIds(orderId, stocksByPricePolicyId.keySet());
+                .findByOrderIdAndPricePolicyIds(orderId, stocksByPricePolicyId.keySet());
 
             Map<Long, InventoryReservation> reservationByPricePolicyId = reservations.stream()
-                    .collect(Collectors.toMap(InventoryReservation::getPricePolicyId, r -> r));
+                .collect(Collectors.toMap(InventoryReservation::getPricePolicyId, r -> r));
 
             Set<Long> reservedPricePolicyIds = reservationByPricePolicyId.keySet();
 
@@ -72,18 +72,18 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
             updateInventoryPort.update(inventories);
             Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
             inventories.forEach(inventory ->
-                    productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
+                productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
             );
             saveInventoryDeductionHistoryPort.save(
-                    InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
+                InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
             );
             saveCacheStockPort.save(inventories);
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishInventoryChangedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            inventory.getStockValue(), InventoryChangeAction.UPDATED
-                    )
+                publishInventoryEventPort.publishInventoryChangedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    inventory.getStockValue(), InventoryChangeAction.UPDATED
+                )
             );
         });
     }

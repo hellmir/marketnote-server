@@ -43,15 +43,15 @@ class OrderCancelledLedgerConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long cancelAmount, boolean isFullCancel, String cancelId
+        Long orderId, Long cancelAmount, boolean isFullCancel, String cancelId
     ) {
         OrderCancelledEvent event = new OrderCancelledEvent(
-                orderId, "order-key-1", 50L, cancelAmount, 80000L, 1000L, 3000L,
-                isFullCancel, 0L, List.of(), List.of(), cancelId
+            orderId, "order-key-1", 50L, cancelAmount, 80000L, 1000L, 3000L,
+            isFullCancel, 0L, List.of(), List.of(), cancelId
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 4, 8, 10, 0), event
+            "test-event-id", "commerce.order.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 4, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -90,7 +90,7 @@ class OrderCancelledLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 60000L);
         doThrow(new DuplicateLedgerTransactionException("ORDER_CANCELLATION:1"))
-                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_CANCELLATION:1");
+            .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_CANCELLATION:1");
 
         // when
         consumer.handleOrderCancelledEvent(record, acknowledgment);
@@ -105,7 +105,7 @@ class OrderCancelledLedgerConsumerTest {
     void handleOrderCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancelled", 0, 0L, "1", null
+            "commerce.order.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -121,15 +121,15 @@ class OrderCancelledLedgerConsumerTest {
     void handleOrderCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderCancelledEvent event = new OrderCancelledEvent(
-                1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 0L, List.of(), List.of(), null
+            1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
+            true, 0L, List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancelled", 0, 0L, "1", envelope
+            "commerce.order.cancelled", 0, 0L, "1", envelope
         );
 
         // when
@@ -193,7 +193,7 @@ class OrderCancelledLedgerConsumerTest {
 
         // then
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-abc"
+            1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-abc"
         );
         verify(acknowledgment).acknowledge();
     }
@@ -209,7 +209,7 @@ class OrderCancelledLedgerConsumerTest {
 
         // then
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:unknown"
+            1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:unknown"
         );
         verify(acknowledgment).acknowledge();
     }
@@ -227,10 +227,10 @@ class OrderCancelledLedgerConsumerTest {
 
         // then
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-1"
+            1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-1"
         );
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                1L, 20000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-2"
+            1L, 20000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-2"
         );
         verify(acknowledgment, times(2)).acknowledge();
     }
@@ -241,12 +241,12 @@ class OrderCancelledLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 60000L);
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(recordLedgerEntryUseCase).recordPaymentCancellation(anyLong(), anyLong(), anyString());
+            .when(recordLedgerEntryUseCase).recordPaymentCancellation(anyLong(), anyLong(), anyString());
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderCancelledEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_CANCELLATION:1");
         verify(acknowledgment, never()).acknowledge();

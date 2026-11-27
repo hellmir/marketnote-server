@@ -39,9 +39,9 @@ public class HttpMethodAndRole {
 
     public void runTraversal(BiConsumer<AuthorizedHttpMethod, String> consumer) {
         this.rolesPerHttpMethod.entrySet()
-                .stream()
-                .flatMap((initEntry) ->
-                        initEntry.getValue().stream().map((val) -> Map.entry(initEntry.getKey(), val)))
-                .forEach((flatEntry) -> consumer.accept(flatEntry.getKey(), flatEntry.getValue()));
+            .stream()
+            .flatMap((initEntry) ->
+                initEntry.getValue().stream().map((val) -> Map.entry(initEntry.getKey(), val)))
+            .forEach((flatEntry) -> consumer.accept(flatEntry.getKey(), flatEntry.getValue()));
     }
 }

@@ -11,6 +11,18 @@ import lombok.Builder;
  */
 @Builder
 public record PaymentCancelComputation(
+    Long cancelAmount,
+    Long adjustedCancelAmount,
+    Long remainAmount,
+    Long alreadyRefunded,
+    Long shippingFeeDeduction,
+    boolean isFullCancel,
+    String adjustedCancelReason,
+    String cancelId,
+    String transactionNumber,
+    String modType
+) {
+    public static PaymentCancelComputation of(
         Long cancelAmount,
         Long adjustedCancelAmount,
         Long remainAmount,
@@ -21,30 +33,18 @@ public record PaymentCancelComputation(
         String cancelId,
         String transactionNumber,
         String modType
-) {
-    public static PaymentCancelComputation of(
-            Long cancelAmount,
-            Long adjustedCancelAmount,
-            Long remainAmount,
-            Long alreadyRefunded,
-            Long shippingFeeDeduction,
-            boolean isFullCancel,
-            String adjustedCancelReason,
-            String cancelId,
-            String transactionNumber,
-            String modType
     ) {
         return PaymentCancelComputation.builder()
-                .cancelAmount(cancelAmount)
-                .adjustedCancelAmount(adjustedCancelAmount)
-                .remainAmount(remainAmount)
-                .alreadyRefunded(alreadyRefunded)
-                .shippingFeeDeduction(shippingFeeDeduction)
-                .isFullCancel(isFullCancel)
-                .adjustedCancelReason(adjustedCancelReason)
-                .cancelId(cancelId)
-                .transactionNumber(transactionNumber)
-                .modType(modType)
-                .build();
+            .cancelAmount(cancelAmount)
+            .adjustedCancelAmount(adjustedCancelAmount)
+            .remainAmount(remainAmount)
+            .alreadyRefunded(alreadyRefunded)
+            .shippingFeeDeduction(shippingFeeDeduction)
+            .isFullCancel(isFullCancel)
+            .adjustedCancelReason(adjustedCancelReason)
+            .cancelId(cancelId)
+            .transactionNumber(transactionNumber)
+            .modType(modType)
+            .build();
     }
 }

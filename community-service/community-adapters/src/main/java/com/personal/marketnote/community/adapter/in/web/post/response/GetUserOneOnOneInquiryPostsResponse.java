@@ -6,15 +6,15 @@ import com.personal.marketnote.community.port.in.result.post.GetUserOneOnOneInqu
 public record GetUserOneOnOneInquiryPostsResponse(OffsetResponse<PostItemResponse> posts) {
     public static GetUserOneOnOneInquiryPostsResponse from(GetUserOneOnOneInquiryPostsResult result) {
         return new GetUserOneOnOneInquiryPostsResponse(
-                new OffsetResponse<>(
-                        result.page(),
-                        result.pageSize(),
-                        result.totalElements(),
-                        result.totalPages(),
-                        result.posts().stream()
-                                .map(PostItemResponse::from)
-                                .toList()
-                )
+            new OffsetResponse<>(
+                result.page(),
+                result.pageSize(),
+                result.totalElements(),
+                result.totalPages(),
+                result.posts().stream()
+                    .map(PostItemResponse::from)
+                    .toList()
+            )
         );
     }
 }

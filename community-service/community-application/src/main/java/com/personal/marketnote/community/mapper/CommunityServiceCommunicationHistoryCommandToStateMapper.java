@@ -8,16 +8,16 @@ public class CommunityServiceCommunicationHistoryCommandToStateMapper {
     }
 
     public static CommunityServiceCommunicationHistoryCreateState mapToCreateState(
-            CommunityServiceCommunicationHistoryCommand command
+        CommunityServiceCommunicationHistoryCommand command
     ) {
         return CommunityServiceCommunicationHistoryCreateState.builder()
-                .targetType(command.getTargetType())
-                .targetId(command.getTargetId())
-                .communicationType(command.getCommunicationType())
-                .sender(command.getSender())
-                .exception(command.getException())
-                .payload(command.getPayload())
-                .payloadJson(command.getPayloadJson())
-                .build();
+            .targetType(command.getTargetType())
+            .targetId(command.getTargetId())
+            .communicationType(command.getCommunicationType())
+            .sender(command.getSender())
+            .exception(command.getException())
+            .payload(command.getPayload())
+            .payloadJson(command.getPayloadJson())
+            .build();
     }
 }

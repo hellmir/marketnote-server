@@ -40,8 +40,8 @@ class PointAccruedNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long userId, Long amount) {
         PointAccruedEvent event = new PointAccruedEvent(userId, amount);
         EventEnvelope<PointAccruedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "reward.point.accrued", "reward-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "reward.point.accrued", "reward-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         return new ConsumerRecord<>("reward.point.accrued", 0, 0L, "key-1", envelope);
     }
@@ -74,7 +74,7 @@ class PointAccruedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "reward.point.accrued", 0, 0L, "1", null
+            "reward.point.accrued", 0, 0L, "1", null
         );
 
         // when
@@ -91,11 +91,11 @@ class PointAccruedNotificationConsumerTest {
         // given
         PointAccruedEvent event = new PointAccruedEvent(1L, 5000L);
         EventEnvelope<PointAccruedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "reward-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "wrong.event.type", "reward-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "reward.point.accrued", 0, 0L, "key-1", envelope
+            "reward.point.accrued", 0, 0L, "key-1", envelope
         );
 
         // when

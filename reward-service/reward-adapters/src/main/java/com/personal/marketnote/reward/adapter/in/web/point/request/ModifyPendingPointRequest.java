@@ -6,19 +6,19 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record ModifyPendingPointRequest(
-        @NotNull
-        UserPointChangeType changeType,
+    @NotNull
+    UserPointChangeType changeType,
 
-        @NotNull
-        @Min(1)
-        Long amount,
+    @NotNull
+    @Min(1)
+    Long amount,
 
-        @NotNull
-        UserPointSourceType sourceType,
+    @NotNull
+    UserPointSourceType sourceType,
 
-        @NotNull
-        Long sourceId,
+    @NotNull
+    Long sourceId,
 
-        String reason
+    String reason
 ) {
 }

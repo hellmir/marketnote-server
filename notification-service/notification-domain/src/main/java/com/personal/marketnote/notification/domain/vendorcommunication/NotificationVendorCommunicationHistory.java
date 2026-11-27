@@ -25,32 +25,32 @@ public class NotificationVendorCommunicationHistory {
 
     public static NotificationVendorCommunicationHistory from(NotificationVendorCommunicationHistoryCreateState state) {
         return NotificationVendorCommunicationHistory.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .vendorName(state.getVendorName())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .attemptCount(state.getAttemptCount())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .vendorName(state.getVendorName())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .attemptCount(state.getAttemptCount())
+            .build();
     }
 
     public static NotificationVendorCommunicationHistory from(NotificationVendorCommunicationHistorySnapshotState state) {
         return NotificationVendorCommunicationHistory.builder()
-                .id(state.getId())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .vendorName(state.getVendorName())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .attemptCount(state.getAttemptCount())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .vendorName(state.getVendorName())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .attemptCount(state.getAttemptCount())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     public boolean isSuccess() {

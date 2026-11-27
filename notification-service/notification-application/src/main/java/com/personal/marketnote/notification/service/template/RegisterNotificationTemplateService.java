@@ -26,12 +26,12 @@ public class RegisterNotificationTemplateService implements RegisterNotification
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public RegisterNotificationTemplateResult registerNotificationTemplate(
-            RegisterNotificationTemplateCommand command
+        RegisterNotificationTemplateCommand command
     ) {
         validateNoDuplicateTemplateCode(command.templateCode());
 
         NotificationTemplate template = NotificationTemplate.from(
-                NotificationTemplateCommandToStateMapper.mapToState(command)
+            NotificationTemplateCommandToStateMapper.mapToState(command)
         );
 
         Long savedId = saveNotificationTemplatePort.save(template);
@@ -41,9 +41,9 @@ public class RegisterNotificationTemplateService implements RegisterNotification
 
     private void validateNoDuplicateTemplateCode(String templateCode) {
         findNotificationTemplatePort.findActiveByTemplateCode(templateCode)
-                .ifPresent(existing -> {
-                    log.warn("이미 존재하는 템플릿 코드입니다. templateCode={}", templateCode);
-                    throw new DuplicateNotificationTemplateException();
-                });
+            .ifPresent(existing -> {
+                log.warn("이미 존재하는 템플릿 코드입니다. templateCode={}", templateCode);
+                throw new DuplicateNotificationTemplateException();
+            });
     }
 }

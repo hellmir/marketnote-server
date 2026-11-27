@@ -19,7 +19,7 @@ public enum FulfillmentWorkStatus {
     private final String description;
 
     private static final Set<FulfillmentWorkStatus> CANCELLABLE_STATUSES = EnumSet.of(
-            NOT_REGISTERED, REGISTERED, PICKING
+        NOT_REGISTERED, REGISTERED, PICKING
     );
 
     public boolean isCancellable() {

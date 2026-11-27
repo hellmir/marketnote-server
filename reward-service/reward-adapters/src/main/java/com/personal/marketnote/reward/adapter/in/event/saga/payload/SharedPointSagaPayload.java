@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 public record SharedPointSagaPayload(
-        Long orderId,
-        Long buyerId,
-        Long totalAmount,
-        List<UUID> sharerKeys
+    Long orderId,
+    Long buyerId,
+    Long totalAmount,
+    List<UUID> sharerKeys
 ) {
 }

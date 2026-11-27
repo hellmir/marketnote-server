@@ -1,8 +1,8 @@
 package com.personal.marketnote.notification.adapter.out.sse;
 
 public record SseEventMessage(
-        Long userId,
-        String eventType,
-        Object payload
+    Long userId,
+    String eventType,
+    Object payload
 ) {
 }

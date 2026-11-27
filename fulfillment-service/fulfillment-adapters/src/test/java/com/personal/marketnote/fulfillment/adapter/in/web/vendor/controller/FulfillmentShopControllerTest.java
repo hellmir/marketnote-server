@@ -71,11 +71,11 @@ class FulfillmentShopControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentShopUseCase.registerShop(any(RegisterFulfillmentShopCommand.class)))
-                    .thenReturn(RegisterFulfillmentShopResult.of("ok", "SUC", "SHOP-01"));
+                .thenReturn(RegisterFulfillmentShopResult.of("ok", "SUC", "SHOP-01"));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentShopResponse>> response =
-                    controller.registerShop(CUSTOMER_CODE, ACCESS_TOKEN, registerRequest());
+                controller.registerShop(CUSTOMER_CODE, ACCESS_TOKEN, registerRequest());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -92,11 +92,11 @@ class FulfillmentShopControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentShopsUseCase.getShops(any(GetFulfillmentShopsCommand.class)))
-                    .thenReturn(GetFulfillmentShopsResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentShopsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentShopsResponse>> response =
-                    controller.getShops(CUSTOMER_CODE, ACCESS_TOKEN);
+                controller.getShops(CUSTOMER_CODE, ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -113,11 +113,11 @@ class FulfillmentShopControllerTest {
         void returnsOk() {
             // given
             when(updateFulfillmentShopUseCase.updateShop(any(UpdateFulfillmentShopCommand.class)))
-                    .thenReturn(UpdateFulfillmentShopResult.of("ok", "SUC", "SHOP-01"));
+                .thenReturn(UpdateFulfillmentShopResult.of("ok", "SUC", "SHOP-01"));
 
             // when
             ResponseEntity<BaseResponse<UpdateFulfillmentShopResponse>> response =
-                    controller.updateShop(CUSTOMER_CODE, ACCESS_TOKEN, updateRequest());
+                controller.updateShop(CUSTOMER_CODE, ACCESS_TOKEN, updateRequest());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

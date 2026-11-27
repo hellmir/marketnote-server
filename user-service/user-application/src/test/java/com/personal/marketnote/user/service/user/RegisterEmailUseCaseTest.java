@@ -66,8 +66,8 @@ class RegisterEmailUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerEmailService.registerEmail(id, AuthVendor.GOOGLE, email))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id));
 
         verify(findUserPort).findById(id);
         verifyNoMoreInteractions(findUserPort);
@@ -87,8 +87,8 @@ class RegisterEmailUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerEmailService.registerEmail(id, AuthVendor.KAKAO, email))
-                .isInstanceOf(UserExistsException.class)
-                .hasMessage(String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIRST_ERROR_CODE, email));
+            .isInstanceOf(UserExistsException.class)
+            .hasMessage(String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIRST_ERROR_CODE, email));
 
         verify(findUserPort).findById(id);
         verify(findUserPort).existsByEmail(email);

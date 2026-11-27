@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record StockReleasedEvent(
-        Long pricePolicyId,
-        Long productId,
-        Integer releasedQuantity,
-        String reason,
-        Long orderId
+    Long pricePolicyId,
+    Long productId,
+    Integer releasedQuantity,
+    String reason,
+    Long orderId
 ) {
 }

@@ -19,29 +19,29 @@ public class InventoryAdditionHistory {
 
     public static InventoryAdditionHistory from(InventoryAdditionHistoryCreateState state) {
         return InventoryAdditionHistory.builder()
-                .productId(state.getProductId())
-                .pricePolicyId(state.getPricePolicyId())
-                .stock(Stock.of(
-                        String.valueOf(state.getStock())
-                ))
-                .reason(state.getReason())
-                .unitPrice(resolveMoneyOrZero(state.getUnitPrice()))
-                .supplier(state.getSupplier())
-                .build();
+            .productId(state.getProductId())
+            .pricePolicyId(state.getPricePolicyId())
+            .stock(Stock.of(
+                String.valueOf(state.getStock())
+            ))
+            .reason(state.getReason())
+            .unitPrice(resolveMoneyOrZero(state.getUnitPrice()))
+            .supplier(state.getSupplier())
+            .build();
     }
 
     public static InventoryAdditionHistory from(InventoryAdditionHistorySnapshotState state) {
         return InventoryAdditionHistory.builder()
-                .id(state.getId())
-                .productId(state.getProductId())
-                .pricePolicyId(state.getPricePolicyId())
-                .stock(Stock.of(
-                        String.valueOf(state.getStock())
-                ))
-                .reason(state.getReason())
-                .unitPrice(resolveMoneyOrZero(state.getUnitPrice()))
-                .supplier(state.getSupplier())
-                .build();
+            .id(state.getId())
+            .productId(state.getProductId())
+            .pricePolicyId(state.getPricePolicyId())
+            .stock(Stock.of(
+                String.valueOf(state.getStock())
+            ))
+            .reason(state.getReason())
+            .unitPrice(resolveMoneyOrZero(state.getUnitPrice()))
+            .supplier(state.getSupplier())
+            .build();
     }
 
     private static Money resolveMoneyOrZero(Long value) {

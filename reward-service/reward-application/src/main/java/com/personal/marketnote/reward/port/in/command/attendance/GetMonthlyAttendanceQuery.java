@@ -13,16 +13,16 @@ public record GetMonthlyAttendanceQuery(Long userId, Integer year, Integer month
 
     public Year resolveYear(LocalDate now) {
         int targetYear = FormatValidator.hasValue(year)
-                ? year
-                : now.getYear();
+            ? year
+            : now.getYear();
 
         return Year.from(targetYear);
     }
 
     public Month resolveMonth(LocalDate now) {
         int targetMonth = FormatValidator.hasValue(month)
-                ? month
-                : now.getMonthValue();
+            ? month
+            : now.getMonthValue();
 
         return Month.from(targetMonth);
     }

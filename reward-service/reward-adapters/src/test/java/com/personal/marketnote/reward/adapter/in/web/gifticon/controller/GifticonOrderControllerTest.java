@@ -55,9 +55,9 @@ class GifticonOrderControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(String userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                userId,
-                Map.of("name", userId),
-                List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
+            userId,
+            Map.of("name", userId),
+            List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
         );
     }
 
@@ -71,10 +71,10 @@ class GifticonOrderControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("42");
             PurchaseGifticonRequest request = new PurchaseGifticonRequest("G-01");
             given(purchaseGifticonUseCase.purchase(any(PurchaseGifticonCommand.class)))
-                    .willReturn(new PurchaseGifticonResult(100L, "ORD-1", 5000L, "상품명"));
+                .willReturn(new PurchaseGifticonResult(100L, "ORD-1", 5000L, "상품명"));
 
             ResponseEntity<BaseResponse<PurchaseGifticonResponse>> response =
-                    controller.purchaseGifticon(principal, request);
+                controller.purchaseGifticon(principal, request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -94,15 +94,15 @@ class GifticonOrderControllerTest {
         void returnsOkAndPassesParams() {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("42");
             given(getMyGifticonOrdersUseCase.getMyGifticonOrders(any(GetMyGifticonOrdersCommand.class)))
-                    .willReturn(new GetMyGifticonOrdersResult(0L, 0L, false, -1L, List.of()));
+                .willReturn(new GetMyGifticonOrdersResult(0L, 0L, false, -1L, List.of()));
 
             ResponseEntity<BaseResponse<GetMyGifticonOrdersResponse>> response =
-                    controller.getMyGifticonOrders(principal, "AVAILABLE", "PURCHASE_LATEST", -1L, 10);
+                controller.getMyGifticonOrders(principal, "AVAILABLE", "PURCHASE_LATEST", -1L, 10);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
             ArgumentCaptor<GetMyGifticonOrdersCommand> captor =
-                    ArgumentCaptor.forClass(GetMyGifticonOrdersCommand.class);
+                ArgumentCaptor.forClass(GetMyGifticonOrdersCommand.class);
             verify(getMyGifticonOrdersUseCase).getMyGifticonOrders(captor.capture());
             assertThat(captor.getValue().userId()).isEqualTo(42L);
             assertThat(captor.getValue().statusFilter()).isEqualTo("AVAILABLE");
@@ -121,20 +121,20 @@ class GifticonOrderControllerTest {
         void returnsOkWithDetail() {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("42");
             GetMyGifticonOrderDetailResult result = new GetMyGifticonOrderDetailResult(
-                    100L, "상품", "브랜드", "b.img", "p.img", "설명",
-                    5000L, "c.img", "핀", "2026-07-15", 90, "사용가능",
-                    "AVAILABLE", LocalDateTime.of(2026, 4, 15, 0, 0)
+                100L, "상품", "브랜드", "b.img", "p.img", "설명",
+                5000L, "c.img", "핀", "2026-07-15", 90, "사용가능",
+                "AVAILABLE", LocalDateTime.of(2026, 4, 15, 0, 0)
             );
             given(getMyGifticonOrderDetailUseCase.getMyGifticonOrderDetail(any(GetMyGifticonOrderDetailCommand.class)))
-                    .willReturn(result);
+                .willReturn(result);
 
             ResponseEntity<BaseResponse<GetMyGifticonOrderDetailResponse>> response =
-                    controller.getMyGifticonOrderDetail(principal, 100L);
+                controller.getMyGifticonOrderDetail(principal, 100L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
             ArgumentCaptor<GetMyGifticonOrderDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetMyGifticonOrderDetailCommand.class);
+                ArgumentCaptor.forClass(GetMyGifticonOrderDetailCommand.class);
             verify(getMyGifticonOrderDetailUseCase).getMyGifticonOrderDetail(captor.capture());
             assertThat(captor.getValue().userId()).isEqualTo(42L);
             assertThat(captor.getValue().orderId()).isEqualTo(100L);
@@ -149,8 +149,8 @@ class GifticonOrderControllerTest {
         @DisplayName("getMyGifticonOrders 메서드에 @RateLimited(key=gifticon-orders-me, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getMyGifticonOrdersHasRateLimited() throws NoSuchMethodException {
             Method method = GifticonOrderController.class.getMethod(
-                    "getMyGifticonOrders",
-                    OAuth2AuthenticatedPrincipal.class, String.class, String.class, Long.class, int.class
+                "getMyGifticonOrders",
+                OAuth2AuthenticatedPrincipal.class, String.class, String.class, Long.class, int.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);

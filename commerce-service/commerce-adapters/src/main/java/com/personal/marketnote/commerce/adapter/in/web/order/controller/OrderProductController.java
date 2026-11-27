@@ -46,22 +46,22 @@ public class OrderProductController {
     @GetMapping("/me")
     @GetOrderProductsApiDocs
     public ResponseEntity<BaseResponse<GetMyOrderProductsResponse>> getMyOrderProducts(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "isReviewed", required = false) Boolean isReviewed
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(value = "isReviewed", required = false) Boolean isReviewed
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         GetBuyerOrderProductsResult result = getOrderUseCase.getBuyerOrderProducts(
-                GetBuyerOrderProductsQuery.of(buyerId, isReviewed)
+            GetBuyerOrderProductsQuery.of(buyerId, isReviewed)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetMyOrderProductsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 주문 상품 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetMyOrderProductsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 주문 상품 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

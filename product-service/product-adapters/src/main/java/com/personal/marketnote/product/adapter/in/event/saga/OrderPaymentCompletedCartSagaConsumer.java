@@ -29,12 +29,12 @@ public class OrderPaymentCompletedCartSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
-            groupId = "saga-order-payment-downstream-cart"
+        topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
+        groupId = "saga-order-payment-downstream-cart"
     )
     public void handleCartStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -46,7 +46,7 @@ public class OrderPaymentCompletedCartSagaConsumer {
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
             log.info("SAGA 결제 완료 장바구니 삭제 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
 
             if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
@@ -55,11 +55,11 @@ public class OrderPaymentCompletedCartSagaConsumer {
             }
 
             log.warn("장바구니 삭제 스텝은 보상이 없습니다. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
             log.error("SAGA 결제 완료 장바구니 삭제 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -80,35 +80,35 @@ public class OrderPaymentCompletedCartSagaConsumer {
             }
 
             deleteCartProductUseCase.deleteCartProducts(
-                    DeleteCartProductCommand.of(payload.buyerId(), payload.pricePolicyIds())
+                DeleteCartProductCommand.of(payload.buyerId(), payload.pricePolicyIds())
             );
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 장바구니 삭제 성공. sagaId={}, orderId={}, buyerId={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.buyerId()
+                stepMessage.sagaId(), payload.orderId(), payload.buyerId()
             );
         } catch (Exception e) {
             log.error("SAGA 장바구니 삭제 처리 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "장바구니 삭제 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "장바구니 삭제 처리 실패"
             );
         }
     }
 
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 장바구니 삭제 스텝 페이로드 검증 실패. sagaId={}, reason={}",
-                stepMessage.sagaId(), reason
+            stepMessage.sagaId(), reason
         );
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

@@ -52,8 +52,8 @@ class RegisterProductOptionsUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(10L, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> registerProductOptionsService.registerProductOptions(userId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
         verifyNoInteractions(getProductUseCase, saveProductOptionsPort);
@@ -71,8 +71,8 @@ class RegisterProductOptionsUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
 
         assertThatThrownBy(() -> registerProductOptionsService.registerProductOptions(userId, false, command))
-                .isInstanceOf(OptionsNoValueException.class)
-                .hasMessageContaining("옵션을 포함해야 합니다");
+            .isInstanceOf(OptionsNoValueException.class)
+            .hasMessageContaining("옵션을 포함해야 합니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verify(getProductUseCase).getProduct(productId);
@@ -91,8 +91,8 @@ class RegisterProductOptionsUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
 
         assertThatThrownBy(() -> registerProductOptionsService.registerProductOptions(userId, false, command))
-                .isInstanceOf(OptionsNoValueException.class)
-                .hasMessageContaining("옵션을 포함해야 합니다");
+            .isInstanceOf(OptionsNoValueException.class)
+            .hasMessageContaining("옵션을 포함해야 합니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verify(getProductUseCase).getProduct(productId);
@@ -112,7 +112,7 @@ class RegisterProductOptionsUseCaseTest {
         when(saveProductOptionsPort.save(any(ProductOptionCategory.class))).thenReturn(savedCategory);
 
         UpdateProductOptionsResult result = registerProductOptionsService.registerProductOptions(
-                userId, true, command
+            userId, true, command
         );
 
         assertThat(result.id()).isEqualTo(100L);
@@ -134,7 +134,7 @@ class RegisterProductOptionsUseCaseTest {
         when(saveProductOptionsPort.save(any(ProductOptionCategory.class))).thenReturn(savedCategory);
 
         UpdateProductOptionsResult result = registerProductOptionsService.registerProductOptions(
-                userId, false, command
+            userId, false, command
         );
 
         assertThat(result.id()).isEqualTo(200L);
@@ -147,11 +147,11 @@ class RegisterProductOptionsUseCaseTest {
         assertThat(requestCategory.getProduct()).isSameAs(product);
         assertThat(requestCategory.getName()).isEqualTo("옵션");
         assertThat(requestCategory.getOptions())
-                .extracting(ProductOption::getContent)
-                .containsExactly("옵션1", "옵션2");
+            .extracting(ProductOption::getContent)
+            .containsExactly("옵션1", "옵션2");
         assertThat(requestCategory.getOptions())
-                .extracting(ProductOption::getStatus)
-                .containsOnly(EntityStatus.ACTIVE);
+            .extracting(ProductOption::getStatus)
+            .containsOnly(EntityStatus.ACTIVE);
     }
 
     @Test
@@ -166,7 +166,7 @@ class RegisterProductOptionsUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 
         assertThatThrownBy(() -> registerProductOptionsService.registerProductOptions(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(saveProductOptionsPort);
     }
@@ -185,56 +185,56 @@ class RegisterProductOptionsUseCaseTest {
         when(saveProductOptionsPort.save(any(ProductOptionCategory.class))).thenThrow(exception);
 
         assertThatThrownBy(() -> registerProductOptionsService.registerProductOptions(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private RegisterProductOptionsCommand buildCommand(Long productId, List<String> optionContents) {
         List<RegisterProductOptionsCommand.OptionItem> options = optionContents
-                .stream()
-                .map(RegisterProductOptionsCommand.OptionItem::new)
-                .toList();
+            .stream()
+            .map(RegisterProductOptionsCommand.OptionItem::new)
+            .toList();
         return RegisterProductOptionsCommand.of(productId, "옵션", options);
     }
 
     private Product buildProduct(Long productId, Long sellerId) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(productId)
-                        .productKey(productKey)
-                        .sellerId(sellerId)
-                        .name("테스트 상품")
-                        .brandName("브랜드")
-                        .detail("상세 설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(productId)
+                .productKey(productKey)
+                .sellerId(sellerId)
+                .name("테스트 상품")
+                .brandName("브랜드")
+                .detail("상세 설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private ProductOptionCategory buildSavedCategory(Long id, Product product, List<Long> optionIds) {
         List<ProductOption> options = optionIds.stream()
-                .map(
-                        optionId -> ProductOption.from(
-                                ProductOptionSnapshotState.builder()
-                                        .id(optionId)
-                                        .content("opt-" + optionId)
-                                        .status(EntityStatus.ACTIVE)
-                                        .build()
-                        )
-                )
-                .toList();
-
-        return ProductOptionCategory.from(
-                ProductOptionCategorySnapshotState.builder()
-                        .id(id)
-                        .product(product)
-                        .name("옵션")
-                        .options(options)
+            .map(
+                optionId -> ProductOption.from(
+                    ProductOptionSnapshotState.builder()
+                        .id(optionId)
+                        .content("opt-" + optionId)
                         .status(EntityStatus.ACTIVE)
                         .build()
+                )
+            )
+            .toList();
+
+        return ProductOptionCategory.from(
+            ProductOptionCategorySnapshotState.builder()
+                .id(id)
+                .product(product)
+                .name("옵션")
+                .options(options)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

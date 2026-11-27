@@ -42,12 +42,12 @@ class OrderReturnedLedgerConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long returnAmount, String returnId) {
         OrderReturnedEvent event = new OrderReturnedEvent(
-                orderId, "order-key-1", 50L, returnAmount, 80000L, 1000L, 3000L,
-                true, 2500L, List.of(), returnId
+            orderId, "order-key-1", 50L, returnAmount, 80000L, 1000L, 3000L,
+            true, 2500L, List.of(), returnId
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.returned", "commerce-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "commerce.order.returned", "commerce-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.returned", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -86,7 +86,7 @@ class OrderReturnedLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 60000L);
         doThrow(new DuplicateLedgerTransactionException("ORDER_RETURN:1"))
-                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1");
+            .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1");
 
         // when
         consumer.handleOrderReturnedEvent(record, acknowledgment);
@@ -101,7 +101,7 @@ class OrderReturnedLedgerConsumerTest {
     void handleOrderReturnedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", null
+            "commerce.order.returned", 0, 0L, "1", null
         );
 
         // when
@@ -117,15 +117,15 @@ class OrderReturnedLedgerConsumerTest {
     void handleOrderReturnedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
-                1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 2500L, List.of(), null
+            1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
+            true, 2500L, List.of(), null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", envelope
+            "commerce.order.returned", 0, 0L, "1", envelope
         );
 
         // when
@@ -184,12 +184,12 @@ class OrderReturnedLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 60000L);
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1");
+            .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1");
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderReturnedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1");
         verify(acknowledgment, never()).acknowledge();
@@ -246,8 +246,8 @@ class OrderReturnedLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(400L, 30000L, "return-duplicate");
         doThrow(new DuplicateLedgerTransactionException("ORDER_RETURN:400:return-duplicate"))
-                .when(recordLedgerEntryUseCase)
-                .recordPaymentCancellation(400L, 30000L, "ORDER_RETURN:400:return-duplicate");
+            .when(recordLedgerEntryUseCase)
+            .recordPaymentCancellation(400L, 30000L, "ORDER_RETURN:400:return-duplicate");
 
         // when
         consumer.handleOrderReturnedEvent(record, acknowledgment);

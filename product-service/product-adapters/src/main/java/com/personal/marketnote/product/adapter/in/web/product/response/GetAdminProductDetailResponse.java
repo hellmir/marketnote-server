@@ -29,21 +29,21 @@ public class GetAdminProductDetailResponse {
         GetProductInfoResponse productResponse = GetProductInfoResponse.from(result.product());
 
         return GetAdminProductDetailResponse.builder()
-                .productInfo(productResponse.getProductInfo())
-                .categories(productResponse.getCategories())
-                .representativeImages(productResponse.getRepresentativeImages())
-                .contentImages(productResponse.getContentImages())
-                .pricePolicies(productResponse.getPricePolicies())
-                .fulfillmentGoods(
-                        FormatValidator.hasValue(result.fulfillmentGoods())
-                                ? FasstoGoodsItemResponse.from(result.fulfillmentGoods())
-                                : null
-                )
-                .fulfillmentGoodsElement(
-                        FormatValidator.hasValue(result.fulfillmentGoodsElement())
-                                ? FasstoGoodsElementResponse.from(result.fulfillmentGoodsElement())
-                                : null
-                )
-                .build();
+            .productInfo(productResponse.getProductInfo())
+            .categories(productResponse.getCategories())
+            .representativeImages(productResponse.getRepresentativeImages())
+            .contentImages(productResponse.getContentImages())
+            .pricePolicies(productResponse.getPricePolicies())
+            .fulfillmentGoods(
+                FormatValidator.hasValue(result.fulfillmentGoods())
+                    ? FasstoGoodsItemResponse.from(result.fulfillmentGoods())
+                    : null
+            )
+            .fulfillmentGoodsElement(
+                FormatValidator.hasValue(result.fulfillmentGoodsElement())
+                    ? FasstoGoodsElementResponse.from(result.fulfillmentGoodsElement())
+                    : null
+            )
+            .build();
     }
 }

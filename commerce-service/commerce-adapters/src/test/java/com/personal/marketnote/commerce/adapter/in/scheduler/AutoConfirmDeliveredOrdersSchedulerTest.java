@@ -37,10 +37,10 @@ class AutoConfirmDeliveredOrdersSchedulerTest {
     void shouldSwallowUseCaseException() {
         // given
         doThrow(new RuntimeException("usecase failed"))
-                .when(autoConfirmDeliveredOrdersUseCase).autoConfirmDeliveredOrders();
+            .when(autoConfirmDeliveredOrdersUseCase).autoConfirmDeliveredOrders();
 
         // when & then
         assertThatCode(() -> scheduler.autoConfirmDeliveredOrders())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 }

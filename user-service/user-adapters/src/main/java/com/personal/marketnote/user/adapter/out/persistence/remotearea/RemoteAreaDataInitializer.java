@@ -45,7 +45,7 @@ public class RemoteAreaDataInitializer implements ApplicationRunner {
         int totalCount = 0;
 
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             // Java IO 표준 idiom — readLine()은 EOF에서만 null 반환. FormatValidator.hasValue(Object)는 blank도 false로 반환하여 빈 줄에서 루프 종료 버그 유발
             while ((line = reader.readLine()) != null) {
@@ -86,17 +86,17 @@ public class RemoteAreaDataInitializer implements ApplicationRunner {
         String village = columns.length > 2 ? columns[2].trim() : "";
         String subarea = columns.length > 3 ? normalizeSubarea(columns[3].trim()) : "";
         ShippingAddressRegionType regionType = columns.length > 4
-                ? ShippingAddressRegionType.valueOf(columns[4].trim())
-                : ShippingAddressRegionType.ISLAND;
+            ? ShippingAddressRegionType.valueOf(columns[4].trim())
+            : ShippingAddressRegionType.ISLAND;
 
         RemoteArea remoteArea = RemoteArea.from(
-                RemoteAreaCreateState.builder()
-                        .province(province)
-                        .district(district)
-                        .village(village)
-                        .subarea(subarea)
-                        .regionType(regionType)
-                        .build()
+            RemoteAreaCreateState.builder()
+                .province(province)
+                .district(district)
+                .village(village)
+                .subarea(subarea)
+                .regionType(regionType)
+                .build()
         );
 
         return RemoteAreaJpaEntity.from(remoteArea);

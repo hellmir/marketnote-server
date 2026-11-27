@@ -39,8 +39,8 @@ class ReturnRejectedNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         ReturnRejectedEvent event = new ReturnRejectedEvent(orderId, buyerId);
         EventEnvelope<ReturnRejectedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.return-rejected", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "commerce.order.return-rejected", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         return new ConsumerRecord<>("commerce.order.return-rejected", 0, 0L, "key-1", envelope);
     }
@@ -73,7 +73,7 @@ class ReturnRejectedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.return-rejected", 0, 0L, "1", null
+            "commerce.order.return-rejected", 0, 0L, "1", null
         );
 
         // when
@@ -90,11 +90,11 @@ class ReturnRejectedNotificationConsumerTest {
         // given
         ReturnRejectedEvent event = new ReturnRejectedEvent(100L, 1L);
         EventEnvelope<ReturnRejectedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.return-rejected", 0, 0L, "key-1", envelope
+            "commerce.order.return-rejected", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -139,7 +139,7 @@ class ReturnRejectedNotificationConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 1L);
         doThrow(new RuntimeException("FCM 발송 실패"))
-                .when(sendNotificationUseCase).sendNotification(any());
+            .when(sendNotificationUseCase).sendNotification(any());
 
         // when
         consumer.handleReturnRejectedEvent(record, acknowledgment);

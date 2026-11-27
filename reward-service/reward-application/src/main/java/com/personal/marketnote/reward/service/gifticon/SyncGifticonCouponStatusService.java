@@ -48,7 +48,7 @@ public class SyncGifticonCouponStatusService implements SyncGifticonCouponStatus
         }
 
         log.info("쿠폰 상태 동기화 완료: total={}, synced={}, skipped={}, failed={}",
-                issuedOrders.size(), synced, skipped, failed);
+            issuedOrders.size(), synced, skipped, failed);
     }
 
     private SyncResult syncSingleCoupon(GifticonOrder order) {
@@ -56,7 +56,7 @@ public class SyncGifticonCouponStatusService implements SyncGifticonCouponStatus
 
         if (!statusResult.success()) {
             log.warn("쿠폰 상태 조회 실패: trId={}, errorCode={}, errorMessage={}",
-                    order.getTrId(), statusResult.errorCode(), statusResult.errorMessage());
+                order.getTrId(), statusResult.errorCode(), statusResult.errorMessage());
             return SyncResult.SKIPPED;
         }
 

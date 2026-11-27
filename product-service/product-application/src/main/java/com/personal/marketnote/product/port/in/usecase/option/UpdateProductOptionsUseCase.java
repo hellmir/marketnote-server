@@ -21,6 +21,6 @@ public interface UpdateProductOptionsUseCase {
      * @Description 상품 옵션을 수정합니다.
      */
     UpdateProductOptionsResult updateProductOptions(
-            Long userId, boolean isAdmin, UpdateProductOptionsCommand command
+        Long userId, boolean isAdmin, UpdateProductOptionsCommand command
     );
 }

@@ -30,8 +30,8 @@ public class PaymentCancelIdempotencyExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInProgress(IdempotencyKeyInProgressException e) {
         log.info("Idempotency-Key IN_PROGRESS 충돌: {}", e.getMessage());
         return buildConflictResponse(
-                e.getMessage(),
-                Map.of(IDEMPOTENCY_STATUS_KEY, IN_PROGRESS_STATUS_VALUE)
+            e.getMessage(),
+            Map.of(IDEMPOTENCY_STATUS_KEY, IN_PROGRESS_STATUS_VALUE)
         );
     }
 
@@ -44,7 +44,7 @@ public class PaymentCancelIdempotencyExceptionHandler {
     private ResponseEntity<ErrorResponse> buildConflictResponse(String rawMessage, Object content) {
         ParsedMessage parsed = ParsedMessage.from(rawMessage);
         ErrorResponse response = ErrorResponse.of(
-                HttpStatus.CONFLICT.value(), parsed.code(), parsed.message(), content
+            HttpStatus.CONFLICT.value(), parsed.code(), parsed.message(), content
         );
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }

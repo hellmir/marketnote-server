@@ -30,12 +30,12 @@ public class GetTermsService implements GetTermsUseCase {
     @Override
     public GetUserTermsResult getUserTerms(Long userId) {
         return GetUserTermsResult.from(
-                findUserPort.findById(userId)
-                        .orElseThrow(() -> {
-                            log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId);
-                            return new UserNotFoundException();
-                        })
-                        .getUserTerms()
+            findUserPort.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId);
+                    return new UserNotFoundException();
+                })
+                .getUserTerms()
         );
     }
 }

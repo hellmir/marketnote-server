@@ -49,12 +49,12 @@ class InventoryReservationPersistenceAdapterTest {
 
     private InventoryReservation buildReservation(Long orderId, Long pricePolicyId, int quantity, LocalDateTime reservedAt) {
         return InventoryReservation.from(
-                InventoryReservationCreateState.builder()
-                        .orderId(orderId)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(quantity)
-                        .reservedAt(reservedAt)
-                        .build()
+            InventoryReservationCreateState.builder()
+                .orderId(orderId)
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .reservedAt(reservedAt)
+                .build()
         );
     }
 
@@ -68,8 +68,8 @@ class InventoryReservationPersistenceAdapterTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             List<InventoryReservation> reservations = List.of(
-                    buildReservation(1L, 10L, 2, now),
-                    buildReservation(1L, 11L, 1, now)
+                buildReservation(1L, 10L, 2, now),
+                buildReservation(1L, 11L, 1, now)
             );
 
             // when
@@ -90,7 +90,7 @@ class InventoryReservationPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.save(List.of(buildReservation(1L, 10L, 3, now))))
-                    .isInstanceOf(DuplicateInventoryReservationException.class);
+                .isInstanceOf(DuplicateInventoryReservationException.class);
         }
     }
 
@@ -104,10 +104,10 @@ class InventoryReservationPersistenceAdapterTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             adapter.save(List.of(
-                    buildReservation(1L, 10L, 2, now),
-                    buildReservation(1L, 11L, 1, now),
-                    buildReservation(1L, 12L, 5, now),
-                    buildReservation(2L, 10L, 3, now)
+                buildReservation(1L, 10L, 2, now),
+                buildReservation(1L, 11L, 1, now),
+                buildReservation(1L, 12L, 5, now),
+                buildReservation(2L, 10L, 3, now)
             ));
             entityManager.flush();
             entityManager.clear();
@@ -181,10 +181,10 @@ class InventoryReservationPersistenceAdapterTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             adapter.save(List.of(
-                    buildReservation(1L, 10L, 1, now),
-                    buildReservation(1L, 11L, 1, now),
-                    buildReservation(1L, 12L, 1, now),
-                    buildReservation(2L, 10L, 1, now)
+                buildReservation(1L, 10L, 1, now),
+                buildReservation(1L, 11L, 1, now),
+                buildReservation(1L, 12L, 1, now),
+                buildReservation(2L, 10L, 1, now)
             ));
             entityManager.flush();
             entityManager.clear();

@@ -52,19 +52,19 @@ class PostHasReplyQueryTest {
             flushAndClear();
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
-                    Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
-                    PostSortProperty.IS_ANSWERED
+                Board.PRODUCT_INQUERY, null, null, null, null, true,
+                null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
-                    .extracting(PostJpaEntity::getId)
-                    .containsExactly(
-                            hasReply2.getId(),
-                            hasReply1.getId(),
-                            noReply2.getId(),
-                            noReply1.getId()
-                    );
+                .extracting(PostJpaEntity::getId)
+                .containsExactly(
+                    hasReply2.getId(),
+                    hasReply1.getId(),
+                    noReply2.getId(),
+                    noReply1.getId()
+                );
         }
 
         @Test
@@ -77,19 +77,19 @@ class PostHasReplyQueryTest {
             flushAndClear();
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
-                    Board.PRODUCT_INQUERY, null, null, null, null, false,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
-                    PostSortProperty.IS_ANSWERED
+                Board.PRODUCT_INQUERY, null, null, null, null, false,
+                null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
-                    .extracting(PostJpaEntity::getId)
-                    .containsExactly(
-                            noReply1.getId(),
-                            noReply2.getId(),
-                            hasReply1.getId(),
-                            hasReply2.getId()
-                    );
+                .extracting(PostJpaEntity::getId)
+                .containsExactly(
+                    noReply1.getId(),
+                    noReply2.getId(),
+                    hasReply1.getId(),
+                    hasReply2.getId()
+                );
         }
     }
 
@@ -105,14 +105,14 @@ class PostHasReplyQueryTest {
             flushAndClear();
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
-                    Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, true, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
-                    PostSortProperty.ID
+                Board.PRODUCT_INQUERY, null, null, null, null, true,
+                null, null, true, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                PostSortProperty.ID
             );
 
             assertThat(results)
-                    .extracting(PostJpaEntity::getId)
-                    .containsExactly(hasReply.getId());
+                .extracting(PostJpaEntity::getId)
+                .containsExactly(hasReply.getId());
         }
 
         @Test
@@ -123,9 +123,9 @@ class PostHasReplyQueryTest {
             flushAndClear();
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
-                    Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
-                    PostSortProperty.ID
+                Board.PRODUCT_INQUERY, null, null, null, null, true,
+                null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                PostSortProperty.ID
             );
 
             assertThat(results).hasSize(2);
@@ -145,8 +145,8 @@ class PostHasReplyQueryTest {
             flushAndClear();
 
             long count = postJpaRepository.countByBoardAndFilters(
-                    Board.PRODUCT_INQUERY, null, null, null,
-                    null, null, true, true, true, null, EntityStatus.ACTIVE
+                Board.PRODUCT_INQUERY, null, null, null,
+                null, null, true, true, true, null, EntityStatus.ACTIVE
             );
 
             assertThat(count).isEqualTo(2L);
@@ -184,45 +184,45 @@ class PostHasReplyQueryTest {
 
     private PostJpaEntity saveParent(Board board, String category, boolean hasReply) {
         Post post = Post.from(PostCreateState.builder()
-                .userId(10L)
-                .board(board)
-                .category(category)
-                .writerName("작성자")
-                .title("테스트 제목")
-                .content("테스트 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .build());
+            .userId(10L)
+            .board(board)
+            .category(category)
+            .writerName("작성자")
+            .title("테스트 제목")
+            .content("테스트 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .build());
         PostJpaEntity entity = PostJpaEntity.from(post);
         PostJpaEntity saved = postJpaRepository.save(entity);
         if (hasReply) {
             entityManager.flush();
             entityManager.createQuery("UPDATE PostJpaEntity p SET p.hasReply = true WHERE p.id = :id")
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         return saved;
     }
 
     private PostJpaEntity saveReply(Long parentId, EntityStatus status) {
         Post reply = Post.from(PostCreateState.builder()
-                .userId(11L)
-                .parentId(parentId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("답변자")
-                .content("답변 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .build());
+            .userId(11L)
+            .parentId(parentId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("답변자")
+            .content("답변 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .build());
         PostJpaEntity entity = PostJpaEntity.from(reply);
         PostJpaEntity saved = postJpaRepository.save(entity);
         if (!EntityStatus.ACTIVE.equals(status)) {
             entityManager.flush();
             entityManager.createQuery("UPDATE PostJpaEntity p SET p.status = :status WHERE p.id = :id")
-                    .setParameter("status", status)
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("status", status)
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         return saved;
     }

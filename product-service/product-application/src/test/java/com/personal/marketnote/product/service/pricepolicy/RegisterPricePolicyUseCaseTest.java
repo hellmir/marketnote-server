@@ -65,16 +65,16 @@ class RegisterPricePolicyUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(10L, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
         verifyNoInteractions(
-                getProductUseCase,
-                savePricePolicyPort,
-                updateOptionPricePolicyPort,
-                findProductOptionPort,
-                publishProductEventPort
+            getProductUseCase,
+            savePricePolicyPort,
+            updateOptionPricePolicyPort,
+            findProductOptionPort,
+            publishProductEventPort
         );
     }
 
@@ -112,7 +112,7 @@ class RegisterPricePolicyUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(100L);
         when(findProductOptionPort.findByProductIdAndIds(productId, optionIds))
-                .thenReturn(List.of(buildOption(101L, "옵션1"), buildOption(102L, "옵션2")));
+            .thenReturn(List.of(buildOption(101L, "옵션1"), buildOption(102L, "옵션2")));
 
         RegisterPricePolicyResult result = registerPricePolicyService.registerPricePolicy(userId, false, command);
 
@@ -130,9 +130,9 @@ class RegisterPricePolicyUseCaseTest {
         assertThat(saved.getAccumulatedPoint().getValue()).isEqualTo(command.accumulatedPoint());
         assertThat(saved.getOptionIds()).containsExactlyElementsOf(optionIds);
         assertThat(saved.getDiscountRate().getValue())
-                .isEqualByComparingTo(calculateDiscountRate(command.price(), command.discountPrice()));
+            .isEqualByComparingTo(calculateDiscountRate(command.price(), command.discountPrice()));
         assertThat(saved.getAccumulationRate().getValue())
-                .isEqualByComparingTo(calculateAccumulationRate(command.accumulatedPoint(), command.discountPrice()));
+            .isEqualByComparingTo(calculateAccumulationRate(command.accumulatedPoint(), command.discountPrice()));
 
         verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 100L, optionIds);
         verify(findProductOptionPort).findByProductIdAndIds(productId, optionIds);
@@ -211,7 +211,7 @@ class RegisterPricePolicyUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(savePricePolicyPort, never()).save(any(PricePolicy.class));
         verifyNoInteractions(updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
@@ -231,7 +231,7 @@ class RegisterPricePolicyUseCaseTest {
         when(savePricePolicyPort.save(any(PricePolicy.class))).thenThrow(exception);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verifyNoInteractions(findProductOptionPort, publishProductEventPort);
@@ -251,11 +251,11 @@ class RegisterPricePolicyUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(300L);
         when(findProductOptionPort.findByProductIdAndIds(productId, optionIds))
-                .thenReturn(List.of(buildOption(401L, "옵션")));
+            .thenReturn(List.of(buildOption(401L, "옵션")));
         doThrow(exception).when(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 300L, optionIds);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
     }
 
@@ -272,11 +272,11 @@ class RegisterPricePolicyUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(400L);
         when(findProductOptionPort.findByProductIdAndIds(productId, optionIds))
-                .thenReturn(List.of(buildOption(501L, "본인 옵션")));
+            .thenReturn(List.of(buildOption(501L, "본인 옵션")));
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isInstanceOf(InvalidProductOptionOwnershipException.class)
-                .hasMessageContaining("상품에 속하지 않은 옵션이 포함되어 있습니다");
+            .isInstanceOf(InvalidProductOptionOwnershipException.class)
+            .hasMessageContaining("상품에 속하지 않은 옵션이 포함되어 있습니다");
 
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verifyNoInteractions(publishProductEventPort);
@@ -377,8 +377,8 @@ class RegisterPricePolicyUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isInstanceOf(InvalidPricePolicyAccumulatedPointException.class)
-                .hasMessageContaining("적립금이 현재 판매가를 초과할 수 없습니다");
+            .isInstanceOf(InvalidPricePolicyAccumulatedPointException.class)
+            .hasMessageContaining("적립금이 현재 판매가를 초과할 수 없습니다");
 
         verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
     }
@@ -393,48 +393,48 @@ class RegisterPricePolicyUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isInstanceOf(InvalidPricePolicyPriceException.class)
-                .hasMessageContaining("현재 판매가가 정가를 초과할 수 없습니다");
+            .isInstanceOf(InvalidPricePolicyPriceException.class)
+            .hasMessageContaining("현재 판매가가 정가를 초과할 수 없습니다");
 
         verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
     }
 
     private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {
         return RegisterPricePolicyCommand.of(
-                productId,
-                10000L,
-                8000L,
-                200L,
-                optionIds
+            productId,
+            10000L,
+            8000L,
+            200L,
+            optionIds
         );
     }
 
     private ProductOption buildOption(Long id, String content) {
         return ProductOption.from(
-                ProductOptionSnapshotState.builder()
-                        .id(id)
-                        .category(null)
-                        .content(content)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            ProductOptionSnapshotState.builder()
+                .id(id)
+                .category(null)
+                .content(content)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
     private Product buildProduct(Long productId, Long sellerId) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(productId)
-                        .productKey(productKey)
-                        .sellerId(sellerId)
-                        .name("테스트 상품")
-                        .brandName("브랜드")
-                        .detail("상세 설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(productId)
+                .productKey(productKey)
+                .sellerId(sellerId)
+                .name("테스트 상품")
+                .brandName("브랜드")
+                .detail("상세 설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
@@ -444,9 +444,9 @@ class RegisterPricePolicyUseCaseTest {
         BigDecimal hundred = new BigDecimal("100");
 
         return priceValue.subtract(discountValue)
-                .divide(priceValue, 3, RoundingMode.HALF_UP)
-                .multiply(hundred)
-                .setScale(1, RoundingMode.HALF_UP);
+            .divide(priceValue, 3, RoundingMode.HALF_UP)
+            .multiply(hundred)
+            .setScale(1, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calculateAccumulationRate(Long accumulatedPoint, Long discountPrice) {
@@ -454,8 +454,8 @@ class RegisterPricePolicyUseCaseTest {
         BigDecimal hundred = new BigDecimal("100");
 
         return BigDecimal.valueOf(accumulatedPoint)
-                .divide(discountValue, 3, RoundingMode.HALF_UP)
-                .multiply(hundred)
-                .setScale(1, RoundingMode.HALF_UP);
+            .divide(discountValue, 3, RoundingMode.HALF_UP)
+            .multiply(hundred)
+            .setScale(1, RoundingMode.HALF_UP);
     }
 }

@@ -35,7 +35,7 @@ class ReadyPaymentRequestValidationTest {
         Set<ConstraintViolation<ReadyPaymentRequest>> violations = validator.validate(request);
 
         assertThat(violations).anyMatch(v ->
-                v.getPropertyPath().toString().equals("goodName"));
+            v.getPropertyPath().toString().equals("goodName"));
     }
 
     @Test
@@ -49,8 +49,8 @@ class ReadyPaymentRequestValidationTest {
         Set<ConstraintViolation<ReadyPaymentRequest>> violations = validator.validate(request);
 
         assertThat(violations).noneMatch(v ->
-                v.getPropertyPath().toString().equals("goodName")
-                        && v.getMessage().contains("100"));
+            v.getPropertyPath().toString().equals("goodName")
+                && v.getMessage().contains("100"));
     }
 
 }

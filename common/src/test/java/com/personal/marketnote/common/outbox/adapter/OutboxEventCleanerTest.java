@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 @DisplayName("OutboxEventCleaner 테스트")
 class OutboxEventCleanerTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks

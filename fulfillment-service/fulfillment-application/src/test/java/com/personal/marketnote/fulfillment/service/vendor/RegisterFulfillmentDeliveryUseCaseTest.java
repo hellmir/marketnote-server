@@ -42,28 +42,28 @@ class RegisterFulfillmentDeliveryUseCaseTest {
 
     private RegisterFulfillmentDeliveryCommand buildCommand(String orderNumber) {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260309", 1
+            "PROD001", "20260309", 1
         );
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
-                .orderNumber(orderNumber)
-                .orderDate("20260309")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .releaseMethod("01")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderNumber(orderNumber)
+            .orderDate("20260309")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .releaseMethod("01")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentDeliveryCommand.of("CUST001", "token", List.of(itemCommand));
     }
 
     private RegisterFulfillmentDeliveryResult buildResult() {
         return RegisterFulfillmentDeliveryResult.of(1, List.of(
-                RegisterFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("FMS001")
-                        .orderNumber("12345")
-                        .message("등록 성공")
-                        .code("200")
-                        .build()
+            RegisterFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("FMS001")
+                .orderNumber("12345")
+                .message("등록 성공")
+                .code("200")
+                .build()
         ));
     }
 
@@ -116,11 +116,11 @@ class RegisterFulfillmentDeliveryUseCaseTest {
             // given
             RegisterFulfillmentDeliveryCommand command = buildCommand("12345");
             doThrow(new FulfillmentDeliveryAlreadyRegisteredException())
-                    .when(saveFulfillmentDeliveryRegistrationPort).save(any(FulfillmentDeliveryRegistration.class));
+                .when(saveFulfillmentDeliveryRegistrationPort).save(any(FulfillmentDeliveryRegistration.class));
 
             // when & then
             assertThatThrownBy(() -> registerFulfillmentDeliveryService.registerDeliveryIdempotent(command))
-                    .isInstanceOf(FulfillmentDeliveryAlreadyRegisteredException.class);
+                .isInstanceOf(FulfillmentDeliveryAlreadyRegisteredException.class);
 
             verify(saveFulfillmentDeliveryRegistrationPort).save(any(FulfillmentDeliveryRegistration.class));
             verifyNoInteractions(registerFulfillmentDeliveryPort);
@@ -132,12 +132,12 @@ class RegisterFulfillmentDeliveryUseCaseTest {
             // given
             RegisterFulfillmentDeliveryCommand command = buildCommand("12345");
             when(registerFulfillmentDeliveryPort.registerDelivery(any()))
-                    .thenThrow(new RuntimeException("Fulfillment API 오류"));
+                .thenThrow(new RuntimeException("Fulfillment API 오류"));
 
             // when & then
             assertThatThrownBy(() -> registerFulfillmentDeliveryService.registerDeliveryIdempotent(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Fulfillment API 오류");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Fulfillment API 오류");
 
             verify(saveFulfillmentDeliveryRegistrationPort).save(any(FulfillmentDeliveryRegistration.class));
             verify(registerFulfillmentDeliveryPort).registerDelivery(any());

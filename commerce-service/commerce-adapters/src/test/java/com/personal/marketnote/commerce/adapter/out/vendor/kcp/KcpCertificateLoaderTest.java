@@ -38,7 +38,7 @@ class KcpCertificateLoaderTest {
     void shouldThrowWhenCertPathNotConfigured() {
         // when & then
         assertThatThrownBy(() -> loader.loadCertInfo())
-                .isInstanceOf(KcpCertificatePathNotConfiguredException.class);
+            .isInstanceOf(KcpCertificatePathNotConfiguredException.class);
     }
 
     @Test
@@ -64,7 +64,7 @@ class KcpCertificateLoaderTest {
 
         // when & then
         assertThatThrownBy(() -> loader.loadCertInfo())
-                .isInstanceOf(InvalidKcpCertificatePathException.class);
+            .isInstanceOf(InvalidKcpCertificatePathException.class);
     }
 
     @Test
@@ -75,7 +75,7 @@ class KcpCertificateLoaderTest {
 
         // when & then
         assertThatThrownBy(() -> loader.loadCertInfo())
-                .isInstanceOf(KcpCertificateLoadFailedException.class);
+            .isInstanceOf(KcpCertificateLoadFailedException.class);
     }
 
     @Test
@@ -83,7 +83,7 @@ class KcpCertificateLoaderTest {
     void shouldThrowWhenPrivateKeyPathNotConfigured() {
         // when & then
         assertThatThrownBy(() -> loader.loadPrivateKey())
-                .isInstanceOf(KcpPrivateKeyPathNotConfiguredException.class);
+            .isInstanceOf(KcpPrivateKeyPathNotConfiguredException.class);
     }
 
     @Test
@@ -94,8 +94,8 @@ class KcpCertificateLoaderTest {
         kpg.initialize(2048);
         KeyPair keyPair = kpg.generateKeyPair();
         String pem = "-----BEGIN PRIVATE KEY-----\n"
-                + Base64.getMimeEncoder().encodeToString(keyPair.getPrivate().getEncoded())
-                + "\n-----END PRIVATE KEY-----";
+            + Base64.getMimeEncoder().encodeToString(keyPair.getPrivate().getEncoded())
+            + "\n-----END PRIVATE KEY-----";
 
         Path keyFile = tempDir.resolve("private.pem");
         Files.writeString(keyFile, pem);
@@ -119,6 +119,6 @@ class KcpCertificateLoaderTest {
 
         // when & then
         assertThatThrownBy(() -> loader.loadPrivateKey())
-                .isInstanceOf(KcpPrivateKeyLoadFailedException.class);
+            .isInstanceOf(KcpPrivateKeyLoadFailedException.class);
     }
 }

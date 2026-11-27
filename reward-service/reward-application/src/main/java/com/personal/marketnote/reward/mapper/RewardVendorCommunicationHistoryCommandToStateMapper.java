@@ -9,17 +9,17 @@ public class RewardVendorCommunicationHistoryCommandToStateMapper {
     }
 
     public static RewardVendorCommunicationHistoryCreateState mapToCreateState(
-            RewardVendorCommunicationHistoryCommand command
+        RewardVendorCommunicationHistoryCommand command
     ) {
         return RewardVendorCommunicationHistoryCreateState.builder()
-                .targetType(command.getTargetType())
-                .targetId(command.getTargetId())
-                .vendorName(command.getVendorName())
-                .communicationType(command.getCommunicationType())
-                .sender(command.getSender())
-                .exception(command.getException())
-                .payload(command.getPayload())
-                .payloadJson(command.getPayloadJson())
-                .build();
+            .targetType(command.getTargetType())
+            .targetId(command.getTargetId())
+            .vendorName(command.getVendorName())
+            .communicationType(command.getCommunicationType())
+            .sender(command.getSender())
+            .exception(command.getException())
+            .payload(command.getPayload())
+            .payloadJson(command.getPayloadJson())
+            .build();
     }
 }

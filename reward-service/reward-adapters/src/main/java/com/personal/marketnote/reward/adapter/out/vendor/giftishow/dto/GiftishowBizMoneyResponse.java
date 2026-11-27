@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GiftishowBizMoneyResponse(
-        String code,
-        String message,
-        long balance
+    String code,
+    String message,
+    long balance
 ) {
 
     public boolean isSuccess() {

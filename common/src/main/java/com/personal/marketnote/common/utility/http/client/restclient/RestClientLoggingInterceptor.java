@@ -22,7 +22,7 @@ public class RestClientLoggingInterceptor implements ClientHttpRequestIntercepto
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-            throws IOException {
+        throws IOException {
         HttpMethod method = request.getMethod();
         URI uri = request.getURI();
 

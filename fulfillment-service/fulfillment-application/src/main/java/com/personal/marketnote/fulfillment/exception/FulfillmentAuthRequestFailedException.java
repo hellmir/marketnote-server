@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class FulfillmentAuthRequestFailedException extends ExternalOperationFailedException {
     private static final String FULFILLMENT_AUTH_REQUEST_FAILED_EXCEPTION_MESSAGE =
-            "Fulfillment authentication request failed.";
+        "Fulfillment authentication request failed.";
 
     public FulfillmentAuthRequestFailedException(IOException cause) {
         super(FULFILLMENT_AUTH_REQUEST_FAILED_EXCEPTION_MESSAGE, cause);

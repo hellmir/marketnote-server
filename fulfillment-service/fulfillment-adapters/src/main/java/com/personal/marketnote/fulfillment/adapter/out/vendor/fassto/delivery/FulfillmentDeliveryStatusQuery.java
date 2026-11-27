@@ -16,19 +16,19 @@ public class FulfillmentDeliveryStatusQuery {
     private String outDiv;
 
     public static FulfillmentDeliveryStatusQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String outDiv
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String outDiv
     ) {
         FulfillmentDeliveryStatusQuery query = FulfillmentDeliveryStatusQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .outDiv(outDiv)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .outDiv(outDiv)
+            .build();
         query.validate();
         return query;
     }

@@ -26,7 +26,7 @@ class BrandCodeTest {
     @DisplayName("null/빈 문자열/공백으로 생성 시 BrandCodeNoValueException이 발생한다")
     void createWithBlank(String value) {
         assertThatThrownBy(() -> BrandCode.of(value))
-                .isInstanceOf(BrandCodeNoValueException.class);
+            .isInstanceOf(BrandCodeNoValueException.class);
     }
 
     @Test

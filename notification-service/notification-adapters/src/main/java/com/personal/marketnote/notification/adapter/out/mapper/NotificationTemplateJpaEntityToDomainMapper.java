@@ -13,19 +13,19 @@ public class NotificationTemplateJpaEntityToDomainMapper {
 
     public static Optional<NotificationTemplate> mapToDomain(NotificationTemplateJpaEntity entity) {
         return Optional.ofNullable(entity)
-                .map(e -> NotificationTemplate.from(
-                        NotificationTemplateSnapshotState.builder()
-                                .id(e.getId())
-                                .templateCode(e.getTemplateCode())
-                                .notificationType(e.getNotificationType())
-                                .notificationCategory(e.getNotificationCategory())
-                                .title(e.getTitle())
-                                .bodyTemplate(e.getBodyTemplate())
-                                .urlTemplate(e.getUrlTemplate())
-                                .status(e.getStatus())
-                                .createdAt(e.getCreatedAt())
-                                .modifiedAt(e.getModifiedAt())
-                                .build()
-                ));
+            .map(e -> NotificationTemplate.from(
+                NotificationTemplateSnapshotState.builder()
+                    .id(e.getId())
+                    .templateCode(e.getTemplateCode())
+                    .notificationType(e.getNotificationType())
+                    .notificationCategory(e.getNotificationCategory())
+                    .title(e.getTitle())
+                    .bodyTemplate(e.getBodyTemplate())
+                    .urlTemplate(e.getUrlTemplate())
+                    .status(e.getStatus())
+                    .createdAt(e.getCreatedAt())
+                    .modifiedAt(e.getModifiedAt())
+                    .build()
+            ));
     }
 }

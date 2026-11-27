@@ -15,7 +15,7 @@ class HmacServiceAuthHeaderBuilderTest {
     private static final String SECRET_KEY = "test-hmac-secret-key";
     private static final long FIXED_TIME_MILLIS = 1710000000000L;
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.ofEpochMilli(FIXED_TIME_MILLIS), ZoneId.of("Asia/Seoul"));
+        Instant.ofEpochMilli(FIXED_TIME_MILLIS), ZoneId.of("Asia/Seoul"));
 
     @Test
     @DisplayName("applyHeaders 호출 시 3개의 HMAC 헤더가 설정된다")
@@ -43,7 +43,7 @@ class HmacServiceAuthHeaderBuilderTest {
         String nonce = headers.getFirst(HEADER_NONCE);
 
         String expectedSignature = HmacSignatureGenerator.generate(
-                SECRET_KEY, timestamp, nonce, "POST", "/api/v1/users/1/points");
+            SECRET_KEY, timestamp, nonce, "POST", "/api/v1/users/1/points");
         assertThat(signature).isEqualTo(expectedSignature);
     }
 

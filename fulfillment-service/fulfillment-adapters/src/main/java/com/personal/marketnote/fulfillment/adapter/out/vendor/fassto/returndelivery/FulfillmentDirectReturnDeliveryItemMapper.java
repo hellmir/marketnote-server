@@ -29,35 +29,35 @@ public class FulfillmentDirectReturnDeliveryItemMapper {
     private List<FulfillmentDeliveryGoodsMapper> godCds;
 
     public static FulfillmentDirectReturnDeliveryItemMapper of(
-            String ordDt,
-            String supCd,
-            String orgParcelCd,
-            String orgInvoiceNo,
-            String inWay,
-            String custNm,
-            String rtnParcelComp,
-            String rtnInvoiceNo,
-            String rtnGubun,
-            String rtnReason,
-            String rtnDetailReason,
-            String remark,
-            List<FulfillmentDeliveryGoodsMapper> godCds
+        String ordDt,
+        String supCd,
+        String orgParcelCd,
+        String orgInvoiceNo,
+        String inWay,
+        String custNm,
+        String rtnParcelComp,
+        String rtnInvoiceNo,
+        String rtnGubun,
+        String rtnReason,
+        String rtnDetailReason,
+        String remark,
+        List<FulfillmentDeliveryGoodsMapper> godCds
     ) {
         FulfillmentDirectReturnDeliveryItemMapper mapper = FulfillmentDirectReturnDeliveryItemMapper.builder()
-                .ordDt(ordDt)
-                .supCd(supCd)
-                .orgParcelCd(orgParcelCd)
-                .orgInvoiceNo(orgInvoiceNo)
-                .inWay(inWay)
-                .custNm(custNm)
-                .rtnParcelComp(rtnParcelComp)
-                .rtnInvoiceNo(rtnInvoiceNo)
-                .rtnGubun(rtnGubun)
-                .rtnReason(rtnReason)
-                .rtnDetailReason(rtnDetailReason)
-                .remark(remark)
-                .godCds(godCds)
-                .build();
+            .ordDt(ordDt)
+            .supCd(supCd)
+            .orgParcelCd(orgParcelCd)
+            .orgInvoiceNo(orgInvoiceNo)
+            .inWay(inWay)
+            .custNm(custNm)
+            .rtnParcelComp(rtnParcelComp)
+            .rtnInvoiceNo(rtnInvoiceNo)
+            .rtnGubun(rtnGubun)
+            .rtnReason(rtnReason)
+            .rtnDetailReason(rtnDetailReason)
+            .remark(remark)
+            .godCds(godCds)
+            .build();
         mapper.validate();
         return mapper;
     }
@@ -78,8 +78,8 @@ public class FulfillmentDirectReturnDeliveryItemMapper {
         putIfHasValue(payload, "remark", remark);
         if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
-                    .map(FulfillmentDeliveryGoodsMapper::toPayload)
-                    .toList());
+                .map(FulfillmentDeliveryGoodsMapper::toPayload)
+                .toList());
         }
         return payload;
     }

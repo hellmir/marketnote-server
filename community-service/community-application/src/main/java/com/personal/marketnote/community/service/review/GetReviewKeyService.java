@@ -22,10 +22,10 @@ public class GetReviewKeyService implements GetReviewKeyUseCase {
     @Override
     public GetReviewKeyResult getReviewKey(Long reviewId, Long userId) {
         Review review = findReviewPort.findById(reviewId)
-                .orElseThrow(() -> {
-                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", reviewId);
-                    return new ReviewNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("리뷰를 찾을 수 없습니다. reviewId={}", reviewId);
+                return new ReviewNotFoundException();
+            });
 
         if (!review.isOwnedBy(userId)) {
             log.warn("리뷰 소유자 불일치로 접근 거부. reviewId={}, userId={}", reviewId, userId);

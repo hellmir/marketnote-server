@@ -20,19 +20,19 @@ public class SelectableProductOptionCategoryResponse {
     private List<SelectableProductOptionResponse> options;
 
     public static SelectableProductOptionCategoryResponse from(
-            SelectableProductOptionCategoryItemResult category
+        SelectableProductOptionCategoryItemResult category
     ) {
         return SelectableProductOptionCategoryResponse.builder()
-                .id(category.id())
-                .name(category.name())
-                .orderNum(category.orderNum())
-                .status(category.status())
-                .options(
-                        category.options().stream()
-                                .map(SelectableProductOptionResponse::from)
-                                .collect(Collectors.toList())
-                )
-                .build();
+            .id(category.id())
+            .name(category.name())
+            .orderNum(category.orderNum())
+            .status(category.status())
+            .options(
+                category.options().stream()
+                    .map(SelectableProductOptionResponse::from)
+                    .collect(Collectors.toList())
+            )
+            .build();
     }
 }
 

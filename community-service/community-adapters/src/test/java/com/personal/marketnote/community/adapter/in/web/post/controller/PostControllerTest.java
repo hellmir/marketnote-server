@@ -23,13 +23,13 @@ class PostControllerTest {
         @DisplayName("getPosts 메서드에 @RateLimited(key=posts-cursor, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getPostsHasRateLimited() throws NoSuchMethodException {
             Method method = PostController.class.getMethod(
-                    "getPosts",
-                    Board.class, String.class, PostTargetGroupType.class, Long.class,
-                    PostTargetType.class, Long.class, Long.class, int.class,
-                    Sort.Direction.class, PostSortProperty.class,
-                    PostSearchTarget.class, String.class,
-                    PostFilterCategory.class, PostFilterValue.class,
-                    OAuth2AuthenticatedPrincipal.class
+                "getPosts",
+                Board.class, String.class, PostTargetGroupType.class, Long.class,
+                PostTargetType.class, Long.class, Long.class, int.class,
+                Sort.Direction.class, PostSortProperty.class,
+                PostSearchTarget.class, String.class,
+                PostFilterCategory.class, PostFilterValue.class,
+                OAuth2AuthenticatedPrincipal.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);

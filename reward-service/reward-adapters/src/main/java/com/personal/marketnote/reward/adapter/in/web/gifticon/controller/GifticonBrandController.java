@@ -37,19 +37,19 @@ public class GifticonBrandController {
     @GetMapping("/brands")
     @GetGifticonBrandsApiDocs
     public ResponseEntity<BaseResponse<GetGifticonBrandsResponse>> getBrands(
-            @RequestParam(name = "category-code") String categoryCode
+        @RequestParam(name = "category-code") String categoryCode
     ) {
         GetGifticonBrandsResult result = getGifticonBrandsUseCase.getBrands(
-                new GetGifticonBrandsCommand(categoryCode)
+            new GetGifticonBrandsCommand(categoryCode)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetGifticonBrandsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 브랜드 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetGifticonBrandsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 브랜드 목록 조회 성공"
+            )
         );
     }
 }

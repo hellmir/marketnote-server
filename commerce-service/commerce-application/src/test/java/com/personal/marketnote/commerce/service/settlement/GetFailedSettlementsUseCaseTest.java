@@ -34,17 +34,17 @@ class GetFailedSettlementsUseCaseTest {
     void shouldReturnFailedSettlements() {
         // given
         Settlement failed1 = Settlement.from(SettlementSnapshotState.builder()
-                .id(1L).sellerId(10L).year(2026).month(2)
-                .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                .status(SettlementStatus.FAILED).version(0L)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .shippingFee(0L)
-                .build());
+            .id(1L).sellerId(10L).year(2026).month(2)
+            .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+            .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+            .status(SettlementStatus.FAILED).version(0L)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .shippingFee(0L)
+            .build());
 
         when(findSettlementPort.findAllByStatus(SettlementStatus.FAILED))
-                .thenReturn(List.of(failed1));
+            .thenReturn(List.of(failed1));
 
         // when
         GetSettlementsResult result = getFailedSettlementsService.getFailedSettlements();
@@ -61,7 +61,7 @@ class GetFailedSettlementsUseCaseTest {
     void shouldReturnEmptyListWhenNoFailedSettlements() {
         // given
         when(findSettlementPort.findAllByStatus(SettlementStatus.FAILED))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         GetSettlementsResult result = getFailedSettlementsService.getFailedSettlements();

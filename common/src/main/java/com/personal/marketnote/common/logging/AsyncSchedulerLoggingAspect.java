@@ -25,7 +25,7 @@ public class AsyncSchedulerLoggingAspect {
     private static final Logger log = LoggerFactory.getLogger(AsyncSchedulerLoggingAspect.class);
 
     @Around("@annotation(org.springframework.scheduling.annotation.Async) "
-            + "|| @annotation(org.springframework.scheduling.annotation.Scheduled)")
+        + "|| @annotation(org.springframework.scheduling.annotation.Scheduled)")
     public Object logAsyncOrScheduled(ProceedingJoinPoint pjp) throws Throwable {
         if (!log.isDebugEnabled()) {
             return pjp.proceed();
@@ -36,18 +36,18 @@ public class AsyncSchedulerLoggingAspect {
         try {
             Object result = pjp.proceed();
             log.debug(
-                    "Exit: {} (took {} ms)",
-                    name,
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos)
+                "Exit: {} (took {} ms)",
+                name,
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos)
             );
             return result;
         } catch (Throwable t) {
             log.debug(
-                    "Exception in {} (took {} ms): cause={}",
-                    name,
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos),
-                    t.getClass().getSimpleName(),
-                    t
+                "Exception in {} (took {} ms): cause={}",
+                name,
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos),
+                t.getClass().getSimpleName(),
+                t
             );
             throw t;
         }

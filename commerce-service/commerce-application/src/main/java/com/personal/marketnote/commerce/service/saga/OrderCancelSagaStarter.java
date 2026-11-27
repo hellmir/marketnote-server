@@ -26,13 +26,13 @@ public class OrderCancelSagaStarter {
         String sagaId = SAGA_ID_PREFIX + context.orderId();
 
         log.info("OrderCancel SAGA 시작. sagaId={}, orderId={}, originalStatus={}",
-                sagaId, context.orderId(), context.originalStatus()
+            sagaId, context.orderId(), context.originalStatus()
         );
 
         SagaContext sagaContext = SagaContext.restore(
-                sagaId,
-                OrderCancelSagaDefinition.SAGA_TYPE,
-                OrderCancelSagaDefinition.STEP_CANCEL_FULFILLMENT_RELEASE
+            sagaId,
+            OrderCancelSagaDefinition.SAGA_TYPE,
+            OrderCancelSagaDefinition.STEP_CANCEL_FULFILLMENT_RELEASE
         );
         // MDC enrich 만 수행. step started/completed 로깅은 SagaOrchestrator.processStep 책임이므로 중복 방지를 위해 호출하지 않는다.
         // 호출 종료 != step 완료 (start()는 첫 step publish 까지만 동기) 이므로 try-finally + clear 로 누수만 차단.

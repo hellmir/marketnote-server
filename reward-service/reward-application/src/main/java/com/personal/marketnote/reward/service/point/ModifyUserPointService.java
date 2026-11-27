@@ -34,9 +34,9 @@ public class ModifyUserPointService implements ModifyUserPointUseCase {
 
     @Override
     @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+        retryFor = ObjectOptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     public UpdateUserPointResult modify(ModifyUserPointCommand command) {
         UserPoint userPoint = getTargetUserPoint(command);
@@ -44,11 +44,11 @@ public class ModifyUserPointService implements ModifyUserPointUseCase {
         UserPoint updatedPoint = updateUserPointPort.update(userPoint);
 
         saveUserPointHistoryPort.save(
-                UserPointHistory.from(
-                        RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
-                                command, updatedPoint.getUserId(), updatedPoint.getModifiedAt()
-                        )
+            UserPointHistory.from(
+                RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
+                    command, updatedPoint.getUserId(), updatedPoint.getModifiedAt()
                 )
+            )
         );
 
         return UpdateUserPointResult.from(updatedPoint);
@@ -57,10 +57,10 @@ public class ModifyUserPointService implements ModifyUserPointUseCase {
     private UserPoint getTargetUserPoint(ModifyUserPointCommand command) {
         if (!command.isAccrual() && FormatValidator.hasValue(command.userId())) {
             return findUserPointPort.findByUserIdForUpdate(command.userId())
-                    .orElseThrow(() -> {
-                        log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", command.userId());
-                        return new UserPointNotFoundException();
-                    });
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", command.userId());
+                    return new UserPointNotFoundException();
+                });
         }
 
         Long userId = command.userId();

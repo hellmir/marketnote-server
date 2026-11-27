@@ -43,7 +43,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
 
     @Override
     public RegisterPricePolicyResult registerPricePolicy(
-            Long userId, boolean isAdmin, RegisterPricePolicyCommand command
+        Long userId, boolean isAdmin, RegisterPricePolicyCommand command
     ) {
         Long productId = command.productId();
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
@@ -75,15 +75,15 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
 
         // Outbox 이벤트 저장 (트랜잭션 내). 신규 가격 정책이므로 sales 는 0L.
         publishProductEventPort.publishPricePolicyCreatedEvent(
-                new PricePolicyCreatedEvent(
-                        productId, product.getProductKey(), id,
-                        product.getSellerId(),
-                        product.getName(),
-                        product.getBrandName(),
-                        command.price(), command.discountPrice(), command.accumulatedPoint(),
-                        0L,
-                        tagSnapshots, optionSnapshots
-                )
+            new PricePolicyCreatedEvent(
+                productId, product.getProductKey(), id,
+                product.getSellerId(),
+                product.getName(),
+                product.getBrandName(),
+                command.price(), command.discountPrice(), command.accumulatedPoint(),
+                0L,
+                tagSnapshots, optionSnapshots
+            )
         );
 
         return RegisterPricePolicyResult.of(id);
@@ -94,10 +94,10 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             return List.of();
         }
         return options.stream()
-                .map(option -> new PricePolicyCreatedEvent.ProductOptionSnapshot(
-                        option.getId(), option.getContent()
-                ))
-                .toList();
+            .map(option -> new PricePolicyCreatedEvent.ProductOptionSnapshot(
+                option.getId(), option.getContent()
+            ))
+            .toList();
     }
 
     private List<PricePolicyCreatedEvent.ProductTagSnapshot> toTagSnapshots(List<ProductTag> productTags) {
@@ -105,10 +105,10 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             return List.of();
         }
         return productTags.stream()
-                .map(tag -> new PricePolicyCreatedEvent.ProductTagSnapshot(
-                        tag.getId(), tag.getName(), tag.getOrderNum()
-                ))
-                .toList();
+            .map(tag -> new PricePolicyCreatedEvent.ProductTagSnapshot(
+                tag.getId(), tag.getName(), tag.getOrderNum()
+            ))
+            .toList();
     }
 
     private void validateDiscountPriceNotExceedPrice(RegisterPricePolicyCommand command) {

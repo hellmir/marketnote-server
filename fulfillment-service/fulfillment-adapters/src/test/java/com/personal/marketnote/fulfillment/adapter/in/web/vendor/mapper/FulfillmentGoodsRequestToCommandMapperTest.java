@@ -25,7 +25,7 @@ class FulfillmentGoodsRequestToCommandMapperTest {
         ReflectionTestUtils.setField(request, "godNm", "상품명");
 
         RegisterFulfillmentGoodsCommand command = FulfillmentGoodsRequestToCommandMapper.mapToRegisterCommand(
-                "CUST001", "token", List.of(request)
+            "CUST001", "token", List.of(request)
         );
 
         assertThat(command.goods()).hasSize(1);
@@ -42,7 +42,7 @@ class FulfillmentGoodsRequestToCommandMapperTest {
         ReflectionTestUtils.setField(request, "godNm", "상품명");
 
         UpdateFulfillmentGoodsCommand command = FulfillmentGoodsRequestToCommandMapper.mapToUpdateCommand(
-                "CUST001", "token", List.of(request)
+            "CUST001", "token", List.of(request)
         );
 
         assertThat(command.goods()).hasSize(1);

@@ -16,27 +16,27 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class VendorCommunicationRecorder extends com.personal.marketnote.common.utility.audit.VendorCommunicationRecorder<
-        RewardVendorCommunicationTargetType,
-        RewardVendorName,
-        RewardVendorCommunicationType,
-        RewardVendorCommunicationSenderType
-        > {
+    RewardVendorCommunicationTargetType,
+    RewardVendorName,
+    RewardVendorCommunicationType,
+    RewardVendorCommunicationSenderType
+    > {
     public VendorCommunicationRecorder(RewardRecordVendorCommunicationHistoryUseCase useCase) {
         super((
                 targetType, targetId, vendorName, communicationType, sender,
                 exception, payload, payloadJson, attemptCount
-        ) ->
+            ) ->
                 useCase.record(
-                        RewardVendorCommunicationHistoryCommand.builder()
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .vendorName(vendorName)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(payloadJson)
-                                .build()
+                    RewardVendorCommunicationHistoryCommand.builder()
+                        .targetType(targetType)
+                        .targetId(targetId)
+                        .vendorName(vendorName)
+                        .communicationType(communicationType)
+                        .sender(sender)
+                        .exception(exception)
+                        .payload(payload)
+                        .payloadJson(payloadJson)
+                        .build()
                 )
         );
     }

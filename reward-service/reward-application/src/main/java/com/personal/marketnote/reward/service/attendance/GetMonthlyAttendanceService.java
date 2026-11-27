@@ -27,7 +27,7 @@ public class GetMonthlyAttendanceService implements GetMonthlyAttendanceUseCase 
         Month month = query.resolveMonth(now);
 
         return findUserAttendancePort.findByUserIdAndYearAndMonth(query.userId(), year, month)
-                .map(GetMonthlyAttendanceResult::from)
-                .orElseGet(GetMonthlyAttendanceResult::empty);
+            .map(GetMonthlyAttendanceResult::from)
+            .orElseGet(GetMonthlyAttendanceResult::empty);
     }
 }

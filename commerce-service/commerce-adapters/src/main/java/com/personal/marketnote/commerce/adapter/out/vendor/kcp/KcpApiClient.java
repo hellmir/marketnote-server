@@ -41,10 +41,10 @@ public class KcpApiClient {
     private final ExternalCallLogger externalCallLogger;
 
     public KcpApiClient(
-            KcpProperties kcpProperties,
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            ExternalCallLogger externalCallLogger
+        KcpProperties kcpProperties,
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        ExternalCallLogger externalCallLogger
     ) {
         this.kcpProperties = kcpProperties;
         this.restClient = restClientBuilder.build();
@@ -56,8 +56,8 @@ public class KcpApiClient {
         String url = kcpProperties.getApi().getTradeRegisterUrl();
 
         log.info("KCP 거래등록 요청: url={}, site_cd={}, ordr_idxx={}, good_mny={}, pay_method={}, good_name={}, Ret_URL={}",
-                url, request.siteCd(), request.ordrIdxx(), request.goodMny(),
-                request.payMethod(), request.goodName(), request.retUrl()
+            url, request.siteCd(), request.ordrIdxx(), request.goodMny(),
+            request.payMethod(), request.goodName(), request.retUrl()
         );
 
         Map<String, String> tags = mutableTags();
@@ -65,14 +65,14 @@ public class KcpApiClient {
         putIfPresent(tags, TAG_ORDR_IDXX, request.ordrIdxx());
 
         return externalCallLogger.record(
-                ExternalSystem.KCP, OP_TRADE_REGISTER, tags,
-                () -> {
-                    KcpTradeRegisterResponse response = postAndParse(
-                            url, request, KcpTradeRegisterResponse.class, "KCP 거래등록"
-                    );
-                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
-                    return response;
-                }
+            ExternalSystem.KCP, OP_TRADE_REGISTER, tags,
+            () -> {
+                KcpTradeRegisterResponse response = postAndParse(
+                    url, request, KcpTradeRegisterResponse.class, "KCP 거래등록"
+                );
+                putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                return response;
+            }
         );
     }
 
@@ -86,14 +86,14 @@ public class KcpApiClient {
         putIfPresent(tags, TAG_ORDR_NO, request.ordrNo());
 
         return externalCallLogger.record(
-                ExternalSystem.KCP, OP_PAYMENT_APPROVE, tags,
-                () -> {
-                    KcpPaymentApprovalResponse response = postAndParse(
-                            url, request, KcpPaymentApprovalResponse.class, "KCP 결제승인"
-                    );
-                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
-                    return response;
-                }
+            ExternalSystem.KCP, OP_PAYMENT_APPROVE, tags,
+            () -> {
+                KcpPaymentApprovalResponse response = postAndParse(
+                    url, request, KcpPaymentApprovalResponse.class, "KCP 결제승인"
+                );
+                putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                return response;
+            }
         );
     }
 
@@ -107,14 +107,14 @@ public class KcpApiClient {
         putIfPresent(tags, TAG_TNO, request.tno());
 
         return externalCallLogger.record(
-                ExternalSystem.KCP, OP_PAYMENT_CANCEL, tags,
-                () -> {
-                    KcpPaymentCancelResponse response = postAndParse(
-                            url, request, KcpPaymentCancelResponse.class, "KCP 결제취소"
-                    );
-                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
-                    return response;
-                }
+            ExternalSystem.KCP, OP_PAYMENT_CANCEL, tags,
+            () -> {
+                KcpPaymentCancelResponse response = postAndParse(
+                    url, request, KcpPaymentCancelResponse.class, "KCP 결제취소"
+                );
+                putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                return response;
+            }
         );
     }
 
@@ -127,14 +127,14 @@ public class KcpApiClient {
         putIfPresent(tags, TAG_SITE_CD, request.siteCd());
 
         return externalCallLogger.record(
-                ExternalSystem.KCP, OP_BATCH_KEY_ISSUE, tags,
-                () -> {
-                    KcpBatchKeyIssuanceResponse response = postAndParse(
-                            url, request, KcpBatchKeyIssuanceResponse.class, "KCP 배치키 발급"
-                    );
-                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
-                    return response;
-                }
+            ExternalSystem.KCP, OP_BATCH_KEY_ISSUE, tags,
+            () -> {
+                KcpBatchKeyIssuanceResponse response = postAndParse(
+                    url, request, KcpBatchKeyIssuanceResponse.class, "KCP 배치키 발급"
+                );
+                putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                return response;
+            }
         );
     }
 
@@ -142,7 +142,7 @@ public class KcpApiClient {
         String url = kcpProperties.getApi().getBatchPaymentApprovalUrl();
 
         log.info("KCP 배치 결제승인 요청: url={}, site_cd={}, ordr_idxx={}",
-                url, request.siteCd(), request.ordrIdxx()
+            url, request.siteCd(), request.ordrIdxx()
         );
 
         Map<String, String> tags = mutableTags();
@@ -150,14 +150,14 @@ public class KcpApiClient {
         putIfPresent(tags, TAG_ORDR_IDXX, request.ordrIdxx());
 
         return externalCallLogger.record(
-                ExternalSystem.KCP, OP_BATCH_PAYMENT_APPROVE, tags,
-                () -> {
-                    KcpBatchPaymentApprovalResponse response = postAndParse(
-                            url, request, KcpBatchPaymentApprovalResponse.class, "KCP 배치 결제승인"
-                    );
-                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
-                    return response;
-                }
+            ExternalSystem.KCP, OP_BATCH_PAYMENT_APPROVE, tags,
+            () -> {
+                KcpBatchPaymentApprovalResponse response = postAndParse(
+                    url, request, KcpBatchPaymentApprovalResponse.class, "KCP 배치 결제승인"
+                );
+                putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                return response;
+            }
         );
     }
 
@@ -170,14 +170,14 @@ public class KcpApiClient {
         putIfPresent(tags, TAG_SITE_CD, request.siteCd());
 
         return externalCallLogger.record(
-                ExternalSystem.KCP, OP_BATCH_KEY_DELETE, tags,
-                () -> {
-                    KcpBatchKeyDeletionResponse response = postAndParse(
-                            url, request, KcpBatchKeyDeletionResponse.class, "KCP 배치키 삭제"
-                    );
-                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
-                    return response;
-                }
+            ExternalSystem.KCP, OP_BATCH_KEY_DELETE, tags,
+            () -> {
+                KcpBatchKeyDeletionResponse response = postAndParse(
+                    url, request, KcpBatchKeyDeletionResponse.class, "KCP 배치키 삭제"
+                );
+                putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                return response;
+            }
         );
     }
 
@@ -187,15 +187,15 @@ public class KcpApiClient {
 
     private <T> T postAndParse(String url, Object request, Class<T> responseType, String operationLabel) {
         ResponseEntity<String> rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
-                .retrieve()
-                .toEntity(String.class);
+            .uri(url)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(request)
+            .retrieve()
+            .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
         log.debug("{} 응답 Content-Type={}, body={}",
-                operationLabel, rawResponse.getHeaders().getContentType(), responseBody
+            operationLabel, rawResponse.getHeaders().getContentType(), responseBody
         );
 
         if (FormatValidator.hasNoValue(responseBody)) {

@@ -10,9 +10,9 @@ public class NotificationPreferenceCommandToStateMapper {
 
     public static NotificationPreferenceCreateState mapToState(Long userId, NotificationType type) {
         return NotificationPreferenceCreateState.builder()
-                .userId(userId)
-                .notificationType(type)
-                .enabled(type.isDefaultEnabled())
-                .build();
+            .userId(userId)
+            .notificationType(type)
+            .enabled(type.isDefaultEnabled())
+            .build();
     }
 }

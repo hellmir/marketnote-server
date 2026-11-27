@@ -85,15 +85,15 @@ class InternalPointControllerTest {
         void shouldModifyUserPointAndReturnOkStatus() {
             // given
             ModifyUserPointRequest request = new ModifyUserPointRequest(
-                    UserPointChangeType.ACCRUAL,
-                    1000L,
-                    UserPointSourceType.ORDER,
-                    100L,
-                    "주문 포인트 적립"
+                UserPointChangeType.ACCRUAL,
+                1000L,
+                UserPointSourceType.ORDER,
+                100L,
+                "주문 포인트 적립"
             );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
-                    USER_ID, 6000L, 1000L, 0L, NOW, NOW
+                USER_ID, 6000L, 1000L, 0L, NOW, NOW
             );
             when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class))).thenReturn(result);
 
@@ -114,15 +114,15 @@ class InternalPointControllerTest {
         void shouldModifyPendingPointAndReturnOkStatus() {
             // given
             ModifyPendingPointRequest request = new ModifyPendingPointRequest(
-                    UserPointChangeType.ACCRUAL,
-                    500L,
-                    UserPointSourceType.ORDER,
-                    200L,
-                    "상품 구매 적립"
+                UserPointChangeType.ACCRUAL,
+                500L,
+                UserPointSourceType.ORDER,
+                200L,
+                "상품 구매 적립"
             );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
-                    USER_ID, 5000L, 1500L, 0L, NOW, NOW
+                USER_ID, 5000L, 1500L, 0L, NOW, NOW
             );
             when(modifyPendingPointUseCase.modifyPending(any(ModifyPendingPointCommand.class))).thenReturn(result);
 
@@ -143,13 +143,13 @@ class InternalPointControllerTest {
         void shouldConfirmPendingPointAndReturnOkStatus() {
             // given
             ConfirmPendingPointRequest request = new ConfirmPendingPointRequest(
-                    UserPointSourceType.ORDER,
-                    300L,
-                    "구매 확정 포인트 적립"
+                UserPointSourceType.ORDER,
+                300L,
+                "구매 확정 포인트 적립"
             );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
-                    USER_ID, 6500L, 500L, 0L, NOW, NOW
+                USER_ID, 6500L, 500L, 0L, NOW, NOW
             );
             when(confirmPendingPointUseCase.confirmPending(any(ConfirmPendingPointCommand.class))).thenReturn(result);
 
@@ -170,13 +170,13 @@ class InternalPointControllerTest {
         void shouldCancelPendingPointAndReturnOkStatus() {
             // given
             CancelPendingPointRequest request = new CancelPendingPointRequest(
-                    UserPointSourceType.ORDER,
-                    400L,
-                    "결제 취소 적립 예정 포인트 회수"
+                UserPointSourceType.ORDER,
+                400L,
+                "결제 취소 적립 예정 포인트 회수"
             );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
-                    USER_ID, 5000L, 0L, 0L, NOW, NOW
+                USER_ID, 5000L, 0L, 0L, NOW, NOW
             );
             when(cancelPendingPointUseCase.cancelPending(any(CancelPendingPointCommand.class))).thenReturn(result);
 

@@ -1,33 +1,19 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetAdminGifticonGoodsApiDocs;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageFeaturedGifticonGoodsApiDocs;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsCashPriceApiDocs;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsExposureApiDocs;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsOrderApiDocs;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.SyncGifticonGoodsAndBrandsApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.*;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageFeaturedGifticonGoodsRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsCashPriceRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsExposureRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsOrderRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetAdminGifticonGoodsResponse;
-import com.personal.marketnote.reward.port.in.command.gifticon.GetAdminGifticonGoodsCommand;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
+import com.personal.marketnote.reward.port.in.command.gifticon.*;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand.FeaturedGoodsItem;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsCashPriceCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsCashPriceCommand.CashPriceItem;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand.ExposureItem;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsOrderCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsOrderCommand.OrderItem;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonGoodsResult;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.GetAdminGifticonGoodsUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGifticonGoodsUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsCashPriceUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsExposureUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsOrderUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.SyncGifticonGoodsAndBrandsUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,26 +49,26 @@ public class AdminGifticonGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetAdminGifticonGoodsApiDocs
     public ResponseEntity<BaseResponse<GetAdminGifticonGoodsResponse>> getAdminGifticonGoods(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "page-size", defaultValue = "20") int pageSize,
-            @RequestParam(value = "goods-status", required = false) String goodsStatus,
-            @RequestParam(value = "exposed", required = false) Boolean exposed,
-            @RequestParam(value = "keyword", required = false) String keyword
+        @RequestParam(value = "page", defaultValue = "1") int page,
+        @RequestParam(value = "page-size", defaultValue = "20") int pageSize,
+        @RequestParam(value = "goods-status", required = false) String goodsStatus,
+        @RequestParam(value = "exposed", required = false) Boolean exposed,
+        @RequestParam(value = "keyword", required = false) String keyword
     ) {
         GetAdminGifticonGoodsCommand command = new GetAdminGifticonGoodsCommand(
-                page, pageSize, goodsStatus, exposed, keyword
+            page, pageSize, goodsStatus, exposed, keyword
         );
 
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsUseCase.getAdminGifticonGoods(command);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAdminGifticonGoodsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "관리자 기프티콘 상품 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAdminGifticonGoodsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "관리자 기프티콘 상품 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -98,22 +84,22 @@ public class AdminGifticonGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ManageGifticonGoodsExposureApiDocs
     public ResponseEntity<BaseResponse<Void>> manageGifticonGoodsExposure(
-            @Valid @RequestBody ManageGifticonGoodsExposureRequest request
+        @Valid @RequestBody ManageGifticonGoodsExposureRequest request
     ) {
         ManageGifticonGoodsExposureCommand command = new ManageGifticonGoodsExposureCommand(
-                request.items().stream()
-                        .map(item -> new ExposureItem(item.goodsCode(), item.exposed()))
-                        .toList()
+            request.items().stream()
+                .map(item -> new ExposureItem(item.goodsCode(), item.exposed()))
+                .toList()
         );
 
         manageGifticonGoodsExposureUseCase.manageExposure(command);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 상품 노출 관리 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 상품 노출 관리 성공"
+            )
         );
     }
 
@@ -129,22 +115,22 @@ public class AdminGifticonGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ManageGifticonGoodsOrderApiDocs
     public ResponseEntity<BaseResponse<Void>> manageGifticonGoodsOrder(
-            @Valid @RequestBody ManageGifticonGoodsOrderRequest request
+        @Valid @RequestBody ManageGifticonGoodsOrderRequest request
     ) {
         ManageGifticonGoodsOrderCommand command = new ManageGifticonGoodsOrderCommand(
-                request.items().stream()
-                        .map(item -> new OrderItem(item.goodsCode(), item.orderNum()))
-                        .toList()
+            request.items().stream()
+                .map(item -> new OrderItem(item.goodsCode(), item.orderNum()))
+                .toList()
         );
 
         manageGifticonGoodsOrderUseCase.manageOrder(command);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 상품 노출 순서 관리 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 상품 노출 순서 관리 성공"
+            )
         );
     }
 
@@ -160,22 +146,22 @@ public class AdminGifticonGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ManageFeaturedGifticonGoodsApiDocs
     public ResponseEntity<BaseResponse<Void>> manageFeaturedGifticonGoods(
-            @Valid @RequestBody ManageFeaturedGifticonGoodsRequest request
+        @Valid @RequestBody ManageFeaturedGifticonGoodsRequest request
     ) {
         ManageFeaturedGifticonGoodsCommand command = new ManageFeaturedGifticonGoodsCommand(
-                request.items().stream()
-                        .map(item -> new FeaturedGoodsItem(item.goodsCode(), item.popular(), item.popularOrderNum()))
-                        .toList()
+            request.items().stream()
+                .map(item -> new FeaturedGoodsItem(item.goodsCode(), item.popular(), item.popularOrderNum()))
+                .toList()
         );
 
         manageFeaturedGifticonGoodsUseCase.manageFeatured(command);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 인기상품 관리 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 인기상품 관리 성공"
+            )
         );
     }
 
@@ -191,22 +177,22 @@ public class AdminGifticonGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ManageGifticonGoodsCashPriceApiDocs
     public ResponseEntity<BaseResponse<Void>> manageGifticonGoodsCashPrice(
-            @Valid @RequestBody ManageGifticonGoodsCashPriceRequest request
+        @Valid @RequestBody ManageGifticonGoodsCashPriceRequest request
     ) {
         ManageGifticonGoodsCashPriceCommand command = new ManageGifticonGoodsCashPriceCommand(
-                request.items().stream()
-                        .map(item -> new CashPriceItem(item.goodsCode(), item.cashPrice()))
-                        .toList()
+            request.items().stream()
+                .map(item -> new CashPriceItem(item.goodsCode(), item.cashPrice()))
+                .toList()
         );
 
         manageGifticonGoodsCashPriceUseCase.manageCashPrice(command);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 상품 사용자 판매가 관리 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 상품 사용자 판매가 관리 성공"
+            )
         );
     }
 
@@ -224,11 +210,11 @@ public class AdminGifticonGoodsController {
         syncGifticonGoodsAndBrandsUseCase.syncAll();
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 상품/브랜드 수동 동기화 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 상품/브랜드 수동 동기화 성공"
+            )
         );
     }
 }

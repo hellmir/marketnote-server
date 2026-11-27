@@ -52,12 +52,12 @@ public class OrderCancelFulfillmentSagaConsumer {
     private final PublishOrderCancelFailedEventPort publishOrderCancelFailedEventPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
-            groupId = "saga-order-cancel-fulfillment-service"
+        topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
+        groupId = "saga-order-cancel-fulfillment-service"
     )
     public void handleOrderCancelFulfillmentStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -69,21 +69,21 @@ public class OrderCancelFulfillmentSagaConsumer {
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
             SagaStepLogger.start(SagaContext.restore(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName()
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName()
             ));
 
             log.info("SAGA 주문 취소 풀필먼트 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
 
             if (!SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
                 log.warn("주문 취소 풀필먼트 스텝은 보상이 없음. 지원하지 않는 messageType. sagaId={}, messageType={}",
-                        stepMessage.sagaId(), stepMessage.messageType()
+                    stepMessage.sagaId(), stepMessage.messageType()
                 );
                 sagaResponsePublisher.publishFailure(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(),
-                        "지원하지 않는 messageType: " + stepMessage.messageType()
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(),
+                    "지원하지 않는 messageType: " + stepMessage.messageType()
                 );
                 return;
             }
@@ -92,7 +92,7 @@ public class OrderCancelFulfillmentSagaConsumer {
         } catch (Exception e) {
             // boundary swallow: Kafka @KafkaListener 진입점 — ack 보장 + 컨슈머 스레드 보호. SAGA 실패는 publishFailure 경로로 별도 전파
             log.error("SAGA 주문 취소 풀필먼트 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             SagaStepLogger.clear();
@@ -105,7 +105,7 @@ public class OrderCancelFulfillmentSagaConsumer {
         Long buyerId = null;
         try {
             OrderCancelFulfillmentSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), OrderCancelFulfillmentSagaPayload.class
+                stepMessage.payload(), OrderCancelFulfillmentSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
@@ -122,71 +122,71 @@ public class OrderCancelFulfillmentSagaConsumer {
 
             if (!REQUIRES_FULFILLMENT_CANCEL.equals(payload.originalStatus())) {
                 log.info("풀필먼트 취소 불필요 (originalStatus={}). sagaId={}, orderId={}",
-                        payload.originalStatus(), stepMessage.sagaId(), orderId
+                    payload.originalStatus(), stepMessage.sagaId(), orderId
                 );
                 sagaResponsePublisher.publishSuccess(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), buildSkippedResponse(payload.originalStatus())
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), buildSkippedResponse(payload.originalStatus())
                 );
                 return;
             }
 
             List<String> productKeys = FormatValidator.hasValue(payload.productKeys())
-                    ? payload.productKeys()
-                    : List.of();
+                ? payload.productKeys()
+                : List.of();
 
             CancelInternalFulfillmentDeliveryResult result = cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(
-                    new CancelInternalFulfillmentDeliveryCommand(orderId, productKeys)
+                new CancelInternalFulfillmentDeliveryCommand(orderId, productKeys)
             );
 
             if (!result.cancelled()) {
                 log.warn("주문 취소 풀필먼트 처리 거부. sagaId={}, orderId={}, message={}",
-                        stepMessage.sagaId(), orderId, result.message()
+                    stepMessage.sagaId(), orderId, result.message()
                 );
                 sagaResponsePublisher.publishFailure(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(),
-                        "주문 취소 풀필먼트 처리 거부: orderId=" + orderId + ", " + result.message()
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(),
+                    "주문 취소 풀필먼트 처리 거부: orderId=" + orderId + ", " + result.message()
                 );
                 publishOrderCancelFailedSafely(orderId, buyerId);
                 return;
             }
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 주문 취소 풀필먼트 처리 성공. sagaId={}, orderId={}",
-                    stepMessage.sagaId(), orderId
+                stepMessage.sagaId(), orderId
             );
         } catch (FulfillmentDeliveryRegistrationNotFoundException e) {
             log.info("출고 등록 없음 (멱등 처리). sagaId={}, orderId={}, message={}",
-                    stepMessage.sagaId(), orderId, e.getMessage()
+                stepMessage.sagaId(), orderId, e.getMessage()
             );
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
             );
         } catch (FulfillmentDeliveryCancellationNotAllowedException e) {
             log.warn("주문 취소 풀필먼트 처리 거부 (출고 진행/완료). sagaId={}, orderId={}, message={}",
-                    stepMessage.sagaId(), orderId, e.getMessage()
+                stepMessage.sagaId(), orderId, e.getMessage()
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(),
-                    "주문 취소 풀필먼트 처리 거부: orderId=" + orderId + ", " + e.getMessage()
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(),
+                "주문 취소 풀필먼트 처리 거부: orderId=" + orderId + ", " + e.getMessage()
             );
             publishOrderCancelFailedSafely(orderId, buyerId);
         } catch (Exception e) {
             // boundary swallow: SAGA 액션 처리 boundary — 모든 실패를 publishFailure 로 일원화하여 SAGA 코디네이터에 통보
             log.error("SAGA 주문 취소 풀필먼트 처리 실패. sagaId={}, orderId={}, error={}",
-                    stepMessage.sagaId(), orderId, e.getMessage(), e
+                stepMessage.sagaId(), orderId, e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(),
-                    "주문 취소 풀필먼트 처리 실패: orderId=" + orderId
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(),
+                "주문 취소 풀필먼트 처리 실패: orderId=" + orderId
             );
             publishOrderCancelFailedSafely(orderId, buyerId);
         }
@@ -202,7 +202,7 @@ public class OrderCancelFulfillmentSagaConsumer {
             return objectMapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
             log.warn("fallback applied: skipped 응답 직렬화 실패, 기본 메시지 사용. originalStatus={}",
-                    originalStatus, e
+                originalStatus, e
             );
             return "{\"compensated\":true,\"reason\":\"fulfillment-cancel-not-required\",\"skipped\":true}";
         }
@@ -210,11 +210,11 @@ public class OrderCancelFulfillmentSagaConsumer {
 
     private void publishValidationFailure(SagaStepMessage stepMessage, Long orderId, Long buyerId, String reason) {
         log.warn("SAGA 주문 취소 풀필먼트 스텝 페이로드 검증 실패. sagaId={}, reason={}",
-                stepMessage.sagaId(), reason
+            stepMessage.sagaId(), reason
         );
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
         publishOrderCancelFailedSafely(orderId, buyerId);
     }
@@ -228,7 +228,7 @@ public class OrderCancelFulfillmentSagaConsumer {
         } catch (Exception e) {
             // boundary swallow: 보상 후 알림 이벤트 발행 boundary — 발행 실패가 보상 결과 publish 를 막지 않도록 광역 catch
             log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
-                    orderId, buyerId, e
+                orderId, buyerId, e
             );
         }
     }

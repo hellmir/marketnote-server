@@ -18,22 +18,22 @@ public class ReviewVersionHistory {
 
     public static ReviewVersionHistory from(ReviewVersionHistoryCreateState state) {
         return ReviewVersionHistory.builder()
-                .reviewId(state.getReviewId())
-                .rating(state.getRating())
-                .content(state.getContent())
-                .isPhoto(state.getIsPhoto())
-                .build();
+            .reviewId(state.getReviewId())
+            .rating(state.getRating())
+            .content(state.getContent())
+            .isPhoto(state.getIsPhoto())
+            .build();
     }
 
     public static ReviewVersionHistory from(ReviewVersionHistorySnapshotState state) {
         return ReviewVersionHistory.builder()
-                .id(state.getId())
-                .reviewId(state.getReviewId())
-                .rating(state.getRating())
-                .content(state.getContent())
-                .isPhoto(state.getIsPhoto())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .reviewId(state.getReviewId())
+            .rating(state.getRating())
+            .content(state.getContent())
+            .isPhoto(state.getIsPhoto())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }
 

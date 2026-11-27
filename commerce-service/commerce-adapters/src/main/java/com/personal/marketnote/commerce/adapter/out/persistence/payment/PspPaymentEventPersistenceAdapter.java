@@ -30,20 +30,20 @@ public class PspPaymentEventPersistenceAdapter implements SavePspPaymentEventPor
     @Override
     public Optional<PspPaymentEvent> findByOrderKey(String orderKey) {
         return pspPaymentEventJpaRepository.findByOrderKey(orderKey)
-                .map(PspPaymentEventEntityToDomainMapper::toDomain);
+            .map(PspPaymentEventEntityToDomainMapper::toDomain);
     }
 
     @Override
     public List<PspPaymentEvent> findAllByUnknownStatus() {
         return pspPaymentEventJpaRepository.findAllByPoStatus(PaymentEventStatus.UNKNOWN).stream()
-                .map(PspPaymentEventEntityToDomainMapper::toDomain)
-                .toList();
+            .map(PspPaymentEventEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public void update(PspPaymentEvent event) {
         PspPaymentEventJpaEntity entity = pspPaymentEventJpaRepository.findByOrderKey(event.getOrderKey())
-                .orElseThrow(() -> new DomainNotFoundException("PspPaymentEvent 엔티티를 찾을 수 없습니다."));
+            .orElseThrow(() -> new DomainNotFoundException("PspPaymentEvent 엔티티를 찾을 수 없습니다."));
         entity.updateFrom(event);
     }
 }

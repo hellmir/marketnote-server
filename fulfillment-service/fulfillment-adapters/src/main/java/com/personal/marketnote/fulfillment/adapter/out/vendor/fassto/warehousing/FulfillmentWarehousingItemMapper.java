@@ -27,65 +27,65 @@ public class FulfillmentWarehousingItemMapper {
     private List<FulfillmentWarehousingGoodsMapper> godCds;
 
     public static FulfillmentWarehousingItemMapper of(
-            String ordDt,
-            String ordNo,
-            String inWay,
-            String slipNo,
-            String parcelComp,
-            String parcelInvoiceNo,
-            String remark,
-            String cstSupCd,
-            String distTermDt,
-            String makeDt,
-            String preArv,
-            List<FulfillmentWarehousingGoodsMapper> godCds
+        String ordDt,
+        String ordNo,
+        String inWay,
+        String slipNo,
+        String parcelComp,
+        String parcelInvoiceNo,
+        String remark,
+        String cstSupCd,
+        String distTermDt,
+        String makeDt,
+        String preArv,
+        List<FulfillmentWarehousingGoodsMapper> godCds
     ) {
         FulfillmentWarehousingItemMapper mapper = FulfillmentWarehousingItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .inWay(inWay)
-                .slipNo(slipNo)
-                .parcelComp(parcelComp)
-                .parcelInvoiceNo(parcelInvoiceNo)
-                .remark(remark)
-                .cstSupCd(cstSupCd)
-                .distTermDt(distTermDt)
-                .makeDt(makeDt)
-                .preArv(preArv)
-                .godCds(godCds)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .inWay(inWay)
+            .slipNo(slipNo)
+            .parcelComp(parcelComp)
+            .parcelInvoiceNo(parcelInvoiceNo)
+            .remark(remark)
+            .cstSupCd(cstSupCd)
+            .distTermDt(distTermDt)
+            .makeDt(makeDt)
+            .preArv(preArv)
+            .godCds(godCds)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public static FulfillmentWarehousingItemMapper update(
-            String ordDt,
-            String ordNo,
-            String inWay,
-            String slipNo,
-            String parcelComp,
-            String parcelInvoiceNo,
-            String remark,
-            String cstSupCd,
-            String distTermDt,
-            String makeDt,
-            String preArv,
-            List<FulfillmentWarehousingGoodsMapper> godCds
+        String ordDt,
+        String ordNo,
+        String inWay,
+        String slipNo,
+        String parcelComp,
+        String parcelInvoiceNo,
+        String remark,
+        String cstSupCd,
+        String distTermDt,
+        String makeDt,
+        String preArv,
+        List<FulfillmentWarehousingGoodsMapper> godCds
     ) {
         FulfillmentWarehousingItemMapper mapper = FulfillmentWarehousingItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .inWay(inWay)
-                .slipNo(slipNo)
-                .parcelComp(parcelComp)
-                .parcelInvoiceNo(parcelInvoiceNo)
-                .remark(remark)
-                .cstSupCd(cstSupCd)
-                .distTermDt(distTermDt)
-                .makeDt(makeDt)
-                .preArv(preArv)
-                .godCds(godCds)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .inWay(inWay)
+            .slipNo(slipNo)
+            .parcelComp(parcelComp)
+            .parcelInvoiceNo(parcelInvoiceNo)
+            .remark(remark)
+            .cstSupCd(cstSupCd)
+            .distTermDt(distTermDt)
+            .makeDt(makeDt)
+            .preArv(preArv)
+            .godCds(godCds)
+            .build();
         mapper.validateForUpdate();
         return mapper;
     }
@@ -105,8 +105,8 @@ public class FulfillmentWarehousingItemMapper {
         putIfNotNull(payload, "preArv", preArv);
         if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
-                    .map(FulfillmentWarehousingGoodsMapper::toPayload)
-                    .toList());
+                .map(FulfillmentWarehousingGoodsMapper::toPayload)
+                .toList());
         }
         return payload;
     }

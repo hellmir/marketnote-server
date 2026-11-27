@@ -39,32 +39,32 @@ public class PricePolicy extends BaseDomain {
 
     @JsonCreator
     private static PricePolicy jsonCreator(
-            @JsonProperty("id") Long id,
-            @JsonProperty("productId") Long productId,
-            @JsonProperty("price") Long price,
-            @JsonProperty("discountPrice") Long discountPrice,
-            @JsonProperty("discountRate") BigDecimal discountRate,
-            @JsonProperty("accumulatedPoint") Long accumulatedPoint,
-            @JsonProperty("accumulationRate") BigDecimal accumulationRate,
-            @JsonProperty("popularity") Long popularity,
-            @JsonProperty("status") EntityStatus status,
-            @JsonProperty("orderNum") Long orderNum,
-            @JsonProperty("optionIds") List<Long> optionIds
+        @JsonProperty("id") Long id,
+        @JsonProperty("productId") Long productId,
+        @JsonProperty("price") Long price,
+        @JsonProperty("discountPrice") Long discountPrice,
+        @JsonProperty("discountRate") BigDecimal discountRate,
+        @JsonProperty("accumulatedPoint") Long accumulatedPoint,
+        @JsonProperty("accumulationRate") BigDecimal accumulationRate,
+        @JsonProperty("popularity") Long popularity,
+        @JsonProperty("status") EntityStatus status,
+        @JsonProperty("orderNum") Long orderNum,
+        @JsonProperty("optionIds") List<Long> optionIds
     ) {
         return from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .productId(productId)
-                        .price(price)
-                        .discountPrice(discountPrice)
-                        .discountRate(Rate.of(discountRate))
-                        .accumulatedPoint(accumulatedPoint)
-                        .accumulationRate(Rate.of(accumulationRate))
-                        .popularity(popularity)
-                        .status(status)
-                        .orderNum(orderNum)
-                        .optionIds(optionIds)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .productId(productId)
+                .price(price)
+                .discountPrice(discountPrice)
+                .discountRate(Rate.of(discountRate))
+                .accumulatedPoint(accumulatedPoint)
+                .accumulationRate(Rate.of(accumulationRate))
+                .popularity(popularity)
+                .status(status)
+                .orderNum(orderNum)
+                .optionIds(optionIds)
+                .build()
         );
     }
 
@@ -73,17 +73,17 @@ public class PricePolicy extends BaseDomain {
         Long productId = FormatValidator.hasValue(product) ? product.getId() : null;
 
         return PricePolicy.builder()
-                .productId(productId)
-                .product(product)
-                .price(Money.of(state.getPrice()))
-                .discountPrice(resolveMoneyOrZero(state.getDiscountPrice()))
-                .discountRate(state.getDiscountRate())
-                .accumulatedPoint(resolveMoneyOrZero(state.getAccumulatedPoint()))
-                .accumulationRate(state.getAccumulationRate())
-                .popularity(state.getPopularity())
-                .orderNum(state.getOrderNum())
-                .optionIds(state.getOptionIds())
-                .build();
+            .productId(productId)
+            .product(product)
+            .price(Money.of(state.getPrice()))
+            .discountPrice(resolveMoneyOrZero(state.getDiscountPrice()))
+            .discountRate(state.getDiscountRate())
+            .accumulatedPoint(resolveMoneyOrZero(state.getAccumulatedPoint()))
+            .accumulationRate(state.getAccumulationRate())
+            .popularity(state.getPopularity())
+            .orderNum(state.getOrderNum())
+            .optionIds(state.getOptionIds())
+            .build();
     }
 
     public static PricePolicy from(PricePolicySnapshotState state) {
@@ -94,19 +94,19 @@ public class PricePolicy extends BaseDomain {
         }
 
         PricePolicy pricePolicy = PricePolicy.builder()
-                .id(state.getId())
-                .productId(productId)
-                .product(product)
-                .price(resolveMoneyOrZero(state.getPrice()))
-                .discountPrice(resolveMoneyOrZero(state.getDiscountPrice()))
-                .discountRate(state.getDiscountRate())
-                .accumulatedPoint(resolveMoneyOrZero(state.getAccumulatedPoint()))
-                .accumulationRate(state.getAccumulationRate())
-                .popularity(state.getPopularity())
-                .orderNum(state.getOrderNum())
-                .optionIds(state.getOptionIds())
-                .productOptions(state.getProductOptions())
-                .build();
+            .id(state.getId())
+            .productId(productId)
+            .product(product)
+            .price(resolveMoneyOrZero(state.getPrice()))
+            .discountPrice(resolveMoneyOrZero(state.getDiscountPrice()))
+            .discountRate(state.getDiscountRate())
+            .accumulatedPoint(resolveMoneyOrZero(state.getAccumulatedPoint()))
+            .accumulationRate(state.getAccumulationRate())
+            .popularity(state.getPopularity())
+            .orderNum(state.getOrderNum())
+            .optionIds(state.getOptionIds())
+            .productOptions(state.getProductOptions())
+            .build();
         pricePolicy.status = state.getStatus();
 
         return pricePolicy;
@@ -129,8 +129,8 @@ public class PricePolicy extends BaseDomain {
 
     public void syncOptionIdsFromOptions() {
         optionIds = productOptions.stream()
-                .map(ProductOption::getId)
-                .toList();
+            .map(ProductOption::getId)
+            .toList();
     }
 
     private static Money resolveMoneyOrZero(Long value) {

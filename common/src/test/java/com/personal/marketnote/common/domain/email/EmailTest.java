@@ -27,28 +27,28 @@ class EmailTest {
         @DisplayName("@ 없는 문자열로 생성 시 InvalidEmailException을 던진다")
         void shouldThrowWhenMissingAtSymbol() {
             assertThatThrownBy(() -> Email.of("userexample.com"))
-                    .isInstanceOf(InvalidEmailException.class);
+                .isInstanceOf(InvalidEmailException.class);
         }
 
         @Test
         @DisplayName("도메인 없는 이메일(user@)로 생성 시 InvalidEmailException을 던진다")
         void shouldThrowWhenMissingDomain() {
             assertThatThrownBy(() -> Email.of("user@"))
-                    .isInstanceOf(InvalidEmailException.class);
+                .isInstanceOf(InvalidEmailException.class);
         }
 
         @Test
         @DisplayName("null로 생성 시 EmailNoValueException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> Email.of(null))
-                    .isInstanceOf(EmailNoValueException.class);
+                .isInstanceOf(EmailNoValueException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 EmailNoValueException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> Email.of(""))
-                    .isInstanceOf(EmailNoValueException.class);
+                .isInstanceOf(EmailNoValueException.class);
         }
     }
 

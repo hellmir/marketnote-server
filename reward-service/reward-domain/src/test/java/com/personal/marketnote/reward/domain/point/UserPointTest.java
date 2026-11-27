@@ -20,14 +20,14 @@ class UserPointTest {
 
     private UserPoint createUserPoint(Long amount, Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.of(addExpectedAmount))
-                .expireExpectedAmount(PointAmount.of(100L))
-                .createdAt(CREATED_AT)
-                .modifiedAt(MODIFIED_AT)
-                .build()
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.of(addExpectedAmount))
+            .expireExpectedAmount(PointAmount.of(100L))
+            .createdAt(CREATED_AT)
+            .modifiedAt(MODIFIED_AT)
+            .build()
         );
     }
 
@@ -40,12 +40,12 @@ class UserPointTest {
         void shouldCreateUserPointFromCreateState() {
             // given
             UserPointCreateState state = UserPointCreateState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(PointAmount.of(1000L))
-                    .addExpectedAmount(PointAmount.of(500L))
-                    .expireExpectedAmount(PointAmount.of(200L))
-                    .build();
+                .userId(USER_ID)
+                .userKey(USER_KEY)
+                .amount(PointAmount.of(1000L))
+                .addExpectedAmount(PointAmount.of(500L))
+                .expireExpectedAmount(PointAmount.of(200L))
+                .build();
 
             // when
             UserPoint userPoint = UserPoint.from(state);
@@ -70,14 +70,14 @@ class UserPointTest {
         void shouldRestoreUserPointFromSnapshotState() {
             // given
             UserPointSnapshotState state = UserPointSnapshotState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(PointAmount.of(2000L))
-                    .addExpectedAmount(PointAmount.of(300L))
-                    .expireExpectedAmount(PointAmount.of(100L))
-                    .createdAt(CREATED_AT)
-                    .modifiedAt(MODIFIED_AT)
-                    .build();
+                .userId(USER_ID)
+                .userKey(USER_KEY)
+                .amount(PointAmount.of(2000L))
+                .addExpectedAmount(PointAmount.of(300L))
+                .expireExpectedAmount(PointAmount.of(100L))
+                .createdAt(CREATED_AT)
+                .modifiedAt(MODIFIED_AT)
+                .build();
 
             // when
             UserPoint userPoint = UserPoint.from(state);
@@ -131,7 +131,7 @@ class UserPointTest {
 
             // expect
             assertThatThrownBy(() -> userPoint.changeAmount(false, 500L))
-                    .isInstanceOf(InvalidPointAmountException.class);
+                .isInstanceOf(InvalidPointAmountException.class);
         }
     }
 
@@ -175,7 +175,7 @@ class UserPointTest {
 
             // expect
             assertThatThrownBy(() -> userPoint.confirmPendingAmount(500L))
-                    .isInstanceOf(InsufficientPendingPointAmountException.class);
+                .isInstanceOf(InsufficientPendingPointAmountException.class);
         }
     }
 
@@ -212,12 +212,12 @@ class UserPointTest {
         void shouldCreateUserPointWithPointAmountDirectly() {
             // given
             UserPointCreateState state = UserPointCreateState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(PointAmount.of(3000L))
-                    .addExpectedAmount(PointAmount.of(1500L))
-                    .expireExpectedAmount(PointAmount.of(200L))
-                    .build();
+                .userId(USER_ID)
+                .userKey(USER_KEY)
+                .amount(PointAmount.of(3000L))
+                .addExpectedAmount(PointAmount.of(1500L))
+                .expireExpectedAmount(PointAmount.of(200L))
+                .build();
 
             // when
             UserPoint userPoint = UserPoint.from(state);
@@ -233,12 +233,12 @@ class UserPointTest {
         void shouldInitializeAmountToZeroWhenNull() {
             // given
             UserPointCreateState state = UserPointCreateState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(null)
-                    .addExpectedAmount(PointAmount.of(100L))
-                    .expireExpectedAmount(PointAmount.of(100L))
-                    .build();
+                .userId(USER_ID)
+                .userKey(USER_KEY)
+                .amount(null)
+                .addExpectedAmount(PointAmount.of(100L))
+                .expireExpectedAmount(PointAmount.of(100L))
+                .build();
 
             // when
             UserPoint userPoint = UserPoint.from(state);
@@ -252,12 +252,12 @@ class UserPointTest {
         void shouldInitializeAddExpectedAmountToZeroWhenNull() {
             // given
             UserPointCreateState state = UserPointCreateState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(PointAmount.of(1000L))
-                    .addExpectedAmount(null)
-                    .expireExpectedAmount(PointAmount.of(100L))
-                    .build();
+                .userId(USER_ID)
+                .userKey(USER_KEY)
+                .amount(PointAmount.of(1000L))
+                .addExpectedAmount(null)
+                .expireExpectedAmount(PointAmount.of(100L))
+                .build();
 
             // when
             UserPoint userPoint = UserPoint.from(state);
@@ -272,12 +272,12 @@ class UserPointTest {
         void shouldInitializeExpireExpectedAmountToZeroWhenNull() {
             // given
             UserPointCreateState state = UserPointCreateState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(PointAmount.of(1000L))
-                    .addExpectedAmount(PointAmount.of(100L))
-                    .expireExpectedAmount(null)
-                    .build();
+                .userId(USER_ID)
+                .userKey(USER_KEY)
+                .amount(PointAmount.of(1000L))
+                .addExpectedAmount(PointAmount.of(100L))
+                .expireExpectedAmount(null)
+                .build();
 
             // when
             UserPoint userPoint = UserPoint.from(state);

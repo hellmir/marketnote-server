@@ -47,7 +47,7 @@ class InstallmentTest {
         @DisplayName("허용 범위를 벗어난 값으로 생성 시 InvalidInstallmentException을 던진다")
         void shouldThrowWhenOutOfRange(short invalid) {
             assertThatThrownBy(() -> Installment.of(invalid))
-                    .isInstanceOf(InvalidInstallmentException.class);
+                .isInstanceOf(InvalidInstallmentException.class);
         }
     }
 

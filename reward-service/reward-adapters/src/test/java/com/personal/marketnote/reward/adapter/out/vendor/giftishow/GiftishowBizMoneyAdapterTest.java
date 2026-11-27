@@ -38,8 +38,8 @@ class GiftishowBizMoneyAdapterTest {
     void shouldReturnBalanceWhenVendorRespondsSuccess() {
         // given
         given(giftishowApiClient.getBizMoneyBalance(VENDOR_USER_ID))
-                .willReturn(new GiftishowApiResponse<>("0000", "success",
-                        new GiftishowBizMoneyResponse("0000", "success", 500_000L)));
+            .willReturn(new GiftishowApiResponse<>("0000", "success",
+                new GiftishowBizMoneyResponse("0000", "success", 500_000L)));
 
         // when
         long balance = adapter.fetchBalance();
@@ -54,7 +54,7 @@ class GiftishowBizMoneyAdapterTest {
     void shouldReturnZeroWhenVendorRespondsErrorCode() {
         // given
         given(giftishowApiClient.getBizMoneyBalance(VENDOR_USER_ID))
-                .willReturn(new GiftishowApiResponse<>("9999", "인증 실패", null));
+            .willReturn(new GiftishowApiResponse<>("9999", "인증 실패", null));
 
         // when
         long balance = adapter.fetchBalance();

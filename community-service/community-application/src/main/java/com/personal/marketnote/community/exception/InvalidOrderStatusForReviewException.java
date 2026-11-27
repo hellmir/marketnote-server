@@ -9,7 +9,7 @@ package com.personal.marketnote.community.exception;
  */
 public class InvalidOrderStatusForReviewException extends IllegalStateException {
     private static final String INVALID_ORDER_STATUS_FOR_REVIEW_EXCEPTION_MESSAGE
-            = "ERR_REVIEW_02::리뷰 작성이 불가능한 주문 상태입니다.";
+        = "ERR_REVIEW_02::리뷰 작성이 불가능한 주문 상태입니다.";
 
     public InvalidOrderStatusForReviewException() {
         super(INVALID_ORDER_STATUS_FOR_REVIEW_EXCEPTION_MESSAGE);

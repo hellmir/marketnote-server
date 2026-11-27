@@ -99,63 +99,63 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
 
     public static UserJpaEntity from(User user, TermsJpaRepository termsJpaRepository) {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
-                .userKey(user.getUserKey())
-                .nickname(toNicknameValue(user.getNickname()))
-                .email(toEmailValue(user.getEmail()))
-                .password(user.getPassword())
-                .fullName(user.getFullName())
-                .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
-                .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
-                .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
-                .referredUserCodeSkippedAt(user.getReferredUserCodeSkippedAt())
-                .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
-                .withdrawalYn(user.isWithdrawn())
-                .withdrawnAt(user.getWithdrawnAt())
-                .lastLoggedInAt(user.getLastLoggedInAt())
-                .penaltyCount(user.getPenaltyCount())
-                .deactivatedUntil(user.getDeactivatedUntil())
-                .build();
+            .userKey(user.getUserKey())
+            .nickname(toNicknameValue(user.getNickname()))
+            .email(toEmailValue(user.getEmail()))
+            .password(user.getPassword())
+            .fullName(user.getFullName())
+            .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
+            .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
+            .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
+            .referredUserCodeSkippedAt(user.getReferredUserCodeSkippedAt())
+            .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
+            .withdrawalYn(user.isWithdrawn())
+            .withdrawnAt(user.getWithdrawnAt())
+            .lastLoggedInAt(user.getLastLoggedInAt())
+            .penaltyCount(user.getPenaltyCount())
+            .deactivatedUntil(user.getDeactivatedUntil())
+            .build();
 
         // set vendors after building to avoid recursive mapping
         userJpaEntity.userOauth2VendorsJpaEntities = user.getUserAuthProviders().stream()
-                .map(v -> UserOauth2VendorJpaEntity.of(userJpaEntity, v.getAuthVendor(), v.getOidcId()))
-                .collect(Collectors.toList());
+            .map(v -> UserOauth2VendorJpaEntity.of(userJpaEntity, v.getAuthVendor(), v.getOidcId()))
+            .collect(Collectors.toList());
 
         userJpaEntity.userTermsJpaEntities = user.getUserTerms().stream()
-                .map(ut -> {
-                    Long termsId = ut.getTerms().getId();
-                    TermsJpaEntity termsRef = termsJpaRepository.getReferenceById(termsId);
-                    return UserTermsJpaEntity.of(
-                            userJpaEntity, termsRef,
-                            Boolean.TRUE.equals(ut.getAgreementYn()));
-                })
-                .collect(Collectors.toList());
+            .map(ut -> {
+                Long termsId = ut.getTerms().getId();
+                TermsJpaEntity termsRef = termsJpaRepository.getReferenceById(termsId);
+                return UserTermsJpaEntity.of(
+                    userJpaEntity, termsRef,
+                    Boolean.TRUE.equals(ut.getAgreementYn()));
+            })
+            .collect(Collectors.toList());
 
         return userJpaEntity;
     }
 
     public static UserJpaEntity from(User user) {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
-                .userKey(user.getUserKey())
-                .nickname(toNicknameValue(user.getNickname()))
-                .email(toEmailValue(user.getEmail()))
-                .password(user.getPassword())
-                .fullName(user.getFullName())
-                .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
-                .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
-                .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
-                .referredUserCodeSkippedAt(user.getReferredUserCodeSkippedAt())
-                .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
-                .lastLoggedInAt(user.getLastLoggedInAt())
-                .withdrawalYn(user.isWithdrawn())
-                .withdrawnAt(user.getWithdrawnAt())
-                .penaltyCount(user.getPenaltyCount())
-                .deactivatedUntil(user.getDeactivatedUntil())
-                .build();
+            .userKey(user.getUserKey())
+            .nickname(toNicknameValue(user.getNickname()))
+            .email(toEmailValue(user.getEmail()))
+            .password(user.getPassword())
+            .fullName(user.getFullName())
+            .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
+            .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
+            .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
+            .referredUserCodeSkippedAt(user.getReferredUserCodeSkippedAt())
+            .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
+            .lastLoggedInAt(user.getLastLoggedInAt())
+            .withdrawalYn(user.isWithdrawn())
+            .withdrawnAt(user.getWithdrawnAt())
+            .penaltyCount(user.getPenaltyCount())
+            .deactivatedUntil(user.getDeactivatedUntil())
+            .build();
 
         userJpaEntity.userOauth2VendorsJpaEntities = user.getUserAuthProviders().stream()
-                .map(v -> UserOauth2VendorJpaEntity.of(userJpaEntity, v.getAuthVendor(), v.getOidcId()))
-                .collect(Collectors.toList());
+            .map(v -> UserOauth2VendorJpaEntity.of(userJpaEntity, v.getAuthVendor(), v.getOidcId()))
+            .collect(Collectors.toList());
 
         return userJpaEntity;
     }

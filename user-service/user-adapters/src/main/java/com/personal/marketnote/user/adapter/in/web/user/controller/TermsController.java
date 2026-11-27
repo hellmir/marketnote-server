@@ -34,8 +34,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/terms")
 @Tag(
-        name = "회원 약관 API",
-        description = "회원 약관 관련 API"
+    name = "회원 약관 API",
+    description = "회원 약관 관련 API"
 )
 @RequiredArgsConstructor
 @Slf4j
@@ -55,17 +55,17 @@ public class TermsController {
     @GetAllTermsApiDocs
     public ResponseEntity<BaseResponse<GetTermsResponse>> getAllTerms() {
         GetTermsResponse getTermsResponse = GetTermsResponse.from(
-                getTermsUseCase.getAllTerms()
+            getTermsUseCase.getAllTerms()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        getTermsResponse,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "전체 약관 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                getTermsResponse,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "전체 약관 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -81,20 +81,20 @@ public class TermsController {
     @GetMapping("/user")
     @GetUserTermsApiDocs
     public ResponseEntity<BaseResponse<GetUserTermsResponse>> getUserTerms(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetUserTermsResult getUserTermsResult = getTermsUseCase.getUserTerms(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetUserTermsResponse.from(getUserTermsResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "약관 동의/철회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetUserTermsResponse.from(getUserTermsResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "약관 동의/철회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -111,22 +111,22 @@ public class TermsController {
     @PatchMapping("/user")
     @AcceptOrCancelTermsApiDocs
     public ResponseEntity<BaseResponse<GetUserTermsResponse>> acceptOrCancelTerms(
-            @Valid @RequestBody AcceptOrCancelTermsRequest acceptOrCancelTermsRequest,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody AcceptOrCancelTermsRequest acceptOrCancelTermsRequest,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetUserTermsResult getUserTermsResult = updateTermsUseCase.acceptOrCancelTerms(
-                ElementExtractor.extractUserId(principal),
-                TermsRequestToCommandMapper.mapToCommand(acceptOrCancelTermsRequest)
+            ElementExtractor.extractUserId(principal),
+            TermsRequestToCommandMapper.mapToCommand(acceptOrCancelTermsRequest)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetUserTermsResponse.from(getUserTermsResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "약관 동의/철회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetUserTermsResponse.from(getUserTermsResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "약관 동의/철회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

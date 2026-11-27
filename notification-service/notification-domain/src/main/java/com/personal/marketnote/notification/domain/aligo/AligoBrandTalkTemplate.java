@@ -41,75 +41,75 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     public static AligoBrandTalkTemplate from(AligoBrandTalkTemplateCreateState state) {
         validate(state);
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.builder()
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .templateName(state.getTemplateName())
-                .templateType(state.getTemplateType())
-                .templateContent(state.getTemplateContent())
-                .adult(state.isAdult())
-                .imageUrl(state.getImageUrl())
-                .imageLink(state.getImageLink())
-                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
-                .coupon(state.getCoupon())
-                .templateHeader(state.getTemplateHeader())
-                .mainWideItem(state.getMainWideItem())
-                .subWideItems(FormatValidator.hasValue(state.getSubWideItems()) ? state.getSubWideItems() : List.of())
-                .carouselHeader(state.getCarouselHeader())
-                .carouselItems(
-                        FormatValidator.hasValue(state.getCarouselItems()) ? state.getCarouselItems() : List.of()
-                )
-                .carouselCommerces(
-                        FormatValidator.hasValue(state.getCarouselCommerces()) ? state.getCarouselCommerces() : List.of()
-                )
-                .carouselTail(state.getCarouselTail())
-                .videoUrl(state.getVideoUrl())
-                .videoThumbnailUrl(state.getVideoThumbnailUrl())
-                .commerceInfo(state.getCommerceInfo())
-                .templateStatus(state.getTemplateStatus())
-                .build();
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .templateName(state.getTemplateName())
+            .templateType(state.getTemplateType())
+            .templateContent(state.getTemplateContent())
+            .adult(state.isAdult())
+            .imageUrl(state.getImageUrl())
+            .imageLink(state.getImageLink())
+            .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
+            .coupon(state.getCoupon())
+            .templateHeader(state.getTemplateHeader())
+            .mainWideItem(state.getMainWideItem())
+            .subWideItems(FormatValidator.hasValue(state.getSubWideItems()) ? state.getSubWideItems() : List.of())
+            .carouselHeader(state.getCarouselHeader())
+            .carouselItems(
+                FormatValidator.hasValue(state.getCarouselItems()) ? state.getCarouselItems() : List.of()
+            )
+            .carouselCommerces(
+                FormatValidator.hasValue(state.getCarouselCommerces()) ? state.getCarouselCommerces() : List.of()
+            )
+            .carouselTail(state.getCarouselTail())
+            .videoUrl(state.getVideoUrl())
+            .videoThumbnailUrl(state.getVideoThumbnailUrl())
+            .commerceInfo(state.getCommerceInfo())
+            .templateStatus(state.getTemplateStatus())
+            .build();
         template.activate();
         return template;
     }
 
     public static AligoBrandTalkTemplate from(AligoBrandTalkTemplateSnapshotState state) {
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.builder()
-                .id(state.getId())
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .templateName(state.getTemplateName())
-                .templateType(state.getTemplateType())
-                .templateContent(state.getTemplateContent())
-                .adult(state.isAdult())
-                .imageUrl(state.getImageUrl())
-                .imageLink(state.getImageLink())
-                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
-                .coupon(state.getCoupon())
-                .templateHeader(state.getTemplateHeader())
-                .mainWideItem(state.getMainWideItem())
-                .subWideItems(FormatValidator.hasValue(state.getSubWideItems()) ? state.getSubWideItems() : List.of())
-                .carouselHeader(state.getCarouselHeader())
-                .carouselItems(
-                        FormatValidator.hasValue(state.getCarouselItems()) ? state.getCarouselItems() : List.of()
-                )
-                .carouselCommerces(
-                        FormatValidator.hasValue(state.getCarouselCommerces()) ? state.getCarouselCommerces() : List.of()
-                )
-                .carouselTail(state.getCarouselTail())
-                .videoUrl(state.getVideoUrl())
-                .videoThumbnailUrl(state.getVideoThumbnailUrl())
-                .templateStatus(state.getTemplateStatus())
-                .commerceInfo(state.getCommerceInfo())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .templateName(state.getTemplateName())
+            .templateType(state.getTemplateType())
+            .templateContent(state.getTemplateContent())
+            .adult(state.isAdult())
+            .imageUrl(state.getImageUrl())
+            .imageLink(state.getImageLink())
+            .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
+            .coupon(state.getCoupon())
+            .templateHeader(state.getTemplateHeader())
+            .mainWideItem(state.getMainWideItem())
+            .subWideItems(FormatValidator.hasValue(state.getSubWideItems()) ? state.getSubWideItems() : List.of())
+            .carouselHeader(state.getCarouselHeader())
+            .carouselItems(
+                FormatValidator.hasValue(state.getCarouselItems()) ? state.getCarouselItems() : List.of()
+            )
+            .carouselCommerces(
+                FormatValidator.hasValue(state.getCarouselCommerces()) ? state.getCarouselCommerces() : List.of()
+            )
+            .carouselTail(state.getCarouselTail())
+            .videoUrl(state.getVideoUrl())
+            .videoThumbnailUrl(state.getVideoThumbnailUrl())
+            .templateStatus(state.getTemplateStatus())
+            .commerceInfo(state.getCommerceInfo())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         template.status = state.getStatus();
         return template;
     }
 
     public boolean requiresImage() {
         return templateType == BrandTalkTemplateType.IMAGE
-                || templateType == BrandTalkTemplateType.WIDE
-                || templateType.isCommerce();
+            || templateType == BrandTalkTemplateType.WIDE
+            || templateType.isCommerce();
     }
 
     public boolean isPremiumVideo() {
@@ -178,9 +178,9 @@ public class AligoBrandTalkTemplate extends BaseDomain {
 
     private static void validateCarousel(AligoBrandTalkTemplateCreateState state) {
         if (FormatValidator.hasValue(state.getCarouselHeader())
-                && state.getCarouselHeader().length() > MAX_CAROUSEL_HEADER_LENGTH) {
+            && state.getCarouselHeader().length() > MAX_CAROUSEL_HEADER_LENGTH) {
             throw new InvalidBrandTalkTemplateException(
-                    "carouselHeader는 최대 " + MAX_CAROUSEL_HEADER_LENGTH + "자까지 입력할 수 있습니다."
+                "carouselHeader는 최대 " + MAX_CAROUSEL_HEADER_LENGTH + "자까지 입력할 수 있습니다."
             );
         }
         if (FormatValidator.hasNoValue(state.getCarouselItems())) {
@@ -191,7 +191,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         if (state.getCarouselItems().size() > maxItems) {
             String introLabel = hasIntro ? "인트로 사용 시 " : "인트로 미사용 시 ";
             throw new InvalidBrandTalkTemplateException(
-                    "CAROUSEL의 carouselItems는 " + introLabel + "최대 " + maxItems + "개입니다."
+                "CAROUSEL의 carouselItems는 " + introLabel + "최대 " + maxItems + "개입니다."
             );
         }
         if (state.getTemplateType().isCarouselCommerce()) {

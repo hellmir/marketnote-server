@@ -3,10 +3,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.SendBrandTalkExternalPort;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,8 +50,8 @@ class AligoBrandTalkExternalAdapterTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoBrandTalkExternalAdapter(aligoHttpClient, properties);
     }
@@ -60,44 +60,44 @@ class AligoBrandTalkExternalAdapterTest {
         List<AligoBrandTalkMessageRecipientCreateState> recipients = new java.util.ArrayList<>();
         for (int i = 0; i < recipientCount; i++) {
             recipients.add(
-                    AligoBrandTalkMessageRecipientCreateState.builder()
-                            .receiver("0101234000" + i)
-                            .receiverMessage("{\"#{name}\":\"user" + i + "\"}")
-                            .build()
+                AligoBrandTalkMessageRecipientCreateState.builder()
+                    .receiver("0101234000" + i)
+                    .receiverMessage("{\"#{name}\":\"user" + i + "\"}")
+                    .build()
             );
         }
 
         AligoBrandTalkMessageCreateState.AligoBrandTalkMessageCreateStateBuilder stateBuilder =
-                AligoBrandTalkMessageCreateState.builder()
-                        .senderKey("SK")
-                        .sender("01011112222")
-                        .kakaoTarget(BrandTalkKakaoTarget.M)
-                        .advertYn(false)
-                        .templateCode("TPL001")
-                        .failoverEnabled(failoverEnabled)
-                        .failoverSubject(failoverEnabled ? "대체 제목" : null)
-                        .failoverType(failoverEnabled ? failoverType : null)
-                        .requestedAt(LocalDateTime.of(2026, 4, 20, 12, 0))
-                        .recipients(recipients);
+            AligoBrandTalkMessageCreateState.builder()
+                .senderKey("SK")
+                .sender("01011112222")
+                .kakaoTarget(BrandTalkKakaoTarget.M)
+                .advertYn(false)
+                .templateCode("TPL001")
+                .failoverEnabled(failoverEnabled)
+                .failoverSubject(failoverEnabled ? "대체 제목" : null)
+                .failoverType(failoverEnabled ? failoverType : null)
+                .requestedAt(LocalDateTime.of(2026, 4, 20, 12, 0))
+                .recipients(recipients);
 
         return AligoBrandTalkMessage.from(stateBuilder.build());
     }
 
     private String successResponseBody() {
         return """
-                {
-                    "result_code": 0,
-                    "message": "성공",
-                    "info": {
-                        "type": "BW",
-                        "mid": "MID001",
-                        "scnt": 1,
-                        "fcnt": 0,
-                        "unit_cost": 12,
-                        "total_cost": 12
-                    }
+            {
+                "result_code": 0,
+                "message": "성공",
+                "info": {
+                    "type": "BW",
+                    "mid": "MID001",
+                    "scnt": 1,
+                    "fcnt": 0,
+                    "unit_cost": 12,
+                    "total_cost": 12
                 }
-                """;
+            }
+            """;
     }
 
     @Nested
@@ -109,19 +109,19 @@ class AligoBrandTalkExternalAdapterTest {
         void shouldMapRecipientsByIndex() {
             // given
             mockServer.expect(requestTo("http://localhost/brandtalk/template/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                    .andExpect(content().string(Matchers.containsString("receiver_1")))
-                    .andExpect(content().string(Matchers.containsString("receiver_1_message")))
-                    .andExpect(content().string(Matchers.containsString("receiver_2")))
-                    .andExpect(content().string(Matchers.containsString("receiver_2_message")))
-                    .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(content().string(Matchers.containsString("receiver_1")))
+                .andExpect(content().string(Matchers.containsString("receiver_1_message")))
+                .andExpect(content().string(Matchers.containsString("receiver_2")))
+                .andExpect(content().string(Matchers.containsString("receiver_2_message")))
+                .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
 
             AligoBrandTalkMessage message = buildMessage(2, false, null);
 
             // when
             SendBrandTalkExternalPort.BrandTalkSendResponse response =
-                    adapter.send(message, List.of(), List.of());
+                adapter.send(message, List.of(), List.of());
 
             // then
             assertThat(response.mid()).isEqualTo("MID001");
@@ -134,9 +134,9 @@ class AligoBrandTalkExternalAdapterTest {
         void shouldAddFailoverFlagWhenEnabled() {
             // given
             mockServer.expect(requestTo("http://localhost/brandtalk/template/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("failover")))
-                    .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("failover")))
+                .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
 
             AligoBrandTalkMessage message = buildMessage(1, true, BrandTalkFailoverType.SMS);
 
@@ -152,17 +152,17 @@ class AligoBrandTalkExternalAdapterTest {
         void shouldLimitMmsImagesToThree() {
             // given
             mockServer.expect(requestTo("http://localhost/brandtalk/template/send/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("failover_mms1")))
-                    .andExpect(content().string(Matchers.containsString("failover_mms2")))
-                    .andExpect(content().string(Matchers.containsString("failover_mms3")))
-                    .andExpect(content().string(Matchers.not(Matchers.containsString("failover_mms4"))))
-                    .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("failover_mms1")))
+                .andExpect(content().string(Matchers.containsString("failover_mms2")))
+                .andExpect(content().string(Matchers.containsString("failover_mms3")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("failover_mms4"))))
+                .andRespond(withSuccess(successResponseBody(), MediaType.APPLICATION_JSON));
 
             AligoBrandTalkMessage message = buildMessage(1, true, BrandTalkFailoverType.MMS);
 
             List<byte[]> images = List.of(
-                    new byte[]{1}, new byte[]{2}, new byte[]{3}, new byte[]{4}, new byte[]{5}
+                new byte[]{1}, new byte[]{2}, new byte[]{3}, new byte[]{4}, new byte[]{5}
             );
             List<String> names = List.of("a.png", "b.png", "c.png", "d.png", "e.png");
 

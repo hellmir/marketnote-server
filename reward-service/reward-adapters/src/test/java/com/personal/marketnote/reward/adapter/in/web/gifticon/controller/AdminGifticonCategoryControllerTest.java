@@ -56,10 +56,10 @@ class AdminGifticonCategoryControllerTest {
         @DisplayName("OK 상태로 카테고리 목록을 반환한다")
         void returnsOkWithCategories() {
             given(getAdminGifticonCategoriesUseCase.getAdminGifticonCategories())
-                    .willReturn(new GetAdminGifticonCategoriesResult(List.of()));
+                .willReturn(new GetAdminGifticonCategoriesResult(List.of()));
 
             ResponseEntity<BaseResponse<GetAdminGifticonCategoriesResponse>> response =
-                    controller.getAdminGifticonCategories();
+                controller.getAdminGifticonCategories();
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -82,7 +82,7 @@ class AdminGifticonCategoryControllerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<UpdateGifticonCategoryCommand> captor =
-                    ArgumentCaptor.forClass(UpdateGifticonCategoryCommand.class);
+                ArgumentCaptor.forClass(UpdateGifticonCategoryCommand.class);
             verify(updateGifticonCategoryUseCase).updateGifticonCategory(captor.capture());
             assertThat(captor.getValue().categoryId()).isEqualTo(99L);
         }
@@ -97,7 +97,7 @@ class AdminGifticonCategoryControllerTest {
         void returnsOkAndDelegates() {
             ManageGifticonCategoryExposureRequest request = new ManageGifticonCategoryExposureRequest();
             ManageGifticonCategoryExposureRequest.ExposureItem item =
-                    new ManageGifticonCategoryExposureRequest.ExposureItem();
+                new ManageGifticonCategoryExposureRequest.ExposureItem();
             ReflectionTestUtils.setField(item, "categoryId", 1L);
             ReflectionTestUtils.setField(item, "exposed", true);
             ReflectionTestUtils.setField(request, "items", List.of(item));

@@ -12,8 +12,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "payment",
-        uniqueConstraints = @UniqueConstraint(columnNames = "order_key"),
-        indexes = @Index(name = "idx_payment_order_id", columnList = "order_id"))
+    uniqueConstraints = @UniqueConstraint(columnNames = "order_key"),
+    indexes = @Index(name = "idx_payment_order_id", columnList = "order_id"))
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,14 +53,14 @@ public class PaymentJpaEntity extends BaseEntity {
 
     public static PaymentJpaEntity from(Payment payment) {
         return PaymentJpaEntity.builder()
-                .orderId(payment.getOrderId())
-                .orderKey(payment.getOrderKey())
-                .pgPaymentKey(payment.getPgPaymentKey())
-                .paymentAmount(payment.getPaymentAmount().getValue())
-                .successYn(payment.getSuccessYn())
-                .refundedYn(payment.getRefundedYn())
-                .refundAmount(payment.getRefundAmount().getValue())
-                .build();
+            .orderId(payment.getOrderId())
+            .orderKey(payment.getOrderKey())
+            .pgPaymentKey(payment.getPgPaymentKey())
+            .paymentAmount(payment.getPaymentAmount().getValue())
+            .successYn(payment.getSuccessYn())
+            .refundedYn(payment.getRefundedYn())
+            .refundAmount(payment.getRefundAmount().getValue())
+            .build();
     }
 
     public void updateFrom(Payment payment) {

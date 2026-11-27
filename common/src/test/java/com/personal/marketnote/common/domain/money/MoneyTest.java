@@ -35,7 +35,7 @@ class MoneyTest {
         @DisplayName("음수이면 InvalidMoneyAmountException을 던진다")
         void shouldThrowExceptionWhenAmountIsNegative() {
             assertThatThrownBy(() -> Money.of(-1L))
-                    .isInstanceOf(InvalidMoneyAmountException.class);
+                .isInstanceOf(InvalidMoneyAmountException.class);
         }
     }
 
@@ -55,14 +55,14 @@ class MoneyTest {
         @DisplayName("null이면 MoneyAmountNoValueException을 던진다")
         void shouldThrowExceptionWhenAmountIsNull() {
             assertThatThrownBy(() -> Money.of((Long) null))
-                    .isInstanceOf(MoneyAmountNoValueException.class);
+                .isInstanceOf(MoneyAmountNoValueException.class);
         }
 
         @Test
         @DisplayName("음수 Long이면 InvalidMoneyAmountException을 던진다")
         void shouldThrowExceptionWhenLongAmountIsNegative() {
             assertThatThrownBy(() -> Money.of(Long.valueOf(-100L)))
-                    .isInstanceOf(InvalidMoneyAmountException.class);
+                .isInstanceOf(InvalidMoneyAmountException.class);
         }
     }
 
@@ -103,7 +103,7 @@ class MoneyTest {
             Money money2 = Money.of(1L);
 
             assertThatThrownBy(() -> money1.add(money2))
-                    .isInstanceOf(ArithmeticException.class);
+                .isInstanceOf(ArithmeticException.class);
         }
     }
 
@@ -129,7 +129,7 @@ class MoneyTest {
             Money money2 = Money.of(2000L);
 
             assertThatThrownBy(() -> money1.subtract(money2))
-                    .isInstanceOf(InvalidMoneyAmountException.class);
+                .isInstanceOf(InvalidMoneyAmountException.class);
         }
 
         @Test
@@ -173,7 +173,7 @@ class MoneyTest {
             Money money = Money.of(Long.MAX_VALUE);
 
             assertThatThrownBy(() -> money.multiply(2))
-                    .isInstanceOf(ArithmeticException.class);
+                .isInstanceOf(ArithmeticException.class);
         }
     }
 

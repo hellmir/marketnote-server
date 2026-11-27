@@ -41,11 +41,11 @@ class SettlementExecutedLedgerConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long settlementId, Long sellerId, Long shippingFee) {
         SettlementExecutedEvent event = new SettlementExecutedEvent(
-                settlementId, sellerId, 100000L, shippingFee, 3000L, 7000L, 90000L
+            settlementId, sellerId, 100000L, shippingFee, 3000L, 7000L, 90000L
         );
         EventEnvelope<SettlementExecutedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.settlement.executed", "commerce-service",
-                LocalDateTime.of(2026, 3, 9, 10, 0), event
+            "test-event-id", "commerce.settlement.executed", "commerce-service",
+            LocalDateTime.of(2026, 3, 9, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.settlement.executed", 0, 0L, String.valueOf(settlementId), envelope);
     }
@@ -91,7 +91,7 @@ class SettlementExecutedLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L);
         doThrow(new DuplicateLedgerTransactionException("PG_SETTLEMENT:1"))
-                .when(recordLedgerEntryUseCase).recordPgSettlement(1L, 100000L, 3000L);
+            .when(recordLedgerEntryUseCase).recordPgSettlement(1L, 100000L, 3000L);
 
         // when
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
@@ -148,7 +148,7 @@ class SettlementExecutedLedgerConsumerTest {
     void handleSettlementExecutedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.settlement.executed", 0, 0L, "1", null
+            "commerce.settlement.executed", 0, 0L, "1", null
         );
 
         // when
@@ -164,14 +164,14 @@ class SettlementExecutedLedgerConsumerTest {
     void handleSettlementExecutedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         SettlementExecutedEvent event = new SettlementExecutedEvent(
-                1L, 100L, 100000L, 0L, 3000L, 7000L, 90000L
+            1L, 100L, 100000L, 0L, 3000L, 7000L, 90000L
         );
         EventEnvelope<SettlementExecutedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.settlement.executed", 0, 0L, "1", envelope
+            "commerce.settlement.executed", 0, 0L, "1", envelope
         );
 
         // when
@@ -187,16 +187,16 @@ class SettlementExecutedLedgerConsumerTest {
     void handleSettlementExecutedEvent_deserializationFailure_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.settlement.executed", "commerce-service",
-                LocalDateTime.of(2026, 3, 9, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.settlement.executed", "commerce-service",
+            LocalDateTime.of(2026, 3, 9, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.settlement.executed", 0, 0L, "1", envelope
+            "commerce.settlement.executed", 0, 0L, "1", envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handleSettlementExecutedEvent(record, acknowledgment))
-                .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

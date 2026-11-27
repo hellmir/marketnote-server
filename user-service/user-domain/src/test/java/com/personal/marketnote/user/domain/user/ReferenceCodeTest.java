@@ -43,49 +43,49 @@ class ReferenceCodeTest {
         @DisplayName("null로 생성 시 ReferenceCodeNoValueException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> ReferenceCode.of(null))
-                    .isInstanceOf(ReferenceCodeNoValueException.class);
+                .isInstanceOf(ReferenceCodeNoValueException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 ReferenceCodeNoValueException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> ReferenceCode.of(""))
-                    .isInstanceOf(ReferenceCodeNoValueException.class);
+                .isInstanceOf(ReferenceCodeNoValueException.class);
         }
 
         @Test
         @DisplayName("공백만 있는 문자열로 생성 시 ReferenceCodeNoValueException을 던진다")
         void shouldThrowWhenBlank() {
             assertThatThrownBy(() -> ReferenceCode.of("   "))
-                    .isInstanceOf(ReferenceCodeNoValueException.class);
+                .isInstanceOf(ReferenceCodeNoValueException.class);
         }
 
         @Test
         @DisplayName("6자 미만 추천인 코드로 생성 시 InvalidReferenceCodeException을 던진다")
         void shouldThrowWhenTooShort() {
             assertThatThrownBy(() -> ReferenceCode.of("A3B4C"))
-                    .isInstanceOf(InvalidReferenceCodeException.class);
+                .isInstanceOf(InvalidReferenceCodeException.class);
         }
 
         @Test
         @DisplayName("6자 초과 추천인 코드로 생성 시 InvalidReferenceCodeException을 던진다")
         void shouldThrowWhenTooLong() {
             assertThatThrownBy(() -> ReferenceCode.of("A3B4C6D"))
-                    .isInstanceOf(InvalidReferenceCodeException.class);
+                .isInstanceOf(InvalidReferenceCodeException.class);
         }
 
         @Test
         @DisplayName("영문 소문자가 포함된 추천인 코드로 생성 시 InvalidReferenceCodeException을 던진다")
         void shouldThrowWhenLowercase() {
             assertThatThrownBy(() -> ReferenceCode.of("a3b4c6"))
-                    .isInstanceOf(InvalidReferenceCodeException.class);
+                .isInstanceOf(InvalidReferenceCodeException.class);
         }
 
         @Test
         @DisplayName("특수문자가 포함된 추천인 코드로 생성 시 InvalidReferenceCodeException을 던진다")
         void shouldThrowWhenSpecialCharacter() {
             assertThatThrownBy(() -> ReferenceCode.of("A3B4-6"))
-                    .isInstanceOf(InvalidReferenceCodeException.class);
+                .isInstanceOf(InvalidReferenceCodeException.class);
         }
     }
 

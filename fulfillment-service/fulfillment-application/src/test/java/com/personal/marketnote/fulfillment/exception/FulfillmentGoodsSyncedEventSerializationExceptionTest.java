@@ -15,16 +15,16 @@ class FulfillmentGoodsSyncedEventSerializationExceptionTest {
         };
 
         FulfillmentGoodsSyncedEventSerializationException ex =
-                new FulfillmentGoodsSyncedEventSerializationException(
-                        "fulfillment.goods.synced", "GOODS-001", "evt-1", root
-                );
+            new FulfillmentGoodsSyncedEventSerializationException(
+                "fulfillment.goods.synced", "GOODS-001", "evt-1", root
+            );
 
         assertThat(ex.getMessage())
-                .contains("ERR_FULFILLMENT_GOODS_SYNCED_EVENT_01")
-                .contains("풀필먼트 상품 동기화 이벤트")
-                .contains("topic=fulfillment.goods.synced")
-                .contains("partitionKey=GOODS-001")
-                .contains("eventId=evt-1");
+            .contains("ERR_FULFILLMENT_GOODS_SYNCED_EVENT_01")
+            .contains("풀필먼트 상품 동기화 이벤트")
+            .contains("topic=fulfillment.goods.synced")
+            .contains("partitionKey=GOODS-001")
+            .contains("eventId=evt-1");
         assertThat(ex.getCause()).isSameAs(root);
         assertThat(ex).hasCause(root);
         assertThat(ex).hasRootCause(root);

@@ -23,38 +23,38 @@ public class UserPoint {
 
     public UserPoint withAmount(Long amount) {
         return UserPoint.builder()
-                .userId(userId)
-                .userKey(userKey)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(addExpectedAmount)
-                .expireExpectedAmount(expireExpectedAmount)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .version(version)
-                .build();
+            .userId(userId)
+            .userKey(userKey)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(addExpectedAmount)
+            .expireExpectedAmount(expireExpectedAmount)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .version(version)
+            .build();
     }
 
     public static UserPoint from(UserPointCreateState state) {
         return UserPoint.builder()
-                .userId(state.getUserId())
-                .userKey(state.getUserKey())
-                .amount(resolvePointAmountOrZero(state.getAmount()))
-                .addExpectedAmount(resolvePointAmountOrZero(state.getAddExpectedAmount()))
-                .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
-                .build();
+            .userId(state.getUserId())
+            .userKey(state.getUserKey())
+            .amount(resolvePointAmountOrZero(state.getAmount()))
+            .addExpectedAmount(resolvePointAmountOrZero(state.getAddExpectedAmount()))
+            .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
+            .build();
     }
 
     public static UserPoint from(UserPointSnapshotState state) {
         return UserPoint.builder()
-                .userId(state.getUserId())
-                .userKey(state.getUserKey())
-                .amount(resolvePointAmountOrZero(state.getAmount()))
-                .addExpectedAmount(resolvePointAmountOrZero(state.getAddExpectedAmount()))
-                .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .version(state.getVersion())
-                .build();
+            .userId(state.getUserId())
+            .userKey(state.getUserKey())
+            .amount(resolvePointAmountOrZero(state.getAmount()))
+            .addExpectedAmount(resolvePointAmountOrZero(state.getAddExpectedAmount()))
+            .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .version(state.getVersion())
+            .build();
     }
 
     public void changeAmount(boolean isAccrual, Long amount) {
@@ -86,7 +86,7 @@ public class UserPoint {
     private void validatePendingAmount(Long amount) {
         if (amount <= 0) {
             throw new InvalidPointAmountException(
-                    String.format("적립 예정 포인트 금액은 0보다 커야 합니다. 요청 금액: %d", amount)
+                String.format("적립 예정 포인트 금액은 0보다 커야 합니다. 요청 금액: %d", amount)
             );
         }
     }

@@ -7,17 +7,17 @@ public interface FetchGifticonBrandPort {
     FetchGifticonBrandResult fetchBrandList();
 
     record FetchGifticonBrandResult(
-            int totalCount,
-            List<FetchedGifticonBrandItem> items
+        int totalCount,
+        List<FetchedGifticonBrandItem> items
     ) {
     }
 
     record FetchedGifticonBrandItem(
-            String brandCode,
-            String brandName,
-            String brandIconImg,
-            String category1Seq,
-            String category1Name
+        String brandCode,
+        String brandName,
+        String brandIconImg,
+        String category1Seq,
+        String category1Name
     ) {
     }
 }

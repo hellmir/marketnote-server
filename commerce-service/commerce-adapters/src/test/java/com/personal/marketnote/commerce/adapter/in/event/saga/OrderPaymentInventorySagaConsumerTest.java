@@ -59,12 +59,12 @@ class OrderPaymentInventorySagaConsumerTest {
     @BeforeEach
     void setUp() throws Exception {
         actionPayload = objectMapper.writeValueAsString(
-                java.util.Map.of(
-                        "orderId", 1L,
-                        "orderProducts", List.of(
-                                java.util.Map.of("pricePolicyId", 10L, "quantity", 2, "unitAmount", 25000L)
-                        )
+            java.util.Map.of(
+                "orderId", 1L,
+                "orderProducts", List.of(
+                    java.util.Map.of("pricePolicyId", 10L, "quantity", 2, "unitAmount", 25000L)
                 )
+            )
         );
     }
 
@@ -77,7 +77,7 @@ class OrderPaymentInventorySagaConsumerTest {
         void shouldPublishSuccessOnInventoryDeduction() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             // when
@@ -86,7 +86,7 @@ class OrderPaymentInventorySagaConsumerTest {
             // then
             verify(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -95,19 +95,19 @@ class OrderPaymentInventorySagaConsumerTest {
         void shouldPublishSuccessOnDuplicateDeduction() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new DuplicateInventoryDeductionException(1L))
-                    .when(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
+                .when(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
 
             // when
             consumer.handleInventoryStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("idempotent"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("idempotent"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -116,18 +116,18 @@ class OrderPaymentInventorySagaConsumerTest {
         void shouldPublishFailureOnDeductionError() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("재고 부족"))
-                    .when(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
+                .when(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
 
             // when
             consumer.handleInventoryStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "재고 차감 처리 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "재고 차감 처리 실패");
             verify(acknowledgment).acknowledge();
         }
     }
@@ -141,7 +141,7 @@ class OrderPaymentInventorySagaConsumerTest {
         void shouldPublishSuccessOnInventoryRestoration() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             // when
@@ -150,7 +150,7 @@ class OrderPaymentInventorySagaConsumerTest {
             // then
             verify(releaseInventoryReservationUseCase).release(anyList(), eq(1L), anyString());
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -159,18 +159,18 @@ class OrderPaymentInventorySagaConsumerTest {
         void shouldPublishFailureOnRestorationError() {
             // given
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("복구 실패"))
-                    .when(releaseInventoryReservationUseCase).release(anyList(), eq(1L), anyString());
+                .when(releaseInventoryReservationUseCase).release(anyList(), eq(1L), anyString());
 
             // when
             consumer.handleInventoryStep(record, acknowledgment);
 
             // then
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "재고 복구 처리 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "재고 복구 처리 실패");
             verify(acknowledgment).acknowledge();
         }
     }
@@ -178,12 +178,12 @@ class OrderPaymentInventorySagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-03-27T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT.DEDUCT_INVENTORY.action", "saga-orchestrator", stepMessage, clock);
+            "saga.ORDER_PAYMENT.DEDUCT_INVENTORY.action", "saga-orchestrator", stepMessage, clock);
 
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>("saga.order-payment.inventory", 0, 0, SAGA_ID,
-                        (EventEnvelope<?>) (EventEnvelope) envelope);
+            new ConsumerRecord<>("saga.order-payment.inventory", 0, 0, SAGA_ID,
+                (EventEnvelope<?>) (EventEnvelope) envelope);
         return record;
     }
 }

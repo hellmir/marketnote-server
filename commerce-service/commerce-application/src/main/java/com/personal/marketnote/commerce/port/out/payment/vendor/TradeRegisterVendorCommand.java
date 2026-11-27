@@ -6,17 +6,17 @@ import lombok.Builder;
 
 @Builder
 public record TradeRegisterVendorCommand(
-        String orderKey,
-        String orderAmount,
-        String payMethod,
-        String goodName
+    String orderKey,
+    String orderAmount,
+    String payMethod,
+    String goodName
 ) {
     public static TradeRegisterVendorCommand of(Payment payment, ReadyPaymentCommand command) {
         return new TradeRegisterVendorCommand(
-                payment.getOrderKey().toString(),
-                String.valueOf(payment.getPaymentAmount().getValue()),
-                command.payMethod(),
-                command.goodName()
+            payment.getOrderKey().toString(),
+            String.valueOf(payment.getPaymentAmount().getValue()),
+            command.payMethod(),
+            command.goodName()
         );
     }
 }

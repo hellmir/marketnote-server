@@ -15,7 +15,7 @@ public class RewardVendorCommunicationHistoryPersistenceAdapter implements Rewar
     @Override
     public RewardVendorCommunicationHistory save(RewardVendorCommunicationHistory history) {
         RewardVendorCommunicationHistoryJpaEntity saved = repository.save(
-                RewardVendorCommunicationHistoryJpaEntity.from(history)
+            RewardVendorCommunicationHistoryJpaEntity.from(history)
         );
         return saved.toDomain();
     }

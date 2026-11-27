@@ -11,27 +11,27 @@ import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record ReviewItemResult(
-        Long id,
-        Long reviewerId,
-        Long orderId,
-        Long productId,
-        Long pricePolicyId,
-        String productImageUrl,
-        String selectedOptions,
-        Integer quantity,
-        String maskedReviewerName,
-        Float rating,
-        String content,
-        Boolean isPhoto,
-        List<GetFileResult> images,
-        Boolean isEdited,
-        Integer likeCount,
-        boolean isUserLiked,
-        String status,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        Long orderNum,
-        ReviewProductInfoResult product
+    Long id,
+    Long reviewerId,
+    Long orderId,
+    Long productId,
+    Long pricePolicyId,
+    String productImageUrl,
+    String selectedOptions,
+    Integer quantity,
+    String maskedReviewerName,
+    Float rating,
+    String content,
+    Boolean isPhoto,
+    List<GetFileResult> images,
+    Boolean isEdited,
+    Integer likeCount,
+    boolean isUserLiked,
+    String status,
+    LocalDateTime createdAt,
+    LocalDateTime modifiedAt,
+    Long orderNum,
+    ReviewProductInfoResult product
 ) {
     public static ReviewItemResult from(Review review) {
         return from(review, null, null);
@@ -42,32 +42,32 @@ public record ReviewItemResult(
     }
 
     public static ReviewItemResult from(
-            Review review,
-            List<GetFileResult> images,
-            ReviewProductInfoResult product
+        Review review,
+        List<GetFileResult> images,
+        ReviewProductInfoResult product
     ) {
         return ReviewItemResult.builder()
-                .id(review.getId())
-                .reviewerId(review.getReviewerId())
-                .orderId(review.getOrderId())
-                .productId(review.getProductId())
-                .pricePolicyId(review.getPricePolicyId())
-                .productImageUrl(review.getProductImageUrl())
-                .selectedOptions(review.getSelectedOptions())
-                .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
-                .maskedReviewerName(review.getMaskedReviewerName())
-                .rating((float) review.getRating().getValue())
-                .content(review.getContent())
-                .isPhoto(review.getIsPhoto())
-                .images(images)
-                .isEdited(review.getIsEdited())
-                .likeCount(review.getLikeCount())
-                .isUserLiked(review.isUserLiked())
-                .status(review.getStatus().name())
-                .createdAt(review.getCreatedAt())
-                .modifiedAt(review.getModifiedAt())
-                .orderNum(review.getOrderNum())
-                .product(product)
-                .build();
+            .id(review.getId())
+            .reviewerId(review.getReviewerId())
+            .orderId(review.getOrderId())
+            .productId(review.getProductId())
+            .pricePolicyId(review.getPricePolicyId())
+            .productImageUrl(review.getProductImageUrl())
+            .selectedOptions(review.getSelectedOptions())
+            .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
+            .maskedReviewerName(review.getMaskedReviewerName())
+            .rating((float) review.getRating().getValue())
+            .content(review.getContent())
+            .isPhoto(review.getIsPhoto())
+            .images(images)
+            .isEdited(review.getIsEdited())
+            .likeCount(review.getLikeCount())
+            .isUserLiked(review.isUserLiked())
+            .status(review.getStatus().name())
+            .createdAt(review.getCreatedAt())
+            .modifiedAt(review.getModifiedAt())
+            .orderNum(review.getOrderNum())
+            .product(product)
+            .build();
     }
 }

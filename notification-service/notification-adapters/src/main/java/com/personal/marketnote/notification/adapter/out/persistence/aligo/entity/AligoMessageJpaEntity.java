@@ -73,8 +73,8 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
     private List<AligoMessageRecipientJpaEntity> recipients = new ArrayList<>();
 
     public void updateSendResult(
-            AligoMessageStatus messageStatus, String aligoMid,
-            int successCount, int failCount, LocalDateTime sentAt
+        AligoMessageStatus messageStatus, String aligoMid,
+        int successCount, int failCount, LocalDateTime sentAt
     ) {
         this.messageStatus = messageStatus;
         this.aligoMid = aligoMid;
@@ -84,8 +84,8 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
     }
 
     public void updateFailoverResult(
-            AligoMessageStatus messageStatus, String aligoMid, String smid,
-            int successCount, int failCount, LocalDateTime sentAt
+        AligoMessageStatus messageStatus, String aligoMid, String smid,
+        int successCount, int failCount, LocalDateTime sentAt
     ) {
         this.messageStatus = messageStatus;
         this.aligoMid = aligoMid;
@@ -103,12 +103,12 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
     }
 
     public static AligoMessageJpaEntity create(
-            String senderKey, String templateCode, String sender,
-            AligoMessageType messageType, String content, String title,
-            String buttons, AligoMessageStatus messageStatus,
-            String failoverSubject, String failoverMessageBody,
-            LocalDateTime requestedAt, LocalDateTime sendDate,
-            List<AligoMessageRecipientJpaEntity> recipientEntities
+        String senderKey, String templateCode, String sender,
+        AligoMessageType messageType, String content, String title,
+        String buttons, AligoMessageStatus messageStatus,
+        String failoverSubject, String failoverMessageBody,
+        LocalDateTime requestedAt, LocalDateTime sendDate,
+        List<AligoMessageRecipientJpaEntity> recipientEntities
     ) {
         AligoMessageJpaEntity entity = new AligoMessageJpaEntity();
         entity.senderKey = senderKey;

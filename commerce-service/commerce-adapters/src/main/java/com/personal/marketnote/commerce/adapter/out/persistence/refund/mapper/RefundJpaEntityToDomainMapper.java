@@ -17,16 +17,16 @@ public class RefundJpaEntityToDomainMapper {
 
     public static Refund toDomain(RefundJpaEntity entity) {
         return Refund.from(RefundSnapshotState.builder()
-                .id(entity.getId())
-                .paymentId(entity.getPaymentId())
-                .orderId(entity.getOrderId())
-                .refundType(entity.getRefundType())
-                .refundAmount(entity.getRefundAmount())
-                .cancelReason(entity.getCancelReason())
-                .processedBy(entity.getProcessedBy())
-                .pgRefundKey(entity.getPgRefundKey())
-                .pgRawResponse(entity.getPgRawResponse())
-                .createdAt(entity.getCreatedAt())
-                .build());
+            .id(entity.getId())
+            .paymentId(entity.getPaymentId())
+            .orderId(entity.getOrderId())
+            .refundType(entity.getRefundType())
+            .refundAmount(entity.getRefundAmount())
+            .cancelReason(entity.getCancelReason())
+            .processedBy(entity.getProcessedBy())
+            .pgRefundKey(entity.getPgRefundKey())
+            .pgRawResponse(entity.getPgRawResponse())
+            .createdAt(entity.getCreatedAt())
+            .build());
     }
 }

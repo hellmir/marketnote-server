@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record RegisterQuickPaymentTransactionPortCommand(
-        String transactionId
+    String transactionId
 ) {
     public static RegisterQuickPaymentTransactionPortCommand of(String transactionId) {
         return new RegisterQuickPaymentTransactionPortCommand(transactionId);

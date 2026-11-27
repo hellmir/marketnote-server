@@ -26,21 +26,21 @@ public class KafkaErrorHandler {
     @Bean
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(KafkaTemplate<String, Object> kafkaTemplate) {
         return new DeadLetterPublishingRecoverer(kafkaTemplate,
-                (record, ex) -> {
-                    log.error("메시지 처리 실패 → DLT 전송. topic={}, key={}, offset={}",
-                            record.topic(), record.key(), record.offset(), ex
-                    );
-                    return new TopicPartition(record.topic() + KafkaTopicConstants.DLT_SUFFIX, record.partition());
-                });
+            (record, ex) -> {
+                log.error("메시지 처리 실패 → DLT 전송. topic={}, key={}, offset={}",
+                    record.topic(), record.key(), record.offset(), ex
+                );
+                return new TopicPartition(record.topic() + KafkaTopicConstants.DLT_SUFFIX, record.partition());
+            });
     }
 
     @Bean
     public CommonErrorHandler dltErrorHandler() {
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                (record, exception) -> log.error("DLT 메시지 최종 처리 실패 (추가 DLT 발행 없음). topic={}, key={}, offset={}",
-                        record.topic(), record.key(), record.offset(), exception
-                ),
-                new FixedBackOff(0L, 0L)
+            (record, exception) -> log.error("DLT 메시지 최종 처리 실패 (추가 DLT 발행 없음). topic={}, key={}, offset={}",
+                record.topic(), record.key(), record.offset(), exception
+            ),
+            new FixedBackOff(0L, 0L)
         );
         return errorHandler;
     }
@@ -50,7 +50,7 @@ public class KafkaErrorHandler {
         FixedBackOff backOff = new FixedBackOff(RETRY_INTERVAL_MS, RETRY_MAX_ATTEMPTS);
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, backOff);
         errorHandler.setRetryListeners((record, ex, deliveryAttempt) ->
-                log.warn("메시지 재시도 중. topic={}, key={}, attempt={}", record.topic(), record.key(), deliveryAttempt, ex));
+            log.warn("메시지 재시도 중. topic={}, key={}, attempt={}", record.topic(), record.key(), deliveryAttempt, ex));
         return errorHandler;
     }
 }

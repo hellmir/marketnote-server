@@ -12,11 +12,11 @@ public interface LedgerEntryJpaRepository extends JpaRepository<LedgerEntryJpaEn
     List<LedgerEntryJpaEntity> findByTransactionIdOrderByIdAsc(Long transactionId);
 
     @Query("""
-            SELECT e.accountId, e.transactionType, SUM(e.amount)
-            FROM LedgerEntryJpaEntity e
-            WHERE e.createdAt <= :asOf
-            GROUP BY e.accountId, e.transactionType
-            ORDER BY e.accountId ASC
-            """)
+        SELECT e.accountId, e.transactionType, SUM(e.amount)
+        FROM LedgerEntryJpaEntity e
+        WHERE e.createdAt <= :asOf
+        GROUP BY e.accountId, e.transactionType
+        ORDER BY e.accountId ASC
+        """)
     List<Object[]> findAccountBalanceSummary(@Param("asOf") LocalDateTime asOf);
 }

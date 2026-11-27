@@ -8,22 +8,22 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
 @Builder
 public record GetPostsQuery(
-        OAuth2AuthenticatedPrincipal principal,
-        Long userId,
-        Board board,
-        String category,
-        PostTargetGroupType targetGroupType,
-        Long targetGroupId,
-        PostTargetType targetType,
-        Long targetId,
-        Long cursor,
-        int pageSize,
-        Sort.Direction sortDirection,
-        PostSortProperty sortProperty,
-        PostSearchTarget searchTarget,
-        String searchKeyword,
-        PostFilterCategory filter,
-        PostFilterValue filterValue
+    OAuth2AuthenticatedPrincipal principal,
+    Long userId,
+    Board board,
+    String category,
+    PostTargetGroupType targetGroupType,
+    Long targetGroupId,
+    PostTargetType targetType,
+    Long targetId,
+    Long cursor,
+    int pageSize,
+    Sort.Direction sortDirection,
+    PostSortProperty sortProperty,
+    PostSearchTarget searchTarget,
+    String searchKeyword,
+    PostFilterCategory filter,
+    PostFilterValue filterValue
 ) {
     public boolean isPublicPosts() {
         return board.isNonMemberViewBoard() || FormatValidator.hasValue(targetType);

@@ -57,57 +57,57 @@ class RegisterAttendanceUseCaseTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = UserAttendance.from(
-                    UserAttendanceSnapshotState.builder()
-                            .id(10L)
-                            .userId(1L)
-                            .year(Year.from(now.getYear()))
-                            .month(Month.from(now.getMonthValue()))
-                            .totalRewardQuantity(RewardQuantity.of(100L))
-                            .histories(List.of())
-                            .build()
+                UserAttendanceSnapshotState.builder()
+                    .id(10L)
+                    .userId(1L)
+                    .year(Year.from(now.getYear()))
+                    .month(Month.from(now.getMonthValue()))
+                    .totalRewardQuantity(RewardQuantity.of(100L))
+                    .histories(List.of())
+                    .build()
             );
 
             AttendancePolicy policy = AttendancePolicy.from(
-                    AttendancePolicySnapshotState.builder()
-                            .id((short) 1)
-                            .continuousPeriod(ContinuousPeriod.of((short) 1))
-                            .rewardType(AttendanceRewardType.POINT)
-                            .rewardQuantity(RewardQuantity.of(50L))
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                AttendancePolicySnapshotState.builder()
+                    .id((short) 1)
+                    .continuousPeriod(ContinuousPeriod.of((short) 1))
+                    .rewardType(AttendanceRewardType.POINT)
+                    .rewardQuantity(RewardQuantity.of(50L))
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
 
             UserAttendanceHistory savedHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(100L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 1)
-                            .continuousPeriod(ContinuousPeriod.of((short) 1))
-                            .rewardQuantity(RewardQuantity.of(50L))
-                            .attendedAt(now)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(100L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 1)
+                    .continuousPeriod(ContinuousPeriod.of((short) 1))
+                    .rewardQuantity(RewardQuantity.of(50L))
+                    .attendedAt(now)
+                    .build()
             );
 
             when(findUserAttendancePort.findByUserIdAndYearAndMonth(
-                    1L, Year.from(now.getYear()), Month.from(now.getMonthValue())
+                1L, Year.from(now.getYear()), Month.from(now.getMonthValue())
             )).thenReturn(Optional.of(existingAttendance));
             when(findUserAttendanceHistoryPort.existsByUserAttendanceIdAndAttendedAtBetween(
-                    eq(10L), any(), any()
+                eq(10L), any(), any()
             )).thenReturn(false);
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(10L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(
-                    (short) 1, now.toLocalDate()
+                (short) 1, now.toLocalDate()
             )).thenReturn(Optional.of(policy));
             when(saveUserAttendanceHistoryPort.save(any(UserAttendanceHistory.class)))
-                    .thenReturn(savedHistory);
+                .thenReturn(savedHistory);
             when(saveUserAttendancePort.save(any(UserAttendance.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             RegisterAttendanceResult result = registerAttendanceService.register(command);
@@ -133,44 +133,44 @@ class RegisterAttendanceUseCaseTest {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime yesterday = now.minusDays(1);
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = createUserAttendance(now);
 
             UserAttendanceHistory lastHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(99L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 1)
-                            .continuousPeriod(ContinuousPeriod.of((short) 1))
-                            .rewardQuantity(RewardQuantity.of(50L))
-                            .attendedAt(yesterday)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(99L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 1)
+                    .continuousPeriod(ContinuousPeriod.of((short) 1))
+                    .rewardQuantity(RewardQuantity.of(50L))
+                    .attendedAt(yesterday)
+                    .build()
             );
 
             AttendancePolicy policy = createPolicy((short) 2, AttendanceRewardType.POINT, 100L);
 
             UserAttendanceHistory savedHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(100L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 2)
-                            .continuousPeriod(ContinuousPeriod.of((short) 2))
-                            .rewardQuantity(RewardQuantity.of(100L))
-                            .attendedAt(now)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(100L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 2)
+                    .continuousPeriod(ContinuousPeriod.of((short) 2))
+                    .rewardQuantity(RewardQuantity.of(100L))
+                    .attendedAt(now)
+                    .build()
             );
 
             stubCommonMocks(command, existingAttendance, now);
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(10L))
-                    .thenReturn(Optional.of(lastHistory));
+                .thenReturn(Optional.of(lastHistory));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(
-                    (short) 2, now.toLocalDate()
+                (short) 2, now.toLocalDate()
             )).thenReturn(Optional.of(policy));
             when(saveUserAttendanceHistoryPort.save(any(UserAttendanceHistory.class)))
-                    .thenReturn(savedHistory);
+                .thenReturn(savedHistory);
 
             // when
             RegisterAttendanceResult result = registerAttendanceService.register(command);
@@ -187,44 +187,44 @@ class RegisterAttendanceUseCaseTest {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime yesterday = now.minusDays(1);
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = createUserAttendance(now);
 
             UserAttendanceHistory lastHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(99L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 3)
-                            .continuousPeriod(ContinuousPeriod.of((short) 3))
-                            .rewardQuantity(RewardQuantity.of(150L))
-                            .attendedAt(yesterday)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(99L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 3)
+                    .continuousPeriod(ContinuousPeriod.of((short) 3))
+                    .rewardQuantity(RewardQuantity.of(150L))
+                    .attendedAt(yesterday)
+                    .build()
             );
 
             AttendancePolicy policy = createPolicy((short) 4, AttendanceRewardType.BOOSTER, 1L);
 
             UserAttendanceHistory savedHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(100L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 4)
-                            .continuousPeriod(ContinuousPeriod.of((short) 4))
-                            .rewardQuantity(RewardQuantity.of(1L))
-                            .attendedAt(now)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(100L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 4)
+                    .continuousPeriod(ContinuousPeriod.of((short) 4))
+                    .rewardQuantity(RewardQuantity.of(1L))
+                    .attendedAt(now)
+                    .build()
             );
 
             stubCommonMocks(command, existingAttendance, now);
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(10L))
-                    .thenReturn(Optional.of(lastHistory));
+                .thenReturn(Optional.of(lastHistory));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(
-                    (short) 4, now.toLocalDate()
+                (short) 4, now.toLocalDate()
             )).thenReturn(Optional.of(policy));
             when(saveUserAttendanceHistoryPort.save(any(UserAttendanceHistory.class)))
-                    .thenReturn(savedHistory);
+                .thenReturn(savedHistory);
 
             // when
             RegisterAttendanceResult result = registerAttendanceService.register(command);
@@ -241,44 +241,44 @@ class RegisterAttendanceUseCaseTest {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime yesterday = now.minusDays(1);
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = createUserAttendance(now);
 
             UserAttendanceHistory lastHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(99L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 4)
-                            .continuousPeriod(ContinuousPeriod.of((short) 4))
-                            .rewardQuantity(RewardQuantity.of(1L))
-                            .attendedAt(yesterday)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(99L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 4)
+                    .continuousPeriod(ContinuousPeriod.of((short) 4))
+                    .rewardQuantity(RewardQuantity.of(1L))
+                    .attendedAt(yesterday)
+                    .build()
             );
 
             AttendancePolicy policy = createPolicy((short) 1, AttendanceRewardType.POINT, 50L);
 
             UserAttendanceHistory savedHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(100L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 1)
-                            .continuousPeriod(ContinuousPeriod.of((short) 1))
-                            .rewardQuantity(RewardQuantity.of(50L))
-                            .attendedAt(now)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(100L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 1)
+                    .continuousPeriod(ContinuousPeriod.of((short) 1))
+                    .rewardQuantity(RewardQuantity.of(50L))
+                    .attendedAt(now)
+                    .build()
             );
 
             stubCommonMocks(command, existingAttendance, now);
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(10L))
-                    .thenReturn(Optional.of(lastHistory));
+                .thenReturn(Optional.of(lastHistory));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(
-                    (short) 1, now.toLocalDate()
+                (short) 1, now.toLocalDate()
             )).thenReturn(Optional.of(policy));
             when(saveUserAttendanceHistoryPort.save(any(UserAttendanceHistory.class)))
-                    .thenReturn(savedHistory);
+                .thenReturn(savedHistory);
 
             // when
             RegisterAttendanceResult result = registerAttendanceService.register(command);
@@ -294,44 +294,44 @@ class RegisterAttendanceUseCaseTest {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime twoDaysAgo = now.minusDays(2);
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = createUserAttendance(now);
 
             UserAttendanceHistory lastHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(99L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 2)
-                            .continuousPeriod(ContinuousPeriod.of((short) 2))
-                            .rewardQuantity(RewardQuantity.of(100L))
-                            .attendedAt(twoDaysAgo)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(99L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 2)
+                    .continuousPeriod(ContinuousPeriod.of((short) 2))
+                    .rewardQuantity(RewardQuantity.of(100L))
+                    .attendedAt(twoDaysAgo)
+                    .build()
             );
 
             AttendancePolicy policy = createPolicy((short) 1, AttendanceRewardType.POINT, 50L);
 
             UserAttendanceHistory savedHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(100L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 1)
-                            .continuousPeriod(ContinuousPeriod.of((short) 1))
-                            .rewardQuantity(RewardQuantity.of(50L))
-                            .attendedAt(now)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(100L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 1)
+                    .continuousPeriod(ContinuousPeriod.of((short) 1))
+                    .rewardQuantity(RewardQuantity.of(50L))
+                    .attendedAt(now)
+                    .build()
             );
 
             stubCommonMocks(command, existingAttendance, now);
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(10L))
-                    .thenReturn(Optional.of(lastHistory));
+                .thenReturn(Optional.of(lastHistory));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(
-                    (short) 1, now.toLocalDate()
+                (short) 1, now.toLocalDate()
             )).thenReturn(Optional.of(policy));
             when(saveUserAttendanceHistoryPort.save(any(UserAttendanceHistory.class)))
-                    .thenReturn(savedHistory);
+                .thenReturn(savedHistory);
 
             // when
             RegisterAttendanceResult result = registerAttendanceService.register(command);
@@ -346,32 +346,32 @@ class RegisterAttendanceUseCaseTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = createUserAttendance(now);
             AttendancePolicy policy = createPolicy((short) 1, AttendanceRewardType.BOOSTER, 3L);
 
             UserAttendanceHistory savedHistory = UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(100L)
-                            .userAttendanceId(10L)
-                            .attendancePolicyId((short) 1)
-                            .continuousPeriod(ContinuousPeriod.of((short) 1))
-                            .rewardQuantity(RewardQuantity.of(3L))
-                            .attendedAt(now)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(100L)
+                    .userAttendanceId(10L)
+                    .attendancePolicyId((short) 1)
+                    .continuousPeriod(ContinuousPeriod.of((short) 1))
+                    .rewardQuantity(RewardQuantity.of(3L))
+                    .attendedAt(now)
+                    .build()
             );
 
             stubCommonMocks(command, existingAttendance, now);
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(10L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(
-                    (short) 1, now.toLocalDate()
+                (short) 1, now.toLocalDate()
             )).thenReturn(Optional.of(policy));
             when(saveUserAttendanceHistoryPort.save(any(UserAttendanceHistory.class)))
-                    .thenReturn(savedHistory);
+                .thenReturn(savedHistory);
 
             // when
             RegisterAttendanceResult result = registerAttendanceService.register(command);
@@ -384,40 +384,40 @@ class RegisterAttendanceUseCaseTest {
 
         private UserAttendance createUserAttendance(LocalDateTime dateTime) {
             return UserAttendance.from(
-                    UserAttendanceSnapshotState.builder()
-                            .id(10L)
-                            .userId(1L)
-                            .year(Year.from(dateTime.getYear()))
-                            .month(Month.from(dateTime.getMonthValue()))
-                            .totalRewardQuantity(RewardQuantity.of(100L))
-                            .histories(List.of())
-                            .build()
+                UserAttendanceSnapshotState.builder()
+                    .id(10L)
+                    .userId(1L)
+                    .year(Year.from(dateTime.getYear()))
+                    .month(Month.from(dateTime.getMonthValue()))
+                    .totalRewardQuantity(RewardQuantity.of(100L))
+                    .histories(List.of())
+                    .build()
             );
         }
 
         private AttendancePolicy createPolicy(
-                short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity
+            short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity
         ) {
             return AttendancePolicy.from(
-                    AttendancePolicySnapshotState.builder()
-                            .id(continuousPeriod)
-                            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                            .rewardType(rewardType)
-                            .rewardQuantity(RewardQuantity.of(rewardQuantity))
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                AttendancePolicySnapshotState.builder()
+                    .id(continuousPeriod)
+                    .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+                    .rewardType(rewardType)
+                    .rewardQuantity(RewardQuantity.of(rewardQuantity))
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
         }
 
         private void stubCommonMocks(RegisterAttendanceCommand command, UserAttendance attendance, LocalDateTime now) {
             when(findUserAttendancePort.findByUserIdAndYearAndMonth(
-                    command.userId(), Year.from(now.getYear()), Month.from(now.getMonthValue())
+                command.userId(), Year.from(now.getYear()), Month.from(now.getMonthValue())
             )).thenReturn(Optional.of(attendance));
             when(findUserAttendanceHistoryPort.existsByUserAttendanceIdAndAttendedAtBetween(
-                    eq(10L), any(), any()
+                eq(10L), any(), any()
             )).thenReturn(false);
             when(saveUserAttendancePort.save(any(UserAttendance.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
         }
     }
 
@@ -430,16 +430,16 @@ class RegisterAttendanceUseCaseTest {
         void shouldThrowWhenAttendedAtIsNull() {
             // given
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(null)
-                    .build();
+                .userId(1L)
+                .attendedAt(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> registerAttendanceService.register(command))
-                    .isInstanceOf(InvalidAttendanceTimeException.class);
+                .isInstanceOf(InvalidAttendanceTimeException.class);
 
             verifyNoInteractions(findUserAttendancePort, saveUserAttendanceHistoryPort,
-                    saveUserAttendancePort, findUserAttendanceHistoryPort, findAttendancePolicyPort);
+                saveUserAttendancePort, findUserAttendanceHistoryPort, findAttendancePolicyPort);
         }
 
         @Test
@@ -447,13 +447,13 @@ class RegisterAttendanceUseCaseTest {
         void shouldThrowWhenAttendedAtIsFuture() {
             // given
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(LocalDateTime.now().plusMinutes(5))
-                    .build();
+                .userId(1L)
+                .attendedAt(LocalDateTime.now().plusMinutes(5))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> registerAttendanceService.register(command))
-                    .isInstanceOf(InvalidAttendanceTimeException.class);
+                .isInstanceOf(InvalidAttendanceTimeException.class);
 
             verifyNoInteractions(findUserAttendancePort, saveUserAttendanceHistoryPort);
         }
@@ -464,31 +464,31 @@ class RegisterAttendanceUseCaseTest {
             // given
             LocalDateTime now = LocalDateTime.now();
             RegisterAttendanceCommand command = RegisterAttendanceCommand.builder()
-                    .userId(1L)
-                    .attendedAt(now)
-                    .build();
+                .userId(1L)
+                .attendedAt(now)
+                .build();
 
             UserAttendance existingAttendance = UserAttendance.from(
-                    UserAttendanceSnapshotState.builder()
-                            .id(10L)
-                            .userId(1L)
-                            .year(Year.from(now.getYear()))
-                            .month(Month.from(now.getMonthValue()))
-                            .totalRewardQuantity(RewardQuantity.of(0L))
-                            .histories(List.of())
-                            .build()
+                UserAttendanceSnapshotState.builder()
+                    .id(10L)
+                    .userId(1L)
+                    .year(Year.from(now.getYear()))
+                    .month(Month.from(now.getMonthValue()))
+                    .totalRewardQuantity(RewardQuantity.of(0L))
+                    .histories(List.of())
+                    .build()
             );
 
             when(findUserAttendancePort.findByUserIdAndYearAndMonth(
-                    1L, Year.from(now.getYear()), Month.from(now.getMonthValue())
+                1L, Year.from(now.getYear()), Month.from(now.getMonthValue())
             )).thenReturn(Optional.of(existingAttendance));
             when(findUserAttendanceHistoryPort.existsByUserAttendanceIdAndAttendedAtBetween(
-                    eq(10L), any(), any()
+                eq(10L), any(), any()
             )).thenReturn(true);
 
             // when & then
             assertThatThrownBy(() -> registerAttendanceService.register(command))
-                    .isInstanceOf(InvalidAttendanceTimeException.class);
+                .isInstanceOf(InvalidAttendanceTimeException.class);
 
             verifyNoInteractions(saveUserAttendanceHistoryPort, saveUserAttendancePort, findAttendancePolicyPort);
         }

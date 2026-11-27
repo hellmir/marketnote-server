@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AligoVendorCommunicationFailureHandlerTest {
 
     private static final NotificationVendorCommunicationTargetType TARGET_TYPE =
-            NotificationVendorCommunicationTargetType.ALIMTALK;
+        NotificationVendorCommunicationTargetType.ALIMTALK;
     private static final String REQUEST_PAYLOAD = "{\"op\":\"send\"}";
     private static final int STATUS_CODE = 500;
     private static final String EXCEPTION_NAME = "JsonParseException";
@@ -39,14 +39,14 @@ class AligoVendorCommunicationFailureHandlerTest {
         recordedCalls = new ArrayList<>();
         objectMapper = new ObjectMapperConfig().objectMapper();
         AligoVendorCommunicationRecorder recorder = new AligoVendorCommunicationRecorder(
-                (
-                        targetType, targetId, vendorName, communicationType, sender,
-                        exception, payload, payloadJson, attemptCount
-                ) ->
-                        recordedCalls.add(new RecordedCall(communicationType, payloadJson))
+            (
+                targetType, targetId, vendorName, communicationType, sender,
+                exception, payload, payloadJson, attemptCount
+            ) ->
+                recordedCalls.add(new RecordedCall(communicationType, payloadJson))
         );
         VendorCommunicationPayloadGenerator payloadGenerator =
-                new VendorCommunicationPayloadGenerator(objectMapper);
+            new VendorCommunicationPayloadGenerator(objectMapper);
         handler = new AligoVendorCommunicationFailureHandler(recorder, payloadGenerator);
     }
 
@@ -56,8 +56,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         JsonNode requestPayloadJson = objectMapper.createObjectNode();
 
         handler.handleHttpFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, null, false,
-                1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, null, false,
+            1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -71,8 +71,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         JsonNode requestPayloadJson = objectMapper.createObjectNode();
 
         handler.handleHttpFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, "", false,
-                1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, "", false,
+            1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -87,8 +87,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         String responseBody = "Internal Server Error";
 
         handler.handleHttpFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, responseBody, false,
-                1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, responseBody, false,
+            1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -101,8 +101,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         JsonNode requestPayloadJson = objectMapper.createObjectNode();
 
         handler.handleHttpFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, "leak", true,
-                1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, STATUS_CODE, "leak", true,
+            1, List.of(AttemptResult.httpFailure(1, STATUS_CODE, "HTTP_" + STATUS_CODE))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -117,8 +117,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         JsonNode requestPayloadJson = objectMapper.createObjectNode();
 
         handler.handleParseFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, null, EXCEPTION_NAME, false,
-                1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, null, EXCEPTION_NAME, false,
+            1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -132,8 +132,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         JsonNode requestPayloadJson = objectMapper.createObjectNode();
 
         handler.handleParseFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, "", EXCEPTION_NAME, false,
-                1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, "", EXCEPTION_NAME, false,
+            1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -148,8 +148,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         String responseBody = "broken-json";
 
         handler.handleParseFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, responseBody, EXCEPTION_NAME, false,
-                1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, responseBody, EXCEPTION_NAME, false,
+            1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -162,8 +162,8 @@ class AligoVendorCommunicationFailureHandlerTest {
         JsonNode requestPayloadJson = objectMapper.createObjectNode();
 
         handler.handleParseFailure(
-                TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, "leak", EXCEPTION_NAME, true,
-                1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
+            TARGET_TYPE, REQUEST_PAYLOAD, requestPayloadJson, "leak", EXCEPTION_NAME, true,
+            1, List.of(AttemptResult.parseFailure(1, EXCEPTION_NAME))
         );
 
         JsonNode responseJson = findResponsePayloadJson();
@@ -174,15 +174,15 @@ class AligoVendorCommunicationFailureHandlerTest {
 
     private JsonNode findResponsePayloadJson() {
         return recordedCalls.stream()
-                .filter(call -> call.communicationType() == NotificationVendorCommunicationType.RESPONSE)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("RESPONSE 통신 이력이 기록되지 않았습니다."))
-                .payloadJson();
+            .filter(call -> call.communicationType() == NotificationVendorCommunicationType.RESPONSE)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("RESPONSE 통신 이력이 기록되지 않았습니다."))
+            .payloadJson();
     }
 
     private record RecordedCall(
-            NotificationVendorCommunicationType communicationType,
-            JsonNode payloadJson
+        NotificationVendorCommunicationType communicationType,
+        JsonNode payloadJson
     ) {
     }
 }

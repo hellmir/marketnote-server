@@ -19,13 +19,13 @@ class ProductOptionCategoryTest {
     private Product createProduct() {
         UUID productKey = UUID.randomUUID();
         return Product.from(ProductSnapshotState.builder()
-                .id(1L)
-                .productKey(productKey)
-                .sellerId(1L)
-                .name("테스트 상품")
-                .status(EntityStatus.ACTIVE)
-                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                .build());
+            .id(1L)
+            .productKey(productKey)
+            .sellerId(1L)
+            .name("테스트 상품")
+            .status(EntityStatus.ACTIVE)
+            .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+            .build());
     }
 
     @Nested
@@ -38,20 +38,20 @@ class ProductOptionCategoryTest {
             // given
             Product product = createProduct();
             List<ProductOptionCreateState> optionStates = List.of(
-                    ProductOptionCreateState.builder()
-                            .category(null)
-                            .content("빨강")
-                            .build(),
-                    ProductOptionCreateState.builder()
-                            .category(null)
-                            .content("파랑")
-                            .build()
+                ProductOptionCreateState.builder()
+                    .category(null)
+                    .content("빨강")
+                    .build(),
+                ProductOptionCreateState.builder()
+                    .category(null)
+                    .content("파랑")
+                    .build()
             );
             ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
-                    .product(product)
-                    .name("색상")
-                    .optionStates(optionStates)
-                    .build();
+                .product(product)
+                .name("색상")
+                .optionStates(optionStates)
+                .build();
 
             // when
             ProductOptionCategory category = ProductOptionCategory.from(state);
@@ -69,10 +69,10 @@ class ProductOptionCategoryTest {
             // given
             Product product = createProduct();
             ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
-                    .product(product)
-                    .name("색상")
-                    .optionStates(null)
-                    .build();
+                .product(product)
+                .name("색상")
+                .optionStates(null)
+                .build();
 
             // when
             ProductOptionCategory category = ProductOptionCategory.from(state);
@@ -88,10 +88,10 @@ class ProductOptionCategoryTest {
             // given
             Product product = createProduct();
             ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
-                    .product(product)
-                    .name("색상")
-                    .optionStates(List.of())
-                    .build();
+                .product(product)
+                .name("색상")
+                .optionStates(List.of())
+                .build();
 
             // when
             ProductOptionCategory category = ProductOptionCategory.from(state);
@@ -112,13 +112,13 @@ class ProductOptionCategoryTest {
             Product product = createProduct();
             List<ProductOption> options = List.of();
             ProductOptionCategorySnapshotState state = ProductOptionCategorySnapshotState.builder()
-                    .id(10L)
-                    .product(product)
-                    .name("사이즈")
-                    .options(options)
-                    .orderNum(3L)
-                    .status(EntityStatus.INACTIVE)
-                    .build();
+                .id(10L)
+                .product(product)
+                .name("사이즈")
+                .options(options)
+                .orderNum(3L)
+                .status(EntityStatus.INACTIVE)
+                .build();
 
             // when
             ProductOptionCategory category = ProductOptionCategory.from(state);

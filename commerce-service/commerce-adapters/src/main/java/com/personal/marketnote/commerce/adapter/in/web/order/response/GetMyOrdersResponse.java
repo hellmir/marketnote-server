@@ -5,13 +5,13 @@ import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderHistor
 import java.util.List;
 
 public record GetMyOrdersResponse(
-        List<OrderHistoryByDateResponse> orderHistory
+    List<OrderHistoryByDateResponse> orderHistory
 ) {
     public static GetMyOrdersResponse from(GetBuyerOrderHistoryResult getBuyerOrderHistoryResult) {
         return new GetMyOrdersResponse(
-                getBuyerOrderHistoryResult.orderHistory().stream()
-                        .map(OrderHistoryByDateResponse::from)
-                        .toList()
+            getBuyerOrderHistoryResult.orderHistory().stream()
+                .map(OrderHistoryByDateResponse::from)
+                .toList()
         );
     }
 }

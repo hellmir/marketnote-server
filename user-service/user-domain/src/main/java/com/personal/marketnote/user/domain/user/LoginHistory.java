@@ -19,19 +19,19 @@ public class LoginHistory {
 
     public static LoginHistory of(User user, AuthVendor authVendor, String ipAddress) {
         return LoginHistory.builder()
-                .user(user)
-                .authVendor(authVendor)
-                .ipAddress(IpAddress.of(ipAddress))
-                .build();
+            .user(user)
+            .authVendor(authVendor)
+            .ipAddress(IpAddress.of(ipAddress))
+            .build();
     }
 
     public static LoginHistory from(LoginHistorySnapshotState state) {
         return LoginHistory.builder()
-                .id(state.getId())
-                .user(state.getUser())
-                .authVendor(state.getAuthVendor())
-                .ipAddress(state.getIpAddress())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .user(state.getUser())
+            .authVendor(state.getAuthVendor())
+            .ipAddress(state.getIpAddress())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

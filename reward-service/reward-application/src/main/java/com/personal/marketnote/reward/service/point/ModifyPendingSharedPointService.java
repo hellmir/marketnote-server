@@ -31,22 +31,22 @@ public class ModifyPendingSharedPointService implements ModifyPendingSharedPoint
 
     @Override
     @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+        retryFor = ObjectOptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     public UpdateUserPointResult modifyPending(ModifyPendingSharedPointCommand command) {
         UserPoint sharerPoint = findUserPointPort.findByUserKey(command.sharerKey().toString())
-                .orElseThrow(() -> {
-                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", command.sharerKey());
-                    return new UserPointNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", command.sharerKey());
+                return new UserPointNotFoundException();
+            });
 
         Long sharerId = sharerPoint.getUserId();
 
         if (FormatValidator.hasValue(command.buyerId()) && Objects.equals(command.buyerId(), sharerId)) {
             log.info("구매자와 공유자가 동일인 (적립 예정 포인트 변경 스킵). buyerId={}, sharerKey={}",
-                    command.buyerId(), command.sharerKey());
+                command.buyerId(), command.sharerKey());
             return null;
         }
 

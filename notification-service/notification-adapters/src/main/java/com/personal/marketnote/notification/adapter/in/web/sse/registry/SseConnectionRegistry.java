@@ -18,7 +18,7 @@ public class SseConnectionRegistry {
     private final int maxConnections;
 
     public SseConnectionRegistry(
-            @Value("${sse.max-connections:5000}") int maxConnections
+        @Value("${sse.max-connections:5000}") int maxConnections
     ) {
         this.maxConnections = maxConnections;
     }

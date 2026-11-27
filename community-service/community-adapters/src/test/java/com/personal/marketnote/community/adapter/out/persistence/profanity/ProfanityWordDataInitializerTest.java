@@ -79,9 +79,9 @@ class ProfanityWordDataInitializerTest {
             initializer.run(new DefaultApplicationArguments());
 
             savedBatches.stream()
-                    .flatMap(List::stream)
-                    .map(ProfanityWordJpaEntity::getWord)
-                    .forEach(word -> assertThat(word).isEqualTo(word.toLowerCase()));
+                .flatMap(List::stream)
+                .map(ProfanityWordJpaEntity::getWord)
+                .forEach(word -> assertThat(word).isEqualTo(word.toLowerCase()));
         }
 
         @Test

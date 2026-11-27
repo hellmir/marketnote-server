@@ -41,42 +41,42 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldSaveTemplateWithButtonsAndKeepOrdering() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(1)
-                                .name("버튼1")
-                                .linkType(AligoTemplateButtonLinkType.WL)
-                                .linkMo("https://m.example.com/1")
-                                .linkPc("https://example.com/1")
-                                .build()
-                ),
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(2)
-                                .name("버튼2")
-                                .linkType(AligoTemplateButtonLinkType.AL)
-                                .linkIos("ios-link")
-                                .linkAnd("and-link")
-                                .build()
-                ),
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(3)
-                                .name("버튼3")
-                                .linkType(AligoTemplateButtonLinkType.AC)
-                                .build()
-                )
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(1)
+                    .name("버튼1")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkMo("https://m.example.com/1")
+                    .linkPc("https://example.com/1")
+                    .build()
+            ),
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(2)
+                    .name("버튼2")
+                    .linkType(AligoTemplateButtonLinkType.AL)
+                    .linkIos("ios-link")
+                    .linkAnd("and-link")
+                    .build()
+            ),
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(3)
+                    .name("버튼3")
+                    .linkType(AligoTemplateButtonLinkType.AC)
+                    .build()
+            )
         );
         AligoTemplate template = AligoTemplate.from(
-                AligoTemplateCreateState.builder()
-                        .senderKey("sender-key-save")
-                        .templateCode("TEMPLATE-SAVE-001")
-                        .templateName("저장 템플릿")
-                        .templateContent("본문")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .buttons(buttons)
-                        .build()
+            AligoTemplateCreateState.builder()
+                .senderKey("sender-key-save")
+                .templateCode("TEMPLATE-SAVE-001")
+                .templateName("저장 템플릿")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .buttons(buttons)
+                .build()
         );
 
         // when
@@ -89,11 +89,11 @@ class AligoTemplatePersistenceAdapterTest {
         assertThat(saved.getTemplateCode()).isEqualTo("TEMPLATE-SAVE-001");
         assertThat(entity.getButtons()).hasSize(3);
         assertThat(entity.getButtons())
-                .extracting("ordering")
-                .containsExactly(1, 2, 3);
+            .extracting("ordering")
+            .containsExactly(1, 2, 3);
         assertThat(entity.getButtons())
-                .extracting("name")
-                .containsExactly("버튼1", "버튼2", "버튼3");
+            .extracting("name")
+            .containsExactly("버튼1", "버튼2", "버튼3");
     }
 
     @Test
@@ -102,12 +102,12 @@ class AligoTemplatePersistenceAdapterTest {
         // given
         Method method = AligoTemplatePersistenceAdapter.class.getMethod("update", AligoTemplate.class);
         org.springframework.transaction.annotation.Transactional txAnnotation =
-                method.getAnnotation(org.springframework.transaction.annotation.Transactional.class);
+            method.getAnnotation(org.springframework.transaction.annotation.Transactional.class);
 
         // then
         assertThat(txAnnotation).isNotNull();
         assertThat(txAnnotation.isolation())
-                .isEqualTo(org.springframework.transaction.annotation.Isolation.READ_COMMITTED);
+            .isEqualTo(org.springframework.transaction.annotation.Isolation.READ_COMMITTED);
     }
 
     @Test
@@ -119,33 +119,33 @@ class AligoTemplatePersistenceAdapterTest {
         entityManager.clear();
 
         List<AligoTemplateButton> newButtons = List.of(
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(1)
-                                .name("새 버튼")
-                                .linkType(AligoTemplateButtonLinkType.WL)
-                                .linkMo("https://m.example.com/new")
-                                .linkPc("https://example.com/new")
-                                .build()
-                )
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(1)
+                    .name("새 버튼")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkMo("https://m.example.com/new")
+                    .linkPc("https://example.com/new")
+                    .build()
+            )
         );
         AligoTemplate updateRequest = AligoTemplate.from(
-                AligoTemplateSnapshotState.builder()
-                        .id(initial.getId())
-                        .senderKey("sender-key-update")
-                        .templateCode("TEMPLATE-UPDATE-001")
-                        .templateName("수정된 이름")
-                        .templateContent("수정된 본문")
-                        .templateTitle("수정된 타이틀")
-                        .templateSubtitle("수정된 서브타이틀")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .inspStatus(AligoTemplateInspectionStatus.REQ.name())
-                        .templateStatus(AligoTemplateStatus.A)
-                        .comments("코멘트")
-                        .buttons(newButtons)
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .build()
+            AligoTemplateSnapshotState.builder()
+                .id(initial.getId())
+                .senderKey("sender-key-update")
+                .templateCode("TEMPLATE-UPDATE-001")
+                .templateName("수정된 이름")
+                .templateContent("수정된 본문")
+                .templateTitle("수정된 타이틀")
+                .templateSubtitle("수정된 서브타이틀")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus(AligoTemplateInspectionStatus.REQ.name())
+                .templateStatus(AligoTemplateStatus.A)
+                .comments("코멘트")
+                .buttons(newButtons)
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .build()
         );
 
         // when
@@ -171,24 +171,24 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldThrowWhenUpdatingNonExistentTemplate() {
         // given
         AligoTemplate notFound = AligoTemplate.from(
-                AligoTemplateSnapshotState.builder()
-                        .id(999L)
-                        .senderKey("sender-key-missing")
-                        .templateCode("TEMPLATE-MISSING-001")
-                        .templateName("이름")
-                        .templateContent("본문")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .inspStatus(AligoTemplateInspectionStatus.REG.name())
-                        .templateStatus(AligoTemplateStatus.R)
-                        .buttons(List.of())
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .build()
+            AligoTemplateSnapshotState.builder()
+                .id(999L)
+                .senderKey("sender-key-missing")
+                .templateCode("TEMPLATE-MISSING-001")
+                .templateName("이름")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus(AligoTemplateInspectionStatus.REG.name())
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .build()
         );
 
         // when & then
         assertThatThrownBy(() -> adapter.update(notFound))
-                .isInstanceOf(AligoTemplateNotFoundException.class);
+            .isInstanceOf(AligoTemplateNotFoundException.class);
     }
 
     @Test
@@ -196,24 +196,24 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldDeleteTemplateAndCascadeButtons() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(1)
-                                .name("버튼A")
-                                .linkType(AligoTemplateButtonLinkType.AC)
-                                .build()
-                )
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(1)
+                    .name("버튼A")
+                    .linkType(AligoTemplateButtonLinkType.AC)
+                    .build()
+            )
         );
         AligoTemplate template = AligoTemplate.from(
-                AligoTemplateCreateState.builder()
-                        .senderKey("sender-key-delete")
-                        .templateCode("TEMPLATE-DELETE-001")
-                        .templateName("삭제 템플릿")
-                        .templateContent("본문")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .buttons(buttons)
-                        .build()
+            AligoTemplateCreateState.builder()
+                .senderKey("sender-key-delete")
+                .templateCode("TEMPLATE-DELETE-001")
+                .templateName("삭제 템플릿")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .buttons(buttons)
+                .build()
         );
         adapter.save(template);
         entityManager.flush();
@@ -227,7 +227,7 @@ class AligoTemplatePersistenceAdapterTest {
         // then
         assertThat(repository.findByTemplateCodeWithButtons("TEMPLATE-DELETE-001")).isEmpty();
         Long buttonCount = entityManager.createQuery(
-                "SELECT COUNT(b) FROM AligoTemplateButtonJpaEntity b", Long.class
+            "SELECT COUNT(b) FROM AligoTemplateButtonJpaEntity b", Long.class
         ).getSingleResult();
         assertThat(buttonCount).isZero();
     }
@@ -237,31 +237,31 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldFetchButtonsEagerlyViaJoinFetch() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(1)
-                                .name("버튼1")
-                                .linkType(AligoTemplateButtonLinkType.AC)
-                                .build()
-                ),
-                AligoTemplateButton.from(
-                        AligoTemplateButtonCreateState.builder()
-                                .ordering(2)
-                                .name("버튼2")
-                                .linkType(AligoTemplateButtonLinkType.AC)
-                                .build()
-                )
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(1)
+                    .name("버튼1")
+                    .linkType(AligoTemplateButtonLinkType.AC)
+                    .build()
+            ),
+            AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                    .ordering(2)
+                    .name("버튼2")
+                    .linkType(AligoTemplateButtonLinkType.AC)
+                    .build()
+            )
         );
         AligoTemplate template = AligoTemplate.from(
-                AligoTemplateCreateState.builder()
-                        .senderKey("sender-key-fetch")
-                        .templateCode("TEMPLATE-FETCH-001")
-                        .templateName("페칭 템플릿")
-                        .templateContent("본문")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .buttons(buttons)
-                        .build()
+            AligoTemplateCreateState.builder()
+                .senderKey("sender-key-fetch")
+                .templateCode("TEMPLATE-FETCH-001")
+                .templateName("페칭 템플릿")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .buttons(buttons)
+                .build()
         );
         adapter.save(template);
         entityManager.flush();
@@ -274,21 +274,21 @@ class AligoTemplatePersistenceAdapterTest {
         assertThat(result).isPresent();
         assertThat(result.get().getButtons()).hasSize(2);
         assertThat(result.get().getButtons())
-                .extracting(AligoTemplateButton::getName)
-                .containsExactly("버튼1", "버튼2");
+            .extracting(AligoTemplateButton::getName)
+            .containsExactly("버튼1", "버튼2");
     }
 
     private AligoTemplate buildSimpleTemplate(String templateCode, String senderKey) {
         return AligoTemplate.from(
-                AligoTemplateCreateState.builder()
-                        .senderKey(senderKey)
-                        .templateCode(templateCode)
-                        .templateName("초기 템플릿")
-                        .templateContent("초기 본문")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .buttons(List.of())
-                        .build()
+            AligoTemplateCreateState.builder()
+                .senderKey(senderKey)
+                .templateCode(templateCode)
+                .templateName("초기 템플릿")
+                .templateContent("초기 본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .buttons(List.of())
+                .build()
         );
     }
 }

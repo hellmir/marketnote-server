@@ -39,7 +39,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 20, (GoodsStatus) null, null, ""))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -64,7 +64,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 10, GoodsStatus.SALE, null, ""))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -84,7 +84,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 10, (GoodsStatus) null, true, ""))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -104,7 +104,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 10, (GoodsStatus) null, null, "아메리카노"))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -123,7 +123,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(), 0L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 20, (GoodsStatus) null, null, ""))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -145,7 +145,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 25L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 10, (GoodsStatus) null, null, ""))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -164,7 +164,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
         when(findGifticonGoodsPort.findAllForAdmin(1, 20, (GoodsStatus) null, null, ""))
-                .thenReturn(portResult);
+            .thenReturn(portResult);
 
         // when
         GetAdminGifticonGoodsResult result = getAdminGifticonGoodsService.getAdminGifticonGoods(command);
@@ -190,25 +190,25 @@ class GetAdminGifticonGoodsUseCaseTest {
                                       String brandCode, String brandName,
                                       String goodsStatus, boolean exposed, Integer orderNum) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(id)
-                .goodsCode(goodsCode)
-                .goodsName(goodsName)
-                .brandCode(brandCode)
-                .brandName(brandName)
-                .brandImageUrl("https://img.com/brand.png")
-                .categoryCode("1")
-                .realPrice(5000L)
-                .salePrice(4500L)
-                .cashPrice(3500L)
-                .imageUrl("https://img.com/goods.png")
-                .description("설명")
-                .validDays(30)
-                .goodsStatus(mapGoodsStatus(goodsStatus))
-                .exposed(exposed)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build()
+            .id(id)
+            .goodsCode(goodsCode)
+            .goodsName(goodsName)
+            .brandCode(brandCode)
+            .brandName(brandName)
+            .brandImageUrl("https://img.com/brand.png")
+            .categoryCode("1")
+            .realPrice(5000L)
+            .salePrice(4500L)
+            .cashPrice(3500L)
+            .imageUrl("https://img.com/goods.png")
+            .description("설명")
+            .validDays(30)
+            .goodsStatus(mapGoodsStatus(goodsStatus))
+            .exposed(exposed)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .build()
         );
     }
 

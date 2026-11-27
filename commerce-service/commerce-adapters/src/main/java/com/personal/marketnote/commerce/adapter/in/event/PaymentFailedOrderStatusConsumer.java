@@ -24,12 +24,12 @@ public class PaymentFailedOrderStatusConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_FAILED,
-            groupId = "commerce-order-status"
+        topics = KafkaTopicConstants.PAYMENT_FAILED,
+        groupId = "commerce-order-status"
     )
     public void handlePaymentFailedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,31 +47,31 @@ public class PaymentFailedOrderStatusConsumer {
             PaymentFailedEvent payload = envelope.getPayloadAs(PaymentFailedEvent.class, objectMapper);
 
             log.info("결제 실패 이벤트 수신. eventId={}, orderId={}, orderKey={}, resultCode={}",
-                    envelope.eventId(), payload.orderId(), payload.orderKey(), payload.resultCode()
+                envelope.eventId(), payload.orderId(), payload.orderKey(), payload.resultCode()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(payload.orderId())
-                    .orderStatus(OrderStatus.FAILED)
-                    .build();
+                .id(payload.orderId())
+                .orderStatus(OrderStatus.FAILED)
+                .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
             log.info("Kafka 이벤트로 주문 상태 FAILED 변경 완료. orderId={}, orderKey={}", payload.orderId(), payload.orderKey());
         } catch (OrderStatusAlreadyChangedException e) {
             log.info("이미 주문 상태가 변경됨 (멱등 처리). eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage()
+                envelope.eventId(), record.key(), e.getMessage()
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("주문 상태 FAILED 변경 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }

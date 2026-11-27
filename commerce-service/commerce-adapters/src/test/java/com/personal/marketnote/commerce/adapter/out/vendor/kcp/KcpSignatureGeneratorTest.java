@@ -81,7 +81,7 @@ class KcpSignatureGeneratorTest {
 
         // when & then
         assertThatThrownBy(() -> generator.generateSignData("T0000", "TNO_001", "STSC"))
-                .isInstanceOf(KcpSignatureGenerationFailedException.class);
+            .isInstanceOf(KcpSignatureGenerationFailedException.class);
     }
 
     @Test

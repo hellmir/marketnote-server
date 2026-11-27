@@ -23,34 +23,34 @@ public class OrderCommandToStateMapper {
 
     public static OrderStatusHistoryCreateState mapToState(ChangeOrderStatusCommand command) {
         return OrderStatusHistoryCreateState.builder()
-                .orderId(command.id())
-                .orderStatus(command.orderStatus())
-                .reasonCategory(command.reasonCategory())
-                .reason(command.reason())
-                .build();
+            .orderId(command.id())
+            .orderStatus(command.orderStatus())
+            .reasonCategory(command.reasonCategory())
+            .reason(command.reason())
+            .build();
     }
 
     public static List<OrderProductCreateState> mapToOrderProductStates(
-            List<OrderProductItemCommand> orderProducts,
-            Map<Long, ProductInfoResult> productInfoMap
+        List<OrderProductItemCommand> orderProducts,
+        Map<Long, ProductInfoResult> productInfoMap
     ) {
         return orderProducts.stream()
-                .map(item -> {
-                    Long accumulatedPoint = resolveAccumulatedPoint(item.pricePolicyId(), productInfoMap);
-                    UUID productKey = resolveProductKey(item.pricePolicyId(), productInfoMap);
-                    return OrderProductCreateState.builder()
-                            .productId(item.productId())
-                            .productKey(productKey)
-                            .sellerId(item.sellerId())
-                            .pricePolicyId(item.pricePolicyId())
-                            .sharerKey(item.sharerKey())
-                            .quantity(item.quantity())
-                            .unitAmount(item.unitAmount())
-                            .imageUrl(item.imageUrl())
-                            .accumulatedPoint(accumulatedPoint)
-                            .build();
-                })
-                .toList();
+            .map(item -> {
+                Long accumulatedPoint = resolveAccumulatedPoint(item.pricePolicyId(), productInfoMap);
+                UUID productKey = resolveProductKey(item.pricePolicyId(), productInfoMap);
+                return OrderProductCreateState.builder()
+                    .productId(item.productId())
+                    .productKey(productKey)
+                    .sellerId(item.sellerId())
+                    .pricePolicyId(item.pricePolicyId())
+                    .sharerKey(item.sharerKey())
+                    .quantity(item.quantity())
+                    .unitAmount(item.unitAmount())
+                    .imageUrl(item.imageUrl())
+                    .accumulatedPoint(accumulatedPoint)
+                    .build();
+            })
+            .toList();
     }
 
     private static Long resolveAccumulatedPoint(Long pricePolicyId, Map<Long, ProductInfoResult> productInfoMap) {
@@ -78,35 +78,35 @@ public class OrderCommandToStateMapper {
 
     public static OrderAmountCreateState mapToOrderAmountState(OrderAmountCommand amountCommand) {
         return OrderAmountCreateState.builder()
-                .totalAmount(amountCommand.totalAmount())
-                .couponAmount(amountCommand.couponAmount())
-                .pointAmount(amountCommand.pointAmount())
-                .shippingFee(amountCommand.shippingFee())
-                .build();
+            .totalAmount(amountCommand.totalAmount())
+            .couponAmount(amountCommand.couponAmount())
+            .pointAmount(amountCommand.pointAmount())
+            .shippingFee(amountCommand.shippingFee())
+            .build();
     }
 
     public static OrderCreateState mapToOrderState(
-            Long buyerId,
-            OrderAmount orderAmount,
-            ShippingAddress shippingAddress,
-            ShippingRegionType shippingRegionType,
-            List<OrderProductCreateState> orderProductStates
+        Long buyerId,
+        OrderAmount orderAmount,
+        ShippingAddress shippingAddress,
+        ShippingRegionType shippingRegionType,
+        List<OrderProductCreateState> orderProductStates
     ) {
         return OrderCreateState.builder()
-                .buyerId(buyerId)
-                .amount(orderAmount)
-                .shippingAddress(shippingAddress)
-                .shippingRegionType(shippingRegionType)
-                .orderProductStates(orderProductStates)
-                .build();
+            .buyerId(buyerId)
+            .amount(orderAmount)
+            .shippingAddress(shippingAddress)
+            .shippingRegionType(shippingRegionType)
+            .orderProductStates(orderProductStates)
+            .build();
     }
 
     public static PaymentCreateState mapToPaymentState(Long orderId, UUID orderKey, long paymentAmount) {
         return PaymentCreateState.builder()
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .paymentAmount(paymentAmount)
-                .build();
+            .orderId(orderId)
+            .orderKey(orderKey)
+            .paymentAmount(paymentAmount)
+            .build();
     }
 
     public static PaymentAllocationCreateState mapToPaymentAllocationState(Long orderId,
@@ -114,13 +114,13 @@ public class OrderCommandToStateMapper {
                                                                            Long allocatedAmount,
                                                                            Long shippingFee) {
         return PaymentAllocationCreateState.builder()
-                .orderId(orderId)
-                .sellerId(sellerId)
-                .allocatedAmount(allocatedAmount)
-                .shippingFee(shippingFee)
-                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
-                .build();
+            .orderId(orderId)
+            .sellerId(sellerId)
+            .allocatedAmount(allocatedAmount)
+            .shippingFee(shippingFee)
+            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+            .targetType(PaymentAllocationTargetType.ORDER)
+            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
+            .build();
     }
 }

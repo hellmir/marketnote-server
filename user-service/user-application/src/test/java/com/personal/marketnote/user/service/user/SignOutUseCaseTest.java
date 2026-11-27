@@ -51,9 +51,9 @@ class SignOutUseCaseTest {
         // then
         List<String> setCookies = result.get(HttpHeaders.SET_COOKIE);
         assertThat(setCookies).containsExactly(
-                INVALID_USER_ID_COOKIE,
-                INVALID_ACCESS_TOKEN_COOKIE,
-                INVALID_REFRESH_TOKEN_COOKIE
+            INVALID_USER_ID_COOKIE,
+            INVALID_ACCESS_TOKEN_COOKIE,
+            INVALID_REFRESH_TOKEN_COOKIE
         );
 
         InOrder inOrder = inOrder(httpCookieUtils);
@@ -93,7 +93,7 @@ class SignOutUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signOutService.signOut(refreshToken))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(parseRefreshTokenPort).extractUserId(refreshToken);
         verifyNoInteractions(deleteRefreshTokenPort, httpCookieUtils);
@@ -112,7 +112,7 @@ class SignOutUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signOutService.signOut(refreshToken))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(parseRefreshTokenPort).extractUserId(refreshToken);
         verify(deleteRefreshTokenPort).deleteByUserId(userId);

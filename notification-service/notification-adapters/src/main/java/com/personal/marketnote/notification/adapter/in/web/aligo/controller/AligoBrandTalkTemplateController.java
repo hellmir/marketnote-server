@@ -45,54 +45,54 @@ public class AligoBrandTalkTemplateController {
     @GetMapping
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<GetBrandTalkTemplateListResponse>> getTemplateList(
-            @RequestParam("sender-key") @NotBlank @Size(max = 40) String senderKey,
-            @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-            @RequestParam(value = "page-size", defaultValue = "10") @Min(1) int pageSize
+        @RequestParam("sender-key") @NotBlank @Size(max = 40) String senderKey,
+        @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+        @RequestParam(value = "page-size", defaultValue = "10") @Min(1) int pageSize
     ) {
         GetBrandTalkTemplateListResult result =
-                getBrandTalkTemplateListUseCase.getTemplateList(senderKey, page, pageSize);
+            getBrandTalkTemplateListUseCase.getTemplateList(senderKey, page, pageSize);
 
         GetBrandTalkTemplateListResponse response = GetBrandTalkTemplateListResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "브랜드메시지 템플릿 목록 조회 성공"),
-                HttpStatus.OK
+            BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "브랜드메시지 템플릿 목록 조회 성공"),
+            HttpStatus.OK
         );
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<RegisterBrandTalkTemplateResponse>> registerTemplate(
-            @Valid @RequestPart("request") RegisterBrandTalkTemplateRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image,
-            @RequestPart(value = "carouselItemImages", required = false) List<MultipartFile> carouselItemImages
+        @Valid @RequestPart("request") RegisterBrandTalkTemplateRequest request,
+        @RequestPart(value = "image", required = false) MultipartFile image,
+        @RequestPart(value = "carouselItemImages", required = false) List<MultipartFile> carouselItemImages
     ) throws IOException {
         List<BrandTalkButtonCommand> buttonCommands = mapButtons(request.buttons());
         BrandTalkCouponCommand couponCommand = mapCoupon(request.coupon());
 
         byte[] imageFile = FormatValidator.hasValue(image) ? image.getBytes() : null;
         String imageFileName = FormatValidator.hasValue(image)
-                ? FormatConverter.sanitizeFileName(image.getOriginalFilename())
-                : null;
+            ? FormatConverter.sanitizeFileName(image.getOriginalFilename())
+            : null;
 
         List<byte[]> carouselItemImageFiles = mapCarouselItemImageFiles(carouselItemImages);
         List<String> carouselItemImageFileNames = mapCarouselItemImageFileNames(carouselItemImages);
 
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
-                request.senderKey(), request.templateCode(), request.templateName(),
-                request.templateType(), request.templateContent(), request.adult(),
-                request.imageLink(), buttonCommands, couponCommand,
-                request.templateHeader(),
-                mapWideItem(request.mainWideItem()),
-                mapWideItems(request.subWideItems()),
-                request.carouselHeader(),
-                mapCarouselItems(request.carouselItems()),
-                mapCarouselCommerces(request.carouselCommerces()),
-                mapCarouselTail(request.carouselTail()),
-                request.videoUrl(), request.videoThumbnailUrl(),
-                mapCommerceInfo(request.commerceInfo()),
-                imageFile, imageFileName,
-                carouselItemImageFiles, carouselItemImageFileNames
+            request.senderKey(), request.templateCode(), request.templateName(),
+            request.templateType(), request.templateContent(), request.adult(),
+            request.imageLink(), buttonCommands, couponCommand,
+            request.templateHeader(),
+            mapWideItem(request.mainWideItem()),
+            mapWideItems(request.subWideItems()),
+            request.carouselHeader(),
+            mapCarouselItems(request.carouselItems()),
+            mapCarouselCommerces(request.carouselCommerces()),
+            mapCarouselTail(request.carouselTail()),
+            request.videoUrl(), request.videoThumbnailUrl(),
+            mapCommerceInfo(request.commerceInfo()),
+            imageFile, imageFileName,
+            carouselItemImageFiles, carouselItemImageFileNames
         );
 
         RegisterBrandTalkTemplateResult result = registerBrandTalkTemplateUseCase.registerTemplate(command);
@@ -100,8 +100,8 @@ public class AligoBrandTalkTemplateController {
         RegisterBrandTalkTemplateResponse response = RegisterBrandTalkTemplateResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "브랜드메시지 템플릿 등록 성공"),
-                HttpStatus.CREATED
+            BaseResponse.of(response, HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "브랜드메시지 템플릿 등록 성공"),
+            HttpStatus.CREATED
         );
     }
 
@@ -110,11 +110,11 @@ public class AligoBrandTalkTemplateController {
             return List.of();
         }
         return buttons.stream()
-                .map(btn -> new BrandTalkButtonCommand(
-                        btn.name(), btn.linkType(),
-                        btn.linkM(), btn.linkP(), btn.linkI(), btn.linkA()
-                ))
-                .toList();
+            .map(btn -> new BrandTalkButtonCommand(
+                btn.name(), btn.linkType(),
+                btn.linkM(), btn.linkP(), btn.linkI(), btn.linkA()
+            ))
+            .toList();
     }
 
     private BrandTalkCouponCommand mapCoupon(RegisterBrandTalkTemplateRequest.CouponRequest coupon) {
@@ -122,8 +122,8 @@ public class AligoBrandTalkTemplateController {
             return null;
         }
         return new BrandTalkCouponCommand(
-                coupon.title(), coupon.description(),
-                coupon.linkM(), coupon.linkP(), coupon.linkI(), coupon.linkA()
+            coupon.title(), coupon.description(),
+            coupon.linkM(), coupon.linkP(), coupon.linkI(), coupon.linkA()
         );
     }
 
@@ -132,7 +132,7 @@ public class AligoBrandTalkTemplateController {
             return null;
         }
         return new BrandTalkWideItemCommand(
-                item.title(), item.imageUrl(), item.linkM(), item.linkP(), item.linkI(), item.linkA()
+            item.title(), item.imageUrl(), item.linkM(), item.linkP(), item.linkI(), item.linkA()
         );
     }
 
@@ -144,31 +144,31 @@ public class AligoBrandTalkTemplateController {
     }
 
     private List<BrandTalkCarouselItemCommand> mapCarouselItems(
-            List<RegisterBrandTalkTemplateRequest.CarouselItemRequest> items
+        List<RegisterBrandTalkTemplateRequest.CarouselItemRequest> items
     ) {
         if (FormatValidator.hasNoValue(items)) {
             return List.of();
         }
         return items.stream()
-                .map(item -> new BrandTalkCarouselItemCommand(
-                        item.header(), item.content(),
-                        mapButtons(item.buttons()), mapCoupon(item.coupon())
-                ))
-                .toList();
+            .map(item -> new BrandTalkCarouselItemCommand(
+                item.header(), item.content(),
+                mapButtons(item.buttons()), mapCoupon(item.coupon())
+            ))
+            .toList();
     }
 
     private List<BrandTalkCarouselCommerceCommand> mapCarouselCommerces(
-            List<RegisterBrandTalkTemplateRequest.CarouselCommerceRequest> commerces
+        List<RegisterBrandTalkTemplateRequest.CarouselCommerceRequest> commerces
     ) {
         if (FormatValidator.hasNoValue(commerces)) {
             return List.of();
         }
         return commerces.stream()
-                .map(c -> new BrandTalkCarouselCommerceCommand(
-                        c.title(), c.regularPrice(),
-                        c.discountPrice(), c.discountRate(), c.discountFixed()
-                ))
-                .toList();
+            .map(c -> new BrandTalkCarouselCommerceCommand(
+                c.title(), c.regularPrice(),
+                c.discountPrice(), c.discountRate(), c.discountFixed()
+            ))
+            .toList();
     }
 
     private BrandTalkCarouselTailCommand mapCarouselTail(RegisterBrandTalkTemplateRequest.CarouselTailRequest tail) {
@@ -183,8 +183,8 @@ public class AligoBrandTalkTemplateController {
             return null;
         }
         return new BrandTalkCommerceInfoCommand(
-                commerceInfo.title(), commerceInfo.regularPrice(),
-                commerceInfo.discountPrice(), commerceInfo.discountRate(), commerceInfo.discountFixed()
+            commerceInfo.title(), commerceInfo.regularPrice(),
+            commerceInfo.discountPrice(), commerceInfo.discountRate(), commerceInfo.discountFixed()
         );
     }
 
@@ -204,8 +204,8 @@ public class AligoBrandTalkTemplateController {
             return List.of();
         }
         return files.stream()
-                .map(MultipartFile::getOriginalFilename)
-                .map(FormatConverter::sanitizeFileName)
-                .toList();
+            .map(MultipartFile::getOriginalFilename)
+            .map(FormatConverter::sanitizeFileName)
+            .toList();
     }
 }

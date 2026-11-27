@@ -38,8 +38,8 @@ class PaymentApprovedLedgerConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String orderKey, Long paymentAmount) {
         PaymentApprovedEvent event = new PaymentApprovedEvent(orderId, orderKey, paymentAmount);
         EventEnvelope<PaymentApprovedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.approved", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "commerce.payment.approved", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.payment.approved", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -64,7 +64,7 @@ class PaymentApprovedLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", 50000L);
         doThrow(new DuplicateLedgerTransactionException("PG_SETTLEMENT:1"))
-                .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+            .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
 
         // when
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
@@ -121,7 +121,7 @@ class PaymentApprovedLedgerConsumerTest {
     void handlePaymentApprovedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.approved", 0, 0L, "1", null
+            "commerce.payment.approved", 0, 0L, "1", null
         );
 
         // when
@@ -138,11 +138,11 @@ class PaymentApprovedLedgerConsumerTest {
         // given
         PaymentApprovedEvent event = new PaymentApprovedEvent(1L, "order-key-1", 50000L);
         EventEnvelope<PaymentApprovedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.approved", 0, 0L, "1", envelope
+            "commerce.payment.approved", 0, 0L, "1", envelope
         );
 
         // when
@@ -158,16 +158,16 @@ class PaymentApprovedLedgerConsumerTest {
     void handlePaymentApprovedEvent_deserializationFailure_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.approved", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.payment.approved", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.approved", 0, 0L, "1", envelope
+            "commerce.payment.approved", 0, 0L, "1", envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentApprovedEvent(record, acknowledgment))
-                .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

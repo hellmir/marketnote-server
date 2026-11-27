@@ -22,27 +22,27 @@ public class ProductServiceCommunicationHistory {
 
     public static ProductServiceCommunicationHistory from(ProductServiceCommunicationHistoryCreateState state) {
         return ProductServiceCommunicationHistory.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .build();
     }
 
     public static ProductServiceCommunicationHistory from(ProductServiceCommunicationHistorySnapshotState state) {
         return ProductServiceCommunicationHistory.builder()
-                .id(state.getId())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

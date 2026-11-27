@@ -36,7 +36,7 @@ public class UserProductInquiryPostItemResult {
     private List<UserProductInquiryPostItemResult> replies;
 
     public static UserProductInquiryPostItemResult from(
-            Post post, PostProductInfoResult productInfo, List<GetFileResult> images
+        Post post, PostProductInfoResult productInfo, List<GetFileResult> images
     ) {
         String categoryCode = null;
         if (FormatValidator.hasValue(post.getCategory())) {
@@ -44,25 +44,25 @@ public class UserProductInquiryPostItemResult {
         }
 
         return UserProductInquiryPostItemResult.builder()
-                .id(post.getId())
-                .userId(post.getUserId())
-                .parentId(post.getParentId())
-                .board(post.getBoard().name())
-                .category(categoryCode)
-                .targetType(post.getTargetType())
-                .targetId(post.getTargetId())
-                .productImageUrl(post.getProductImageUrl())
-                .writerName(post.getWriterName())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .isPrivate(post.isPrivate())
-                .isPhoto(post.isPhoto())
-                .images(images)
-                .isAnswered(post.hasReply())
-                .createdAt(post.getCreatedAt())
-                .modifiedAt(post.getModifiedAt())
-                .product(productInfo)
-                .build();
+            .id(post.getId())
+            .userId(post.getUserId())
+            .parentId(post.getParentId())
+            .board(post.getBoard().name())
+            .category(categoryCode)
+            .targetType(post.getTargetType())
+            .targetId(post.getTargetId())
+            .productImageUrl(post.getProductImageUrl())
+            .writerName(post.getWriterName())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .isPrivate(post.isPrivate())
+            .isPhoto(post.isPhoto())
+            .images(images)
+            .isAnswered(post.hasReply())
+            .createdAt(post.getCreatedAt())
+            .modifiedAt(post.getModifiedAt())
+            .product(productInfo)
+            .build();
     }
 
     public static UserProductInquiryPostItemResult from(Post post, List<GetFileResult> images) {
@@ -72,24 +72,24 @@ public class UserProductInquiryPostItemResult {
         }
 
         return UserProductInquiryPostItemResult.builder()
-                .id(post.getId())
-                .userId(post.getUserId())
-                .parentId(post.getParentId())
-                .board(post.getBoard().name())
-                .category(categoryCode)
-                .targetType(post.getTargetType())
-                .targetId(post.getTargetId())
-                .productImageUrl(post.getProductImageUrl())
-                .writerName(post.getWriterName())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .isPrivate(post.isPrivate())
-                .isPhoto(post.isPhoto())
-                .images(images)
-                .isAnswered(post.hasReply())
-                .createdAt(post.getCreatedAt())
-                .modifiedAt(post.getModifiedAt())
-                .build();
+            .id(post.getId())
+            .userId(post.getUserId())
+            .parentId(post.getParentId())
+            .board(post.getBoard().name())
+            .category(categoryCode)
+            .targetType(post.getTargetType())
+            .targetId(post.getTargetId())
+            .productImageUrl(post.getProductImageUrl())
+            .writerName(post.getWriterName())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .isPrivate(post.isPrivate())
+            .isPhoto(post.isPhoto())
+            .images(images)
+            .isAnswered(post.hasReply())
+            .createdAt(post.getCreatedAt())
+            .modifiedAt(post.getModifiedAt())
+            .build();
     }
 
     public void maskPrivatePost(Long userId) {
@@ -106,9 +106,9 @@ public class UserProductInquiryPostItemResult {
 
     public void addReplies(Post post, Map<Long, List<GetFileResult>> postImages) {
         replies = post.getReplies()
-                .stream()
-                .map(reply -> UserProductInquiryPostItemResult.from(reply, postImages.get(reply.getId())))
-                .toList();
+            .stream()
+            .map(reply -> UserProductInquiryPostItemResult.from(reply, postImages.get(reply.getId())))
+            .toList();
 
         if (FormatValidator.hasValue(replies)) {
             isAnswered = true;

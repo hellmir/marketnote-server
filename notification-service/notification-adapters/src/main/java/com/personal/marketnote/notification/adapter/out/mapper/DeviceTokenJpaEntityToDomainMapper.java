@@ -13,18 +13,18 @@ public class DeviceTokenJpaEntityToDomainMapper {
 
     public static Optional<DeviceToken> mapToDomain(DeviceTokenJpaEntity entity) {
         return Optional.ofNullable(entity)
-                .map(e -> DeviceToken.from(
-                        DeviceTokenSnapshotState.builder()
-                                .id(e.getId())
-                                .userId(e.getUserId())
-                                .token(e.getToken())
-                                .platform(e.getPlatform())
-                                .deviceId(e.getDeviceId())
-                                .lastUsedAt(e.getLastUsedAt())
-                                .status(e.getStatus())
-                                .createdAt(e.getCreatedAt())
-                                .modifiedAt(e.getModifiedAt())
-                                .build()
-                ));
+            .map(e -> DeviceToken.from(
+                DeviceTokenSnapshotState.builder()
+                    .id(e.getId())
+                    .userId(e.getUserId())
+                    .token(e.getToken())
+                    .platform(e.getPlatform())
+                    .deviceId(e.getDeviceId())
+                    .lastUsedAt(e.getLastUsedAt())
+                    .status(e.getStatus())
+                    .createdAt(e.getCreatedAt())
+                    .modifiedAt(e.getModifiedAt())
+                    .build()
+            ));
     }
 }

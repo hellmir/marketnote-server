@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingDetailQuery;
@@ -12,6 +11,7 @@ import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingQuery;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.exception.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.*;
@@ -85,20 +85,20 @@ class FulfillmentWarehousingClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentWarehousingClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubWarehousingMutationProperties() {
@@ -119,41 +119,41 @@ class FulfillmentWarehousingClientTest {
     private void stubWarehousingInspecDetailProperties() {
         when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
         when(properties.getWarehousingInspecDetailPath())
-                .thenReturn("/warehousing/inspec/{customerCode}/{slipNo}/{whCd}");
+            .thenReturn("/warehousing/inspec/{customerCode}/{slipNo}/{whCd}");
     }
 
     private void stubWarehousingAbnormalProperties() {
         when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
         when(properties.getWarehousingAbnormalPath())
-                .thenReturn("/warehousing/abnormal/{customerCode}/{whCd}/{slipNo}");
+            .thenReturn("/warehousing/abnormal/{customerCode}/{whCd}/{slipNo}");
     }
 
     private RegisterFulfillmentWarehousingCommand buildValidRegisterCommand() {
         RegisterFulfillmentWarehousingGoodsCommand goodsCommand = RegisterFulfillmentWarehousingGoodsCommand.of(
-                null, "PROD001", "PROD001", null, 10
+            null, "PROD001", "PROD001", null, 10
         );
         RegisterFulfillmentWarehousingItemCommand itemCommand = RegisterFulfillmentWarehousingItemCommand.builder()
-                .orderDate("20260414")
-                .orderNumber("ORD001")
-                .warehousingMethod("01")
-                .supplierCode("SUP001")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderDate("20260414")
+            .orderNumber("ORD001")
+            .warehousingMethod("01")
+            .supplierCode("SUP001")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentWarehousingCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private UpdateFulfillmentWarehousingCommand buildValidUpdateCommand() {
         UpdateFulfillmentWarehousingGoodsCommand goodsCommand = UpdateFulfillmentWarehousingGoodsCommand.of(
-                null, "PROD001", "PROD001", null, 10
+            null, "PROD001", "PROD001", null, 10
         );
         UpdateFulfillmentWarehousingItemCommand itemCommand = UpdateFulfillmentWarehousingItemCommand.builder()
-                .orderDate("20260414")
-                .orderNumber("ORD001")
-                .warehousingMethod("01")
-                .slipNumber("SLIP001")
-                .supplierCode("SUP001")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderDate("20260414")
+            .orderNumber("ORD001")
+            .warehousingMethod("01")
+            .slipNumber("SLIP001")
+            .supplierCode("SUP001")
+            .products(List.of(goodsCommand))
+            .build();
         return UpdateFulfillmentWarehousingCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
@@ -222,9 +222,9 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingMutationProperties();
             stubPayloadGenerator();
             RegisterFulfillmentWarehousingResponse payload = new RegisterFulfillmentWarehousingResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentWarehousingItemResponse("OK", "200", "SLIP001", "ORD001")),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentWarehousingItemResponse("OK", "200", "SLIP001", "ORD001")),
+                null
             );
             stubMethodChain(ResponseEntity.ok(toJson(payload)));
 
@@ -250,9 +250,9 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingMutationProperties();
             stubPayloadGenerator();
             RegisterFulfillmentWarehousingResponse payload = new RegisterFulfillmentWarehousingResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentWarehousingItemResponse("OK", "200", "SLIP001", "ORD001")),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentWarehousingItemResponse("OK", "200", "SLIP001", "ORD001")),
+                null
             );
             stubMethodChain(ResponseEntity.ok(toJson(payload)));
 
@@ -277,21 +277,21 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingListProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new FulfillmentWarehousingItemResponse(
-                            "20260414", "WH01", "Main",
-                            "ORD001", "SLIP001", "CUST001", "Cust",
-                            "SUP001", "SUPCUST", 1, "Sup",
-                            1, 1, "01", "Parcel",
-                            "CJ", "INV001", "A", "Arrived",
-                            "N", "remark", null
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new FulfillmentWarehousingItemResponse(
+                    "20260414", "WH01", "Main",
+                    "ORD001", "SLIP001", "CUST001", "Cust",
+                    "SUP001", "SUPCUST", 1, "Sup",
+                    1, 1, "01", "Parcel",
+                    "CJ", "INV001", "A", "Arrived",
+                    "N", "remark", null
+                )),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when
@@ -315,20 +315,20 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingDetailListResponse payload = new FulfillmentWarehousingDetailListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new FulfillmentWarehousingDetailItemResponse(
-                            "20260414", "WH01", "Main", "SLIP001", "ORD001",
-                            "CUST001", "Cust", "SUP001", "Sup", "SUPCUST",
-                            1, 1, 1, 0, "01", "Parcel",
-                            "CJ", "INV001", "A", "Arrived",
-                            "N", "remark", List.of()
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new FulfillmentWarehousingDetailItemResponse(
+                    "20260414", "WH01", "Main", "SLIP001", "ORD001",
+                    "CUST001", "Cust", "SUP001", "Sup", "SUPCUST",
+                    1, 1, 1, 0, "01", "Parcel",
+                    "CJ", "INV001", "A", "Arrived",
+                    "N", "remark", List.of()
+                )),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when
@@ -352,20 +352,20 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingInspecDetailProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingInspecDetailListResponse payload = new FulfillmentWarehousingInspecDetailListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new FulfillmentWarehousingInspecDetailItemResponse(
-                            "20260414", "WH01", "Main", "SLIP001",
-                            "CUST001", "Cust", "SUP001", "Sup",
-                            "01", "Parcel", "GOD001", 1, 1,
-                            "CJ", "INV001", "A", "Arrived", "remark",
-                            null, null, null, null
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new FulfillmentWarehousingInspecDetailItemResponse(
+                    "20260414", "WH01", "Main", "SLIP001",
+                    "CUST001", "Cust", "SUP001", "Sup",
+                    "01", "Parcel", "GOD001", 1, 1,
+                    "CJ", "INV001", "A", "Arrived", "remark",
+                    null, null, null, null
+                )),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingInspecDetailCommand command = GetFulfillmentWarehousingInspecDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "WH01"
+                "CUST001", "valid-token", "SLIP001", "WH01"
             );
 
             // when
@@ -388,19 +388,19 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingAbnormalProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingAbnormalListResponse payload = new FulfillmentWarehousingAbnormalListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new FulfillmentWarehousingAbnormalItemResponse(
-                            "SLIP001", "SERIAL001", "OK", "WH01",
-                            "CUST001", "Cust", "GOD001", "desc", "remark",
-                            "FS1", 1, "20260414", "Reg",
-                            "20260414", "Upd", "FN1", null
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new FulfillmentWarehousingAbnormalItemResponse(
+                    "SLIP001", "SERIAL001", "OK", "WH01",
+                    "CUST001", "Cust", "GOD001", "desc", "remark",
+                    "FS1", 1, "20260414", "Reg",
+                    "20260414", "Upd", "FN1", null
+                )),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingAbnormalCommand command = GetFulfillmentWarehousingAbnormalCommand.of(
-                    "CUST001", "valid-token", "WH01", "SLIP001"
+                "CUST001", "valid-token", "WH01", "SLIP001"
             );
 
             // when
@@ -429,7 +429,7 @@ class FulfillmentWarehousingClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(command))
-                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
         }
 
         @Test
@@ -439,17 +439,17 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingMutationProperties();
             stubPayloadGenerator();
             stubMethodChainThrows(new org.springframework.web.client.HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "server boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "server boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             RegisterFulfillmentWarehousingCommand command = buildValidRegisterCommand();
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(command))
-                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
         }
     }
 
@@ -464,17 +464,17 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingMutationProperties();
             stubPayloadGenerator();
             stubMethodChainThrows(new org.springframework.web.client.HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             UpdateFulfillmentWarehousingCommand command = buildValidUpdateCommand();
 
             // when & then
             assertThatThrownBy(() -> client.updateWarehousing(command))
-                    .isInstanceOf(UpdateFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(UpdateFulfillmentWarehousingFailedException.class);
         }
     }
 
@@ -491,12 +491,12 @@ class FulfillmentWarehousingClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
         }
     }
 
@@ -511,19 +511,19 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new org.springframework.web.client.HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingDetail(command))
-                    .isInstanceOf(GetFulfillmentWarehousingDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingDetailFailedException.class);
         }
     }
 
@@ -538,19 +538,19 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingInspecDetailProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new org.springframework.web.client.HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "server error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "server error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentWarehousingInspecDetailCommand command = GetFulfillmentWarehousingInspecDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "WH01"
+                "CUST001", "valid-token", "SLIP001", "WH01"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingInspecDetail(command))
-                    .isInstanceOf(GetFulfillmentWarehousingInspecDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingInspecDetailFailedException.class);
         }
     }
 
@@ -567,12 +567,12 @@ class FulfillmentWarehousingClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentWarehousingAbnormalCommand command = GetFulfillmentWarehousingAbnormalCommand.of(
-                    "CUST001", "valid-token", "WH01", "SLIP001"
+                "CUST001", "valid-token", "WH01", "SLIP001"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingAbnormal(command))
-                    .isInstanceOf(GetFulfillmentWarehousingAbnormalFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingAbnormalFailedException.class);
         }
     }
 
@@ -587,12 +587,12 @@ class FulfillmentWarehousingClientTest {
             when(properties.getBaseUrl()).thenReturn(null);
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -604,7 +604,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingDetailQuery는 slipNo가 없으면 예외가 발생한다")
         void shouldThrowWhenDetailQueryMissesSlipNo() {
             assertThatThrownBy(() -> FulfillmentWarehousingDetailQuery.of(
-                    "CUST001", "valid-token", null, null
+                "CUST001", "valid-token", null, null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -612,7 +612,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingDetailQuery는 customerCode가 없으면 예외가 발생한다")
         void shouldThrowWhenDetailQueryMissesCustomerCode() {
             assertThatThrownBy(() -> FulfillmentWarehousingDetailQuery.of(
-                    null, "valid-token", "SLIP001", null
+                null, "valid-token", "SLIP001", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -620,7 +620,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingDetailQuery는 accessToken이 없으면 예외가 발생한다")
         void shouldThrowWhenDetailQueryMissesAccessToken() {
             assertThatThrownBy(() -> FulfillmentWarehousingDetailQuery.of(
-                    "CUST001", null, "SLIP001", null
+                "CUST001", null, "SLIP001", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -628,7 +628,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingInspecDetailQuery는 whCd가 없으면 예외가 발생한다")
         void shouldThrowWhenInspecDetailQueryMissesWhCd() {
             assertThatThrownBy(() -> FulfillmentWarehousingInspecDetailQuery.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -636,7 +636,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingInspecDetailQuery는 slipNo가 없으면 예외가 발생한다")
         void shouldThrowWhenInspecDetailQueryMissesSlipNo() {
             assertThatThrownBy(() -> FulfillmentWarehousingInspecDetailQuery.of(
-                    "CUST001", "valid-token", null, "WH01"
+                "CUST001", "valid-token", null, "WH01"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -644,7 +644,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingAbnormalQuery는 whCd가 없으면 예외가 발생한다")
         void shouldThrowWhenAbnormalQueryMissesWhCd() {
             assertThatThrownBy(() -> FulfillmentWarehousingAbnormalQuery.of(
-                    "CUST001", "valid-token", null, "SLIP001"
+                "CUST001", "valid-token", null, "SLIP001"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -652,7 +652,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingAbnormalQuery는 slipNo가 없으면 예외가 발생한다")
         void shouldThrowWhenAbnormalQueryMissesSlipNo() {
             assertThatThrownBy(() -> FulfillmentWarehousingAbnormalQuery.of(
-                    "CUST001", "valid-token", "WH01", null
+                "CUST001", "valid-token", "WH01", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -660,7 +660,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingQuery는 startDate가 없으면 예외가 발생한다")
         void shouldThrowWhenListQueryMissesStartDate() {
             assertThatThrownBy(() -> FulfillmentWarehousingQuery.of(
-                    "CUST001", "valid-token", null, "20260131"
+                "CUST001", "valid-token", null, "20260131"
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
@@ -668,7 +668,7 @@ class FulfillmentWarehousingClientTest {
         @DisplayName("FulfillmentWarehousingQuery는 endDate가 없으면 예외가 발생한다")
         void shouldThrowWhenListQueryMissesEndDate() {
             assertThatThrownBy(() -> FulfillmentWarehousingQuery.of(
-                    "CUST001", "valid-token", "20260101", null
+                "CUST001", "valid-token", "20260101", null
             )).isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
@@ -684,19 +684,19 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingListProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "stale-token", "20260101", "20260131"
+                "CUST001", "stale-token", "20260101", "20260131"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
 
         @Test
@@ -706,19 +706,19 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingListProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
-                    new FulfillmentResponseHeader("400", "bad", 0),
-                    List.of(),
-                    new FulfillmentErrorInfo("INVALID_ACCESS", "Access denied", null)
+                new FulfillmentResponseHeader("400", "bad", 0),
+                List.of(),
+                new FulfillmentErrorInfo("INVALID_ACCESS", "Access denied", null)
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "stale-token", "20260101", "20260131"
+                "CUST001", "stale-token", "20260101", "20260131"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
     }
 
@@ -738,23 +738,23 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "slipNo": "SLIP001",
-                        "ordNo": "ORD001",
-                        "goods": [{
-                          "godCd": "GOD001",
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, TEST_ENCODED_CST_GOD_CD);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "slipNo": "SLIP001",
+                    "ordNo": "ORD001",
+                    "goods": [{
+                      "godCd": "GOD001",
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, TEST_ENCODED_CST_GOD_CD);
             stubGetChain(ResponseEntity.ok(body));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when
@@ -764,7 +764,7 @@ class FulfillmentWarehousingClientTest {
             assertThat(result.details()).hasSize(1);
             assertThat(result.details().get(0).goods()).hasSize(1);
             assertThat(result.details().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(TEST_ENCODED_CST_GOD_CD);
+                .isEqualTo(TEST_ENCODED_CST_GOD_CD);
         }
 
         @Test
@@ -774,23 +774,23 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "slipNo": "SLIP001",
-                        "ordNo": "ORD001",
-                        "goods": [{
-                          "godCd": "GOD001",
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, FALLBACK_PRODUCT_CODE);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "slipNo": "SLIP001",
+                    "ordNo": "ORD001",
+                    "goods": [{
+                      "godCd": "GOD001",
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, FALLBACK_PRODUCT_CODE);
             stubGetChain(ResponseEntity.ok(body));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when
@@ -798,7 +798,7 @@ class FulfillmentWarehousingClientTest {
 
             // then
             assertThat(result.details().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(FALLBACK_PRODUCT_CODE);
+                .isEqualTo(FALLBACK_PRODUCT_CODE);
         }
 
         @Test
@@ -808,23 +808,23 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "slipNo": "SLIP001",
-                        "ordNo": "ORD001",
-                        "goods": [{
-                          "godCd": "GOD001",
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, LEGACY_UUID_RAW);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "slipNo": "SLIP001",
+                    "ordNo": "ORD001",
+                    "goods": [{
+                      "godCd": "GOD001",
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, LEGACY_UUID_RAW);
             stubGetChain(ResponseEntity.ok(body));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when
@@ -832,7 +832,7 @@ class FulfillmentWarehousingClientTest {
 
             // then
             assertThat(result.details().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(LEGACY_UUID_RAW);
+                .isEqualTo(LEGACY_UUID_RAW);
         }
     }
 
@@ -849,7 +849,7 @@ class FulfillmentWarehousingClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -861,7 +861,7 @@ class FulfillmentWarehousingClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -872,12 +872,12 @@ class FulfillmentWarehousingClientTest {
             when(properties.getWarehousingDetailPath()).thenReturn("/warehousing/detail/{customerCode}");
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingDetail(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -886,15 +886,15 @@ class FulfillmentWarehousingClientTest {
             // given
             when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
             when(properties.getWarehousingInspecDetailPath())
-                    .thenReturn("/warehousing/inspec/{customerCode}/{slipNo}");
+                .thenReturn("/warehousing/inspec/{customerCode}/{slipNo}");
 
             GetFulfillmentWarehousingInspecDetailCommand command = GetFulfillmentWarehousingInspecDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "WH01"
+                "CUST001", "valid-token", "SLIP001", "WH01"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingInspecDetail(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -903,15 +903,15 @@ class FulfillmentWarehousingClientTest {
             // given
             when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
             when(properties.getWarehousingAbnormalPath())
-                    .thenReturn("/warehousing/abnormal/{customerCode}/{whCd}");
+                .thenReturn("/warehousing/abnormal/{customerCode}/{whCd}");
 
             GetFulfillmentWarehousingAbnormalCommand command = GetFulfillmentWarehousingAbnormalCommand.of(
-                    "CUST001", "valid-token", "WH01", "SLIP001"
+                "CUST001", "valid-token", "WH01", "SLIP001"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingAbnormal(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -929,7 +929,7 @@ class FulfillmentWarehousingClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
         }
 
         @Test
@@ -941,12 +941,12 @@ class FulfillmentWarehousingClientTest {
             stubGetChain(ResponseEntity.ok(""));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
         }
     }
 
@@ -961,15 +961,15 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingMutationProperties();
             stubPayloadGenerator();
             RegisterFulfillmentWarehousingResponse payload = new RegisterFulfillmentWarehousingResponse(
-                    new FulfillmentResponseHeader("500", "Vendor failure", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("500", "Vendor failure", 0),
+                List.of(),
+                null
             );
             stubMethodChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
         }
 
         @Test
@@ -979,19 +979,19 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingDetailListResponse payload = new FulfillmentWarehousingDetailListResponse(
-                    new FulfillmentResponseHeader("400", "Bad request", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("400", "Bad request", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", null
+                "CUST001", "valid-token", "SLIP001", null
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingDetail(command))
-                    .isInstanceOf(GetFulfillmentWarehousingDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingDetailFailedException.class);
         }
     }
 
@@ -1002,19 +1002,19 @@ class FulfillmentWarehousingClientTest {
         private void stubAbnormalImageProperties() {
             when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
             when(properties.getWarehousingAbnormalImagePath())
-                    .thenReturn("/warehousing/abnormal/image/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}");
+                .thenReturn("/warehousing/abnormal/image/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}");
         }
 
         private com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingAbnormalImageCommand buildCommand() {
             return com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingAbnormalImageCommand.builder()
-                    .accessToken("valid-token")
-                    .slipNumber("SLIP001")
-                    .productCode("PROD01")
-                    .fasstoProductCode("GOD001")
-                    .goodsSerialNo("SERIAL001")
-                    .fileSeq("1")
-                    .imageNumber("1")
-                    .build();
+                .accessToken("valid-token")
+                .slipNumber("SLIP001")
+                .productCode("PROD01")
+                .fasstoProductCode("GOD001")
+                .goodsSerialNo("SERIAL001")
+                .fileSeq("1")
+                .imageNumber("1")
+                .build();
         }
 
         @Test
@@ -1024,9 +1024,9 @@ class FulfillmentWarehousingClientTest {
             stubAbnormalImageProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingAbnormalImageResponse payload = new FulfillmentWarehousingAbnormalImageResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    Map.of("image", "base64-data"),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                Map.of("image", "base64-data"),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -1046,7 +1046,7 @@ class FulfillmentWarehousingClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -1055,11 +1055,11 @@ class FulfillmentWarehousingClientTest {
             // given
             when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
             when(properties.getWarehousingAbnormalImagePath())
-                    .thenReturn("/warehousing/abnormal/image/{slipNo}/{goodsSerialNo}/{fileSeq}/{imgNo}");
+                .thenReturn("/warehousing/abnormal/image/{slipNo}/{goodsSerialNo}/{fileSeq}/{imgNo}");
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -1072,7 +1072,7 @@ class FulfillmentWarehousingClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
-                    .isInstanceOf(GetFulfillmentWarehousingAbnormalImageFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingAbnormalImageFailedException.class);
         }
 
         @Test
@@ -1082,15 +1082,15 @@ class FulfillmentWarehousingClientTest {
             stubAbnormalImageProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new org.springframework.web.client.HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
-                    .isInstanceOf(GetFulfillmentWarehousingAbnormalImageFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingAbnormalImageFailedException.class);
         }
     }
 
@@ -1106,16 +1106,16 @@ class FulfillmentWarehousingClientTest {
             stubPayloadGenerator();
             String errorBody = "{\"errorInfo\":{\"errorCode\":\"E_VENDOR\",\"errorMessage\":\"vendor down\"}}";
             stubMethodChainThrows(new org.springframework.web.client.HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    errorBody.getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                errorBody.getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class)
-                    .hasMessageContaining("vendor down");
+                .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class)
+                .hasMessageContaining("vendor down");
         }
 
         @Test
@@ -1125,20 +1125,20 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingListProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
-                    new FulfillmentResponseHeader("500", "fail", 0),
-                    List.of(),
-                    new FulfillmentErrorInfo("E_INTERNAL", "internal vendor error", null)
+                new FulfillmentResponseHeader("500", "fail", 0),
+                List.of(),
+                new FulfillmentErrorInfo("E_INTERNAL", "internal vendor error", null)
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class)
-                    .hasMessageContaining("internal vendor error");
+                .isInstanceOf(GetFulfillmentWarehousingFailedException.class)
+                .hasMessageContaining("internal vendor error");
         }
     }
 
@@ -1153,21 +1153,21 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingListProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
-                    new FulfillmentResponseHeader("200", "success", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("200", "success", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .warehousingMethod("01")
-                    .orderNumber("ORD001")
-                    .workStatus("A")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .warehousingMethod("01")
+                .orderNumber("ORD001")
+                .workStatus("A")
+                .build();
 
             // when
             GetFulfillmentWarehousingResult result = client.getWarehousing(command);
@@ -1183,14 +1183,14 @@ class FulfillmentWarehousingClientTest {
             stubWarehousingDetailProperties();
             stubPayloadGenerator();
             FulfillmentWarehousingDetailListResponse payload = new FulfillmentWarehousingDetailListResponse(
-                    new FulfillmentResponseHeader("200", "success", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("200", "success", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
-                    "CUST001", "valid-token", "SLIP001", "ORD001"
+                "CUST001", "valid-token", "SLIP001", "ORD001"
             );
 
             // when
@@ -1216,19 +1216,19 @@ class FulfillmentWarehousingClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -1242,19 +1242,19 @@ class FulfillmentWarehousingClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131"
+                "CUST001", "valid-token", "20260101", "20260131"
             );
 
             // when
             assertThatThrownBy(() -> client.getWarehousing(command))
-                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+                .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
             );
         }
     }

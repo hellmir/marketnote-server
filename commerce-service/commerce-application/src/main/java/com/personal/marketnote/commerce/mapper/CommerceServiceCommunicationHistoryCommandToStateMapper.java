@@ -8,16 +8,16 @@ public class CommerceServiceCommunicationHistoryCommandToStateMapper {
     }
 
     public static CommerceServiceCommunicationHistoryCreateState mapToCreateState(
-            CommerceServiceCommunicationHistoryCommand command
+        CommerceServiceCommunicationHistoryCommand command
     ) {
         return CommerceServiceCommunicationHistoryCreateState.builder()
-                .targetType(command.getTargetType())
-                .targetId(command.getTargetId())
-                .communicationType(command.getCommunicationType())
-                .sender(command.getSender())
-                .exception(command.getException())
-                .payload(command.getPayload())
-                .payloadJson(command.getPayloadJson())
-                .build();
+            .targetType(command.getTargetType())
+            .targetId(command.getTargetId())
+            .communicationType(command.getCommunicationType())
+            .sender(command.getSender())
+            .exception(command.getException())
+            .payload(command.getPayload())
+            .payloadJson(command.getPayloadJson())
+            .build();
     }
 }

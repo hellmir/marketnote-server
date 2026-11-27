@@ -53,8 +53,8 @@ public class RegisterPostService implements RegisterPostUseCase {
         if (isSeller && command.isReply()) {
             preFetchedPricePolicyId = command.targetId();
             preFetchedProductInfo = findProductByPricePolicyPort
-                    .findByPricePolicyIds(List.of(preFetchedPricePolicyId))
-                    .get(preFetchedPricePolicyId);
+                .findByPricePolicyIds(List.of(preFetchedPricePolicyId))
+                .get(preFetchedPricePolicyId);
 
             if (!isProductSeller(command.userId(), preFetchedProductInfo)) {
                 throw new NotProductSellerException(preFetchedPricePolicyId);
@@ -62,7 +62,7 @@ public class RegisterPostService implements RegisterPostUseCase {
         }
 
         Post savedPost = savePostPort.save(
-                Post.from(PostCommandToStateMapper.mapToState(command))
+            Post.from(PostCommandToStateMapper.mapToState(command))
         );
 
         if (command.isReply()) {
@@ -71,7 +71,7 @@ public class RegisterPostService implements RegisterPostUseCase {
 
         if (command.board().isNotice() && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())) {
             publishPostEventPort.publishNoticeRegisteredEvent(
-                    savedPost.getId(), command.title(), savedPost.isImportant()
+                savedPost.getId(), command.title(), savedPost.isImportant()
             );
         }
 
@@ -85,8 +85,8 @@ public class RegisterPostService implements RegisterPostUseCase {
 
         if (command.board().isProductInquery() && command.isReply()) {
             publishProductInquiryAnsweredEvent(
-                    command.parentId(), command.board().name(),
-                    preFetchedProductInfo, preFetchedPricePolicyId
+                command.parentId(), command.board().name(),
+                preFetchedProductInfo, preFetchedPricePolicyId
             );
         }
 
@@ -107,40 +107,40 @@ public class RegisterPostService implements RegisterPostUseCase {
         findPostPort.findById(parentPostId).ifPresent(parentPost -> {
             if (!parentPost.isOneOnOneInquiryPost()) {
                 log.warn(
-                        "1:1 문의 답변 이벤트 발행 skip - 부모 post board 불일치: parentPostId={}, parentBoard={}",
-                        parentPostId, parentPost.getBoard()
+                    "1:1 문의 답변 이벤트 발행 skip - 부모 post board 불일치: parentPostId={}, parentBoard={}",
+                    parentPostId, parentPost.getBoard()
                 );
                 return;
             }
             publishPostEventPort.publishInquiryAnsweredEvent(
-                    parentPost.getUserId(), parentPost.getId(), parentPost.getTitle(), board
+                parentPost.getUserId(), parentPost.getId(), parentPost.getTitle(), board
             );
         });
     }
 
     private void publishProductInquiryAnsweredEvent(
-            Long parentPostId, String board,
-            ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+        Long parentPostId, String board,
+        ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
     ) {
         findPostPort.findById(parentPostId).ifPresent(parentPost -> {
             if (!parentPost.isProductInquiryPost()) {
                 log.warn(
-                        "상품 문의 답변 이벤트 발행 skip - 부모 post board 불일치: parentPostId={}, parentBoard={}",
-                        parentPostId, parentPost.getBoard()
+                    "상품 문의 답변 이벤트 발행 skip - 부모 post board 불일치: parentPostId={}, parentBoard={}",
+                    parentPostId, parentPost.getBoard()
                 );
                 return;
             }
             String resolvedTitle = resolveProductInquiryTitle(
-                    parentPost, preFetchedProductInfo, preFetchedPricePolicyId
+                parentPost, preFetchedProductInfo, preFetchedPricePolicyId
             );
             publishPostEventPort.publishInquiryAnsweredEvent(
-                    parentPost.getUserId(), parentPost.getId(), resolvedTitle, board
+                parentPost.getUserId(), parentPost.getId(), resolvedTitle, board
             );
         });
     }
 
     private String resolveProductInquiryTitle(
-            Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+        Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
     ) {
         if (parentPost.hasNoTitle()) {
             return resolveTitleFromProduct(parentPost, preFetchedProductInfo, preFetchedPricePolicyId);
@@ -149,7 +149,7 @@ public class RegisterPostService implements RegisterPostUseCase {
     }
 
     private String resolveTitleFromProduct(
-            Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+        Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
     ) {
         if (!parentPost.isPricePolicyTarget()) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
@@ -158,7 +158,7 @@ public class RegisterPostService implements RegisterPostUseCase {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
         ProductInfoResult productInfo = resolveProductInfoForTitle(
-                parentPost, preFetchedProductInfo, preFetchedPricePolicyId
+            parentPost, preFetchedProductInfo, preFetchedPricePolicyId
         );
         if (FormatValidator.hasNoValue(productInfo)) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
@@ -170,15 +170,15 @@ public class RegisterPostService implements RegisterPostUseCase {
     }
 
     private ProductInfoResult resolveProductInfoForTitle(
-            Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+        Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
     ) {
         if (FormatValidator.hasValue(preFetchedProductInfo)
-                && parentPost.getTargetId().equals(preFetchedPricePolicyId)) {
+            && parentPost.getTargetId().equals(preFetchedPricePolicyId)) {
             return preFetchedProductInfo;
         }
         return findProductByPricePolicyPort
-                .findByPricePolicyIds(List.of(parentPost.getTargetId()))
-                .get(parentPost.getTargetId());
+            .findByPricePolicyIds(List.of(parentPost.getTargetId()))
+            .get(parentPost.getTargetId());
     }
 
     // 판매자 입력 상품명을 이벤트 title로 주입하기 전 완화:

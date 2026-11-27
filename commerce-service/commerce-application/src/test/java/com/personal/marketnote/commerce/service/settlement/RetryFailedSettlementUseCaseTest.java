@@ -42,20 +42,20 @@ class RetryFailedSettlementUseCaseTest {
     private Settlement createFailedSettlement(Long id, Long sellerId, Long totalAllocatedAmount,
                                               Long pgFeeAmount, Long platformFeeAmount, Long sellerPayoutAmount) {
         Settlement settlement = Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .year(2026)
-                .month(2)
-                .totalAllocatedAmount(totalAllocatedAmount)
-                .pgFeeAmount(pgFeeAmount)
-                .platformFeeAmount(platformFeeAmount)
-                .sellerPayoutAmount(sellerPayoutAmount)
-                .status(SettlementStatus.FAILED)
-                .version(0L)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .shippingFee(0L)
-                .build());
+            .id(id)
+            .sellerId(sellerId)
+            .year(2026)
+            .month(2)
+            .totalAllocatedAmount(totalAllocatedAmount)
+            .pgFeeAmount(pgFeeAmount)
+            .platformFeeAmount(platformFeeAmount)
+            .sellerPayoutAmount(sellerPayoutAmount)
+            .status(SettlementStatus.FAILED)
+            .version(0L)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .shippingFee(0L)
+            .build());
         return settlement;
     }
 
@@ -71,7 +71,7 @@ class RetryFailedSettlementUseCaseTest {
 
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(failedSettlement));
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             retryFailedSettlementService.retrySettlement(1L);
@@ -90,7 +90,7 @@ class RetryFailedSettlementUseCaseTest {
 
             when(findSettlementPort.findById(2L)).thenReturn(Optional.of(failedSettlement));
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             retryFailedSettlementService.retrySettlement(2L);
@@ -114,7 +114,7 @@ class RetryFailedSettlementUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> retryFailedSettlementService.retrySettlement(999L))
-                    .isInstanceOf(SettlementNotFoundException.class);
+                .isInstanceOf(SettlementNotFoundException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -125,26 +125,26 @@ class RetryFailedSettlementUseCaseTest {
         void shouldThrowWhenSettlementIsPending() {
             // given
             Settlement pendingSettlement = Settlement.from(SettlementSnapshotState.builder()
-                    .id(1L)
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L)
-                    .sellerPayoutAmount(92000L)
-                    .status(SettlementStatus.PENDING)
-                    .version(0L)
-                    .createdAt(LocalDateTime.now())
-                    .modifiedAt(LocalDateTime.now())
-                    .shippingFee(0L)
-                    .build());
+                .id(1L)
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .pgFeeAmount(3000L)
+                .platformFeeAmount(5000L)
+                .sellerPayoutAmount(92000L)
+                .status(SettlementStatus.PENDING)
+                .version(0L)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .shippingFee(0L)
+                .build());
 
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(pendingSettlement));
 
             // when & then
             assertThatThrownBy(() -> retryFailedSettlementService.retrySettlement(1L))
-                    .isInstanceOf(InvalidSettlementStatusTransitionException.class);
+                .isInstanceOf(InvalidSettlementStatusTransitionException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -155,26 +155,26 @@ class RetryFailedSettlementUseCaseTest {
         void shouldThrowWhenSettlementIsCompleted() {
             // given
             Settlement completedSettlement = Settlement.from(SettlementSnapshotState.builder()
-                    .id(1L)
-                    .sellerId(10L)
-                    .year(2026)
-                    .month(2)
-                    .totalAllocatedAmount(100000L)
-                    .pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L)
-                    .sellerPayoutAmount(92000L)
-                    .status(SettlementStatus.COMPLETED)
-                    .version(1L)
-                    .createdAt(LocalDateTime.now())
-                    .modifiedAt(LocalDateTime.now())
-                    .shippingFee(0L)
-                    .build());
+                .id(1L)
+                .sellerId(10L)
+                .year(2026)
+                .month(2)
+                .totalAllocatedAmount(100000L)
+                .pgFeeAmount(3000L)
+                .platformFeeAmount(5000L)
+                .sellerPayoutAmount(92000L)
+                .status(SettlementStatus.COMPLETED)
+                .version(1L)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .shippingFee(0L)
+                .build());
 
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(completedSettlement));
 
             // when & then
             assertThatThrownBy(() -> retryFailedSettlementService.retrySettlement(1L))
-                    .isInstanceOf(InvalidSettlementStatusTransitionException.class);
+                .isInstanceOf(InvalidSettlementStatusTransitionException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -193,7 +193,7 @@ class RetryFailedSettlementUseCaseTest {
 
             when(findSettlementPort.findById(5L)).thenReturn(Optional.of(failedSettlement));
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             retryFailedSettlementService.retrySettlement(5L);

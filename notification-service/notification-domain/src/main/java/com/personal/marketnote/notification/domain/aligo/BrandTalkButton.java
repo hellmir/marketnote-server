@@ -18,33 +18,33 @@ public class BrandTalkButton {
 
     public static BrandTalkButton from(BrandTalkButtonCreateState state) {
         validate(
-                state.getName(), state.getLinkType(),
-                state.getLinkM(), state.getLinkP(), state.getLinkI(), state.getLinkA()
+            state.getName(), state.getLinkType(),
+            state.getLinkM(), state.getLinkP(), state.getLinkI(), state.getLinkA()
         );
         return BrandTalkButton.builder()
-                .name(state.getName())
-                .linkType(state.getLinkType())
-                .linkM(state.getLinkM())
-                .linkP(state.getLinkP())
-                .linkI(state.getLinkI())
-                .linkA(state.getLinkA())
-                .build();
+            .name(state.getName())
+            .linkType(state.getLinkType())
+            .linkM(state.getLinkM())
+            .linkP(state.getLinkP())
+            .linkI(state.getLinkI())
+            .linkA(state.getLinkA())
+            .build();
     }
 
     public static BrandTalkButton from(BrandTalkButtonSnapshotState state) {
         return BrandTalkButton.builder()
-                .name(state.getName())
-                .linkType(state.getLinkType())
-                .linkM(state.getLinkM())
-                .linkP(state.getLinkP())
-                .linkI(state.getLinkI())
-                .linkA(state.getLinkA())
-                .build();
+            .name(state.getName())
+            .linkType(state.getLinkType())
+            .linkM(state.getLinkM())
+            .linkP(state.getLinkP())
+            .linkI(state.getLinkI())
+            .linkA(state.getLinkA())
+            .build();
     }
 
     private static void validate(
-            String name, AligoTemplateButtonLinkType linkType,
-            String linkM, String linkP, String linkI, String linkA
+        String name, AligoTemplateButtonLinkType linkType,
+        String linkM, String linkP, String linkI, String linkA
     ) {
         if (FormatValidator.hasNoValue(name)) {
             throw new InvalidBrandTalkButtonException("버튼 name은 필수입니다.");

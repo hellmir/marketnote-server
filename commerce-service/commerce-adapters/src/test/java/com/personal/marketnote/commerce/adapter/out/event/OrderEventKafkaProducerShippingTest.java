@@ -58,20 +58,20 @@ class OrderEventKafkaProducerShippingTest {
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06234").address("서울특별시 강남구 테헤란로 123").addressDetail("4층 401호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
 
         OrderProduct product = OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .productId(42L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
-                .quantity(2)
-                .unitAmount(30000L)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(500L)
-                .build());
+            .orderId(1L)
+            .productId(42L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
+            .quantity(2)
+            .unitAmount(30000L)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(500L)
+            .build());
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                1L, 50L, 60000L, 5000L, shippingAddress, List.of(product), 1000L
+            1L, 50L, 60000L, 5000L, shippingAddress, List.of(product), 1000L
         );
 
         // then
@@ -101,18 +101,18 @@ class OrderEventKafkaProducerShippingTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         OrderProduct product = OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .quantity(1)
-                .unitAmount(50000L)
-                .orderStatus(OrderStatus.PAID)
-                .accumulatedPoint(0L)
-                .build());
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .quantity(1)
+            .unitAmount(50000L)
+            .orderStatus(OrderStatus.PAID)
+            .accumulatedPoint(0L)
+            .build());
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                1L, 50L, 50000L, 0L, null, List.of(product), 0L
+            1L, 50L, 50000L, 0L, null, List.of(product), 0L
         );
 
         // then
@@ -137,23 +137,23 @@ class OrderEventKafkaProducerShippingTest {
         mapper.findAndRegisterModules();
 
         String jsonWithNewFields = """
-                {
-                    "orderId": 1,
-                    "buyerId": 10,
-                    "totalAmount": 50000,
-                    "pointAmount": 5000,
-                    "recipientName": "홍길동",
-                    "recipientPhoneNumber": "01012345678",
-                    "zipCode": "06234",
-                    "address": "서울시 강남구",
-                    "addressDetail": "101호",
-                    "deliveryRequestMessage": "문 앞에 놓아주세요",
-                    "orderProducts": [
-                        {"pricePolicyId": 100, "productId": 42, "sharerKey": null, "quantity": 1, "unitAmount": 50000}
-                    ],
-                    "totalAccumulatedPoint": 500
-                }
-                """;
+            {
+                "orderId": 1,
+                "buyerId": 10,
+                "totalAmount": 50000,
+                "pointAmount": 5000,
+                "recipientName": "홍길동",
+                "recipientPhoneNumber": "01012345678",
+                "zipCode": "06234",
+                "address": "서울시 강남구",
+                "addressDetail": "101호",
+                "deliveryRequestMessage": "문 앞에 놓아주세요",
+                "orderProducts": [
+                    {"pricePolicyId": 100, "productId": 42, "sharerKey": null, "quantity": 1, "unitAmount": 50000}
+                ],
+                "totalAccumulatedPoint": 500
+            }
+            """;
 
         // when
         OrderPaymentCompletedEvent event = mapper.readValue(jsonWithNewFields, OrderPaymentCompletedEvent.class);
@@ -171,17 +171,17 @@ class OrderEventKafkaProducerShippingTest {
         mapper.findAndRegisterModules();
 
         String jsonWithoutNewFields = """
-                {
-                    "orderId": 1,
-                    "buyerId": 10,
-                    "totalAmount": 50000,
-                    "pointAmount": 5000,
-                    "orderProducts": [
-                        {"pricePolicyId": 100, "sharerKey": null, "quantity": 1, "unitAmount": 50000}
-                    ],
-                    "totalAccumulatedPoint": 500
-                }
-                """;
+            {
+                "orderId": 1,
+                "buyerId": 10,
+                "totalAmount": 50000,
+                "pointAmount": 5000,
+                "orderProducts": [
+                    {"pricePolicyId": 100, "sharerKey": null, "quantity": 1, "unitAmount": 50000}
+                ],
+                "totalAccumulatedPoint": 500
+            }
+            """;
 
         // when
         OrderPaymentCompletedEvent event = mapper.readValue(jsonWithoutNewFields, OrderPaymentCompletedEvent.class);

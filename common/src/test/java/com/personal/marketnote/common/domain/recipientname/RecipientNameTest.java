@@ -35,35 +35,35 @@ class RecipientNameTest {
         @DisplayName("null로 생성 시 RecipientNameNoValueException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> RecipientName.of(null))
-                    .isInstanceOf(RecipientNameNoValueException.class);
+                .isInstanceOf(RecipientNameNoValueException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 RecipientNameNoValueException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> RecipientName.of(""))
-                    .isInstanceOf(RecipientNameNoValueException.class);
+                .isInstanceOf(RecipientNameNoValueException.class);
         }
 
         @Test
         @DisplayName("공백만 있는 문자열로 생성 시 RecipientNameNoValueException을 던진다")
         void shouldThrowWhenBlank() {
             assertThatThrownBy(() -> RecipientName.of("   "))
-                    .isInstanceOf(RecipientNameNoValueException.class);
+                .isInstanceOf(RecipientNameNoValueException.class);
         }
 
         @Test
         @DisplayName("숫자가 포함된 수령인명으로 생성 시 InvalidRecipientNameException을 던진다")
         void shouldThrowWhenContainsNumber() {
             assertThatThrownBy(() -> RecipientName.of("홍길동123"))
-                    .isInstanceOf(InvalidRecipientNameException.class);
+                .isInstanceOf(InvalidRecipientNameException.class);
         }
 
         @Test
         @DisplayName("특수문자가 포함된 수령인명으로 생성 시 InvalidRecipientNameException을 던진다")
         void shouldThrowWhenContainsSpecialCharacter() {
             assertThatThrownBy(() -> RecipientName.of("홍길동!"))
-                    .isInstanceOf(InvalidRecipientNameException.class);
+                .isInstanceOf(InvalidRecipientNameException.class);
         }
 
         @Test
@@ -72,7 +72,7 @@ class RecipientNameTest {
             String tooLong = "가".repeat(51);
 
             assertThatThrownBy(() -> RecipientName.of(tooLong))
-                    .isInstanceOf(InvalidRecipientNameException.class);
+                .isInstanceOf(InvalidRecipientNameException.class);
         }
     }
 

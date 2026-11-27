@@ -9,9 +9,9 @@ public class LikeCommandToStateMapper {
 
     public static LikeCreateState mapToState(UpsertLikeCommand command) {
         return LikeCreateState.builder()
-                .targetType(command.targetType())
-                .targetId(command.targetId())
-                .userId(command.userId())
-                .build();
+            .targetType(command.targetType())
+            .targetId(command.targetId())
+            .userId(command.userId())
+            .build();
     }
 }

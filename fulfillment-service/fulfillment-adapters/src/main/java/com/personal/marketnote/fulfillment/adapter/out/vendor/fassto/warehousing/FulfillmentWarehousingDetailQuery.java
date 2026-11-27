@@ -15,17 +15,17 @@ public class FulfillmentWarehousingDetailQuery {
     private String ordNo;
 
     public static FulfillmentWarehousingDetailQuery of(
-            String customerCode,
-            String accessToken,
-            String slipNo,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String slipNo,
+        String ordNo
     ) {
         FulfillmentWarehousingDetailQuery query = FulfillmentWarehousingDetailQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .slipNo(slipNo)
-                .ordNo(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .slipNo(slipNo)
+            .ordNo(ordNo)
+            .build();
         query.validate();
         return query;
     }

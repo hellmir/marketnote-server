@@ -21,10 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(AuditConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = {
-        "spring.datasource.url=jdbc:h2:mem:seed_migration_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
-        "spring.flyway.enabled=true",
-        "spring.flyway.locations=classpath:db/migration",
-        "spring.jpa.hibernate.ddl-auto=none"
+    "spring.datasource.url=jdbc:h2:mem:seed_migration_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
+    "spring.flyway.enabled=true",
+    "spring.flyway.locations=classpath:db/migration",
+    "spring.jpa.hibernate.ddl-auto=none"
 })
 class NotificationTemplateSeedMigrationTest {
 
@@ -34,27 +34,27 @@ class NotificationTemplateSeedMigrationTest {
     private static final int EXPECTED_PROMOTIONAL = 2;
 
     private static final Set<String> EXPECTED_TEMPLATE_CODES = Set.of(
-            "ORDER_PAYMENT_COMPLETED",
-            "SHIPPING_STARTED",
-            "SHIPPING_COMPLETED",
-            "SHIPPING_DELAYED",
-            "ORDER_CANCELLED",
-            "ORDER_CANCEL_FAILED",
-            "RETURN_REQUESTED",
-            "RETURN_COMPLETED",
-            "RETURN_REJECTED",
-            "ONE_ON_ONE_INQUIRY_REPLY",
-            "PRODUCT_INQUIRY_REPLY",
-            "NOTICE_REGISTERED",
-            "CONSENT_REMINDER",
-            "PURCHASE_CONFIRMATION_REQUEST",
-            "PURCHASE_CONFIRMATION_COMPLETED",
-            "PURCHASE_CONFIRMATION_COMPLETED_AUTO",
-            "PURCHASE_CONFIRMATION_COMPLETED_MANUAL",
-            "REVIEW_REPLY",
-            "POINT_ACCRUAL",
-            "EVENT_REGISTERED",
-            "REVIEW_WRITE_REQUEST"
+        "ORDER_PAYMENT_COMPLETED",
+        "SHIPPING_STARTED",
+        "SHIPPING_COMPLETED",
+        "SHIPPING_DELAYED",
+        "ORDER_CANCELLED",
+        "ORDER_CANCEL_FAILED",
+        "RETURN_REQUESTED",
+        "RETURN_COMPLETED",
+        "RETURN_REJECTED",
+        "ONE_ON_ONE_INQUIRY_REPLY",
+        "PRODUCT_INQUIRY_REPLY",
+        "NOTICE_REGISTERED",
+        "CONSENT_REMINDER",
+        "PURCHASE_CONFIRMATION_REQUEST",
+        "PURCHASE_CONFIRMATION_COMPLETED",
+        "PURCHASE_CONFIRMATION_COMPLETED_AUTO",
+        "PURCHASE_CONFIRMATION_COMPLETED_MANUAL",
+        "REVIEW_REPLY",
+        "POINT_ACCRUAL",
+        "EVENT_REGISTERED",
+        "REVIEW_WRITE_REQUEST"
     );
 
     @Autowired
@@ -71,8 +71,8 @@ class NotificationTemplateSeedMigrationTest {
     @DisplayName("모든 시드 row의 status는 ACTIVE이다")
     void shouldAllSeededRowsHaveActiveStatus() {
         Number activeCount = (Number) entityManager
-                .createNativeQuery("SELECT COUNT(*) FROM notification_template WHERE status = 'ACTIVE'")
-                .getSingleResult();
+            .createNativeQuery("SELECT COUNT(*) FROM notification_template WHERE status = 'ACTIVE'")
+            .getSingleResult();
         assertThat(activeCount.longValue()).isEqualTo((long) EXPECTED_TOTAL_TEMPLATES);
     }
 
@@ -102,8 +102,8 @@ class NotificationTemplateSeedMigrationTest {
     void shouldHaveUniqueTemplateCodes() {
         @SuppressWarnings("unchecked")
         List<String> codes = entityManager
-                .createNativeQuery("SELECT template_code FROM notification_template")
-                .getResultList();
+            .createNativeQuery("SELECT template_code FROM notification_template")
+            .getResultList();
         assertThat(codes).hasSize(EXPECTED_TOTAL_TEMPLATES);
         assertThat(codes).doesNotHaveDuplicates();
     }
@@ -113,8 +113,8 @@ class NotificationTemplateSeedMigrationTest {
     void shouldMatchExpectedTemplateCodes() {
         @SuppressWarnings("unchecked")
         List<String> codes = entityManager
-                .createNativeQuery("SELECT template_code FROM notification_template")
-                .getResultList();
+            .createNativeQuery("SELECT template_code FROM notification_template")
+            .getResultList();
         assertThat(codes).containsExactlyInAnyOrderElementsOf(EXPECTED_TEMPLATE_CODES);
     }
 
@@ -122,14 +122,14 @@ class NotificationTemplateSeedMigrationTest {
     @DisplayName("title, body_template, notification_type, notification_category 컬럼은 NOT NULL이다")
     void shouldAllRequiredFieldsBeNotNull() {
         Number nullCount = (Number) entityManager
-                .createNativeQuery("""
-                        SELECT COUNT(*) FROM notification_template
-                        WHERE title IS NULL
-                           OR body_template IS NULL
-                           OR notification_type IS NULL
-                           OR notification_category IS NULL
-                        """)
-                .getSingleResult();
+            .createNativeQuery("""
+                SELECT COUNT(*) FROM notification_template
+                WHERE title IS NULL
+                   OR body_template IS NULL
+                   OR notification_type IS NULL
+                   OR notification_category IS NULL
+                """)
+            .getSingleResult();
         assertThat(nullCount.longValue()).isZero();
     }
 
@@ -137,10 +137,10 @@ class NotificationTemplateSeedMigrationTest {
     @DisplayName("PURCHASE_CONFIRMATION_COMPLETED notification_type은 AUTO/MANUAL/기본 3개 template_code로 분할된다")
     void shouldHaveThreePurchaseConfirmationCompletedTemplates() {
         Number count = (Number) entityManager
-                .createNativeQuery(
-                        "SELECT COUNT(*) FROM notification_template WHERE notification_type = 'PURCHASE_CONFIRMATION_COMPLETED'"
-                )
-                .getSingleResult();
+            .createNativeQuery(
+                "SELECT COUNT(*) FROM notification_template WHERE notification_type = 'PURCHASE_CONFIRMATION_COMPLETED'"
+            )
+            .getSingleResult();
         assertThat(count.longValue()).isEqualTo(3L);
     }
 
@@ -148,15 +148,15 @@ class NotificationTemplateSeedMigrationTest {
     @DisplayName("NOTICE_REGISTERED는 NotificationType.NOTICE에 매핑되고, EVENT_REGISTERED는 NotificationType.EVENT에 매핑된다")
     void shouldMapRegisteredTemplateCodesToCorrectNotificationType() {
         Number noticeCount = (Number) entityManager
-                .createNativeQuery(
-                        "SELECT COUNT(*) FROM notification_template WHERE template_code = 'NOTICE_REGISTERED' AND notification_type = 'NOTICE'"
-                )
-                .getSingleResult();
+            .createNativeQuery(
+                "SELECT COUNT(*) FROM notification_template WHERE template_code = 'NOTICE_REGISTERED' AND notification_type = 'NOTICE'"
+            )
+            .getSingleResult();
         Number eventCount = (Number) entityManager
-                .createNativeQuery(
-                        "SELECT COUNT(*) FROM notification_template WHERE template_code = 'EVENT_REGISTERED' AND notification_type = 'EVENT'"
-                )
-                .getSingleResult();
+            .createNativeQuery(
+                "SELECT COUNT(*) FROM notification_template WHERE template_code = 'EVENT_REGISTERED' AND notification_type = 'EVENT'"
+            )
+            .getSingleResult();
         assertThat(noticeCount.longValue()).isEqualTo(1L);
         assertThat(eventCount.longValue()).isEqualTo(1L);
     }
@@ -167,12 +167,12 @@ class NotificationTemplateSeedMigrationTest {
         long beforeCount = countAllTemplates().longValue();
 
         int inserted = entityManager
-                .createNativeQuery("""
-                        INSERT INTO notification_template (status, created_at, template_code, notification_type, notification_category, title, body_template, url_template)
-                        SELECT 'ACTIVE', NOW(), 'PRODUCT_INQUIRY_REPLY', 'PRODUCT_INQUIRY_REPLY', 'MANDATORY', '재시도 제목', '재시도 본문', '/retry'
-                        WHERE NOT EXISTS (SELECT 1 FROM notification_template WHERE template_code = 'PRODUCT_INQUIRY_REPLY')
-                        """)
-                .executeUpdate();
+            .createNativeQuery("""
+                INSERT INTO notification_template (status, created_at, template_code, notification_type, notification_category, title, body_template, url_template)
+                SELECT 'ACTIVE', NOW(), 'PRODUCT_INQUIRY_REPLY', 'PRODUCT_INQUIRY_REPLY', 'MANDATORY', '재시도 제목', '재시도 본문', '/retry'
+                WHERE NOT EXISTS (SELECT 1 FROM notification_template WHERE template_code = 'PRODUCT_INQUIRY_REPLY')
+                """)
+            .executeUpdate();
 
         long afterCount = countAllTemplates().longValue();
         assertThat(inserted).isZero();
@@ -184,12 +184,12 @@ class NotificationTemplateSeedMigrationTest {
     void shouldSeedProductInquiryReplyTemplate() {
         @SuppressWarnings("unchecked")
         List<Object[]> rows = entityManager
-                .createNativeQuery("""
-                        SELECT title, body_template, url_template, notification_category
-                          FROM notification_template
-                         WHERE template_code = 'PRODUCT_INQUIRY_REPLY'
-                        """)
-                .getResultList();
+            .createNativeQuery("""
+                SELECT title, body_template, url_template, notification_category
+                  FROM notification_template
+                 WHERE template_code = 'PRODUCT_INQUIRY_REPLY'
+                """)
+            .getResultList();
         assertThat(rows).hasSize(1);
         Object[] row = rows.get(0);
         assertThat(row[0]).isEqualTo("[상품 문의]");
@@ -200,16 +200,16 @@ class NotificationTemplateSeedMigrationTest {
 
     private Number countAllTemplates() {
         return (Number) entityManager
-                .createNativeQuery("SELECT COUNT(*) FROM notification_template")
-                .getSingleResult();
+            .createNativeQuery("SELECT COUNT(*) FROM notification_template")
+            .getSingleResult();
     }
 
     private Number countByCategory(String category) {
         return (Number) entityManager
-                .createNativeQuery(
-                        "SELECT COUNT(*) FROM notification_template WHERE notification_category = :cat"
-                )
-                .setParameter("cat", category)
-                .getSingleResult();
+            .createNativeQuery(
+                "SELECT COUNT(*) FROM notification_template WHERE notification_category = :cat"
+            )
+            .setParameter("cat", category)
+            .getSingleResult();
     }
 }

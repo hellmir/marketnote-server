@@ -3,10 +3,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.AligoAuthenticationException;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoCategoryTreeResult;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,8 +43,8 @@ class AligoCategoryExternalAdapterTest {
 
         RestClient restClient = builder.baseUrl(properties.getBaseUrl()).build();
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoCategoryExternalAdapter(aligoHttpClient, properties);
     }
@@ -54,25 +54,25 @@ class AligoCategoryExternalAdapterTest {
     void shouldBuildCategoryTreeFromApiResponse() {
         // given
         String responseBody = """
-                {
-                    "code": 0,
-                    "message": "정상적으로 호출하였습니다.",
-                    "data": {
-                        "firstBusinessType": [
-                            {"parentCode": "", "code": "001", "name": "건강"}
-                        ],
-                        "secondBusinessType": [
-                            {"parentCode": "001", "code": "001001", "name": "병원"}
-                        ],
-                        "thirdBusinessType": [
-                            {"parentCode": "001001", "code": "00100010001", "name": "종합병원"}
-                        ]
-                    }
+            {
+                "code": 0,
+                "message": "정상적으로 호출하였습니다.",
+                "data": {
+                    "firstBusinessType": [
+                        {"parentCode": "", "code": "001", "name": "건강"}
+                    ],
+                    "secondBusinessType": [
+                        {"parentCode": "001", "code": "001001", "name": "병원"}
+                    ],
+                    "thirdBusinessType": [
+                        {"parentCode": "001001", "code": "00100010001", "name": "종합병원"}
+                    ]
                 }
-                """;
+            }
+            """;
         mockServer.expect(requestTo("http://localhost/akv10/category/"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         // when
         GetAligoCategoryTreeResult result = adapter.getCategoryTree();
@@ -103,18 +103,18 @@ class AligoCategoryExternalAdapterTest {
     void shouldThrowExceptionOnApiError() {
         // given
         String responseBody = """
-                {
-                    "code": -101,
-                    "message": "인증에 실패했습니다."
-                }
-                """;
+            {
+                "code": -101,
+                "message": "인증에 실패했습니다."
+            }
+            """;
         mockServer.expect(requestTo("http://localhost/akv10/category/"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> adapter.getCategoryTree())
-                .isInstanceOf(AligoAuthenticationException.class);
+            .isInstanceOf(AligoAuthenticationException.class);
 
         mockServer.verify();
     }

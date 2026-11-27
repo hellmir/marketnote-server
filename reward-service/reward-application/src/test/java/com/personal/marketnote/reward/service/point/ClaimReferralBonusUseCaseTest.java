@@ -118,7 +118,7 @@ class ClaimReferralBonusUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> claimReferralBonusService.claim(command))
-                .isInstanceOf(ReferralBonusTierNotAchievedException.class);
+            .isInstanceOf(ReferralBonusTierNotAchievedException.class);
 
         verifyNoInteractions(checkReferralBonusClaimedPort);
         verifyNoInteractions(modifyUserPointUseCase);
@@ -134,7 +134,7 @@ class ClaimReferralBonusUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> claimReferralBonusService.claim(command))
-                .isInstanceOf(DuplicateReferralBonusClaimException.class);
+            .isInstanceOf(DuplicateReferralBonusClaimException.class);
 
         verifyNoInteractions(modifyUserPointUseCase);
     }

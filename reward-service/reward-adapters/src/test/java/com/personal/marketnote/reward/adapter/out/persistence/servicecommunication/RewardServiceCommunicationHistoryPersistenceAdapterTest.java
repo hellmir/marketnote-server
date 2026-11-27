@@ -36,12 +36,12 @@ class RewardServiceCommunicationHistoryPersistenceAdapterTest {
         RewardServiceCommunicationHistory history = buildHistory();
         LocalDateTime savedAt = LocalDateTime.of(2026, 4, 15, 10, 0);
         given(repository.save(any(RewardServiceCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> {
-                    RewardServiceCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
-                    ReflectionTestUtils.setField(arg, "id", 999L);
-                    ReflectionTestUtils.setField(arg, "createdAt", savedAt);
-                    return arg;
-                });
+            .willAnswer(invocation -> {
+                RewardServiceCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
+                ReflectionTestUtils.setField(arg, "id", 999L);
+                ReflectionTestUtils.setField(arg, "createdAt", savedAt);
+                return arg;
+            });
 
         // when
         RewardServiceCommunicationHistory saved = adapter.save(history);
@@ -63,14 +63,14 @@ class RewardServiceCommunicationHistoryPersistenceAdapterTest {
         // given
         RewardServiceCommunicationHistory history = buildHistory();
         given(repository.save(any(RewardServiceCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         adapter.save(history);
 
         // then
         ArgumentCaptor<RewardServiceCommunicationHistoryJpaEntity> captor =
-                ArgumentCaptor.forClass(RewardServiceCommunicationHistoryJpaEntity.class);
+            ArgumentCaptor.forClass(RewardServiceCommunicationHistoryJpaEntity.class);
         verify(repository).save(captor.capture());
         verifyNoMoreInteractions(repository);
         RewardServiceCommunicationHistoryJpaEntity captured = captor.getValue();
@@ -84,14 +84,14 @@ class RewardServiceCommunicationHistoryPersistenceAdapterTest {
 
     private RewardServiceCommunicationHistory buildHistory() {
         return RewardServiceCommunicationHistory.from(RewardServiceCommunicationHistoryCreateState.builder()
-                .targetType(RewardServiceCommunicationTargetType.GENERAL)
-                .targetId("target-42")
-                .communicationType(RewardServiceCommunicationType.REQUEST)
-                .sender(RewardServiceCommunicationSenderType.USER)
-                .exception("TimeoutException")
-                .payload("payload-body")
-                .payloadJson(null)
-                .build());
+            .targetType(RewardServiceCommunicationTargetType.GENERAL)
+            .targetId("target-42")
+            .communicationType(RewardServiceCommunicationType.REQUEST)
+            .sender(RewardServiceCommunicationSenderType.USER)
+            .exception("TimeoutException")
+            .payload("payload-body")
+            .payloadJson(null)
+            .build());
     }
 
     private static <T> T any(Class<T> type) {

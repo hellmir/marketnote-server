@@ -139,20 +139,20 @@ class GetNotificationHistoryUseCaseTest {
 
         LocalDateTime now = LocalDateTime.of(2026, 4, 9, 12, 0);
         Notification notification = Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(100L)
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("주문이 완료되었습니다")
-                        .body("테스트 상품 외 1건이 결제되었습니다.")
-                        .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                        .isRead(false)
-                        .landingUrl("/order/123")
-                        .sendStatus(SendStatus.SENT)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(now)
-                        .modifiedAt(now)
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(100L)
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("주문이 완료되었습니다")
+                .body("테스트 상품 외 1건이 결제되었습니다.")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .isRead(false)
+                .landingUrl("/order/123")
+                .sendStatus(SendStatus.SENT)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build()
         );
 
         when(findNotificationPort.findByUserId(userId, null, 21, null)).thenReturn(List.of(notification));
@@ -254,19 +254,19 @@ class GetNotificationHistoryUseCaseTest {
         List<Notification> notifications = new ArrayList<>();
         for (long i = count; i >= 1; i--) {
             notifications.add(Notification.from(
-                    NotificationSnapshotState.builder()
-                            .id(i)
-                            .userId(userId)
-                            .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                            .title("알림 " + i)
-                            .body("본문 " + i)
-                            .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                            .isRead(false)
-                            .sendStatus(SendStatus.SENT)
-                            .status(EntityStatus.ACTIVE)
-                            .createdAt(now.minusHours(i))
-                            .modifiedAt(now.minusHours(i))
-                            .build()
+                NotificationSnapshotState.builder()
+                    .id(i)
+                    .userId(userId)
+                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                    .title("알림 " + i)
+                    .body("본문 " + i)
+                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                    .isRead(false)
+                    .sendStatus(SendStatus.SENT)
+                    .status(EntityStatus.ACTIVE)
+                    .createdAt(now.minusHours(i))
+                    .modifiedAt(now.minusHours(i))
+                    .build()
             ));
         }
         return notifications;

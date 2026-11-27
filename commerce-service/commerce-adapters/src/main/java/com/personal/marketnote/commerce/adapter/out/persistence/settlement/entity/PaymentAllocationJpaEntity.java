@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payment_allocation",
-        uniqueConstraints = @UniqueConstraint(columnNames = "idempotency_key"),
-        indexes = @Index(name = "idx_payment_allocation_created_at_settlement_id", columnList = "created_at, settlement_id"))
+    uniqueConstraints = @UniqueConstraint(columnNames = "idempotency_key"),
+    indexes = @Index(name = "idx_payment_allocation_created_at_settlement_id", columnList = "created_at, settlement_id"))
 @DynamicInsert
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -59,14 +59,14 @@ public class PaymentAllocationJpaEntity {
 
     public static PaymentAllocationJpaEntity from(PaymentAllocation allocation) {
         return PaymentAllocationJpaEntity.builder()
-                .orderId(allocation.getOrderId())
-                .sellerId(allocation.getSellerId())
-                .allocatedAmount(allocation.getAllocatedAmount().getValue())
-                .shippingFee(allocation.getShippingFee().getValue())
-                .settlementId(allocation.getSettlementId())
-                .transactionType(allocation.getTransactionType())
-                .targetType(allocation.getTargetType())
-                .idempotencyKey(allocation.getIdempotencyKey().getValue())
-                .build();
+            .orderId(allocation.getOrderId())
+            .sellerId(allocation.getSellerId())
+            .allocatedAmount(allocation.getAllocatedAmount().getValue())
+            .shippingFee(allocation.getShippingFee().getValue())
+            .settlementId(allocation.getSettlementId())
+            .transactionType(allocation.getTransactionType())
+            .targetType(allocation.getTargetType())
+            .idempotencyKey(allocation.getIdempotencyKey().getValue())
+            .build();
     }
 }

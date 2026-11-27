@@ -25,12 +25,12 @@ public class OrderCancelledNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_CANCELLED,
-            groupId = "notification-order"
+        topics = KafkaTopicConstants.ORDER_CANCELLED,
+        groupId = "notification-order"
     )
     public void handleOrderCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,21 +47,21 @@ public class OrderCancelledNotificationConsumer {
         OrderCancelledEvent payload = envelope.getPayloadAs(OrderCancelledEvent.class, objectMapper);
 
         log.info("주문 취소 완료 이벤트 수신 (알림 발송). eventId={}, orderId={}, buyerId={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId());
+            envelope.eventId(), payload.orderId(), payload.buyerId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         SendNotificationCommand command = new SendNotificationCommand(
-                payload.buyerId(),
-                "ORDER_CANCELLED",
-                Map.of("order_id", String.valueOf(payload.orderId())),
-                "PUSH_AND_IN_APP",
-                null
+            payload.buyerId(),
+            "ORDER_CANCELLED",
+            Map.of("order_id", String.valueOf(payload.orderId())),
+            "PUSH_AND_IN_APP",
+            null
         );
         sendNotificationUseCase.sendNotification(command);
 

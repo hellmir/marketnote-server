@@ -41,7 +41,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         // then
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
     }
 
     @Test
@@ -57,7 +57,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         // then
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
     }
 
     @Test
@@ -75,7 +75,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         assertThat(longIconUrl.length()).isEqualTo(2049);
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
     }
 
     @Test
@@ -121,7 +121,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         // then
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("displayName"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("displayName"));
     }
 
     @Test
@@ -212,7 +212,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         // then
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
     }
 
     @Test

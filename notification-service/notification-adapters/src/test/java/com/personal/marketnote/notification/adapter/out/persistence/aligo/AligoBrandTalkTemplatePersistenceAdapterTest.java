@@ -43,92 +43,92 @@ class AligoBrandTalkTemplatePersistenceAdapterTest {
     void shouldRoundTripAllCompositeJsonFields() {
         // given
         BrandTalkButton button = BrandTalkButton.from(
-                BrandTalkButtonCreateState.builder()
-                        .name("자세히 보기")
-                        .linkType(AligoTemplateButtonLinkType.WL)
-                        .linkM("https://m.example.com")
-                        .linkP("https://example.com")
-                        .build()
+            BrandTalkButtonCreateState.builder()
+                .name("자세히 보기")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkM("https://m.example.com")
+                .linkP("https://example.com")
+                .build()
         );
         BrandTalkCoupon coupon = BrandTalkCoupon.from(
-                BrandTalkCouponCreateState.builder()
-                        .title("10% 쿠폰")
-                        .description("신규 가입자 대상")
-                        .linkM("https://m.example.com/coupon")
-                        .linkP("https://example.com/coupon")
-                        .build()
+            BrandTalkCouponCreateState.builder()
+                .title("10% 쿠폰")
+                .description("신규 가입자 대상")
+                .linkM("https://m.example.com/coupon")
+                .linkP("https://example.com/coupon")
+                .build()
         );
         BrandTalkWideItem mainItem = BrandTalkWideItem.from(
-                BrandTalkWideItemCreateState.builder()
-                        .title("메인 와이드")
-                        .imageUrl("https://cdn.example.com/main.png")
-                        .linkM("https://m.example.com/main")
-                        .linkP("https://example.com/main")
-                        .build()
+            BrandTalkWideItemCreateState.builder()
+                .title("메인 와이드")
+                .imageUrl("https://cdn.example.com/main.png")
+                .linkM("https://m.example.com/main")
+                .linkP("https://example.com/main")
+                .build()
         );
         BrandTalkWideItem sub1 = BrandTalkWideItem.from(
-                BrandTalkWideItemCreateState.builder()
-                        .title("서브1")
-                        .imageUrl("https://cdn.example.com/sub1.png")
-                        .linkM("https://m.example.com/sub1")
-                        .linkP("https://example.com/sub1")
-                        .build()
+            BrandTalkWideItemCreateState.builder()
+                .title("서브1")
+                .imageUrl("https://cdn.example.com/sub1.png")
+                .linkM("https://m.example.com/sub1")
+                .linkP("https://example.com/sub1")
+                .build()
         );
         BrandTalkWideItem sub2 = BrandTalkWideItem.from(
-                BrandTalkWideItemCreateState.builder()
-                        .title("서브2")
-                        .imageUrl("https://cdn.example.com/sub2.png")
-                        .linkM("https://m.example.com/sub2")
-                        .linkP("https://example.com/sub2")
-                        .build()
+            BrandTalkWideItemCreateState.builder()
+                .title("서브2")
+                .imageUrl("https://cdn.example.com/sub2.png")
+                .linkM("https://m.example.com/sub2")
+                .linkP("https://example.com/sub2")
+                .build()
         );
         BrandTalkCarouselItem carouselItem = BrandTalkCarouselItem.from(
-                BrandTalkCarouselItemCreateState.builder()
-                        .header("캐러셀 헤더")
-                        .content("캐러셀 본문")
-                        .imageUrl("https://cdn.example.com/carousel.png")
-                        .buttons(List.of(button))
-                        .coupon(coupon)
-                        .build()
+            BrandTalkCarouselItemCreateState.builder()
+                .header("캐러셀 헤더")
+                .content("캐러셀 본문")
+                .imageUrl("https://cdn.example.com/carousel.png")
+                .buttons(List.of(button))
+                .coupon(coupon)
+                .build()
         );
         BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommerce.from(
-                BrandTalkCarouselCommerceCreateState.builder()
-                        .title("상품A")
-                        .regularPrice("10000")
-                        .discountPrice("8000")
-                        .discountRate("20")
-                        .build()
+            BrandTalkCarouselCommerceCreateState.builder()
+                .title("상품A")
+                .regularPrice("10000")
+                .discountPrice("8000")
+                .discountRate("20")
+                .build()
         );
         BrandTalkCarouselTail carouselTail = BrandTalkCarouselTail.of("https://m.example.com/tail");
         BrandTalkCommerceInfo commerceInfo = BrandTalkCommerceInfo.from(
-                BrandTalkCommerceInfoCreateState.builder()
-                        .title("메인 상품")
-                        .regularPrice("20000")
-                        .discountPrice("15000")
-                        .build()
+            BrandTalkCommerceInfoCreateState.builder()
+                .title("메인 상품")
+                .regularPrice("20000")
+                .discountPrice("15000")
+                .build()
         );
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateCreateState.builder()
-                        .senderKey("sender-key-1")
-                        .templateCode("TPL-ROUND-TRIP-001")
-                        .templateName("라운드트립 템플릿")
-                        .templateType(BrandTalkTemplateType.TEXT)
-                        .templateContent("테스트 본문")
-                        .adult(false)
-                        .buttons(List.of(button))
-                        .coupon(coupon)
-                        .templateHeader("헤더")
-                        .mainWideItem(mainItem)
-                        .subWideItems(List.of(sub1, sub2))
-                        .carouselHeader("캐러셀")
-                        .carouselItems(List.of(carouselItem))
-                        .carouselCommerces(List.of(commerce))
-                        .carouselTail(carouselTail)
-                        .videoUrl("https://cdn.example.com/video.mp4")
-                        .videoThumbnailUrl("https://cdn.example.com/video-thumb.png")
-                        .commerceInfo(commerceInfo)
-                        .templateStatus(BrandTalkTemplateStatus.NORMAL)
-                        .build()
+            AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender-key-1")
+                .templateCode("TPL-ROUND-TRIP-001")
+                .templateName("라운드트립 템플릿")
+                .templateType(BrandTalkTemplateType.TEXT)
+                .templateContent("테스트 본문")
+                .adult(false)
+                .buttons(List.of(button))
+                .coupon(coupon)
+                .templateHeader("헤더")
+                .mainWideItem(mainItem)
+                .subWideItems(List.of(sub1, sub2))
+                .carouselHeader("캐러셀")
+                .carouselItems(List.of(carouselItem))
+                .carouselCommerces(List.of(commerce))
+                .carouselTail(carouselTail)
+                .videoUrl("https://cdn.example.com/video.mp4")
+                .videoThumbnailUrl("https://cdn.example.com/video-thumb.png")
+                .commerceInfo(commerceInfo)
+                .templateStatus(BrandTalkTemplateStatus.NORMAL)
+                .build()
         );
 
         // when
@@ -150,8 +150,8 @@ class AligoBrandTalkTemplatePersistenceAdapterTest {
         assertThat(result.getMainWideItem().getTitle()).isEqualTo("메인 와이드");
         assertThat(result.getSubWideItems()).hasSize(2);
         assertThat(result.getSubWideItems())
-                .extracting(BrandTalkWideItem::getTitle)
-                .containsExactly("서브1", "서브2");
+            .extracting(BrandTalkWideItem::getTitle)
+            .containsExactly("서브1", "서브2");
         assertThat(result.getCarouselItems()).hasSize(1);
         assertThat(result.getCarouselItems().get(0).getHeader()).isEqualTo("캐러셀 헤더");
         assertThat(result.getCarouselItems().get(0).getButtons()).hasSize(1);
@@ -169,15 +169,15 @@ class AligoBrandTalkTemplatePersistenceAdapterTest {
     void shouldStoreNullWhenAllCompositeFieldsAreNull() {
         // given
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateCreateState.builder()
-                        .senderKey("sender-key-null")
-                        .templateCode("TPL-NULL-001")
-                        .templateName("NULL 템플릿")
-                        .templateType(BrandTalkTemplateType.TEXT)
-                        .templateContent("본문")
-                        .adult(false)
-                        .templateStatus(BrandTalkTemplateStatus.NORMAL)
-                        .build()
+            AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender-key-null")
+                .templateCode("TPL-NULL-001")
+                .templateName("NULL 템플릿")
+                .templateType(BrandTalkTemplateType.TEXT)
+                .templateContent("본문")
+                .adult(false)
+                .templateStatus(BrandTalkTemplateStatus.NORMAL)
+                .build()
         );
 
         // when
@@ -206,17 +206,17 @@ class AligoBrandTalkTemplatePersistenceAdapterTest {
         entityManager.clear();
 
         AligoBrandTalkTemplate request = AligoBrandTalkTemplate.from(
-                com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState.builder()
-                        .id(saved.getId())
-                        .senderKey("다른-sender-key")
-                        .templateCode("TPL-UPDATE-001")
-                        .templateName("다른-이름")
-                        .templateType(BrandTalkTemplateType.TEXT)
-                        .templateContent("다른-본문")
-                        .adult(true)
-                        .templateStatus(BrandTalkTemplateStatus.STOPPED)
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .build()
+            com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState.builder()
+                .id(saved.getId())
+                .senderKey("다른-sender-key")
+                .templateCode("TPL-UPDATE-001")
+                .templateName("다른-이름")
+                .templateType(BrandTalkTemplateType.TEXT)
+                .templateContent("다른-본문")
+                .adult(true)
+                .templateStatus(BrandTalkTemplateStatus.STOPPED)
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .build()
         );
 
         // when
@@ -250,21 +250,21 @@ class AligoBrandTalkTemplatePersistenceAdapterTest {
         // then
         assertThat(result).hasSize(3);
         assertThat(result)
-                .extracting(AligoBrandTalkTemplate::getTemplateCode)
-                .containsExactlyInAnyOrder("TPL-LIST-001", "TPL-LIST-002", "TPL-LIST-003");
+            .extracting(AligoBrandTalkTemplate::getTemplateCode)
+            .containsExactlyInAnyOrder("TPL-LIST-001", "TPL-LIST-002", "TPL-LIST-003");
     }
 
     private AligoBrandTalkTemplate buildSimpleTemplate(String templateCode, String senderKey) {
         return AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateCreateState.builder()
-                        .senderKey(senderKey)
-                        .templateCode(templateCode)
-                        .templateName("초기 템플릿")
-                        .templateType(BrandTalkTemplateType.TEXT)
-                        .templateContent("초기 본문")
-                        .adult(false)
-                        .templateStatus(BrandTalkTemplateStatus.NORMAL)
-                        .build()
+            AligoBrandTalkTemplateCreateState.builder()
+                .senderKey(senderKey)
+                .templateCode(templateCode)
+                .templateName("초기 템플릿")
+                .templateType(BrandTalkTemplateType.TEXT)
+                .templateContent("초기 본문")
+                .adult(false)
+                .templateStatus(BrandTalkTemplateStatus.NORMAL)
+                .build()
         );
     }
 }

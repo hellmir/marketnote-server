@@ -28,18 +28,18 @@ class FulfillmentCommandToStateMapperTest {
             // given
             UUID productKey = UUID.randomUUID();
             RegisterFulfillmentGoodsItemCommand item = RegisterFulfillmentGoodsItemCommand.builder()
-                    .productKey(productKey)
-                    .productName("테스트 상품")
-                    .productType("1")
-                    .giftDivision("01")
-                    .build();
+                .productKey(productKey)
+                .productName("테스트 상품")
+                .productType("1")
+                .giftDivision("01")
+                .build();
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
             FulfillmentGoodsRegistrationCreateState state =
-                    FulfillmentCommandToStateMapper.mapToGoodsRegistrationCreateState(command);
+                FulfillmentCommandToStateMapper.mapToGoodsRegistrationCreateState(command);
 
             // then
             assertThat(state.getProductKey()).isEqualTo(productKey);
@@ -52,24 +52,24 @@ class FulfillmentCommandToStateMapperTest {
             UUID firstProductKey = UUID.randomUUID();
             UUID secondProductKey = UUID.randomUUID();
             RegisterFulfillmentGoodsItemCommand firstItem = RegisterFulfillmentGoodsItemCommand.builder()
-                    .productKey(firstProductKey)
-                    .productName("상품1")
-                    .productType("1")
-                    .giftDivision("01")
-                    .build();
+                .productKey(firstProductKey)
+                .productName("상품1")
+                .productType("1")
+                .giftDivision("01")
+                .build();
             RegisterFulfillmentGoodsItemCommand secondItem = RegisterFulfillmentGoodsItemCommand.builder()
-                    .productKey(secondProductKey)
-                    .productName("상품2")
-                    .productType("1")
-                    .giftDivision("01")
-                    .build();
+                .productKey(secondProductKey)
+                .productName("상품2")
+                .productType("1")
+                .giftDivision("01")
+                .build();
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(firstItem, secondItem)
+                "CUST001", "token", List.of(firstItem, secondItem)
             );
 
             // when
             FulfillmentGoodsRegistrationCreateState state =
-                    FulfillmentCommandToStateMapper.mapToGoodsRegistrationCreateState(command);
+                FulfillmentCommandToStateMapper.mapToGoodsRegistrationCreateState(command);
 
             // then
             assertThat(state.getProductKey()).isEqualTo(firstProductKey);
@@ -85,16 +85,16 @@ class FulfillmentCommandToStateMapperTest {
         void shouldParseOrderNumberToOrderId() {
             // given
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
-                    .orderNumber("12345")
-                    .recipientName("홍길동")
-                    .build();
+                .orderNumber("12345")
+                .recipientName("홍길동")
+                .build();
             RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
             FulfillmentDeliveryRegistrationCreateState state =
-                    FulfillmentCommandToStateMapper.mapToDeliveryRegistrationCreateState(command);
+                FulfillmentCommandToStateMapper.mapToDeliveryRegistrationCreateState(command);
 
             // then
             assertThat(state.getOrderId()).isEqualTo(12345L);

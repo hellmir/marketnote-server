@@ -54,19 +54,19 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("모든 값이 채워지면 Adpopcorn 명세에 맞는 모든 필드가 포함된다")
         void shouldBuildAdpopcornPayloadWithAllFields() {
             JsonNode result = generator.buildAdpopcornPayloadJson(
-                    "rk-1",
-                    "user-1",
-                    UserDeviceType.ANDROID,
-                    "camp-1",
-                    1,
-                    "캠페인",
-                    100L,
-                    "sig",
-                    9999,
-                    "앱",
-                    "adid-1",
-                    "idfa-1",
-                    "2026-11-26T12:00:00"
+                "rk-1",
+                "user-1",
+                UserDeviceType.ANDROID,
+                "camp-1",
+                1,
+                "캠페인",
+                100L,
+                "sig",
+                9999,
+                "앱",
+                "adid-1",
+                "idfa-1",
+                "2026-11-26T12:00:00"
             );
 
             assertThat(result.get("reward_key").asText()).isEqualTo("rk-1");
@@ -88,19 +88,19 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("문자열이 null이면 해당 필드는 생략된다")
         void shouldOmitNullStringFields() {
             JsonNode result = generator.buildAdpopcornPayloadJson(
-                    null,
-                    "user-1",
-                    UserDeviceType.IOS,
-                    null,
-                    1,
-                    null,
-                    100L,
-                    null,
-                    9999,
-                    null,
-                    null,
-                    null,
-                    null
+                null,
+                "user-1",
+                UserDeviceType.IOS,
+                null,
+                1,
+                null,
+                100L,
+                null,
+                9999,
+                null,
+                null,
+                null,
+                null
             );
 
             assertThat(result.has("reward_key")).isFalse();
@@ -119,19 +119,19 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("문자열이 빈 값이면 해당 필드는 생략된다")
         void shouldOmitBlankStringFields() {
             JsonNode result = generator.buildAdpopcornPayloadJson(
-                    "  ",
-                    "",
-                    UserDeviceType.ANDROID,
-                    "",
-                    null,
-                    "",
-                    null,
-                    "",
-                    null,
-                    "",
-                    "",
-                    "",
-                    ""
+                "  ",
+                "",
+                UserDeviceType.ANDROID,
+                "",
+                null,
+                "",
+                null,
+                "",
+                null,
+                "",
+                "",
+                "",
+                ""
             );
 
             assertThat(result.has("reward_key")).isFalse();
@@ -153,19 +153,19 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("Number 타입이 null이면 해당 필드는 생략된다")
         void shouldOmitNullNumberFields() {
             JsonNode result = generator.buildAdpopcornPayloadJson(
-                    "rk",
-                    "user",
-                    UserDeviceType.ANDROID,
-                    "camp",
-                    null,
-                    "name",
-                    null,
-                    "sig",
-                    null,
-                    "app",
-                    "adid",
-                    "idfa",
-                    "ts"
+                "rk",
+                "user",
+                UserDeviceType.ANDROID,
+                "camp",
+                null,
+                "name",
+                null,
+                "sig",
+                null,
+                "app",
+                "adid",
+                "idfa",
+                "ts"
             );
 
             assertThat(result.has("campaign_type")).isFalse();
@@ -182,16 +182,16 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("모든 값이 채워지면 Tnk 명세에 맞는 모든 필드가 포함된다")
         void shouldBuildTnkPayloadWithAllFields() {
             JsonNode result = generator.buildTnkPayloadJson(
-                    "seq-1",
-                    "user-1",
-                    UserDeviceType.ANDROID,
-                    2,
-                    300L,
-                    "chk",
-                    "앱",
-                    "app-id",
-                    "2026-11-26",
-                    new BigDecimal("1500.50")
+                "seq-1",
+                "user-1",
+                UserDeviceType.ANDROID,
+                2,
+                300L,
+                "chk",
+                "앱",
+                "app-id",
+                "2026-11-26",
+                new BigDecimal("1500.50")
             );
 
             assertThat(result.get("seq_id").asText()).isEqualTo("seq-1");
@@ -210,16 +210,16 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("Number 타입이 null이면 해당 필드는 생략된다")
         void shouldOmitNullNumberFieldsForTnk() {
             JsonNode result = generator.buildTnkPayloadJson(
-                    "seq",
-                    "user",
-                    UserDeviceType.IOS,
-                    null,
-                    null,
-                    "chk",
-                    "앱",
-                    "app-id",
-                    "ts",
-                    null
+                "seq",
+                "user",
+                UserDeviceType.IOS,
+                null,
+                null,
+                "chk",
+                "앱",
+                "app-id",
+                "ts",
+                null
             );
 
             assertThat(result.has("campaign_type")).isFalse();
@@ -237,17 +237,17 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("모든 값이 채워지면 Adiscope 명세에 맞는 모든 필드가 포함된다")
         void shouldBuildAdiscopePayloadWithAllFields() {
             JsonNode result = generator.buildAdiscopePayloadJson(
-                    "tx-1",
-                    "user-1",
-                    UserDeviceType.ANDROID,
-                    "unit-1",
-                    "VIDEO",
-                    "광고",
-                    "POINT",
-                    500L,
-                    "sig",
-                    "adid-1",
-                    "AdNetwork"
+                "tx-1",
+                "user-1",
+                UserDeviceType.ANDROID,
+                "unit-1",
+                "VIDEO",
+                "광고",
+                "POINT",
+                500L,
+                "sig",
+                "adid-1",
+                "AdNetwork"
             );
 
             assertThat(result.get("transactionId").asText()).isEqualTo("tx-1");
@@ -267,17 +267,17 @@ class OfferwallVendorCommunicationPayloadGeneratorTest {
         @DisplayName("Number 타입과 문자열이 null이면 해당 필드는 생략된다")
         void shouldOmitNullFieldsForAdiscope() {
             JsonNode result = generator.buildAdiscopePayloadJson(
-                    null,
-                    "user",
-                    UserDeviceType.IOS,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                null,
+                "user",
+                UserDeviceType.IOS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
             );
 
             assertThat(result.has("transactionId")).isFalse();

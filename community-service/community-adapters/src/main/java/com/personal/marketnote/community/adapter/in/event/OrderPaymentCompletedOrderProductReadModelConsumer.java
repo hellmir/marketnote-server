@@ -25,12 +25,12 @@ public class OrderPaymentCompletedOrderProductReadModelConsumer {
     private final SaveOrderProductReadModelPort saveOrderProductReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "community-order-product-read-model"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "community-order-product-read-model"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -52,8 +52,8 @@ public class OrderPaymentCompletedOrderProductReadModelConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId())
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -70,7 +70,7 @@ public class OrderPaymentCompletedOrderProductReadModelConsumer {
         }
 
         log.info("주문 상품 Read Model 저장 완료. eventId={}, orderId={}, itemCount={}",
-                envelope.eventId(), payload.orderId(), orderProducts.size()
+            envelope.eventId(), payload.orderId(), orderProducts.size()
         );
 
         acknowledgment.acknowledge();
@@ -82,14 +82,14 @@ public class OrderPaymentCompletedOrderProductReadModelConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(eventId,
-                EventPayloadValidator.id("pricePolicyId", item.pricePolicyId())
+            EventPayloadValidator.id("pricePolicyId", item.pricePolicyId())
         )) {
             return;
         }
 
         if (FormatValidator.hasNoValue(item.unitAmount()) || item.unitAmount() <= 0) {
             log.warn("주문 상품 단가가 유효하지 않아 스킵. eventId={}, orderId={}, pricePolicyId={}, unitAmount={}",
-                    eventId, orderId, item.pricePolicyId(), item.unitAmount()
+                eventId, orderId, item.pricePolicyId(), item.unitAmount()
             );
             return;
         }

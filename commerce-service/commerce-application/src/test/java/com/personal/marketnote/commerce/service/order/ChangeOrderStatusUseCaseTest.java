@@ -63,9 +63,9 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -84,9 +84,9 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PREPARING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PREPARING)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -105,9 +105,9 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -126,10 +126,10 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                    .skipSubsequentProcesses(true)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .skipSubsequentProcesses(true)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -148,10 +148,10 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                    .skipSubsequentProcesses(true)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .skipSubsequentProcesses(true)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -160,9 +160,9 @@ class ChangeOrderStatusUseCaseTest {
             verify(findProductByPricePolicyPort, never()).findByPricePolicyIds(anyList());
             verify(modifyUserPointPort, never()).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
             verify(publishOrderEventPort, never()).publishOrderPaymentCompletedEvent(
-                    anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
+                anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
             verify(publishOrderEventPort, never()).publishOrderPurchaseConfirmedEvent(
-                    anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
+                anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
         }
 
         @Test
@@ -175,9 +175,9 @@ class ChangeOrderStatusUseCaseTest {
             autoConfirmSchedulerProperties.setAutoConfirmDays(3L);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.DELIVERED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -201,9 +201,9 @@ class ChangeOrderStatusUseCaseTest {
             autoConfirmSchedulerProperties.setAutoConfirmDays(5L);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.DELIVERED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -223,9 +223,9 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PREPARING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PREPARING)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -247,25 +247,25 @@ class ChangeOrderStatusUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
             Order order = createOrderWithMultipleProducts(orderId, 100L, OrderStatus.DELIVERED,
-                    pricePolicyId1, pricePolicyId2);
+                pricePolicyId1, pricePolicyId2);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .pricePolicyIds(List.of(pricePolicyId1))
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .pricePolicyIds(List.of(pricePolicyId1))
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             OrderProduct changedProduct = order.getOrderProducts().stream()
-                    .filter(op -> op.getPricePolicyId().equals(pricePolicyId1))
-                    .findFirst().orElseThrow();
+                .filter(op -> op.getPricePolicyId().equals(pricePolicyId1))
+                .findFirst().orElseThrow();
             OrderProduct unchangedProduct = order.getOrderProducts().stream()
-                    .filter(op -> op.getPricePolicyId().equals(pricePolicyId2))
-                    .findFirst().orElseThrow();
+                .filter(op -> op.getPricePolicyId().equals(pricePolicyId2))
+                .findFirst().orElseThrow();
 
             assertThat(changedProduct.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
             assertThat(unchangedProduct.getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
@@ -283,14 +283,14 @@ class ChangeOrderStatusUseCaseTest {
             // 하지만 partial 변경에서는 전이 규칙을 건너뛰므로 주문 레벨 검증 없음
             // (개별 상품의 changeOrderStatus에서 검증)
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .pricePolicyIds(List.of(10L))
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .pricePolicyIds(List.of(10L))
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when & then
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
 
@@ -303,17 +303,17 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .pricePolicyIds(List.of(10L))
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .pricePolicyIds(List.of(10L))
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             verify(publishOrderEventPort, never()).publishOrderPurchaseConfirmedEvent(
-                    anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
+                anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
         }
 
         @Test
@@ -324,16 +324,16 @@ class ChangeOrderStatusUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
             Order order = createOrderWithMultipleProducts(orderId, 100L, OrderStatus.RETURN_IN_PROGRESS,
-                    pricePolicyId1, pricePolicyId2);
+                pricePolicyId1, pricePolicyId2);
             // 개별 상품도 RETURN_IN_PROGRESS로 설정
             order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, LocalDateTime.now(clock), 0L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .pricePolicyIds(List.of(pricePolicyId1))
-                    .orderStatus(OrderStatus.RETURNED)
-                    .build();
+                .id(orderId)
+                .pricePolicyIds(List.of(pricePolicyId1))
+                .orderStatus(OrderStatus.RETURNED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -350,14 +350,14 @@ class ChangeOrderStatusUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
             Order order = createOrderWithMultipleProducts(orderId, 100L, OrderStatus.DELIVERED,
-                    pricePolicyId1, pricePolicyId2);
+                pricePolicyId1, pricePolicyId2);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .pricePolicyIds(List.of(pricePolicyId1))
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .pricePolicyIds(List.of(pricePolicyId1))
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -380,10 +380,10 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .skipSubsequentProcesses(true)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .skipSubsequentProcesses(true)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -392,7 +392,7 @@ class ChangeOrderStatusUseCaseTest {
             verify(findProductByPricePolicyPort, never()).findByPricePolicyIds(anyList());
             verify(modifyUserPointPort, never()).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
             verify(publishOrderEventPort, never()).publishOrderPaymentCompletedEvent(
-                    anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
+                anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
         }
 
         @Test
@@ -404,17 +404,17 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .skipSubsequentProcesses(null)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .skipSubsequentProcesses(null)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                    eq(orderId), eq(100L), eq(50000L), eq(0L), any(), eq(order.getOrderProducts()), eq(500L));
+                eq(orderId), eq(100L), eq(50000L), eq(0L), any(), eq(order.getOrderProducts()), eq(500L));
             verify(modifyUserPointPort).addPendingProductAccumulationPoints(100L, 500L, orderId);
         }
     }
@@ -433,16 +433,16 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), eq(List.of()), eq(true), anyList());
+                eq(orderId), eq(buyerId), eq(List.of()), eq(true), anyList());
         }
 
         @Test
@@ -456,16 +456,16 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), eq(List.of(sharerKey)), eq(true), anyList());
+                eq(orderId), eq(buyerId), eq(List.of(sharerKey)), eq(true), anyList());
         }
 
         @Test
@@ -478,16 +478,16 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), eq(List.of()), eq(true), anyList());
+                eq(orderId), eq(buyerId), eq(List.of()), eq(true), anyList());
         }
 
         @Test
@@ -498,18 +498,18 @@ class ChangeOrderStatusUseCaseTest {
             Order order = createOrder(orderId, 100L, OrderStatus.DELIVERED, 10L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             doThrow(new RuntimeException("이벤트 발행 실패"))
-                    .when(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                            anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
+                .when(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
+                    anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("이벤트 발행 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("이벤트 발행 실패");
         }
     }
 
@@ -527,16 +527,16 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
             verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                    eq(orderId), eq(buyerId), eq(50000L), eq(0L), any(), eq(order.getOrderProducts()), eq(500L));
+                eq(orderId), eq(buyerId), eq(50000L), eq(0L), any(), eq(order.getOrderProducts()), eq(500L));
         }
 
         @Test
@@ -547,18 +547,18 @@ class ChangeOrderStatusUseCaseTest {
             Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_EXECUTING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             doThrow(new RuntimeException("Outbox 저장 실패"))
-                    .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                            anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
+                .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
+                    anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("Outbox 저장 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Outbox 저장 실패");
         }
     }
 
@@ -576,9 +576,9 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -601,9 +601,9 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -627,13 +627,13 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
 
             // when & then
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
             assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
         }
 
@@ -643,17 +643,17 @@ class ChangeOrderStatusUseCaseTest {
             // given
             Long orderId = 1L;
             Order order = createOrderWithProductStatus(orderId, 100L, OrderStatus.PARTIALLY_RETURNED,
-                    10L, OrderStatus.RETURN_IN_PROGRESS);
+                10L, OrderStatus.RETURN_IN_PROGRESS);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.RETURNED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.RETURNED)
+                .build();
 
             // when & then
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
             assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURNED);
         }
     }
@@ -671,13 +671,13 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+                .isInstanceOf(OrderStatusAlreadyChangedException.class);
         }
 
         @Test
@@ -689,13 +689,13 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.DELIVERED)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
     }
 
@@ -708,164 +708,164 @@ class ChangeOrderStatusUseCaseTest {
     }
 
     private Order createOrder(
-            Long orderId, Long buyerId, OrderStatus status, Long pricePolicyId, Long accumulatedPoint
+        Long orderId, Long buyerId, OrderStatus status, Long pricePolicyId, Long accumulatedPoint
     ) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(accumulatedPoint)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(accumulatedPoint)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithProductStatus(Long orderId, Long buyerId, OrderStatus orderStatus,
                                                Long pricePolicyId, OrderStatus productStatus) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(productStatus)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(productStatus)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(orderStatus)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(orderStatus)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithSharer(Long orderId, Long buyerId, OrderStatus status,
                                         Long pricePolicyId, UUID sharerKey) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .sharerKey(sharerKey)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .sharerKey(sharerKey)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithMultipleProducts(Long orderId, Long buyerId, OrderStatus status,
                                                   Long pricePolicyId1, Long pricePolicyId2) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId1)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId2)
-                        .quantity(1)
-                        .unitAmount(30000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId1)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId2)
+                .quantity(1)
+                .unitAmount(30000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(80000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(80000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithSnapshotPoints(Long orderId, Long buyerId,
                                                 Long pricePolicyId1, Long point1,
                                                 Long pricePolicyId2, Long point2) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId1)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .accumulatedPoint(point1)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId2)
-                        .quantity(1)
-                        .unitAmount(30000L)
-                        .accumulatedPoint(point2)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId1)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(point1)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId2)
+                .quantity(1)
+                .unitAmount(30000L)
+                .accumulatedPoint(point2)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(80000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(80000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private ProductInfoResult createProductInfoResult(Long accumulatedPoint) {

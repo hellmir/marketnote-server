@@ -22,38 +22,38 @@ class GetInternalReturnGodDetailCommandTest {
         @DisplayName("returnSlipNumbers가 null이면 ReturnSlipNumbersNoValueException이 발생한다")
         void throwsWhenNull() {
             assertThatThrownBy(() -> GetInternalReturnGodDetailCommand.of(null))
-                    .isInstanceOf(ReturnSlipNumbersNoValueException.class)
-                    .hasMessageContaining("returnSlipNumbers는 필수입니다.");
+                .isInstanceOf(ReturnSlipNumbersNoValueException.class)
+                .hasMessageContaining("returnSlipNumbers는 필수입니다.");
         }
 
         @Test
         @DisplayName("returnSlipNumbers가 빈 문자열이면 ReturnSlipNumbersNoValueException이 발생한다")
         void throwsWhenBlank() {
             assertThatThrownBy(() -> GetInternalReturnGodDetailCommand.of(""))
-                    .isInstanceOf(ReturnSlipNumbersNoValueException.class);
+                .isInstanceOf(ReturnSlipNumbersNoValueException.class);
         }
 
         @Test
         @DisplayName("returnSlipNumbers 개수가 100을 초과하면 InvalidReturnSlipNumbersCountException이 발생한다")
         void throwsWhenCountExceedsMax() {
             String slips = IntStream.rangeClosed(1, 101)
-                    .mapToObj(String::valueOf)
-                    .reduce((a, b) -> a + "," + b)
-                    .orElseThrow();
+                .mapToObj(String::valueOf)
+                .reduce((a, b) -> a + "," + b)
+                .orElseThrow();
 
             assertThatThrownBy(() -> GetInternalReturnGodDetailCommand.of(slips))
-                    .isInstanceOf(InvalidReturnSlipNumbersCountException.class)
-                    .hasMessageContaining("100")
-                    .hasMessageContaining("101");
+                .isInstanceOf(InvalidReturnSlipNumbersCountException.class)
+                .hasMessageContaining("100")
+                .hasMessageContaining("101");
         }
 
         @Test
         @DisplayName("returnSlipNumbers 개수가 정확히 100이면 정상 생성된다")
         void succeedsWhenCountEqualsMax() {
             String slips = IntStream.rangeClosed(1, 100)
-                    .mapToObj(String::valueOf)
-                    .reduce((a, b) -> a + "," + b)
-                    .orElseThrow();
+                .mapToObj(String::valueOf)
+                .reduce((a, b) -> a + "," + b)
+                .orElseThrow();
 
             GetInternalReturnGodDetailCommand command = GetInternalReturnGodDetailCommand.of(slips);
 

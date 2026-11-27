@@ -50,27 +50,27 @@ public class IdentificationController {
     @WhoAmIApiDocs
     public ResponseEntity<BaseResponse<WhoAmIResponse>> whoAmI() {
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        WhoAmIResponse.of(fetchPublicIp()),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "자신의 공인 IP 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                WhoAmIResponse.of(fetchPublicIp()),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "자신의 공인 IP 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
     private String fetchPublicIp() {
         try {
             HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(3))
-                    .build();
+                .connectTimeout(Duration.ofSeconds(3))
+                .build();
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("https://checkip.amazonaws.com"))
-                    .timeout(Duration.ofSeconds(5))
-                    .GET()
-                    .build();
+                .uri(URI.create("https://checkip.amazonaws.com"))
+                .timeout(Duration.ofSeconds(5))
+                .GET()
+                .build();
 
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 

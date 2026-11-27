@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 @Builder
 public record RegisterAttendancePolicyCommand(
-        short continuousPeriod,
-        AttendanceRewardType rewardType,
-        long rewardQuantity,
-        LocalDate attendenceDate
+    short continuousPeriod,
+    AttendanceRewardType rewardType,
+    long rewardQuantity,
+    LocalDate attendenceDate
 ) {
 }
 

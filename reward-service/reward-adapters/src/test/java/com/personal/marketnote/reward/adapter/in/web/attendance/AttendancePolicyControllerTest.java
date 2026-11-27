@@ -55,10 +55,10 @@ class AttendancePolicyControllerTest {
             ReflectionTestUtils.setField(request, "rewardType", AttendanceRewardType.POINT);
             ReflectionTestUtils.setField(request, "rewardQuantity", 100L);
             given(registerAttendancePolicyUseCase.register(any(RegisterAttendancePolicyCommand.class)))
-                    .willReturn(RegisterAttendancePolicyResult.builder().id((short) 5).build());
+                .willReturn(RegisterAttendancePolicyResult.builder().id((short) 5).build());
 
             ResponseEntity<BaseResponse<RegisterAttendancePolicyResponse>> response =
-                    controller.registerAttendancePolicy(request);
+                controller.registerAttendancePolicy(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -74,7 +74,7 @@ class AttendancePolicyControllerTest {
         @DisplayName("OK 상태로 정책 목록을 반환한다")
         void returnsOkWithPolicies() {
             given(getAttendancePoliciesUseCase.getAttendancePolicies())
-                    .willReturn(GetAttendancePoliciesResult.from(List.of()));
+                .willReturn(GetAttendancePoliciesResult.from(List.of()));
 
             ResponseEntity<BaseResponse<GetAttendancePoliciesResponse>> response = controller.getAttendancePolicies();
 

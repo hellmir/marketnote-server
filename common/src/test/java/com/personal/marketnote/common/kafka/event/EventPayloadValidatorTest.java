@@ -18,7 +18,7 @@ class EventPayloadValidatorTest {
 
     private EventEnvelope<?> buildEnvelope(String eventType) {
         return new EventEnvelope<>(EVENT_ID, eventType, "test-source",
-                LocalDateTime.of(2026, 3, 9, 10, 0), "test-payload"
+            LocalDateTime.of(2026, 3, 9, 10, 0), "test-payload"
         );
     }
 
@@ -35,7 +35,7 @@ class EventPayloadValidatorTest {
         void nullEnvelope_returnsTrue() {
             // given
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    TOPIC, 0, 0L, "key", null
+                TOPIC, 0, 0L, "key", null
             );
 
             // when
@@ -126,8 +126,8 @@ class EventPayloadValidatorTest {
         void allPositiveIds_returnsFalse() {
             // when
             boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID,
-                    EventPayloadValidator.id("orderId", 1L),
-                    EventPayloadValidator.id("buyerId", 100L)
+                EventPayloadValidator.id("orderId", 1L),
+                EventPayloadValidator.id("buyerId", 100L)
             );
 
             // then
@@ -160,8 +160,8 @@ class EventPayloadValidatorTest {
         void oneInvalidAmongMultiple_returnsTrue() {
             // when
             boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID,
-                    EventPayloadValidator.id("orderId", 1L),
-                    EventPayloadValidator.id("buyerId", null)
+                EventPayloadValidator.id("orderId", 1L),
+                EventPayloadValidator.id("buyerId", null)
             );
 
             // then

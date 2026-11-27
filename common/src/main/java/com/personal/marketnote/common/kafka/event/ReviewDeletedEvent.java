@@ -6,10 +6,10 @@ import java.math.BigDecimal;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ReviewDeletedEvent(
-        Long reviewId,
-        Long productId,
-        Integer totalCount,
-        BigDecimal averageRating,
-        Long reviewerId
+    Long reviewId,
+    Long productId,
+    Integer totalCount,
+    BigDecimal averageRating,
+    Long reviewerId
 ) {
 }

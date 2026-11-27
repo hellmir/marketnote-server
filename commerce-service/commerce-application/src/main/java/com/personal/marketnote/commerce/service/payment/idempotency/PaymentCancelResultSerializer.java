@@ -41,8 +41,8 @@ public class PaymentCancelResultSerializer {
     private final CounterRegistryHelper counterRegistryHelper;
 
     public PaymentCancelResultSerializer(
-            ObjectMapper objectMapper,
-            @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
+        ObjectMapper objectMapper,
+        @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
     ) {
         this.objectMapper = objectMapper;
         this.counterRegistryHelper = counterRegistryHelper;
@@ -62,7 +62,7 @@ public class PaymentCancelResultSerializer {
             return objectMapper.writeValueAsString(payload);
         } catch (JsonProcessingException jpe) {
             log.error("fallback applied: 결제 취소 멱등성 result 직렬화 실패 — 빈 JSON 반환. orderKey={}",
-                    context.originalCommand().orderKey(), jpe);
+                context.originalCommand().orderKey(), jpe);
             incrementSerializerFailureCounter();
             return "{}";
         }

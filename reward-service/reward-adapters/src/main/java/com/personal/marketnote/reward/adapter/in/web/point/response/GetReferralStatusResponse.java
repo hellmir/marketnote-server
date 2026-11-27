@@ -8,38 +8,38 @@ import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetReferralStatusResponse(
-        long totalInvitedCount,
-        long totalEarnedCash,
-        int maxInviteCount,
-        List<BonusTierResponse> tiers
+    long totalInvitedCount,
+    long totalEarnedCash,
+    int maxInviteCount,
+    List<BonusTierResponse> tiers
 ) {
     @Builder(access = AccessLevel.PRIVATE)
     public record BonusTierResponse(
-            int requiredCount,
-            int bonusAmount,
-            boolean achieved,
-            boolean claimed,
-            boolean claimable
+        int requiredCount,
+        int bonusAmount,
+        boolean achieved,
+        boolean claimed,
+        boolean claimable
     ) {
         public static BonusTierResponse from(GetReferralStatusResult.BonusTierStatus status) {
             return BonusTierResponse.builder()
-                    .requiredCount(status.requiredCount())
-                    .bonusAmount(status.bonusAmount())
-                    .achieved(status.achieved())
-                    .claimed(status.claimed())
-                    .claimable(status.claimable())
-                    .build();
+                .requiredCount(status.requiredCount())
+                .bonusAmount(status.bonusAmount())
+                .achieved(status.achieved())
+                .claimed(status.claimed())
+                .claimable(status.claimable())
+                .build();
         }
     }
 
     public static GetReferralStatusResponse from(GetReferralStatusResult result) {
         return GetReferralStatusResponse.builder()
-                .totalInvitedCount(result.totalInvitedCount())
-                .totalEarnedCash(result.totalEarnedCash())
-                .maxInviteCount(result.maxInviteCount())
-                .tiers(result.tiers().stream()
-                        .map(BonusTierResponse::from)
-                        .toList())
-                .build();
+            .totalInvitedCount(result.totalInvitedCount())
+            .totalEarnedCash(result.totalEarnedCash())
+            .maxInviteCount(result.maxInviteCount())
+            .tiers(result.tiers().stream()
+                .map(BonusTierResponse::from)
+                .toList())
+            .build();
     }
 }

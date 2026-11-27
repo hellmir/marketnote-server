@@ -37,12 +37,12 @@ class RewardVendorCommunicationHistoryPersistenceAdapterTest {
         RewardVendorCommunicationHistory history = buildHistory();
         LocalDateTime savedAt = LocalDateTime.of(2026, 4, 15, 12, 30);
         given(repository.save(any(RewardVendorCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> {
-                    RewardVendorCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
-                    ReflectionTestUtils.setField(arg, "id", 777L);
-                    ReflectionTestUtils.setField(arg, "createdAt", savedAt);
-                    return arg;
-                });
+            .willAnswer(invocation -> {
+                RewardVendorCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
+                ReflectionTestUtils.setField(arg, "id", 777L);
+                ReflectionTestUtils.setField(arg, "createdAt", savedAt);
+                return arg;
+            });
 
         // when
         RewardVendorCommunicationHistory saved = adapter.save(history);
@@ -65,14 +65,14 @@ class RewardVendorCommunicationHistoryPersistenceAdapterTest {
         // given
         RewardVendorCommunicationHistory history = buildHistory();
         given(repository.save(any(RewardVendorCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         adapter.save(history);
 
         // then
         ArgumentCaptor<RewardVendorCommunicationHistoryJpaEntity> captor =
-                ArgumentCaptor.forClass(RewardVendorCommunicationHistoryJpaEntity.class);
+            ArgumentCaptor.forClass(RewardVendorCommunicationHistoryJpaEntity.class);
         verify(repository).save(captor.capture());
         verifyNoMoreInteractions(repository);
         RewardVendorCommunicationHistoryJpaEntity captured = captor.getValue();
@@ -87,14 +87,14 @@ class RewardVendorCommunicationHistoryPersistenceAdapterTest {
 
     private RewardVendorCommunicationHistory buildHistory() {
         return RewardVendorCommunicationHistory.from(RewardVendorCommunicationHistoryCreateState.builder()
-                .targetType(RewardVendorCommunicationTargetType.OFFERWALL)
-                .targetId("txn-99")
-                .vendorName(RewardVendorName.ADPOPCORN)
-                .communicationType(RewardVendorCommunicationType.REQUEST)
-                .sender(RewardVendorCommunicationSenderType.SERVER)
-                .exception("HttpTimeoutException")
-                .payload("{\"k\":\"v\"}")
-                .payloadJson(null)
-                .build());
+            .targetType(RewardVendorCommunicationTargetType.OFFERWALL)
+            .targetId("txn-99")
+            .vendorName(RewardVendorName.ADPOPCORN)
+            .communicationType(RewardVendorCommunicationType.REQUEST)
+            .sender(RewardVendorCommunicationSenderType.SERVER)
+            .exception("HttpTimeoutException")
+            .payload("{\"k\":\"v\"}")
+            .payloadJson(null)
+            .build());
     }
 }

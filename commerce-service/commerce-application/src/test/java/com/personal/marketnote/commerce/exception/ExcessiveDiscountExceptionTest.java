@@ -23,7 +23,7 @@ class ExcessiveDiscountExceptionTest {
         ArithmeticException root = new ArithmeticException("long overflow");
 
         ExcessiveDiscountException ex =
-                new ExcessiveDiscountException(10000L, 3000L, 5000L, 2000L, root);
+            new ExcessiveDiscountException(10000L, 3000L, 5000L, 2000L, root);
 
         assertThat(ex.getMessage()).contains("10000");
         assertThat(ex.getCause()).isSameAs(root);

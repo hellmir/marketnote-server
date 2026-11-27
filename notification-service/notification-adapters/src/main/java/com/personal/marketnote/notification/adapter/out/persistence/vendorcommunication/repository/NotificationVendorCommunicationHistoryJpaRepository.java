@@ -4,5 +4,5 @@ import com.personal.marketnote.notification.adapter.out.persistence.vendorcommun
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NotificationVendorCommunicationHistoryJpaRepository
-        extends JpaRepository<NotificationVendorCommunicationHistoryJpaEntity, Long> {
+    extends JpaRepository<NotificationVendorCommunicationHistoryJpaEntity, Long> {
 }

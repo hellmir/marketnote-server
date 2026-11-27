@@ -25,11 +25,11 @@ import java.net.URI;
 @Slf4j
 public class FileServiceClient implements DeleteProductImagesPort {
     private static final ProductServiceCommunicationTargetType TARGET_TYPE =
-            ProductServiceCommunicationTargetType.PRODUCT_IMAGE;
+        ProductServiceCommunicationTargetType.PRODUCT_IMAGE;
     private static final ProductServiceCommunicationSenderType REQUEST_SENDER =
-            ProductServiceCommunicationSenderType.PRODUCT;
+        ProductServiceCommunicationSenderType.PRODUCT;
     private static final ProductServiceCommunicationSenderType RESPONSE_SENDER =
-            ProductServiceCommunicationSenderType.FILE;
+        ProductServiceCommunicationSenderType.FILE;
 
     private final RestClient restClient;
     private final String fileServiceBaseUrl;
@@ -38,11 +38,11 @@ public class FileServiceClient implements DeleteProductImagesPort {
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
     public FileServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${file-service.base-url:http://localhost:9000}") String fileServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
-            ServiceCommunicationRecorder serviceCommunicationRecorder,
-            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+        RestClient.Builder restClientBuilder,
+        @Value("${file-service.base-url:http://localhost:9000}") String fileServiceBaseUrl,
+        HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+        ServiceCommunicationRecorder serviceCommunicationRecorder,
+        ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
     ) {
         this.restClient = restClientBuilder.build();
         this.fileServiceBaseUrl = fileServiceBaseUrl;
@@ -54,10 +54,10 @@ public class FileServiceClient implements DeleteProductImagesPort {
     @Override
     public void delete(Long fileId) {
         URI uri = UriComponentsBuilder
-                .fromUriString(fileServiceBaseUrl)
-                .path("/api/v1/files/{id}")
-                .buildAndExpand(fileId)
-                .toUri();
+            .fromUriString(fileServiceBaseUrl)
+            .path("/api/v1/files/{id}")
+            .buildAndExpand(fileId)
+            .toUri();
 
         sendDeleteRequest(uri, String.valueOf(fileId));
     }
@@ -65,10 +65,10 @@ public class FileServiceClient implements DeleteProductImagesPort {
     private void sendDeleteRequest(URI uri, String targetId) {
         try {
             ResponseEntity<Void> responseEntity = restClient.delete()
-                    .uri(uri)
-                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "DELETE", uri.getPath()))
-                    .retrieve()
-                    .toBodilessEntity();
+                .uri(uri)
+                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "DELETE", uri.getPath()))
+                .retrieve()
+                .toBodilessEntity();
 
             if (responseEntity.getStatusCode().isError()) {
                 throw new FileServiceRequestFailedException(new IOException("File service returned error: " + responseEntity.getStatusCode()));
@@ -76,33 +76,33 @@ public class FileServiceClient implements DeleteProductImagesPort {
         } catch (Exception e) {
             String exception = e.getClass().getSimpleName();
             JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                    HttpMethod.DELETE,
-                    uri,
-                    null,
-                    1
+                HttpMethod.DELETE,
+                uri,
+                null,
+                1
             );
             String requestPayload = requestPayloadJson.toString();
             JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                    exception,
-                    e.getMessage(),
-                    1
+                exception,
+                e.getMessage(),
+                1
             );
             String responsePayload = responsePayloadJson.toString();
             recordCommunication(
-                    TARGET_TYPE,
-                    targetId,
-                    ProductServiceCommunicationType.REQUEST,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                TARGET_TYPE,
+                targetId,
+                ProductServiceCommunicationType.REQUEST,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             recordCommunication(
-                    TARGET_TYPE,
-                    targetId,
-                    ProductServiceCommunicationType.RESPONSE,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                TARGET_TYPE,
+                targetId,
+                ProductServiceCommunicationType.RESPONSE,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
             log.warn(e.getMessage(), e);
             throw new FileServiceRequestFailedException(new IOException(e.getMessage(), e));
@@ -110,27 +110,27 @@ public class FileServiceClient implements DeleteProductImagesPort {
     }
 
     private void recordCommunication(
-            ProductServiceCommunicationTargetType targetType,
-            String targetId,
-            ProductServiceCommunicationType communicationType,
-            String payload,
-            JsonNode payloadJson,
-            String exception
+        ProductServiceCommunicationTargetType targetType,
+        String targetId,
+        ProductServiceCommunicationType communicationType,
+        String payload,
+        JsonNode payloadJson,
+        String exception
     ) {
         if (FormatValidator.hasNoValue(exception)) {
             return;
         }
 
         ProductServiceCommunicationSenderType sender =
-                communicationType == ProductServiceCommunicationType.REQUEST ? REQUEST_SENDER : RESPONSE_SENDER;
+            communicationType == ProductServiceCommunicationType.REQUEST ? REQUEST_SENDER : RESPONSE_SENDER;
         serviceCommunicationRecorder.record(
-                targetType,
-                communicationType,
-                sender,
-                targetId,
-                payload,
-                payloadJson,
-                exception
+            targetType,
+            communicationType,
+            sender,
+            targetId,
+            payload,
+            payloadJson,
+            exception
         );
     }
 }

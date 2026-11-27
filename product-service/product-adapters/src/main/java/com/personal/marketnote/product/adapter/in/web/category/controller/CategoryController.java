@@ -68,20 +68,20 @@ public class CategoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterCategoryApiDocs
     public ResponseEntity<BaseResponse<RegisterCategoryResponse>> registerCategory(
-            @jakarta.validation.Valid @RequestBody RegisterCategoryRequest request
+        @jakarta.validation.Valid @RequestBody RegisterCategoryRequest request
     ) {
         RegisterCategoryResult result = registerCategoryUseCase.registerCategory(
-                CategoryRequestToCommandMapper.mapToCommand(request)
+            CategoryRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterCategoryResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "카테고리 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterCategoryResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "카테고리 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -97,17 +97,17 @@ public class CategoryController {
     @GetMapping
     @GetCategoriesApiDocs
     public ResponseEntity<BaseResponse<GetCategoriesResponse>> getCategories(
-            @RequestParam(value = "parentId", required = false) Long parentCategoryId
+        @RequestParam(value = "parentId", required = false) Long parentCategoryId
     ) {
         GetCategoriesResult result = getCategoryUseCase.getCategoriesByParentId(parentCategoryId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetCategoriesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "카테고리 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetCategoriesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "카테고리 목록 조회 성공"
+            )
         );
     }
 
@@ -124,18 +124,18 @@ public class CategoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @DeleteCategoryApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteCategory(
-            @PathVariable("categoryId") Long categoryId
+        @PathVariable("categoryId") Long categoryId
     ) {
         deleteCategoryUseCase.deleteCategory(
-                DeleteCategoryCommand.of(categoryId)
+            DeleteCategoryCommand.of(categoryId)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "카테고리 삭제 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "카테고리 삭제 성공"
+            )
         );
     }
 
@@ -153,23 +153,23 @@ public class CategoryController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @RegisterProductCategoriesApiDocs
     public ResponseEntity<BaseResponse<RegisterProductCategoriesResponse>> registerProductCategories(
-            @PathVariable("productId") Long productId,
-            @Valid @RequestBody RegisterProductCategoriesRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @Valid @RequestBody RegisterProductCategoriesRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         RegisterProductCategoriesResult result = registerProductCategoriesUseCase.registerProductCategories(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                ProductRequestToCommandMapper.mapToCommand(productId, request)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            ProductRequestToCommandMapper.mapToCommand(productId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        RegisterProductCategoriesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 카테고리 등록 성공"
-                )
+            BaseResponse.of(
+                RegisterProductCategoriesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 카테고리 등록 성공"
+            )
         );
     }
 }

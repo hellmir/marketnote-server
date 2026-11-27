@@ -19,7 +19,7 @@ public final class BusinessIdMdcKeys {
     public static final String EVENT_ID = "eventId";
 
     public static final Set<String> WHITELIST = Set.of(
-            USER_ID, ORDER_ID, PAYMENT_KEY, SELLER_ID, PRODUCT_ID, EVENT_ID
+        USER_ID, ORDER_ID, PAYMENT_KEY, SELLER_ID, PRODUCT_ID, EVENT_ID
     );
 
     private static final Pattern CRLF_PATTERN = Pattern.compile("[\\r\\n\\t\\u0000-\\u001F\\u007F]");

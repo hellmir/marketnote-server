@@ -23,12 +23,12 @@ public class PaymentCancelledPendingProductPointConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
-            groupId = "reward-pending-product-point"
+        topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+        groupId = "reward-pending-product-point"
     )
     public void handlePaymentCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -44,14 +44,14 @@ public class PaymentCancelledPendingProductPointConsumer {
 
         try {
             PaymentCancelledEvent payload = envelope.getPayloadAs(
-                    PaymentCancelledEvent.class, objectMapper
+                PaymentCancelledEvent.class, objectMapper
             );
 
             log.info("결제 취소 이벤트 수신 (상품 적립 예정 포인트 회수). eventId={}, orderId={}, buyerId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.isFullCancel());
+                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.isFullCancel());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -63,24 +63,24 @@ public class PaymentCancelledPendingProductPointConsumer {
             }
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             CancelPendingPointCommand command = CancelPendingPointCommand.builder()
-                    .userId(payload.buyerId())
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(payload.orderId())
-                    .reason("결제 취소 적립 예정 포인트 회수")
-                    .build();
+                .userId(payload.buyerId())
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(payload.orderId())
+                .reason("결제 취소 적립 예정 포인트 회수")
+                .build();
             cancelPendingPointUseCase.cancelPending(command);
 
             log.info("상품 적립 예정 포인트 회수 완료. orderId={}, buyerId={}",
-                    payload.orderId(), payload.buyerId());
+                payload.orderId(), payload.buyerId());
         } catch (Exception e) {
             log.error("상품 적립 예정 포인트 회수 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 

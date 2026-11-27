@@ -28,7 +28,7 @@ class GetAligoAvailableCountUseCaseTest {
     void shouldReturnAvailableCountSuccessfully() {
         // given
         when(getAligoHeartInfoExternalPort.getHeartInfo())
-                .thenReturn(new AligoHeartInfoResult(100, 50, 25, 200));
+            .thenReturn(new AligoHeartInfoResult(100, 50, 25, 200));
 
         // when
         GetAligoAvailableCountResult result = getAligoAvailableCountService.getAvailableCount();
@@ -47,7 +47,7 @@ class GetAligoAvailableCountUseCaseTest {
     void shouldReturnZeroCountsWhenNoRemainingPoints() {
         // given
         when(getAligoHeartInfoExternalPort.getHeartInfo())
-                .thenReturn(new AligoHeartInfoResult(0, 0, 0, 0));
+            .thenReturn(new AligoHeartInfoResult(0, 0, 0, 0));
 
         // when
         GetAligoAvailableCountResult result = getAligoAvailableCountService.getAvailableCount();

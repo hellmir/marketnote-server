@@ -45,32 +45,32 @@ class AligoBrandTalkTemplateControllerTest {
 
     private RegisterBrandTalkTemplateRequest buildRequest() {
         return new RegisterBrandTalkTemplateRequest(
-                "sk-1", "CODE-1", "템플릿명", "BA", "본문", false,
-                null, null, null, null, null, null, null,
-                null, null, null, null, null, null
+            "sk-1", "CODE-1", "템플릿명", "BA", "본문", false,
+            null, null, null, null, null, null, null,
+            null, null, null, null, null, null
         );
     }
 
     private MultipartFile buildImage(String originalFilename) {
         return new MockMultipartFile(
-                "image", originalFilename, MediaType.IMAGE_JPEG_VALUE, new byte[]{1, 2, 3}
+            "image", originalFilename, MediaType.IMAGE_JPEG_VALUE, new byte[]{1, 2, 3}
         );
     }
 
     private MultipartFile buildCarouselItemImage(String originalFilename) {
         return new MockMultipartFile(
-                "carouselItemImages", originalFilename, MediaType.IMAGE_JPEG_VALUE, new byte[]{4, 5}
+            "carouselItemImages", originalFilename, MediaType.IMAGE_JPEG_VALUE, new byte[]{4, 5}
         );
     }
 
     private void stubRegister() {
         when(registerBrandTalkTemplateUseCase.registerTemplate(any()))
-                .thenReturn(new RegisterBrandTalkTemplateResult(1L, "CODE-1", "템플릿명", "BA"));
+            .thenReturn(new RegisterBrandTalkTemplateResult(1L, "CODE-1", "템플릿명", "BA"));
     }
 
     private RegisterBrandTalkTemplateCommand captureCommand() {
         ArgumentCaptor<RegisterBrandTalkTemplateCommand> captor =
-                ArgumentCaptor.forClass(RegisterBrandTalkTemplateCommand.class);
+            ArgumentCaptor.forClass(RegisterBrandTalkTemplateCommand.class);
         verify(registerBrandTalkTemplateUseCase).registerTemplate(captor.capture());
         return captor.getValue();
     }
@@ -88,7 +88,7 @@ class AligoBrandTalkTemplateControllerTest {
 
             // when
             ResponseEntity<BaseResponse<RegisterBrandTalkTemplateResponse>> response =
-                    controller.registerTemplate(buildRequest(), image, null);
+                controller.registerTemplate(buildRequest(), image, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -168,9 +168,9 @@ class AligoBrandTalkTemplateControllerTest {
             // given
             stubRegister();
             List<MultipartFile> carouselItemImages = List.of(
-                    buildCarouselItemImage("../evil.jpg"),
-                    buildCarouselItemImage("safe image.png"),
-                    buildCarouselItemImage("<b>bold</b>.gif")
+                buildCarouselItemImage("../evil.jpg"),
+                buildCarouselItemImage("safe image.png"),
+                buildCarouselItemImage("<b>bold</b>.gif")
             );
 
             // when
@@ -179,9 +179,9 @@ class AligoBrandTalkTemplateControllerTest {
             // then
             RegisterBrandTalkTemplateCommand command = captureCommand();
             assertThat(command.carouselItemImageFileNames()).containsExactly(
-                    "..evil.jpg",
-                    "safe-image.png",
-                    "bboldb.gif"
+                "..evil.jpg",
+                "safe-image.png",
+                "bboldb.gif"
             );
         }
 
@@ -210,19 +210,19 @@ class AligoBrandTalkTemplateControllerTest {
         void shouldReturnTemplateListResponse() {
             // given
             GetBrandTalkTemplateListResult.PageInfo pageInfo =
-                    new GetBrandTalkTemplateListResult.PageInfo(2, 5, 12);
+                new GetBrandTalkTemplateListResult.PageInfo(2, 5, 12);
             GetBrandTalkTemplateListResult.BrandTalkTemplateItem item =
-                    new GetBrandTalkTemplateListResult.BrandTalkTemplateItem(
-                            "TPL001", "이름", "TEXT", "A", List.of("#{name}"), "2026-11-03"
-                    );
+                new GetBrandTalkTemplateListResult.BrandTalkTemplateItem(
+                    "TPL001", "이름", "TEXT", "A", List.of("#{name}"), "2026-11-03"
+                );
             GetBrandTalkTemplateListResult result =
-                    new GetBrandTalkTemplateListResult(pageInfo, List.of(item));
+                new GetBrandTalkTemplateListResult(pageInfo, List.of(item));
             when(getBrandTalkTemplateListUseCase.getTemplateList("SK", 2, 5))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetBrandTalkTemplateListResponse>> response =
-                    controller.getTemplateList("SK", 2, 5);
+                controller.getTemplateList("SK", 2, 5);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -247,42 +247,42 @@ class AligoBrandTalkTemplateControllerTest {
             // given
             stubRegister();
             RegisterBrandTalkTemplateRequest.ButtonRequest button =
-                    new RegisterBrandTalkTemplateRequest.ButtonRequest(
-                            "버튼", "WL", "https://m", "https://p", "i", "a"
-                    );
+                new RegisterBrandTalkTemplateRequest.ButtonRequest(
+                    "버튼", "WL", "https://m", "https://p", "i", "a"
+                );
             RegisterBrandTalkTemplateRequest.CouponRequest coupon =
-                    new RegisterBrandTalkTemplateRequest.CouponRequest(
-                            "쿠폰", "설명", "https://m", "https://p", "i", "a"
-                    );
+                new RegisterBrandTalkTemplateRequest.CouponRequest(
+                    "쿠폰", "설명", "https://m", "https://p", "i", "a"
+                );
             RegisterBrandTalkTemplateRequest.WideItemRequest mainWide =
-                    new RegisterBrandTalkTemplateRequest.WideItemRequest(
-                            "메인", "https://img", "m", "p", "i", "a"
-                    );
+                new RegisterBrandTalkTemplateRequest.WideItemRequest(
+                    "메인", "https://img", "m", "p", "i", "a"
+                );
             RegisterBrandTalkTemplateRequest.WideItemRequest sub =
-                    new RegisterBrandTalkTemplateRequest.WideItemRequest(
-                            "서브", null, null, null, null, null
-                    );
+                new RegisterBrandTalkTemplateRequest.WideItemRequest(
+                    "서브", null, null, null, null, null
+                );
             RegisterBrandTalkTemplateRequest.CarouselItemRequest carouselItem =
-                    new RegisterBrandTalkTemplateRequest.CarouselItemRequest(
-                            "h", "c", List.of(button), coupon
-                    );
+                new RegisterBrandTalkTemplateRequest.CarouselItemRequest(
+                    "h", "c", List.of(button), coupon
+                );
             RegisterBrandTalkTemplateRequest.CarouselCommerceRequest commerce =
-                    new RegisterBrandTalkTemplateRequest.CarouselCommerceRequest(
-                            "상품", "10000", "8000", "20", "2000"
-                    );
+                new RegisterBrandTalkTemplateRequest.CarouselCommerceRequest(
+                    "상품", "10000", "8000", "20", "2000"
+                );
             RegisterBrandTalkTemplateRequest.CarouselTailRequest tail =
-                    new RegisterBrandTalkTemplateRequest.CarouselTailRequest("https://tail");
+                new RegisterBrandTalkTemplateRequest.CarouselTailRequest("https://tail");
             RegisterBrandTalkTemplateRequest.CommerceInfoRequest commerceInfo =
-                    new RegisterBrandTalkTemplateRequest.CommerceInfoRequest(
-                            "상품명", "10000", "8000", "20", null
-                    );
+                new RegisterBrandTalkTemplateRequest.CommerceInfoRequest(
+                    "상품명", "10000", "8000", "20", null
+                );
 
             RegisterBrandTalkTemplateRequest request = new RegisterBrandTalkTemplateRequest(
-                    "sk-1", "CODE-1", "name", "BA", "본문", true,
-                    "https://link", List.of(button), coupon,
-                    "헤더", mainWide, List.of(sub, sub),
-                    "캐러셀헤더", List.of(carouselItem), List.of(commerce), tail,
-                    "https://video", "https://thumb", commerceInfo
+                "sk-1", "CODE-1", "name", "BA", "본문", true,
+                "https://link", List.of(button), coupon,
+                "헤더", mainWide, List.of(sub, sub),
+                "캐러셀헤더", List.of(carouselItem), List.of(commerce), tail,
+                "https://video", "https://thumb", commerceInfo
             );
 
             // when

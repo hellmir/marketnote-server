@@ -24,7 +24,7 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonOrderPersistenceAdapter
-        implements SaveGifticonOrderPort, UpdateGifticonOrderPort, FindGifticonOrderPort {
+    implements SaveGifticonOrderPort, UpdateGifticonOrderPort, FindGifticonOrderPort {
 
     private final GifticonOrderJpaRepository gifticonOrderJpaRepository;
 
@@ -39,8 +39,8 @@ public class GifticonOrderPersistenceAdapter
             return savedEntity.toDomain();
         } catch (DataIntegrityViolationException e) {
             log.warn(
-                    "기프티콘 주문이 중복되었습니다. trId={}",
-                    order.getTrId()
+                "기프티콘 주문이 중복되었습니다. trId={}",
+                order.getTrId()
             );
             throw new DuplicateGifticonOrderException(e);
         }
@@ -49,23 +49,23 @@ public class GifticonOrderPersistenceAdapter
     @Override
     public void update(GifticonOrder order) {
         GifticonOrderJpaEntity entity = gifticonOrderJpaRepository.findByTrId(order.getTrId())
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", order.getTrId());
-                    return new GifticonOrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", order.getTrId());
+                return new GifticonOrderNotFoundException();
+            });
         entity.updateFrom(order);
     }
 
     @Override
     public Optional<GifticonOrder> findByTrId(String trId) {
         return gifticonOrderJpaRepository.findByTrId(trId)
-                .map(GifticonOrderJpaEntity::toDomain);
+            .map(GifticonOrderJpaEntity::toDomain);
     }
 
     @Override
     public List<GifticonOrder> findByUserIdAndStatuses(
-            Long userId, List<GifticonOrderStatus> statuses,
-            GifticonOrderSortType sortType, Long cursor, int pageSize
+        Long userId, List<GifticonOrderStatus> statuses,
+        GifticonOrderSortType sortType, Long cursor, int pageSize
     ) {
         if (sortType.isExpirySoonest()) {
             return findByExpirySoonest(userId, statuses, cursor, pageSize);
@@ -76,7 +76,7 @@ public class GifticonOrderPersistenceAdapter
     @Override
     public Optional<GifticonOrder> findByIdAndUserId(Long id, Long userId) {
         return gifticonOrderJpaRepository.findByIdAndUserId(id, userId)
-                .map(GifticonOrderJpaEntity::toDomain);
+            .map(GifticonOrderJpaEntity::toDomain);
     }
 
     @Override
@@ -85,37 +85,37 @@ public class GifticonOrderPersistenceAdapter
     }
 
     private List<GifticonOrder> findByPurchaseLatest(
-            Long userId, List<GifticonOrderStatus> statuses,
-            Long cursor, int pageSize
+        Long userId, List<GifticonOrderStatus> statuses,
+        Long cursor, int pageSize
     ) {
         Pageable pageable = PageRequest.of(0, pageSize);
         return gifticonOrderJpaRepository.findByUserIdAndStatusesOrderByCreatedAtDesc(
-                        userId, statuses, cursor, pageable)
-                .stream()
-                .map(GifticonOrderJpaEntity::toDomain)
-                .toList();
+                userId, statuses, cursor, pageable)
+            .stream()
+            .map(GifticonOrderJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
     public List<GifticonOrder> findAllByOrderStatus(GifticonOrderStatus orderStatus) {
         return gifticonOrderJpaRepository.findAllByOrderStatus(orderStatus)
-                .stream()
-                .map(GifticonOrderJpaEntity::toDomain)
-                .toList();
+            .stream()
+            .map(GifticonOrderJpaEntity::toDomain)
+            .toList();
     }
 
     private List<GifticonOrder> findByExpirySoonest(
-            Long userId, List<GifticonOrderStatus> statuses,
-            Long cursor, int pageSize
+        Long userId, List<GifticonOrderStatus> statuses,
+        Long cursor, int pageSize
     ) {
         int offset = (cursor <= 0) ? 0 : (int) Math.min(cursor, 10_000);
         int totalFetch = Math.addExact(offset, pageSize);
         Pageable pageable = PageRequest.of(0, totalFetch);
         return gifticonOrderJpaRepository.findByUserIdAndStatusesOrderByValidEndDateAsc(
-                        userId, statuses, pageable)
-                .stream()
-                .skip(offset)
-                .map(GifticonOrderJpaEntity::toDomain)
-                .toList();
+                userId, statuses, pageable)
+            .stream()
+            .skip(offset)
+            .map(GifticonOrderJpaEntity::toDomain)
+            .toList();
     }
 }

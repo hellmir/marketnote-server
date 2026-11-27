@@ -19,7 +19,7 @@ public class UserPointPersistenceAdapter implements SaveUserPointPort, FindUserP
     @Override
     public UserPoint save(UserPoint userPoint) {
         return repository.save(UserPointJpaEntity.from(userPoint))
-                .toDomain();
+            .toDomain();
     }
 
     @Override

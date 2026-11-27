@@ -58,7 +58,7 @@ class GetAttendanceRelayStatusUseCaseTest {
             Month month = Month.from(today.getMonthValue());
 
             when(findUserAttendancePort.findByUserIdAndYearAndMonth(USER_ID, year, month))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
             stubPoliciesForAllDays();
 
             // when
@@ -84,7 +84,7 @@ class GetAttendanceRelayStatusUseCaseTest {
 
             UserAttendanceHistory todayHistory = createHistory((short) 1, today.atTime(10, 0));
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(ATTENDANCE_ID))
-                    .thenReturn(Optional.of(todayHistory));
+                .thenReturn(Optional.of(todayHistory));
             stubPoliciesForAllDays();
 
             // when
@@ -110,7 +110,7 @@ class GetAttendanceRelayStatusUseCaseTest {
 
             UserAttendanceHistory yesterdayHistory = createHistory((short) 4, yesterday.atTime(10, 0));
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(ATTENDANCE_ID))
-                    .thenReturn(Optional.of(yesterdayHistory));
+                .thenReturn(Optional.of(yesterdayHistory));
             stubPoliciesForAllDays();
 
             // when
@@ -132,7 +132,7 @@ class GetAttendanceRelayStatusUseCaseTest {
 
             UserAttendanceHistory todayHistory = createHistory((short) 2, today.atTime(10, 0));
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(ATTENDANCE_ID))
-                    .thenReturn(Optional.of(todayHistory));
+                .thenReturn(Optional.of(todayHistory));
             stubPoliciesForAllDays();
 
             // when
@@ -156,7 +156,7 @@ class GetAttendanceRelayStatusUseCaseTest {
             stubTodayChecked(false);
 
             when(findUserAttendanceHistoryPort.findLatestByUserAttendanceId(ATTENDANCE_ID))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
             stubPoliciesForAllDays();
 
             // when
@@ -188,61 +188,61 @@ class GetAttendanceRelayStatusUseCaseTest {
             Month month = Month.from(today.getMonthValue());
 
             UserAttendance attendance = UserAttendance.from(
-                    UserAttendanceSnapshotState.builder()
-                            .id(ATTENDANCE_ID)
-                            .userId(USER_ID)
-                            .year(year)
-                            .month(month)
-                            .totalRewardQuantity(RewardQuantity.of(100L))
-                            .histories(List.of())
-                            .build()
+                UserAttendanceSnapshotState.builder()
+                    .id(ATTENDANCE_ID)
+                    .userId(USER_ID)
+                    .year(year)
+                    .month(month)
+                    .totalRewardQuantity(RewardQuantity.of(100L))
+                    .histories(List.of())
+                    .build()
             );
 
             when(findUserAttendancePort.findByUserIdAndYearAndMonth(USER_ID, year, month))
-                    .thenReturn(Optional.of(attendance));
+                .thenReturn(Optional.of(attendance));
         }
 
         private void stubTodayChecked(boolean checked) {
             when(findUserAttendanceHistoryPort.existsByUserAttendanceIdAndAttendedAtBetween(
-                    eq(ATTENDANCE_ID), any(), any()
+                eq(ATTENDANCE_ID), any(), any()
             )).thenReturn(checked);
         }
 
         private UserAttendanceHistory createHistory(short continuousPeriod, LocalDateTime attendedAt) {
             return UserAttendanceHistory.from(
-                    UserAttendanceHistorySnapshotState.builder()
-                            .id(99L)
-                            .userAttendanceId(ATTENDANCE_ID)
-                            .attendancePolicyId(continuousPeriod)
-                            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                            .rewardQuantity(RewardQuantity.of(50L))
-                            .attendedAt(attendedAt)
-                            .build()
+                UserAttendanceHistorySnapshotState.builder()
+                    .id(99L)
+                    .userAttendanceId(ATTENDANCE_ID)
+                    .attendancePolicyId(continuousPeriod)
+                    .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+                    .rewardQuantity(RewardQuantity.of(50L))
+                    .attendedAt(attendedAt)
+                    .build()
             );
         }
 
         private void stubPoliciesForAllDays() {
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull((short) 1))
-                    .thenReturn(Optional.of(createPolicy((short) 1, AttendanceRewardType.POINT, 50L)));
+                .thenReturn(Optional.of(createPolicy((short) 1, AttendanceRewardType.POINT, 50L)));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull((short) 2))
-                    .thenReturn(Optional.of(createPolicy((short) 2, AttendanceRewardType.POINT, 100L)));
+                .thenReturn(Optional.of(createPolicy((short) 2, AttendanceRewardType.POINT, 100L)));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull((short) 3))
-                    .thenReturn(Optional.of(createPolicy((short) 3, AttendanceRewardType.POINT, 150L)));
+                .thenReturn(Optional.of(createPolicy((short) 3, AttendanceRewardType.POINT, 150L)));
             when(findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull((short) 4))
-                    .thenReturn(Optional.of(createPolicy((short) 4, AttendanceRewardType.BOOSTER, 1L)));
+                .thenReturn(Optional.of(createPolicy((short) 4, AttendanceRewardType.BOOSTER, 1L)));
         }
 
         private AttendancePolicy createPolicy(
-                short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity
+            short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity
         ) {
             return AttendancePolicy.from(
-                    AttendancePolicySnapshotState.builder()
-                            .id(continuousPeriod)
-                            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                            .rewardType(rewardType)
-                            .rewardQuantity(RewardQuantity.of(rewardQuantity))
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                AttendancePolicySnapshotState.builder()
+                    .id(continuousPeriod)
+                    .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+                    .rewardType(rewardType)
+                    .rewardQuantity(RewardQuantity.of(rewardQuantity))
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
         }
     }

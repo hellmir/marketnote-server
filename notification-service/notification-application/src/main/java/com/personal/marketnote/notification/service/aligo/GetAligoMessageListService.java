@@ -23,32 +23,32 @@ public class GetAligoMessageListService implements GetAligoMessageListUseCase {
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public GetAligoMessageListResult getMessageList(GetAligoMessageListCommand command) {
         List<AligoMessage> messages = findAligoMessageListPort.findMessages(
-                command.startDate(), command.endDate(), command.page(), command.limit()
+            command.startDate(), command.endDate(), command.page(), command.limit()
         );
         long totalElements = findAligoMessageListPort.countMessages(command.startDate(), command.endDate());
         int totalPages = calculateTotalPages(totalElements, command.limit());
 
         List<AligoMessageSummary> summaries = messages.stream()
-                .map(this::toSummary)
-                .toList();
+            .map(this::toSummary)
+            .toList();
 
         return new GetAligoMessageListResult(summaries, totalElements, totalPages, command.page());
     }
 
     private AligoMessageSummary toSummary(AligoMessage message) {
         return new AligoMessageSummary(
-                message.getId(),
-                message.getTemplateCode(),
-                message.getSender(),
-                message.getMessageType(),
-                message.getMessageStatus(),
-                message.getAligoMid(),
-                message.getSuccessCount(),
-                message.getFailCount(),
-                message.isFailoverUsed(),
-                message.getRequestedAt(),
-                message.getSentAt(),
-                message.getCreatedAt()
+            message.getId(),
+            message.getTemplateCode(),
+            message.getSender(),
+            message.getMessageType(),
+            message.getMessageStatus(),
+            message.getAligoMid(),
+            message.getSuccessCount(),
+            message.getFailCount(),
+            message.isFailoverUsed(),
+            message.getRequestedAt(),
+            message.getSentAt(),
+            message.getCreatedAt()
         );
     }
 

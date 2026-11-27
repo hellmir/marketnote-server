@@ -69,21 +69,21 @@ class KcpApiClientTest {
         void shouldParseSuccessResponse() {
             // given
             String responseJson = """
-                    {"Code":"0000","Message":"성공","approvalKey":"APR_KEY","PayUrl":"http://pay","traceNo":"TR_001","paymentMethod":"CARD"}
-                    """;
+                {"Code":"0000","Message":"성공","approvalKey":"APR_KEY","PayUrl":"http://pay","traceNo":"TR_001","paymentMethod":"CARD"}
+                """;
             mockServer.expect(requestTo(TRADE_REGISTER_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             KcpTradeRegisterRequest request = KcpTradeRegisterRequest.builder()
-                    .siteCd("T0000")
-                    .ordrIdxx("ORDER_001")
-                    .goodMny("10000")
-                    .payMethod("CARD")
-                    .goodName("상품")
-                    .retUrl("http://return")
-                    .batchCardnoReturnYn("Y")
-                    .build();
+                .siteCd("T0000")
+                .ordrIdxx("ORDER_001")
+                .goodMny("10000")
+                .payMethod("CARD")
+                .goodName("상품")
+                .retUrl("http://return")
+                .batchCardnoReturnYn("Y")
+                .build();
 
             // when
             KcpTradeRegisterResponse response = client.registerTrade(request);
@@ -99,13 +99,13 @@ class KcpApiClientTest {
         void shouldThrowOnEmptyBody() {
             // given
             mockServer.expect(requestTo(TRADE_REGISTER_URL))
-                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
             KcpTradeRegisterRequest request = KcpTradeRegisterRequest.builder().siteCd("T0000").build();
 
             // when & then
             assertThatThrownBy(() -> client.registerTrade(request))
-                    .isInstanceOf(KcpCommunicationException.class);
+                .isInstanceOf(KcpCommunicationException.class);
         }
 
         @Test
@@ -113,13 +113,13 @@ class KcpApiClientTest {
         void shouldThrowOnParseFailure() {
             // given
             mockServer.expect(requestTo(TRADE_REGISTER_URL))
-                    .andRespond(withSuccess("not-a-json", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("not-a-json", MediaType.APPLICATION_JSON));
 
             KcpTradeRegisterRequest request = KcpTradeRegisterRequest.builder().siteCd("T0000").build();
 
             // when & then
             assertThatThrownBy(() -> client.registerTrade(request))
-                    .isInstanceOf(KcpCommunicationException.class);
+                .isInstanceOf(KcpCommunicationException.class);
         }
     }
 
@@ -133,8 +133,8 @@ class KcpApiClientTest {
             // given
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(PAYMENT_APPROVAL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             KcpPaymentApprovalRequest request = KcpPaymentApprovalRequest.builder().ordrNo("ORDER_001").build();
 
@@ -156,8 +156,8 @@ class KcpApiClientTest {
             // given
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(PAYMENT_CANCEL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             KcpPaymentCancelRequest request = KcpPaymentCancelRequest.builder().tno("TNO_001").build();
 
@@ -179,8 +179,8 @@ class KcpApiClientTest {
             // given
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(BATCH_KEY_ISSUANCE_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             KcpBatchKeyIssuanceRequest request = KcpBatchKeyIssuanceRequest.builder().siteCd("T0000").build();
 
@@ -196,13 +196,13 @@ class KcpApiClientTest {
         void shouldThrowOnEmptyBatchKeyBody() {
             // given
             mockServer.expect(requestTo(BATCH_KEY_ISSUANCE_URL))
-                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
             KcpBatchKeyIssuanceRequest request = KcpBatchKeyIssuanceRequest.builder().siteCd("T0000").build();
 
             // when & then
             assertThatThrownBy(() -> client.issueBatchKey(request))
-                    .isInstanceOf(KcpCommunicationException.class);
+                .isInstanceOf(KcpCommunicationException.class);
         }
     }
 
@@ -216,13 +216,13 @@ class KcpApiClientTest {
             // given
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(BATCH_PAYMENT_APPROVAL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             KcpBatchPaymentApprovalRequest request = KcpBatchPaymentApprovalRequest.builder()
-                    .siteCd("T0000")
-                    .ordrIdxx("ORDER_001")
-                    .build();
+                .siteCd("T0000")
+                .ordrIdxx("ORDER_001")
+                .build();
 
             // when
             KcpBatchPaymentApprovalResponse response = client.approveBatchPayment(request);
@@ -242,8 +242,8 @@ class KcpApiClientTest {
             // given
             String responseJson = "{\"res_cd\":\"0000\",\"res_msg\":\"OK\"}";
             mockServer.expect(requestTo(BATCH_PAYMENT_APPROVAL_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
             KcpBatchKeyDeletionRequest request = KcpBatchKeyDeletionRequest.builder().siteCd("T0000").build();
 

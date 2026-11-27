@@ -19,19 +19,19 @@ public class ProductOption {
 
     public static ProductOption from(ProductOptionCreateState state) {
         return ProductOption.builder()
-                .category(state.getCategory())
-                .content(state.getContent())
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .category(state.getCategory())
+            .content(state.getContent())
+            .status(EntityStatus.ACTIVE)
+            .build();
     }
 
     public static ProductOption from(ProductOptionSnapshotState state) {
         return ProductOption.builder()
-                .id(state.getId())
-                .category(state.getCategory())
-                .content(state.getContent())
-                .status(state.getStatus())
-                .build();
+            .id(state.getId())
+            .category(state.getCategory())
+            .content(state.getContent())
+            .status(state.getStatus())
+            .build();
     }
 
     public void addContent(Set<Long> ids, Set<String> contents) {

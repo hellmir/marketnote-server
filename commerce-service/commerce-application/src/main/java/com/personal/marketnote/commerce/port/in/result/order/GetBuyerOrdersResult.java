@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 public record GetBuyerOrdersResult(
-        List<Order> orders,
-        Map<Long, ProductInfoResult> orderedProducts
+    List<Order> orders,
+    Map<Long, ProductInfoResult> orderedProducts
 ) {
     public static GetBuyerOrdersResult of(
-            List<Order> orders, Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId
+        List<Order> orders, Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId
     ) {
         return new GetBuyerOrdersResult(orders, productInfoResultsByPricePolicyId);
     }

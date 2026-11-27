@@ -39,9 +39,9 @@ public class ReportJpaEntity {
 
     public static ReportJpaEntity from(Report report) {
         return ReportJpaEntity.builder()
-                .id(new ReportId(report.getTargetType(), report.getTargetId(), report.getReporterId()))
-                .reason(report.getReason())
-                .build();
+            .id(new ReportId(report.getTargetType(), report.getTargetId(), report.getReporterId()))
+            .reason(report.getReason())
+            .build();
     }
 
     public ReportTargetType getTargetType() {

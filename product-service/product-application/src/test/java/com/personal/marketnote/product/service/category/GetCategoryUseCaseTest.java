@@ -49,8 +49,8 @@ class GetCategoryUseCaseTest {
         when(findCategoryPort.findById(categoryId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getCategoryService.getCategory(categoryId))
-                .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessage("존재하지 않는 카테고리입니다.");
+            .isInstanceOf(CategoryNotFoundException.class)
+            .hasMessage("존재하지 않는 카테고리입니다.");
     }
 
     @Test
@@ -62,17 +62,17 @@ class GetCategoryUseCaseTest {
         when(findCategoryPort.findById(categoryId)).thenThrow(exception);
 
         assertThatThrownBy(() -> getCategoryService.getCategory(categoryId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private Category buildCategory(Long id, Long parentId, String name) {
         return Category.from(
-                CategorySnapshotState.builder()
-                        .id(id)
-                        .parentCategoryId(parentId)
-                        .name(name)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CategorySnapshotState.builder()
+                .id(id)
+                .parentCategoryId(parentId)
+                .name(name)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

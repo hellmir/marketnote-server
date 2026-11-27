@@ -56,7 +56,7 @@ class RewardPropertiesValidationTest {
         ConstraintViolation<RewardProperties> violation = violations.iterator().next();
         assertThat(violation.getPropertyPath().toString()).isEqualTo("sharePointRate");
         assertThat(violation.getConstraintDescriptor().getAnnotation().annotationType())
-                .isEqualTo(NotNull.class);
+            .isEqualTo(NotNull.class);
     }
 
     @Test
@@ -71,7 +71,7 @@ class RewardPropertiesValidationTest {
         ConstraintViolation<RewardProperties> violation = violations.iterator().next();
         assertThat(violation.getPropertyPath().toString()).isEqualTo("sharePointRate");
         assertThat(violation.getConstraintDescriptor().getAnnotation().annotationType())
-                .isEqualTo(DecimalMin.class);
+            .isEqualTo(DecimalMin.class);
     }
 
     @Test
@@ -86,7 +86,7 @@ class RewardPropertiesValidationTest {
         ConstraintViolation<RewardProperties> violation = violations.iterator().next();
         assertThat(violation.getPropertyPath().toString()).isEqualTo("sharePointRate");
         assertThat(violation.getConstraintDescriptor().getAnnotation().annotationType())
-                .isEqualTo(DecimalMax.class);
+            .isEqualTo(DecimalMax.class);
     }
 
     @Test

@@ -58,9 +58,9 @@ public class ProcessSellerSettlementService {
      */
     @Transactional(isolation = READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void process(
-            ExecuteSettlementCommand command, Long sellerId,
-            List<PaymentAllocation> sellerAllocations,
-            Integer pgFeeRate, Integer platformFeeRate
+        ExecuteSettlementCommand command, Long sellerId,
+        List<PaymentAllocation> sellerAllocations,
+        Integer pgFeeRate, Integer platformFeeRate
     ) {
         Integer year = command.year();
         Integer month = command.month();
@@ -71,11 +71,11 @@ public class ProcessSellerSettlementService {
         }
 
         long totalAllocatedAmount = calculateNetAmount(
-                sellerAllocations, allocation -> allocation.getAllocatedAmount().getValue()
+            sellerAllocations, allocation -> allocation.getAllocatedAmount().getValue()
         );
 
         long totalShippingFee = calculateNetAmount(
-                sellerAllocations, PaymentAllocation::getShippingFeeValueOrZero
+            sellerAllocations, PaymentAllocation::getShippingFeeValueOrZero
         );
 
         long feeBase = Math.addExact(totalAllocatedAmount, totalShippingFee);
@@ -84,22 +84,22 @@ public class ProcessSellerSettlementService {
         long sellerPayoutAmount = feeBase - pgFeeAmount - platformFeeAmount;
 
         Settlement settlement = Settlement.from(SettlementCreateState.forMonthly(
-                sellerId,
-                year,
-                month,
-                totalAllocatedAmount,
-                totalShippingFee,
-                pgFeeAmount,
-                platformFeeAmount,
-                sellerPayoutAmount
+            sellerId,
+            year,
+            month,
+            totalAllocatedAmount,
+            totalShippingFee,
+            pgFeeAmount,
+            platformFeeAmount,
+            sellerPayoutAmount
         ));
 
         Settlement savedSettlement = saveSettlementPort.save(settlement);
         Long settlementId = savedSettlement.getId();
 
         List<Long> allocationIds = sellerAllocations.stream()
-                .map(PaymentAllocation::getId)
-                .toList();
+            .map(PaymentAllocation::getId)
+            .toList();
         updatePaymentAllocationPort.assignSettlement(allocationIds, settlementId);
 
         // [#929][#1035] 정산 분개는 Kafka Consumer(SettlementExecutedLedgerConsumer)로 전환 완료
@@ -107,38 +107,38 @@ public class ProcessSellerSettlementService {
         updateSettlementPort.update(savedSettlement);
 
         publishSettlementExecutedEvent(
-                settlementId, sellerId, totalAllocatedAmount,
-                totalShippingFee, pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+            settlementId, sellerId, totalAllocatedAmount,
+            totalShippingFee, pgFeeAmount, platformFeeAmount, sellerPayoutAmount
         );
 
         log.info("정산 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}, total: {}, pgFee: {}, platformFee: {}, sellerPayout: {}",
-                settlementId, sellerId, year, month,
-                totalAllocatedAmount, pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+            settlementId, sellerId, year, month,
+            totalAllocatedAmount, pgFeeAmount, platformFeeAmount, sellerPayoutAmount
         );
     }
 
     private void publishSettlementExecutedEvent(
-            Long settlementId, Long sellerId,
-            Long totalAllocatedAmount, Long shippingFee,
-            Long pgFeeAmount, Long platformFeeAmount,
-            Long sellerPayoutAmount
+        Long settlementId, Long sellerId,
+        Long totalAllocatedAmount, Long shippingFee,
+        Long pgFeeAmount, Long platformFeeAmount,
+        Long sellerPayoutAmount
     ) {
         try {
             publishSettlementEventPort.publishSettlementExecutedEvent(
-                    settlementId, sellerId, totalAllocatedAmount, shippingFee,
-                    pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+                settlementId, sellerId, totalAllocatedAmount, shippingFee,
+                pgFeeAmount, platformFeeAmount, sellerPayoutAmount
             );
         } catch (Exception e) {
             // boundary swallow: 정산 실행 후속 이벤트 발행 실패 시에도 정산 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
             log.error("정산 실행 이벤트 발행 실패 - settlementId: {}, sellerId: {}, error: {}",
-                    settlementId, sellerId, e.getMessage(), e
+                settlementId, sellerId, e.getMessage(), e
             );
         }
     }
 
     private long calculateNetAmount(
-            List<PaymentAllocation> allocations,
-            java.util.function.ToLongFunction<PaymentAllocation> amountExtractor
+        List<PaymentAllocation> allocations,
+        java.util.function.ToLongFunction<PaymentAllocation> amountExtractor
     ) {
         long positiveSum = 0L;
         long negativeSum = 0L;

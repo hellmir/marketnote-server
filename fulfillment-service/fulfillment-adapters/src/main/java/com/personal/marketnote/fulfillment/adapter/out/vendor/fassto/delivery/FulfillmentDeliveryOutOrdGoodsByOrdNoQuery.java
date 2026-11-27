@@ -16,19 +16,19 @@ public class FulfillmentDeliveryOutOrdGoodsByOrdNoQuery {
     private String ordNo;
 
     public static FulfillmentDeliveryOutOrdGoodsByOrdNoQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String ordNo
     ) {
         FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query = FulfillmentDeliveryOutOrdGoodsByOrdNoQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .ordNo(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .ordNo(ordNo)
+            .build();
         query.validate();
         return query;
     }

@@ -36,13 +36,13 @@ public class OutboxEventPublisher {
 
     @Scheduled(fixedDelayString = "${outbox.polling-interval-ms:3000}")
     @SchedulerLock(
-            name = "${spring.application.name}-" + ShedLockNames.OUTBOX_PUBLISH,
-            lockAtMostFor = "PT10M",
-            lockAtLeastFor = "PT1S"
+        name = "${spring.application.name}-" + ShedLockNames.OUTBOX_PUBLISH,
+        lockAtMostFor = "PT10M",
+        lockAtLeastFor = "PT1S"
     )
     public void publishPendingEvents() {
         List<OutboxEventJpaEntity> pendingEvents =
-                outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING);
+            outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING);
 
         for (OutboxEventJpaEntity event : pendingEvents) {
             publishEvent(event);
@@ -53,13 +53,13 @@ public class OutboxEventPublisher {
         try {
             Object payload = objectMapper.readValue(event.getPayload(), Object.class);
             kafkaTemplate.send(event.getTopic(), event.getPartitionKey(), payload)
-                    .get(publishTimeoutMs, TimeUnit.MILLISECONDS);
+                .get(publishTimeoutMs, TimeUnit.MILLISECONDS);
 
             event.markPublished(LocalDateTime.now(clock));
             outboxEventJpaRepository.save(event);
 
             log.info("Outbox 이벤트 발행 성공. topic={}, partitionKey={}, eventId={}",
-                    event.getTopic(), event.getPartitionKey(), event.getEventId()
+                event.getTopic(), event.getPartitionKey(), event.getEventId()
             );
         } catch (Exception e) {
             event.incrementRetry(e.getMessage(), LocalDateTime.now(clock));
@@ -69,13 +69,13 @@ public class OutboxEventPublisher {
                 outboxMetricsCollector.incrementFailedCount(event.getTopic());
                 outboxAuditLogger.logFailed(event.getTopic(), event.getEventId(), event.getRetryCount(), e);
                 log.error("Outbox 이벤트 최대 재시도 초과. topic={}, eventId={}, retryCount={}",
-                        event.getTopic(), event.getEventId(), event.getRetryCount(), e
+                    event.getTopic(), event.getEventId(), event.getRetryCount(), e
                 );
                 return;
             }
 
             log.warn("Outbox 이벤트 발행 실패 (재시도 예정). topic={}, eventId={}, retryCount={}",
-                    event.getTopic(), event.getEventId(), event.getRetryCount(), e
+                event.getTopic(), event.getEventId(), event.getRetryCount(), e
             );
         }
     }

@@ -36,25 +36,25 @@ class OrderPaymentCompletedCartConsumerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, Long totalAmount, Long pointAmount,
-            List<OrderProductItem> orderProducts
+        Long orderId, Long buyerId, Long totalAmount, Long pointAmount,
+        List<OrderProductItem> orderProducts
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount,
-                null, null, null, null, null, null,
-                orderProducts, null
+            orderId, buyerId, totalAmount, pointAmount,
+            null, null, null, null, null, null,
+            orderProducts, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L, String.valueOf(orderId), envelope);
     }
 
     private List<OrderProductItem> createOrderProductItems() {
         return List.of(
-                new OrderProductItem(100L, null, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
-                new OrderProductItem(101L, null, null, null, 1, 20000L)
+            new OrderProductItem(100L, null, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
+            new OrderProductItem(101L, null, null, null, 1, 20000L)
         );
     }
 
@@ -71,7 +71,7 @@ class OrderPaymentCompletedCartConsumerTest {
 
         // then
         verify(deleteCartProductUseCase).deleteCartProducts(
-                DeleteCartProductCommand.of(50L, List.of(100L, 101L))
+            DeleteCartProductCommand.of(50L, List.of(100L, 101L))
         );
         verify(acknowledgment).acknowledge();
     }
@@ -127,7 +127,7 @@ class OrderPaymentCompletedCartConsumerTest {
     void handleOrderPaymentCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", null
+            "commerce.order.payment-completed", 0, 0L, "1", null
         );
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
@@ -145,16 +145,16 @@ class OrderPaymentCompletedCartConsumerTest {
         // given
         List<OrderProductItem> items = createOrderProductItems();
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 50L, 80000L, 5000L,
-                null, null, null, null, null, null,
-                items, null
+            1L, 50L, 80000L, 5000L,
+            null, null, null, null, null, null,
+            items, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", envelope
+            "commerce.order.payment-completed", 0, 0L, "1", envelope
         );
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
@@ -203,19 +203,19 @@ class OrderPaymentCompletedCartConsumerTest {
     void handleOrderPaymentCompletedEvent_unexpectedException_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), "invalid-payload"
         );
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.order.payment-completed", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

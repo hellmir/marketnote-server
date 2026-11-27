@@ -41,17 +41,17 @@ class InventoryChangedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.INVENTORY_CHANGED, 0, 0, "1", envelope
+            KafkaTopicConstants.INVENTORY_CHANGED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<InventoryChangedEvent> createEnvelope(InventoryChangedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.INVENTORY_CHANGED,
-                "commerce-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.INVENTORY_CHANGED,
+            "commerce-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
@@ -60,7 +60,7 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.INVENTORY_CHANGED, 0, 0, "1", null
+            KafkaTopicConstants.INVENTORY_CHANGED, 0, 0, "1", null
         );
 
         // when
@@ -76,14 +76,14 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_eventTypeMismatch_acknowledges() {
         // given
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                1L, 100L, 50, InventoryChangeAction.CREATED
+            1L, 100L, 50, InventoryChangeAction.CREATED
         );
         EventEnvelope<InventoryChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "commerce-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "commerce-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -100,7 +100,7 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_nullPricePolicyId_acknowledges() {
         // given
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                null, 100L, 50, InventoryChangeAction.CREATED
+            null, 100L, 50, InventoryChangeAction.CREATED
         );
         EventEnvelope<InventoryChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -118,7 +118,7 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_zeroPricePolicyId_acknowledges() {
         // given
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                0L, 100L, 50, InventoryChangeAction.CREATED
+            0L, 100L, 50, InventoryChangeAction.CREATED
         );
         EventEnvelope<InventoryChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -136,7 +136,7 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_nullAction_acknowledges() {
         // given
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                1L, 100L, 50, null
+            1L, 100L, 50, null
         );
         EventEnvelope<InventoryChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -154,7 +154,7 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_createdAction_upsertsReadModel() {
         // given
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                1L, 100L, 50, InventoryChangeAction.CREATED
+            1L, 100L, 50, InventoryChangeAction.CREATED
         );
         EventEnvelope<InventoryChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -172,7 +172,7 @@ class InventoryChangedReadModelConsumerTest {
     void handleInventoryChangedEvent_updatedAction_upsertsReadModel() {
         // given
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                2L, 200L, 30, InventoryChangeAction.UPDATED
+            2L, 200L, 30, InventoryChangeAction.UPDATED
         );
         EventEnvelope<InventoryChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);

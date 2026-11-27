@@ -19,16 +19,16 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class SendEmailVerificationService implements SendEmailVerificationUseCase {
     private static final String EMAIL_VERIFICATION_CONTENT_TEMPLATE = """
-            <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222">
-              <p>아래 인증 코드를 입력해 이메일 인증을 완료하세요.</p>
-              <p style="font-size:18px;font-weight:700;letter-spacing:2px">인증 코드: %s</p>
-              <p>이 코드는 %d분 동안만 유효하며, 한 번만 사용할 수 있습니다.</p>
-              <p style="color:#666">이 코드는 개인용이며, 다른 사람과 공유하지 마세요.<br>
-              고객센터에서도 절대 코드 요청을 하지 않습니다.<br>감사합니다.<br></p>
-              <p style="margin-top:16px;color:#666">마켓노트 고객센터 드림</p>
-              <p style=\\"color:#666\\">본 메일은 발신 전용입니다.</p>
-            </div>
-            """;
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#222">
+          <p>아래 인증 코드를 입력해 이메일 인증을 완료하세요.</p>
+          <p style="font-size:18px;font-weight:700;letter-spacing:2px">인증 코드: %s</p>
+          <p>이 코드는 %d분 동안만 유효하며, 한 번만 사용할 수 있습니다.</p>
+          <p style="color:#666">이 코드는 개인용이며, 다른 사람과 공유하지 마세요.<br>
+          고객센터에서도 절대 코드 요청을 하지 않습니다.<br>감사합니다.<br></p>
+          <p style="margin-top:16px;color:#666">마켓노트 고객센터 드림</p>
+          <p style=\\"color:#666\\">본 메일은 발신 전용입니다.</p>
+        </div>
+        """;
 
     private final JavaMailSender mailSender;
     private final SaveEmailVerificationCodePort saveEmailVerificationCodePort;

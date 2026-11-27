@@ -5,22 +5,22 @@ import lombok.Builder;
 
 @Builder
 public record RefundPaymentCommand(
-        String orderKey,
-        Long orderId,
-        Long cancelAmount,
-        Long paymentAmount,
-        boolean isFullCancel,
-        Long alreadyRefunded,
-        Long returnShippingFee
+    String orderKey,
+    Long orderId,
+    Long cancelAmount,
+    Long paymentAmount,
+    boolean isFullCancel,
+    Long alreadyRefunded,
+    Long returnShippingFee
 ) {
     public static RefundPaymentCommand from(CompleteReturnRefundCommand command) {
         return RefundPaymentCommand.builder()
-                .orderKey(command.orderKey())
-                .orderId(command.orderId())
-                .cancelAmount(command.returnAmount())
-                .paymentAmount(command.paymentAmount())
-                .isFullCancel(command.isFullReturn())
-                .returnShippingFee(command.returnShippingFee())
-                .build();
+            .orderKey(command.orderKey())
+            .orderId(command.orderId())
+            .cancelAmount(command.returnAmount())
+            .paymentAmount(command.paymentAmount())
+            .isFullCancel(command.isFullReturn())
+            .returnShippingFee(command.returnShippingFee())
+            .build();
     }
 }

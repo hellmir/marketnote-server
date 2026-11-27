@@ -109,12 +109,12 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("ConnectException이 maxAttempts회 연속 발생하면 PaymentVendorConnectionFailedException을 던진다")
         void shouldThrowConnectionFailedAfterMaxAttempts() {
             ResourceAccessException connectError = new ResourceAccessException(
-                    "Connection refused", new ConnectException("Connection refused")
+                "Connection refused", new ConnectException("Connection refused")
             );
             when(kcpApiClient.cancelPayment(any())).thenThrow(connectError);
 
             assertThatThrownBy(() -> adapter.cancelPayment(createCancelCommand()))
-                    .isInstanceOf(PaymentVendorConnectionFailedException.class);
+                .isInstanceOf(PaymentVendorConnectionFailedException.class);
 
             verify(kcpApiClient, times(3)).cancelPayment(any());
         }
@@ -123,14 +123,14 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("ConnectException 발생 후 재시도에서 성공하면 결과를 반환한다")
         void shouldReturnResultWhenRetrySucceeds() {
             ResourceAccessException connectError = new ResourceAccessException(
-                    "Connection refused", new ConnectException("Connection refused")
+                "Connection refused", new ConnectException("Connection refused")
             );
             KcpPaymentCancelResponse successResponse = createSuccessCancelResponse();
 
             when(kcpApiClient.cancelPayment(any()))
-                    .thenThrow(connectError)
-                    .thenThrow(connectError)
-                    .thenReturn(successResponse);
+                .thenThrow(connectError)
+                .thenThrow(connectError)
+                .thenReturn(successResponse);
 
             PaymentCancelVendorResult result = adapter.cancelPayment(createCancelCommand());
 
@@ -147,12 +147,12 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("UnknownHostException이 maxAttempts회 연속 발생하면 PaymentVendorConnectionFailedException을 던진다")
         void shouldThrowConnectionFailedAfterMaxAttempts() {
             ResourceAccessException dnsError = new ResourceAccessException(
-                    "Unknown host", new UnknownHostException("spl.kcp.co.kr")
+                "Unknown host", new UnknownHostException("spl.kcp.co.kr")
             );
             when(kcpApiClient.cancelPayment(any())).thenThrow(dnsError);
 
             assertThatThrownBy(() -> adapter.cancelPayment(createCancelCommand()))
-                    .isInstanceOf(PaymentVendorConnectionFailedException.class);
+                .isInstanceOf(PaymentVendorConnectionFailedException.class);
 
             verify(kcpApiClient, times(3)).cancelPayment(any());
         }
@@ -166,13 +166,13 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("SocketTimeoutException이 readTimeoutMaxAttempts회 발생하면 KcpCommunicationException을 던진다")
         void shouldThrowCommunicationExceptionAfterReadTimeoutMaxAttempts() {
             ResourceAccessException timeoutError = new ResourceAccessException(
-                    "Read timed out", new SocketTimeoutException("Read timed out")
+                "Read timed out", new SocketTimeoutException("Read timed out")
             );
             when(kcpApiClient.cancelPayment(any())).thenThrow(timeoutError);
 
             assertThatThrownBy(() -> adapter.cancelPayment(createCancelCommand()))
-                    .isInstanceOf(KcpCommunicationException.class)
-                    .isNotInstanceOf(PaymentVendorConnectionFailedException.class);
+                .isInstanceOf(KcpCommunicationException.class)
+                .isNotInstanceOf(PaymentVendorConnectionFailedException.class);
 
             verify(kcpApiClient, times(2)).cancelPayment(any());
         }
@@ -181,13 +181,13 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("SocketTimeoutException 발생 후 재시도에서 성공하면 결과를 반환한다")
         void shouldReturnResultWhenRetrySucceeds() {
             ResourceAccessException timeoutError = new ResourceAccessException(
-                    "Read timed out", new SocketTimeoutException("Read timed out")
+                "Read timed out", new SocketTimeoutException("Read timed out")
             );
             KcpPaymentCancelResponse successResponse = createSuccessCancelResponse();
 
             when(kcpApiClient.cancelPayment(any()))
-                    .thenThrow(timeoutError)
-                    .thenReturn(successResponse);
+                .thenThrow(timeoutError)
+                .thenReturn(successResponse);
 
             PaymentCancelVendorResult result = adapter.cancelPayment(createCancelCommand());
 
@@ -199,13 +199,13 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("SocketTimeoutException 발생 후 재시도에서 KCP 실패 응답을 받으면 결과를 반환한다")
         void shouldReturnFailureResponseWhenRetryGetsKcpFailure() {
             ResourceAccessException timeoutError = new ResourceAccessException(
-                    "Read timed out", new SocketTimeoutException("Read timed out")
+                "Read timed out", new SocketTimeoutException("Read timed out")
             );
             KcpPaymentCancelResponse failureResponse = createFailureCancelResponse("8102", "이미 취소된 거래");
 
             when(kcpApiClient.cancelPayment(any()))
-                    .thenThrow(timeoutError)
-                    .thenReturn(failureResponse);
+                .thenThrow(timeoutError)
+                .thenReturn(failureResponse);
 
             PaymentCancelVendorResult result = adapter.cancelPayment(createCancelCommand());
 
@@ -225,8 +225,8 @@ class KcpPaymentVendorAdapterCancelRetryTest {
             when(kcpApiClient.cancelPayment(any())).thenThrow(parseError);
 
             assertThatThrownBy(() -> adapter.cancelPayment(createCancelCommand()))
-                    .isInstanceOf(KcpCommunicationException.class)
-                    .hasMessage("응답 파싱 실패");
+                .isInstanceOf(KcpCommunicationException.class)
+                .hasMessage("응답 파싱 실패");
 
             verify(kcpApiClient, times(1)).cancelPayment(any());
         }
@@ -237,7 +237,7 @@ class KcpPaymentVendorAdapterCancelRetryTest {
             when(kcpApiClient.cancelPayment(any())).thenThrow(new RuntimeException("예상치 못한 오류"));
 
             assertThatThrownBy(() -> adapter.cancelPayment(createCancelCommand()))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(kcpApiClient, times(1)).cancelPayment(any());
         }
@@ -251,20 +251,20 @@ class KcpPaymentVendorAdapterCancelRetryTest {
         @DisplayName("ConnectException 후 SocketTimeoutException 발생 시 readTimeout 횟수를 별도 추적한다")
         void shouldTrackReadTimeoutSeparately() {
             ResourceAccessException connectError = new ResourceAccessException(
-                    "Connection refused", new ConnectException("Connection refused")
+                "Connection refused", new ConnectException("Connection refused")
             );
             ResourceAccessException timeoutError = new ResourceAccessException(
-                    "Read timed out", new SocketTimeoutException("Read timed out")
+                "Read timed out", new SocketTimeoutException("Read timed out")
             );
 
             when(kcpApiClient.cancelPayment(any()))
-                    .thenThrow(connectError)
-                    .thenThrow(timeoutError)
-                    .thenThrow(timeoutError);
+                .thenThrow(connectError)
+                .thenThrow(timeoutError)
+                .thenThrow(timeoutError);
 
             assertThatThrownBy(() -> adapter.cancelPayment(createCancelCommand()))
-                    .isInstanceOf(KcpCommunicationException.class)
-                    .isNotInstanceOf(PaymentVendorConnectionFailedException.class);
+                .isInstanceOf(KcpCommunicationException.class)
+                .isNotInstanceOf(PaymentVendorConnectionFailedException.class);
 
             verify(kcpApiClient, times(3)).cancelPayment(any());
         }
@@ -272,12 +272,12 @@ class KcpPaymentVendorAdapterCancelRetryTest {
 
     private PaymentCancelVendorCommand createCancelCommand() {
         return PaymentCancelVendorCommand.builder()
-                .transactionId(TRANSACTION_ID)
-                .cancelType("STSC")
-                .cancelAmount(50000L)
-                .remainAmount(0L)
-                .cancelReason("테스트 취소")
-                .build();
+            .transactionId(TRANSACTION_ID)
+            .cancelType("STSC")
+            .cancelAmount(50000L)
+            .remainAmount(0L)
+            .cancelReason("테스트 취소")
+            .build();
     }
 
     private KcpPaymentCancelResponse createSuccessCancelResponse() {

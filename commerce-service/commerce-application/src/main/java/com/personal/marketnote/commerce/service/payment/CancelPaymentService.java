@@ -47,7 +47,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         String idempotencyKey = command.idempotencyKey();
 
         PaymentCancelIdempotencyResolution resolution =
-                idempotencyHelper.findOrCreate(idempotencyKey, command.orderKey(), command.buyerId());
+            idempotencyHelper.findOrCreate(idempotencyKey, command.orderKey(), command.buyerId());
 
         if (resolution.signal().isCached()) {
             log.info("결제 취소 멱등 캐시 반환 — idempotencyKey: {}", idempotencyKey);
@@ -67,15 +67,15 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             } catch (Exception postCommitException) {
                 // 분류 B: post-commit 단계 (직렬화/멱등 레코드 전이) 광역 catch — ERROR 로그 후 cause 보존하여 호출자 전파 (markFailed 경로 회피 위해 businessCompleted=true 후에 위치)
                 log.error(
-                        "결제 취소 성공 후 멱등 레코드 COMPLETED 전이 실패 — idempotencyKey: {}, orderKey: {}, reason: {}",
-                        idempotencyKey, command.orderKey(), postCommitException.getMessage(), postCommitException
+                    "결제 취소 성공 후 멱등 레코드 COMPLETED 전이 실패 — idempotencyKey: {}, orderKey: {}, reason: {}",
+                    idempotencyKey, command.orderKey(), postCommitException.getMessage(), postCommitException
                 );
                 throw postCommitException;
             }
         } catch (Exception e) {
             // boundary E: outer 광역 catch — 멱등성 markFailed 추적용 failureReason 누적 후 cause 그대로 호출자 전파 (finally 에서 markFailed 실행)
             failureReason = e.getClass().getSimpleName() + ": "
-                    + (FormatValidator.hasValue(e.getMessage()) ? e.getMessage() : "no message");
+                + (FormatValidator.hasValue(e.getMessage()) ? e.getMessage() : "no message");
             throw e;
         } finally {
             if (!businessCompleted && FormatValidator.hasValue(idempotencyKey)) {
@@ -96,16 +96,16 @@ public class CancelPaymentService implements CancelPaymentUseCase {
 
         // PG 취소 API 호출 (트랜잭션 외부)
         PaymentCancelVendorResult vendorResult = requestPaymentCancellationToPsp(
-                context.event(),
-                context.modType(),
-                context.adjustedCancelAmount(),
-                context.remainAmount(),
-                context.adjustedCancelReason()
+            context.event(),
+            context.modType(),
+            context.adjustedCancelAmount(),
+            context.remainAmount(),
+            context.adjustedCancelReason()
         );
 
         if (!vendorResult.success()) {
             log.error("PG 결제 취소 실패 - transactionNumber: {}, resultCode: {}, resultMessage: {}",
-                    context.transactionNumber(), vendorResult.resultCode(), vendorResult.resultMessage()
+                context.transactionNumber(), vendorResult.resultCode(), vendorResult.resultMessage()
             );
             throw new PaymentCancelException("결제 취소에 실패했습니다.");
         }
@@ -120,11 +120,11 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private PaymentCancelVendorResult requestPaymentCancellationToPsp(
-            PspPaymentEvent event, String cancelType, Long cancelAmount, Long remainAmount, String cancelReason
+        PspPaymentEvent event, String cancelType, Long cancelAmount, Long remainAmount, String cancelReason
     ) {
         PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.from(
-                event,
-                PaymentCancelVendorCommand.CancelDirective.of(cancelType, cancelAmount, remainAmount, cancelReason)
+            event,
+            PaymentCancelVendorCommand.CancelDirective.of(cancelType, cancelAmount, remainAmount, cancelReason)
         );
 
         return paymentVendorPort.cancelPayment(vendorCommand);

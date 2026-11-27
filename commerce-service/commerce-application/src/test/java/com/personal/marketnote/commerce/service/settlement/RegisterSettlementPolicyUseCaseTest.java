@@ -41,15 +41,15 @@ class RegisterSettlementPolicyUseCaseTest {
 
     private SettlementPolicy createSavedPolicy(Long sellerId) {
         return SettlementPolicy.from(SettlementPolicySnapshotState.builder()
-                .id(1L)
-                .sellerId(sellerId)
-                .pgFeeRate(FeeRate.of(300))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(1L)
+            .sellerId(sellerId)
+            .pgFeeRate(FeeRate.of(300))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     @Test
@@ -58,15 +58,15 @@ class RegisterSettlementPolicyUseCaseTest {
         // given
         when(findSettlementPolicyPort.findActiveBySellerId(10L)).thenReturn(Optional.empty());
         when(saveSettlementPolicyPort.save(any(SettlementPolicy.class)))
-                .thenReturn(createSavedPolicy(10L));
+            .thenReturn(createSavedPolicy(10L));
 
         RegisterSettlementPolicyCommand command = RegisterSettlementPolicyCommand.builder()
-                .sellerId(10L)
-                .pgFeeRate(300)
-                .platformFeeRate(500)
-                .settlementCycle("MONTHLY")
-                .minPayoutAmount(10000L)
-                .build();
+            .sellerId(10L)
+            .pgFeeRate(300)
+            .platformFeeRate(500)
+            .settlementCycle("MONTHLY")
+            .minPayoutAmount(10000L)
+            .build();
 
         // when
         GetSettlementPolicyResult result = registerSettlementPolicyService.registerPolicy(command);
@@ -87,19 +87,19 @@ class RegisterSettlementPolicyUseCaseTest {
     void shouldThrowWhenPolicyAlreadyExists() {
         // given
         when(findSettlementPolicyPort.findActiveBySellerId(10L))
-                .thenReturn(Optional.of(createSavedPolicy(10L)));
+            .thenReturn(Optional.of(createSavedPolicy(10L)));
 
         RegisterSettlementPolicyCommand command = RegisterSettlementPolicyCommand.builder()
-                .sellerId(10L)
-                .pgFeeRate(300)
-                .platformFeeRate(500)
-                .settlementCycle("MONTHLY")
-                .minPayoutAmount(10000L)
-                .build();
+            .sellerId(10L)
+            .pgFeeRate(300)
+            .platformFeeRate(500)
+            .settlementCycle("MONTHLY")
+            .minPayoutAmount(10000L)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> registerSettlementPolicyService.registerPolicy(command))
-                .isInstanceOf(SettlementPolicyAlreadyExistsException.class);
+            .isInstanceOf(SettlementPolicyAlreadyExistsException.class);
 
         verify(saveSettlementPolicyPort, never()).save(any());
     }
@@ -111,17 +111,17 @@ class RegisterSettlementPolicyUseCaseTest {
         when(findSettlementPolicyPort.findActiveBySellerId(10L)).thenReturn(Optional.empty());
 
         RegisterSettlementPolicyCommand command = RegisterSettlementPolicyCommand.builder()
-                .sellerId(10L)
-                .pgFeeRate(6000)
-                .platformFeeRate(5000)
-                .settlementCycle("MONTHLY")
-                .minPayoutAmount(0L)
-                .build();
+            .sellerId(10L)
+            .pgFeeRate(6000)
+            .platformFeeRate(5000)
+            .settlementCycle("MONTHLY")
+            .minPayoutAmount(0L)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> registerSettlementPolicyService.registerPolicy(command))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("100%");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("100%");
 
         verify(saveSettlementPolicyPort, never()).save(any());
     }
@@ -133,17 +133,17 @@ class RegisterSettlementPolicyUseCaseTest {
         when(findSettlementPolicyPort.findActiveBySellerId(10L)).thenReturn(Optional.empty());
 
         RegisterSettlementPolicyCommand command = RegisterSettlementPolicyCommand.builder()
-                .sellerId(10L)
-                .pgFeeRate(300)
-                .platformFeeRate(500)
-                .settlementCycle("MONTHLY")
-                .minPayoutAmount(-1L)
-                .build();
+            .sellerId(10L)
+            .pgFeeRate(300)
+            .platformFeeRate(500)
+            .settlementCycle("MONTHLY")
+            .minPayoutAmount(-1L)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> registerSettlementPolicyService.registerPolicy(command))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("최소 지급 금액");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("최소 지급 금액");
 
         verify(saveSettlementPolicyPort, never()).save(any());
     }

@@ -32,9 +32,9 @@ class CachePolymorphicTypeValidatorFactoryTest {
     private ObjectMapper buildMapperWithFactory() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         // 도메인 fixture 라운드트립을 위한 visibility 설정 (CacheConfigObjectMapperTest 패턴 정합).
         // 가젯 거부 케이스는 mapper visibility 상태와 무관하게 InvalidTypeIdException이 발생해야 한다.
@@ -56,9 +56,9 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when
         BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
-                mapper.getDeserializationConfig(),
-                mapper.constructType(Object.class),
-                "com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory"
+            mapper.getDeserializationConfig(),
+            mapper.constructType(Object.class),
+            "com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory"
         );
 
         // then
@@ -90,9 +90,9 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when
         BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
-                mapper.getDeserializationConfig(),
-                mapper.constructType(Object.class),
-                LocalDateTime.class.getName()
+            mapper.getDeserializationConfig(),
+            mapper.constructType(Object.class),
+            LocalDateTime.class.getName()
         );
 
         // then
@@ -108,9 +108,9 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when
         BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
-                mapper.getDeserializationConfig(),
-                mapper.constructType(Object.class),
-                BigDecimal.class.getName()
+            mapper.getDeserializationConfig(),
+            mapper.constructType(Object.class),
+            BigDecimal.class.getName()
         );
 
         // then
@@ -126,9 +126,9 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when
         BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
-                mapper.getDeserializationConfig(),
-                mapper.constructType(Object.class),
-                String.class.getName()
+            mapper.getDeserializationConfig(),
+            mapper.constructType(Object.class),
+            String.class.getName()
         );
 
         // then
@@ -144,7 +144,7 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -169,8 +169,8 @@ class CachePolymorphicTypeValidatorFactoryTest {
         // given - #4886 회귀 패턴: 컬렉션 element 타입 복원 검증
         ObjectMapper mapper = buildMapperWithFactory();
         List<TestDomainFixture> original = new ArrayList<>(List.of(
-                new TestDomainFixture("a", 1L),
-                new TestDomainFixture("b", 2L)
+            new TestDomainFixture("a", 1L),
+            new TestDomainFixture("b", 2L)
         ));
 
         // when
@@ -195,7 +195,7 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -207,17 +207,17 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "org.apache.commons.collections.functors.InvokerTransformer",
-            "javax.script.ScriptEngineManager",
-            "com.sun.rowset.JdbcRowSetImpl",
-            "com.sun.org.apache.bcel.internal.util.ClassLoader",
-            "org.apache.xalan.xsltc.trax.TemplatesImpl",
-            "com.fasterxml.jackson.databind.node.POJONode"
+        "org.apache.commons.collections.functors.InvokerTransformer",
+        "javax.script.ScriptEngineManager",
+        "com.sun.rowset.JdbcRowSetImpl",
+        "com.sun.org.apache.bcel.internal.util.ClassLoader",
+        "org.apache.xalan.xsltc.trax.TemplatesImpl",
+        "com.fasterxml.jackson.databind.node.POJONode"
     })
     @DisplayName("createDefault는 알려진 RCE 가젯 카테고리 클래스 폴리모픽 역직렬화를 거부한다")
     void createDefault_shouldRejectKnownRceGadgetClasses(String className) {
@@ -227,7 +227,7 @@ class CachePolymorphicTypeValidatorFactoryTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -236,15 +236,15 @@ class CachePolymorphicTypeValidatorFactoryTest {
         // given
         ObjectMapper mapper1 = new ObjectMapper();
         mapper1.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         ObjectMapper mapper2 = new ObjectMapper();
         mapper2.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
 
         // when - 둘 다 동일 입력에 대해 동일 결과 (allow / deny)
@@ -260,9 +260,9 @@ class CachePolymorphicTypeValidatorFactoryTest {
         // then
         assertThat(roundTrip1).isEqualTo(roundTrip2);
         assertThatThrownBy(() -> mapper1.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
         assertThatThrownBy(() -> mapper2.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     /**

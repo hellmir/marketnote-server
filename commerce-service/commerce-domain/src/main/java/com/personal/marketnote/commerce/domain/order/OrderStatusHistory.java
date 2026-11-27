@@ -21,27 +21,27 @@ public class OrderStatusHistory {
 
     public static OrderStatusHistory from(OrderStatusHistoryCreateState state) {
         String reason = FormatValidator.hasValue(state.getReason())
-                ? state.getReason()
-                : state.getOrderStatus().getDescription();
+            ? state.getReason()
+            : state.getOrderStatus().getDescription();
 
         return OrderStatusHistory.builder()
-                .orderId(state.getOrderId())
-                .orderStatus(state.getOrderStatus())
-                .reasonCategory(state.getReasonCategory())
-                .reason(reason)
-                .createdAt(LocalDateTime.now())
-                .build();
+            .orderId(state.getOrderId())
+            .orderStatus(state.getOrderStatus())
+            .reasonCategory(state.getReasonCategory())
+            .reason(reason)
+            .createdAt(LocalDateTime.now())
+            .build();
     }
 
     public static OrderStatusHistory from(OrderStatusHistorySnapshotState state) {
         return OrderStatusHistory.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .orderStatus(state.getOrderStatus())
-                .reasonCategory(state.getReasonCategory())
-                .reason(state.getReason())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .orderStatus(state.getOrderStatus())
+            .reasonCategory(state.getReasonCategory())
+            .reason(state.getReason())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }
 

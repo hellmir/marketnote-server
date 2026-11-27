@@ -51,7 +51,7 @@ class BusinessIdMdcInterceptorTest {
     void shouldEnrichUserIdWhenAuthenticated() {
         // given
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                "user-1234", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+            "user-1234", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -68,7 +68,7 @@ class BusinessIdMdcInterceptorTest {
     void shouldNotEnrichUserIdWhenAnonymous() {
         // given
         AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken(
-                "key", "anonymousUser", List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
+            "key", "anonymousUser", List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
         );
         SecurityContextHolder.getContext().setAuthentication(anonymous);
 
@@ -114,7 +114,7 @@ class BusinessIdMdcInterceptorTest {
     void shouldNotEnrichUserIdWhenNameBlank() {
         // given
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                "   ", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+            "   ", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -227,7 +227,7 @@ class BusinessIdMdcInterceptorTest {
     void shouldSkipEnrichWhenHandlerIsNotHandlerMethod() {
         // given
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                "user-9999", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+            "user-9999", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         Map<String, String> vars = new HashMap<>();
@@ -267,7 +267,7 @@ class BusinessIdMdcInterceptorTest {
     void shouldSanitizeCrlfInAuthenticationName() {
         // given
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                "user\r\ninjected", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+            "user\r\ninjected", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -310,7 +310,7 @@ class BusinessIdMdcInterceptorTest {
     void shouldEnrichBothAuthenticationAndPathVariables() {
         // given
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                "user-555", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+            "user-555", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         Map<String, String> vars = new HashMap<>();

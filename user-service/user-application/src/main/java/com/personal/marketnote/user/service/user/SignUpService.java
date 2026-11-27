@@ -81,16 +81,16 @@ public class SignUpService implements SignUpUseCase {
         ReferenceCode referenceCode = ReferenceCode.of(RandomCodeGenerator.generateReferenceCode());
 
         User signedUpUser = saveUserPort.save(
-                User.from(
-                        UserCommandToStateMapper.mapToState(
-                                signUpCommand,
-                                authVendor,
-                                oidcId,
-                                terms,
-                                referenceCode,
-                                passwordEncoder
-                        )
+            User.from(
+                UserCommandToStateMapper.mapToState(
+                    signUpCommand,
+                    authVendor,
+                    oidcId,
+                    terms,
+                    referenceCode,
+                    passwordEncoder
                 )
+            )
         );
 
         // Outbox 이벤트 저장 (트랜잭션 내)
@@ -98,17 +98,17 @@ public class SignUpService implements SignUpUseCase {
         // [#5091] AlimTalk 발송에 필요한 PII(phoneNumber/userName)를 envelope payload에 평문 전달.
         // PhoneNumber VO는 미설정 가능 → null-safe 변환 후 전달.
         String phoneNumberValue = Optional.ofNullable(signedUpUser.getPhoneNumber())
-                .map(PhoneNumber::getValue)
-                .orElse(null);
+            .map(PhoneNumber::getValue)
+            .orElse(null);
         publishUserEventPort.publishUserSignupCompletedEvent(
-                signedUpUser.getId(),
-                signedUpUser.getUserKey().toString(),
-                phoneNumberValue,
-                signedUpUser.getFullName()
+            signedUpUser.getId(),
+            signedUpUser.getUserKey().toString(),
+            phoneNumberValue,
+            signedUpUser.getFullName()
         );
 
         saveLoginHistoryPort.saveLoginHistory(
-                LoginHistory.of(signedUpUser, authVendor, ipAddress)
+            LoginHistory.of(signedUpUser, authVendor, ipAddress)
         );
 
         publishFingerprintEvent(signedUpUser.getId(), signUpCommand.fingerprint());
@@ -171,7 +171,7 @@ public class SignUpService implements SignUpUseCase {
     }
 
     private User addLoginAccountInfo(
-            String email, String password, AuthVendor authVendor, String oidcId, String ipAddress, AtomicBoolean isNewUser
+        String email, String password, AuthVendor authVendor, String oidcId, String ipAddress, AtomicBoolean isNewUser
     ) {
         User signedUpUser = getUserUseCase.getAllStatusUser(email);
 
@@ -190,7 +190,7 @@ public class SignUpService implements SignUpUseCase {
             signedUpUser.addLoginAccountInfo(authVendor, oidcId, password, passwordEncoder);
             updateUserPort.update(signedUpUser);
             saveLoginHistoryPort.saveLoginHistory(
-                    LoginHistory.of(signedUpUser, authVendor, ipAddress)
+                LoginHistory.of(signedUpUser, authVendor, ipAddress)
             );
 
             return signedUpUser;
@@ -205,7 +205,7 @@ public class SignUpService implements SignUpUseCase {
         }
 
         applicationEventPublisher.publishEvent(
-                new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.SIGNUP)
+            new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.SIGNUP)
         );
     }
 }

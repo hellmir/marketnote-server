@@ -22,7 +22,7 @@ class DuplicateInventoryDeductionExceptionTest {
         RuntimeException root = new RuntimeException("DataIntegrityViolation");
 
         DuplicateInventoryDeductionException ex =
-                new DuplicateInventoryDeductionException(100L, root);
+            new DuplicateInventoryDeductionException(100L, root);
 
         assertThat(ex.getMessage()).contains("100");
         assertThat(ex.getCause()).isSameAs(root);

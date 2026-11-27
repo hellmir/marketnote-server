@@ -9,8 +9,8 @@ public class ProductCatalogOptionSnapshot {
 
     @JsonCreator
     public ProductCatalogOptionSnapshot(
-            @JsonProperty("id") Long id,
-            @JsonProperty("content") String content
+        @JsonProperty("id") Long id,
+        @JsonProperty("content") String content
     ) {
         this.id = id;
         this.content = content;

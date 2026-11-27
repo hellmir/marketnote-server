@@ -15,7 +15,7 @@ import java.io.IOException;
 public class HttpMethodOverrideFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String methodOverride = httpRequest.getHeader(HttpMethodOverrideConstant.HEADER_NAME);
 

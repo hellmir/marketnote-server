@@ -50,17 +50,17 @@ public class PiiMaskingConverter extends ClassicConverter {
     // (?<![@A-Za-z0-9._%+-]) prevents matching a sub-email of an already-malformed
     // multi-@ value (e.g. "a@b@c.com" should stay as-is, not become "a@b***@c.com").
     private static final Pattern FREE_FORM_EMAIL_PATTERN = Pattern.compile(
-            "(?<![@A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        "(?<![@A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
     );
     // Hyphenated phone — Korean phone prefix whitelist to avoid false positives on
     // common identifier patterns (e.g. "order-1234-5678", "build-123-4567", "ticket-1234-5678").
     // Whitelist: 02 (Seoul), 0[3-6]\d (other regions: 031~064), 01[016789] (mobile carriers).
     private static final Pattern FREE_FORM_PHONE_HYPHENATED_PATTERN = Pattern.compile(
-            "(?<!\\d)(02|0[3-6]\\d|01[016789])-(\\d{3,4})-(\\d{4})(?!\\d)"
+        "(?<!\\d)(02|0[3-6]\\d|01[016789])-(\\d{3,4})-(\\d{4})(?!\\d)"
     );
     // Unhyphenated 11-digit mobile (010/011/016/017/018/019).
     private static final Pattern FREE_FORM_PHONE_MOBILE_11_PATTERN = Pattern.compile(
-            "(?<!\\d)(01[016789])(\\d{4})(\\d{4})(?!\\d)"
+        "(?<!\\d)(01[016789])(\\d{4})(\\d{4})(?!\\d)"
     );
 
     @Override

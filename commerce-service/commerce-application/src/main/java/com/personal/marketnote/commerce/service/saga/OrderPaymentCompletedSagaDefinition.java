@@ -42,36 +42,36 @@ public class OrderPaymentCompletedSagaDefinition implements SagaDefinition<Order
     @Override
     public List<SagaStepDefinition<OrderPaymentCompletedSagaContext>> getSteps() {
         return List.of(
-                new SagaStepDefinition<>(
-                        STEP_REGISTER_FULFILLMENT_DELIVERY,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
-                        this::buildFulfillmentAction,
-                        this::buildFulfillmentCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_DEDUCT_ORDER_POINT,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
-                        this::buildOrderPointAction,
-                        this::buildOrderPointCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_ACCRUE_SHARED_POINT,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
-                        this::buildSharedPointAction,
-                        this::buildSharedPointCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_ACCRUE_PRODUCT_POINT,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT,
-                        this::buildProductPointAction,
-                        this::buildProductPointCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_DELETE_CART,
-                        KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
-                        this::buildCartAction,
-                        null
-                )
+            new SagaStepDefinition<>(
+                STEP_REGISTER_FULFILLMENT_DELIVERY,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
+                this::buildFulfillmentAction,
+                this::buildFulfillmentCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_DEDUCT_ORDER_POINT,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
+                this::buildOrderPointAction,
+                this::buildOrderPointCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_ACCRUE_SHARED_POINT,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
+                this::buildSharedPointAction,
+                this::buildSharedPointCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_ACCRUE_PRODUCT_POINT,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT,
+                this::buildProductPointAction,
+                this::buildProductPointCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_DELETE_CART,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
+                this::buildCartAction,
+                null
+            )
         );
     }
 
@@ -94,16 +94,16 @@ public class OrderPaymentCompletedSagaDefinition implements SagaDefinition<Order
             return List.of();
         }
         return items.stream()
-                .map(item -> {
-                    Map<String, Object> map = new LinkedHashMap<>();
-                    map.put("pricePolicyId", item.pricePolicyId());
-                    map.put("productKey", item.productKey());
-                    map.put("sharerKey", item.sharerKey());
-                    map.put("quantity", item.quantity());
-                    map.put("unitAmount", item.unitAmount());
-                    return map;
-                })
-                .toList();
+            .map(item -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("pricePolicyId", item.pricePolicyId());
+                map.put("productKey", item.productKey());
+                map.put("sharerKey", item.sharerKey());
+                map.put("quantity", item.quantity());
+                map.put("unitAmount", item.unitAmount());
+                return map;
+            })
+            .toList();
     }
 
     private String buildFulfillmentCompensation(OrderPaymentCompletedSagaContext context) {
@@ -172,10 +172,10 @@ public class OrderPaymentCompletedSagaDefinition implements SagaDefinition<Order
             return List.of();
         }
         return orderProducts.stream()
-                .map(OrderProductItem::sharerKey)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+            .map(OrderProductItem::sharerKey)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     }
 
     private List<Long> extractPricePolicyIds(List<OrderProductItem> orderProducts) {
@@ -183,9 +183,9 @@ public class OrderPaymentCompletedSagaDefinition implements SagaDefinition<Order
             return List.of();
         }
         return orderProducts.stream()
-                .map(OrderProductItem::pricePolicyId)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(OrderProductItem::pricePolicyId)
+            .filter(Objects::nonNull)
+            .toList();
     }
 
     private String serialize(Object value) {

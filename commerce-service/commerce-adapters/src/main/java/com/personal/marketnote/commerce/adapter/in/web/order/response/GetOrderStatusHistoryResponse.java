@@ -12,13 +12,13 @@ import java.util.List;
  * @Description 주문의 전체 상태 변경 이력 조회 응답 DTO입니다.
  */
 public record GetOrderStatusHistoryResponse(
-        Long orderId,
-        List<OrderStatusHistoryItemResponse> statusHistory
+    Long orderId,
+    List<OrderStatusHistoryItemResponse> statusHistory
 ) {
     public static GetOrderStatusHistoryResponse from(GetOrderStatusHistoryResult result) {
         List<OrderStatusHistoryItemResponse> items = result.statusHistory().stream()
-                .map(OrderStatusHistoryItemResponse::from)
-                .toList();
+            .map(OrderStatusHistoryItemResponse::from)
+            .toList();
         return new GetOrderStatusHistoryResponse(result.orderId(), items);
     }
 }

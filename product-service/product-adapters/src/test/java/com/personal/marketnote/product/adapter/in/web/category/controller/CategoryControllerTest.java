@@ -62,10 +62,10 @@ class CategoryControllerTest {
             ReflectionTestUtils.setField(request, "name", "루테인");
             RegisterCategoryResult result = new RegisterCategoryResult(1L, null, "루테인");
             when(registerCategoryUseCase.registerCategory(any(RegisterCategoryCommand.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<RegisterCategoryResponse>> response =
-                    categoryController.registerCategory(request);
+                categoryController.registerCategory(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -84,7 +84,7 @@ class CategoryControllerTest {
             when(getCategoryUseCase.getCategoriesByParentId(null)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetCategoriesResponse>> response =
-                    categoryController.getCategories(null);
+                categoryController.getCategories(null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
@@ -96,7 +96,7 @@ class CategoryControllerTest {
             when(getCategoryUseCase.getCategoriesByParentId(10L)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetCategoriesResponse>> response =
-                    categoryController.getCategories(10L);
+                categoryController.getCategories(10L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getCategoryUseCase).getCategoriesByParentId(10L);
@@ -130,11 +130,11 @@ class CategoryControllerTest {
             when(principal.getName()).thenReturn("100");
             RegisterProductCategoriesResult result = RegisterProductCategoriesResult.of(1L, List.of(10L, 20L));
             when(registerProductCategoriesUseCase.registerProductCategories(
-                    eq(100L), anyBoolean(), any(RegisterProductCategoriesCommand.class)
+                eq(100L), anyBoolean(), any(RegisterProductCategoriesCommand.class)
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<RegisterProductCategoriesResponse>> response =
-                    categoryController.registerProductCategories(1L, request, principal);
+                categoryController.registerProductCategories(1L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();

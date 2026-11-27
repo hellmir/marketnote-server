@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class KafkaEventUnknownFieldsCompatibilityTest {
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-11-22T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-11-22T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     /**
@@ -176,7 +176,7 @@ class KafkaEventUnknownFieldsCompatibilityTest {
         // when & then — outer/nested 모두 어노테이션 보유 시 성공
         assertThatCode(() -> {
             FulfillmentInventorySyncedEvent result = strictMapper.readValue(
-                    json, FulfillmentInventorySyncedEvent.class);
+                json, FulfillmentInventorySyncedEvent.class);
             assertThat(result.inventories()).hasSize(1);
             assertThat(result.inventories().get(0).stock()).isEqualTo(100);
         }).doesNotThrowAnyException();

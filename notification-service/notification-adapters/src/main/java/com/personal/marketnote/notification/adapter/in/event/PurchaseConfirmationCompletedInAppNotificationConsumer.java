@@ -28,12 +28,12 @@ public class PurchaseConfirmationCompletedInAppNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
-            groupId = "notification-purchase-confirmation-inapp"
+        topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
+        groupId = "notification-purchase-confirmation-inapp"
     )
     public void handleOrderPurchaseConfirmedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -52,26 +52,26 @@ public class PurchaseConfirmationCompletedInAppNotificationConsumer {
         String templateCode = resolveTemplateCode(payload.isAutoConfirmed());
 
         log.info("구매 확정 이벤트 수신 (인앱 알림 생성). eventId={}, orderId={}, buyerId={}, isAutoConfirmed={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.isAutoConfirmed());
+            envelope.eventId(), payload.orderId(), payload.buyerId(), payload.isAutoConfirmed());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         SendNotificationCommand command = new SendNotificationCommand(
-                payload.buyerId(),
-                templateCode,
-                Map.of("order_id", String.valueOf(payload.orderId())),
-                "IN_APP_ONLY",
-                null
+            payload.buyerId(),
+            templateCode,
+            Map.of("order_id", String.valueOf(payload.orderId())),
+            "IN_APP_ONLY",
+            null
         );
         sendNotificationUseCase.sendNotification(command);
 
         log.info("구매 확정 완료 인앱 알림 생성 완료. orderId={}, buyerId={}, templateCode={}",
-                payload.orderId(), payload.buyerId(), templateCode);
+            payload.orderId(), payload.buyerId(), templateCode);
 
         acknowledgment.acknowledge();
     }

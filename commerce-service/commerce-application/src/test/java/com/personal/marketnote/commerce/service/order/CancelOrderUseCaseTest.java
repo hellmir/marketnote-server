@@ -38,9 +38,9 @@ class CancelOrderUseCaseTest {
     @BeforeEach
     void setUp() {
         cancelOrderService = new CancelOrderService(
-                getOrderUseCase,
-                updateOrderPort,
-                orderCancelSagaStarter
+            getOrderUseCase,
+            updateOrderPort,
+            orderCancelSagaStarter
         );
     }
 
@@ -201,14 +201,14 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.PRODUCT_DAMAGE)
-                    .reason("상품 파손")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.PRODUCT_DAMAGE)
+                .reason("상품 파손")
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(InvalidReasonCategoryException.class);
+                .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -223,14 +223,14 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("구매 의사 취소")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("구매 의사 취소")
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> cancelOrderService.cancelOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -242,14 +242,14 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.MISTAKE)
-                    .reason("주문 실수")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.MISTAKE)
+                .reason("주문 실수")
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> cancelOrderService.cancelOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -273,7 +273,7 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, attackerBuyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -299,7 +299,7 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -316,7 +316,7 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+                .isInstanceOf(OrderStatusAlreadyChangedException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -333,7 +333,7 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -350,7 +350,7 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -365,15 +365,15 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("구매 의사 취소")
-                    .pricePolicyIds(List.of(100L))
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("구매 의사 취소")
+                .pricePolicyIds(List.of(100L))
+                .build();
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(PartialCancelNotAllowedException.class);
+                .isInstanceOf(PartialCancelNotAllowedException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
@@ -397,12 +397,12 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("부분 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("부분 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L))
+                .build();
 
             cancelOrderService.cancelOrder(command);
 
@@ -426,12 +426,12 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("전체 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L, 200L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("전체 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L, 200L))
+                .build();
 
             cancelOrderService.cancelOrder(command);
 
@@ -449,12 +449,12 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("전체 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of())
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("전체 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of())
+                .build();
 
             cancelOrderService.cancelOrder(command);
 
@@ -472,15 +472,15 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("부분 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(999L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("부분 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(999L))
+                .build();
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(InvalidPartialCancelProductException.class);
+                .isInstanceOf(InvalidPartialCancelProductException.class);
 
             verifyNoInteractions(updateOrderPort);
         }
@@ -494,15 +494,15 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("부분 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L, 100L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("부분 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L, 100L))
+                .build();
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(InvalidPartialCancelProductException.class);
+                .isInstanceOf(InvalidPartialCancelProductException.class);
 
             verifyNoInteractions(updateOrderPort);
         }
@@ -516,15 +516,15 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("부분 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("부분 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L))
+                .build();
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(PartialCancelNotAllowedException.class);
+                .isInstanceOf(PartialCancelNotAllowedException.class);
 
             verifyNoInteractions(updateOrderPort);
         }
@@ -538,12 +538,12 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("부분 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("부분 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L))
+                .build();
 
             cancelOrderService.cancelOrder(command);
 
@@ -552,9 +552,9 @@ class CancelOrderUseCaseTest {
 
             Order updated = orderCaptor.getValue();
             OrderProduct cancelledProduct = updated.getOrderProducts().stream()
-                    .filter(op -> op.getPricePolicyId().equals(100L))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(op -> op.getPricePolicyId().equals(100L))
+                .findFirst()
+                .orElseThrow();
             assertThat(cancelledProduct.isCancelled()).isTrue();
             verifyNoInteractions(orderCancelSagaStarter);
         }
@@ -568,12 +568,12 @@ class CancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .reason("부분 취소")
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L, 200L))
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .reason("부분 취소")
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L, 200L))
+                .build();
 
             cancelOrderService.cancelOrder(command);
 
@@ -591,76 +591,76 @@ class CancelOrderUseCaseTest {
 
     private CancelOrderCommand createCommand(Long orderId, Long buyerId) {
         return CancelOrderCommand.builder()
-                .id(orderId)
-                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                .reason("구매 의사 취소")
-                .buyerId(buyerId)
-                .build();
+            .id(orderId)
+            .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+            .reason("구매 의사 취소")
+            .buyerId(buyerId)
+            .build();
     }
 
     private Order createOrderWithMultipleProducts(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .sharerKey(UUID.randomUUID())
-                        .quantity(1)
-                        .unitAmount(30000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(20L)
-                        .pricePolicyId(200L)
-                        .sharerKey(UUID.randomUUID())
-                        .quantity(2)
-                        .unitAmount(20000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .sharerKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(30000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(20L)
+                .pricePolicyId(200L)
+                .sharerKey(UUID.randomUUID())
+                .quantity(2)
+                .unitAmount(20000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(70000L).paidAmount(70000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(70000L).paidAmount(70000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrder(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .sharerKey(UUID.randomUUID())
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .sharerKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

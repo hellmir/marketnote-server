@@ -114,8 +114,8 @@ class GetPostsUseCaseTest {
     @DisplayName("sortDirection이 null이면 기본값 DESC가 적용된다")
     void getPosts_nullSortDirection_appliesDescByDefault() {
         GetPostsQuery query = publicQuery(Board.NOTICE)
-                .sortDirection(null)
-                .build();
+            .sortDirection(null)
+            .build();
         mockPublicPosts(emptyPosts());
 
         getPostService.getPosts(query);
@@ -129,8 +129,8 @@ class GetPostsUseCaseTest {
     @DisplayName("sortDirection이 ASC이면 ASC 정렬이 적용된다")
     void getPosts_ascSortDirection_appliesAsc() {
         GetPostsQuery query = publicQuery(Board.NOTICE)
-                .sortDirection(Sort.Direction.ASC)
-                .build();
+            .sortDirection(Sort.Direction.ASC)
+            .build();
         mockPublicPosts(emptyPosts());
 
         getPostService.getPosts(query);
@@ -157,8 +157,8 @@ class GetPostsUseCaseTest {
     @DisplayName("비공개 게시판에서 sortProperty 미지정 시 ID가 기본값으로 id 필드로 정렬한다")
     void getPosts_userBoard_noSortProperty_defaultsToId() {
         GetPostsQuery query = userQuery()
-                .sortProperty(null)
-                .build();
+            .sortProperty(null)
+            .build();
         mockUserPosts(emptyPosts());
 
         getPostService.getPosts(query);
@@ -172,8 +172,8 @@ class GetPostsUseCaseTest {
     @DisplayName("비공개 게시판에서 IS_ANSWERED sortProperty가 적용되면 id 필드로 정렬한다")
     void getPosts_userBoard_isAnsweredSort_mapsToIdField() {
         GetPostsQuery query = userQuery()
-                .sortProperty(PostSortProperty.IS_ANSWERED)
-                .build();
+            .sortProperty(PostSortProperty.IS_ANSWERED)
+            .build();
         mockUserPosts(emptyPosts());
 
         getPostService.getPosts(query);
@@ -190,12 +190,12 @@ class GetPostsUseCaseTest {
     void getPosts_moreThanPageSize_hasNextTrueAndTruncated() {
         int pageSize = 2;
         GetPostsQuery query = publicQuery(Board.NOTICE)
-                .pageSize(pageSize)
-                .build();
+            .pageSize(pageSize)
+            .build();
         Posts posts = Posts.from(List.of(
-                buildNoticePost(10L),
-                buildNoticePost(11L),
-                buildNoticePost(12L)
+            buildNoticePost(10L),
+            buildNoticePost(11L),
+            buildNoticePost(12L)
         ));
         mockPublicPosts(posts);
 
@@ -209,11 +209,11 @@ class GetPostsUseCaseTest {
     @DisplayName("결과 수가 pageSize 이하이면 hasNext가 false이다")
     void getPosts_lessThanOrEqualToPageSize_hasNextFalse() {
         GetPostsQuery query = publicQuery(Board.NOTICE)
-                .pageSize(10)
-                .build();
+            .pageSize(10)
+            .build();
         Posts posts = Posts.from(List.of(
-                buildNoticePost(10L),
-                buildNoticePost(11L)
+            buildNoticePost(10L),
+            buildNoticePost(11L)
         ));
         mockPublicPosts(posts);
 
@@ -228,9 +228,9 @@ class GetPostsUseCaseTest {
     void getPosts_nonEmptyResult_nextCursorIsLastPostId() {
         GetPostsQuery query = publicQuery(Board.NOTICE).build();
         Posts posts = Posts.from(List.of(
-                buildNoticePost(10L),
-                buildNoticePost(20L),
-                buildNoticePost(30L)
+            buildNoticePost(10L),
+            buildNoticePost(20L),
+            buildNoticePost(30L)
         ));
         mockPublicPosts(posts);
 
@@ -257,18 +257,18 @@ class GetPostsUseCaseTest {
     @DisplayName("커서가 없으면 공개 게시판의 totalElements가 countPublicPosts로 계산된다")
     void getPosts_noCursor_publicBoard_computesTotalViaCountPublicPosts() {
         GetPostsQuery query = publicQuery(Board.NOTICE)
-                .cursor(null)
-                .build();
+            .cursor(null)
+            .build();
         mockPublicPosts(emptyPosts());
         when(findPostPort.countPublicPosts(
-                any(), any(), any(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), any(), any(), any()
         )).thenReturn(42L);
 
         GetPostsResult result = getPostService.getPosts(query);
 
         assertThat(result.totalElements()).isEqualTo(42L);
         verify(findPostPort).countPublicPosts(
-                any(), any(), any(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), any(), any(), any()
         );
     }
 
@@ -276,8 +276,8 @@ class GetPostsUseCaseTest {
     @DisplayName("커서가 없으면 회원 게시판의 totalElements가 countUserPosts로 계산된다")
     void getPosts_noCursor_userBoard_computesTotalViaCountUserPosts() {
         GetPostsQuery query = userQuery()
-                .cursor(null)
-                .build();
+            .cursor(null)
+            .build();
         mockUserPosts(emptyPosts());
         when(findPostPort.countUserPosts(any(), any(), any(), any(), any(), any())).thenReturn(99L);
 
@@ -297,7 +297,7 @@ class GetPostsUseCaseTest {
 
         assertThat(result.totalElements()).isNull();
         verify(findPostPort, never()).countPublicPosts(
-                any(), any(), any(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), any(), any(), any()
         );
     }
 
@@ -312,7 +312,7 @@ class GetPostsUseCaseTest {
         mockPublicPosts(Posts.from(List.of(post)));
         ProductInfoResult productInfo = buildProductInfo(1L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -355,14 +355,14 @@ class GetPostsUseCaseTest {
         Long targetId = 100L;
         Long postUserId = 999L;
         GetPostsQuery query = productInqueryPublicQuery()
-                .principal(null)
-                .userId(1L)
-                .build();
+            .principal(null)
+            .userId(1L)
+            .build();
         Post post = buildProductInqueryPost(1L, postUserId, targetId, true);
         mockPublicPosts(Posts.from(List.of(post)));
         ProductInfoResult productInfo = buildProductInfo(777L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -379,14 +379,14 @@ class GetPostsUseCaseTest {
         Long targetId = 100L;
         Long userId = 1L;
         GetPostsQuery query = productInqueryPublicQuery()
-                .principal(null)
-                .userId(userId)
-                .build();
+            .principal(null)
+            .userId(userId)
+            .build();
         Post post = buildProductInqueryPost(1L, userId, targetId, true);
         mockPublicPosts(Posts.from(List.of(post)));
         ProductInfoResult productInfo = buildProductInfo(777L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -401,14 +401,14 @@ class GetPostsUseCaseTest {
     void getPosts_noTargetType_privatePost_notMasked() {
         Long targetId = 100L;
         GetPostsQuery query = productInqueryUserQuery()
-                .principal(null)
-                .userId(1L)
-                .build();
+            .principal(null)
+            .userId(1L)
+            .build();
         Post post = buildProductInqueryPost(1L, 999L, targetId, true);
         mockUserPosts(Posts.from(List.of(post)));
         ProductInfoResult productInfo = buildProductInfo(777L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -423,9 +423,9 @@ class GetPostsUseCaseTest {
     @DisplayName("ONE_ON_ONE_INQUERY에서 제목 검색 시 제목에 키워드가 포함된 게시글만 반환된다")
     void getPosts_oneOnOne_titleSearch_returnsMatchingPosts() {
         GetPostsQuery query = userQuery()
-                .searchTarget(PostSearchTarget.TITLE)
-                .searchKeyword("배송")
-                .build();
+            .searchTarget(PostSearchTarget.TITLE)
+            .searchKeyword("배송")
+            .build();
         Post matchingPost = buildOneOnOnePostWithContent(1L, "배송 문의합니다", "내용입니다");
         Post nonMatchingPost = buildOneOnOnePostWithContent(2L, "결제 문의", "배송 관련 내용");
         mockUserPosts(Posts.from(List.of(matchingPost, nonMatchingPost)));
@@ -440,9 +440,9 @@ class GetPostsUseCaseTest {
     @DisplayName("ONE_ON_ONE_INQUERY에서 내용 검색 시 내용에 키워드가 포함된 게시글만 반환된다")
     void getPosts_oneOnOne_contentSearch_returnsMatchingPosts() {
         GetPostsQuery query = userQuery()
-                .searchTarget(PostSearchTarget.CONTENT)
-                .searchKeyword("환불")
-                .build();
+            .searchTarget(PostSearchTarget.CONTENT)
+            .searchKeyword("환불")
+            .build();
         Post matchingPost = buildOneOnOnePostWithContent(1L, "문의 제목", "환불 요청합니다");
         Post nonMatchingPost = buildOneOnOnePostWithContent(2L, "환불 문의", "결제 관련");
         mockUserPosts(Posts.from(List.of(matchingPost, nonMatchingPost)));
@@ -457,9 +457,9 @@ class GetPostsUseCaseTest {
     @DisplayName("ONE_ON_ONE_INQUERY에서 검색 대상 미지정 시 제목 또는 내용에서 매칭된다")
     void getPosts_oneOnOne_noSearchTarget_matchesTitleOrContent() {
         GetPostsQuery query = userQuery()
-                .searchTarget(null)
-                .searchKeyword("포인트")
-                .build();
+            .searchTarget(null)
+            .searchKeyword("포인트")
+            .build();
         Post titleMatch = buildOneOnOnePostWithContent(1L, "포인트 적립 문의", "내용입니다");
         Post contentMatch = buildOneOnOnePostWithContent(2L, "일반 문의", "포인트 관련 문의");
         Post noMatch = buildOneOnOnePostWithContent(3L, "배송 문의", "결제 관련");
@@ -469,17 +469,17 @@ class GetPostsUseCaseTest {
 
         assertThat(result.posts()).hasSize(2);
         assertThat(result.posts())
-                .extracting(PostItemResult::getId)
-                .containsExactly(1L, 2L);
+            .extracting(PostItemResult::getId)
+            .containsExactly(1L, 2L);
     }
 
     @Test
     @DisplayName("PRODUCT_INQUERY에서 targetType 미지정 시 검색 키워드 필터링이 적용된다")
     void getPosts_productInquery_noTargetType_keywordFilteringApplied() {
         GetPostsQuery query = productInqueryUserQuery()
-                .searchTarget(PostSearchTarget.TITLE)
-                .searchKeyword("재입고")
-                .build();
+            .searchTarget(PostSearchTarget.TITLE)
+            .searchKeyword("재입고")
+            .build();
         Post matchingPost = buildProductInqueryPostWithContent(1L, "재입고 문의", "내용");
         Post nonMatchingPost = buildProductInqueryPostWithContent(2L, "배송 문의", "내용");
         mockUserPosts(Posts.from(List.of(matchingPost, nonMatchingPost)));
@@ -495,8 +495,8 @@ class GetPostsUseCaseTest {
     @DisplayName("검색 키워드가 없으면 전체 게시글이 반환된다")
     void getPosts_noSearchKeyword_returnsAllPosts() {
         GetPostsQuery query = userQuery()
-                .searchKeyword(null)
-                .build();
+            .searchKeyword(null)
+            .build();
         Post post1 = buildOneOnOnePost(1L);
         Post post2 = buildOneOnOnePost(2L);
         mockUserPosts(Posts.from(List.of(post1, post2)));
@@ -510,9 +510,9 @@ class GetPostsUseCaseTest {
     @DisplayName("검색 키워드 매칭은 대소문자를 무시한다")
     void getPosts_keywordSearch_caseInsensitive() {
         GetPostsQuery query = userQuery()
-                .searchTarget(PostSearchTarget.TITLE)
-                .searchKeyword("hello")
-                .build();
+            .searchTarget(PostSearchTarget.TITLE)
+            .searchKeyword("hello")
+            .build();
         Post matchingPost = buildOneOnOnePostWithContent(1L, "Hello World", "content");
         Post nonMatchingPost = buildOneOnOnePostWithContent(2L, "Goodbye", "content");
         mockUserPosts(Posts.from(List.of(matchingPost, nonMatchingPost)));
@@ -527,9 +527,9 @@ class GetPostsUseCaseTest {
     @DisplayName("PRODUCT_INQUERY에서 targetType이 있으면 인메모리 검색 필터링이 적용되지 않는다")
     void getPosts_productInquery_withTargetType_noInMemoryFiltering() {
         GetPostsQuery query = productInqueryPublicQuery()
-                .searchTarget(PostSearchTarget.TITLE)
-                .searchKeyword("재입고")
-                .build();
+            .searchTarget(PostSearchTarget.TITLE)
+            .searchKeyword("재입고")
+            .build();
         Post post = buildProductInqueryPostWithContent(1L, "배송 문의입니다", "내용");
         mockPublicPosts(Posts.from(List.of(post)));
         mockProductInfoPort(Map.of());
@@ -548,10 +548,10 @@ class GetPostsUseCaseTest {
         Post photoPost = buildPhotoPost(1L, Board.NOTICE, "ANNOUNCEMENT");
         mockPublicPosts(Posts.from(List.of(photoPost)));
         GetFileResult fileResult = new GetFileResult(
-                1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
+            1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
         );
         when(findPostImagesPort.findImagesByPostIdAndSort(eq(1L), eq(POST_IMAGE)))
-                .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
+            .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -580,16 +580,16 @@ class GetPostsUseCaseTest {
         Long targetId = 100L;
         Long userId = 1L;
         GetPostsQuery query = productInqueryPublicQuery()
-                .principal(null)
-                .userId(userId)
-                .build();
+            .principal(null)
+            .userId(userId)
+            .build();
         Post parentPost = buildProductInqueryPost(1L, userId, targetId, false);
         Post replyPost = buildProductInqueryPost(2L, userId, targetId, false);
         parentPost.addReplies(List.of(replyPost));
         mockPublicPosts(Posts.from(List.of(parentPost)));
         ProductInfoResult productInfo = buildProductInfo(userId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -604,16 +604,16 @@ class GetPostsUseCaseTest {
     void getPosts_maskedPost_repliesNotAdded() {
         Long targetId = 100L;
         GetPostsQuery query = productInqueryPublicQuery()
-                .principal(null)
-                .userId(1L)
-                .build();
+            .principal(null)
+            .userId(1L)
+            .build();
         Post parentPost = buildProductInqueryPost(1L, 999L, targetId, true);
         Post replyPost = buildProductInqueryPost(2L, 999L, targetId, false);
         parentPost.addReplies(List.of(replyPost));
         mockPublicPosts(Posts.from(List.of(parentPost)));
         ProductInfoResult productInfo = buildProductInfo(777L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         GetPostsResult result = getPostService.getPosts(query);
 
@@ -631,11 +631,11 @@ class GetPostsUseCaseTest {
         GetPostsQuery query = publicQuery(Board.NOTICE).build();
         RuntimeException exception = new RuntimeException("database error");
         when(findPostPort.findPublicPosts(
-                any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
         )).thenThrow(exception);
 
         assertThatThrownBy(() -> getPostService.getPosts(query))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -644,11 +644,11 @@ class GetPostsUseCaseTest {
         GetPostsQuery query = userQuery().build();
         RuntimeException exception = new RuntimeException("database error");
         when(findPostPort.findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         )).thenThrow(exception);
 
         assertThatThrownBy(() -> getPostService.getPosts(query))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     // ========== K. 응답 분리 ==========
@@ -663,7 +663,7 @@ class GetPostsUseCaseTest {
         mockPublicPosts(Posts.from(List.of(post)));
         ProductInfoResult productInfo = buildProductInfo(1L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         // when
         GetPostsResult result = getPostService.getPosts(query);
@@ -683,7 +683,7 @@ class GetPostsUseCaseTest {
         mockPublicPosts(Posts.from(List.of(post)));
         ProductInfoResult productInfo = buildProductInfo(1L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         // when
         GetPostsResult result = getPostService.getPosts(query);
@@ -694,7 +694,7 @@ class GetPostsUseCaseTest {
         // maskedWriterName만 포함되어 있는지 검증
         assertThat(result.posts().getFirst().getMaskedWriterName()).isNotNull();
         assertThat(result.posts().getFirst()).hasNoNullFieldsOrPropertiesExcept(
-                "parentId", "productImageUrl", "images", "replies"
+            "parentId", "productImageUrl", "images", "replies"
         );
     }
 
@@ -702,172 +702,172 @@ class GetPostsUseCaseTest {
 
     private GetPostsQuery.GetPostsQueryBuilder publicQuery(Board board) {
         return GetPostsQuery.builder()
-                .board(board)
-                .userId(1L)
-                .pageSize(10)
-                .cursor(5L)
-                .sortDirection(Sort.Direction.DESC);
+            .board(board)
+            .userId(1L)
+            .pageSize(10)
+            .cursor(5L)
+            .sortDirection(Sort.Direction.DESC);
     }
 
     private GetPostsQuery.GetPostsQueryBuilder userQuery() {
         return GetPostsQuery.builder()
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .userId(1L)
-                .pageSize(10)
-                .cursor(5L)
-                .sortDirection(Sort.Direction.DESC);
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .userId(1L)
+            .pageSize(10)
+            .cursor(5L)
+            .sortDirection(Sort.Direction.DESC);
     }
 
     private GetPostsQuery.GetPostsQueryBuilder productInqueryPublicQuery() {
         return GetPostsQuery.builder()
-                .board(Board.PRODUCT_INQUERY)
-                .targetType(PostTargetType.PRICE_POLICY)
-                .userId(1L)
-                .pageSize(10)
-                .cursor(5L)
-                .sortDirection(Sort.Direction.DESC);
+            .board(Board.PRODUCT_INQUERY)
+            .targetType(PostTargetType.PRICE_POLICY)
+            .userId(1L)
+            .pageSize(10)
+            .cursor(5L)
+            .sortDirection(Sort.Direction.DESC);
     }
 
     private GetPostsQuery.GetPostsQueryBuilder productInqueryUserQuery() {
         return GetPostsQuery.builder()
-                .board(Board.PRODUCT_INQUERY)
-                .targetType(null)
-                .userId(1L)
-                .pageSize(10)
-                .cursor(5L)
-                .sortDirection(Sort.Direction.DESC);
+            .board(Board.PRODUCT_INQUERY)
+            .targetType(null)
+            .userId(1L)
+            .pageSize(10)
+            .cursor(5L)
+            .sortDirection(Sort.Direction.DESC);
     }
 
     // ========== Post Builders ==========
 
     private Post buildNoticePost(Long id) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .title("공지 제목")
-                .content("공지 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .title("공지 제목")
+            .content("공지 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildOneOnOnePost(Long id) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .title("문의 제목")
-                .content("문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .title("문의 제목")
+            .content("문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildOneOnOnePostWithContent(Long id, String title, String content) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .title(title)
-                .content(content)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .title(title)
+            .content(content)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInqueryPost(Long id, Long userId, Long targetId, boolean isPrivate) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .isPrivate(isPrivate)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .isPrivate(isPrivate)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInqueryPostWithoutTarget(Long id) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInqueryPostWithContent(Long id, String title, String content) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .title(title)
-                .content(content)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .title(title)
+            .content(content)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInqueryPostWithWriterName(
-            Long id, Long userId, Long targetId, String writerName, String maskedWriterName
+        Long id, Long userId, Long targetId, String writerName, String maskedWriterName
     ) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .writerName(writerName)
-                .maskedWriterName(maskedWriterName)
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .writerName(writerName)
+            .maskedWriterName(maskedWriterName)
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildPhotoPost(Long id, Board board, String category) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(board)
-                .category(category)
-                .title("사진 게시글")
-                .content("내용")
-                .isPhoto(true)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(board)
+            .category(category)
+            .title("사진 게시글")
+            .content("내용")
+            .isPhoto(true)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private ProductInfoResult buildProductInfo(Long sellerId) {
@@ -882,13 +882,13 @@ class GetPostsUseCaseTest {
 
     private void mockPublicPosts(Posts posts) {
         when(findPostPort.findPublicPosts(
-                any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
         )).thenReturn(posts);
     }
 
     private void mockUserPosts(Posts posts) {
         when(findPostPort.findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         )).thenReturn(posts);
     }
 
@@ -901,8 +901,8 @@ class GetPostsUseCaseTest {
     private Pageable capturePublicPostsPageable() {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(findPostPort).findPublicPosts(
-                any(), any(), any(), any(), any(), captor.capture(),
-                anyBoolean(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), captor.capture(),
+            anyBoolean(), any(), any(), any(), any(), any(), any()
         );
         return captor.getValue();
     }
@@ -910,7 +910,7 @@ class GetPostsUseCaseTest {
     private Pageable captureUserPostsPageable() {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(findPostPort).findUserPosts(
-                any(), any(), any(), captor.capture(), anyBoolean(), any(), any(), any(), any(), any()
+            any(), any(), any(), captor.capture(), anyBoolean(), any(), any(), any(), any(), any()
         );
         return captor.getValue();
     }
@@ -919,25 +919,25 @@ class GetPostsUseCaseTest {
 
     private void verifyPublicPostsCalled() {
         verify(findPostPort).findPublicPosts(
-                any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
         );
     }
 
     private void verifyPublicPostsNeverCalled() {
         verify(findPostPort, never()).findPublicPosts(
-                any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any(), any()
         );
     }
 
     private void verifyUserPostsCalled() {
         verify(findPostPort).findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         );
     }
 
     private void verifyUserPostsNeverCalled() {
         verify(findPostPort, never()).findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+            any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         );
     }
 }

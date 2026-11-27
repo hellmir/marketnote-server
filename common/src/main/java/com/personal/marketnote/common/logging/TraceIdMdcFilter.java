@@ -26,7 +26,7 @@ public class TraceIdMdcFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain chain
+        HttpServletRequest request, HttpServletResponse response, FilterChain chain
     ) throws ServletException, IOException {
         String requestId = TraceIdValidator.validateOrFallback(request.getHeader(REQUEST_ID_HEADER));
         MDC.put(REQUEST_ID_MDC_KEY, requestId);

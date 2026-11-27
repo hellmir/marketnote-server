@@ -33,15 +33,15 @@ class GetShippingPolicyUseCaseTest {
 
     private ShippingPolicy createExistingPolicy(Long sellerId) {
         return ShippingPolicy.from(ShippingPolicySnapshotState.builder()
-                .id(1L)
-                .sellerId(sellerId)
-                .deliveryCompany("한진택배")
-                .shippingFee(3000L)
-                .freeShippingThreshold(20000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 3, 10, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 3, 10, 10, 0))
-                .build());
+            .id(1L)
+            .sellerId(sellerId)
+            .deliveryCompany("한진택배")
+            .shippingFee(3000L)
+            .freeShippingThreshold(20000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 3, 10, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 3, 10, 10, 0))
+            .build());
     }
 
     @Test
@@ -51,7 +51,7 @@ class GetShippingPolicyUseCaseTest {
         Long sellerId = 10L;
         ShippingPolicy existingPolicy = createExistingPolicy(sellerId);
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.of(existingPolicy));
+            .thenReturn(Optional.of(existingPolicy));
 
         // when
         GetShippingPolicyResult result = getShippingPolicyService.getShippingPolicy(sellerId);
@@ -71,11 +71,11 @@ class GetShippingPolicyUseCaseTest {
         // given
         Long sellerId = 10L;
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> getShippingPolicyService.getShippingPolicy(sellerId))
-                .isInstanceOf(ShippingPolicyNotFoundException.class);
+            .isInstanceOf(ShippingPolicyNotFoundException.class);
 
         verify(findShippingPolicyPort).findActiveBySellerId(sellerId);
     }
@@ -100,7 +100,7 @@ class GetShippingPolicyUseCaseTest {
     @DisplayName("getShippingPolicies는 조회된 정책 수만큼 결과를 매핑하여 반환한다")
     void shouldMapPoliciesToResults() {
         when(findShippingPolicyPort.findActiveBySellerIds(List.of(10L, 11L)))
-                .thenReturn(List.of(createExistingPolicy(10L), createExistingPolicy(11L)));
+            .thenReturn(List.of(createExistingPolicy(10L), createExistingPolicy(11L)));
 
         List<?> results = getShippingPolicyService.getShippingPolicies(List.of(10L, 11L));
 

@@ -27,15 +27,15 @@ class UserCommandToStateMapperTest {
     void mapToState_validNickname_keepsValue() {
         // given
         SignUpCommand command = SignUpCommand.builder()
-                .email("user@test.com")
-                .password("password1!")
-                .nickname("tester")
-                .build();
+            .email("user@test.com")
+            .password("password1!")
+            .nickname("tester")
+            .build();
         when(passwordEncoder.encode("password1!")).thenReturn("encoded");
 
         // when
         UserCreateState state = UserCommandToStateMapper.mapToState(
-                command, AuthVendor.NATIVE, null, List.of(), ReferenceCode.of("REF123"), passwordEncoder
+            command, AuthVendor.NATIVE, null, List.of(), ReferenceCode.of("REF123"), passwordEncoder
         );
 
         // then
@@ -49,15 +49,15 @@ class UserCommandToStateMapperTest {
     void mapToState_blankNickname_normalizedToNull(String nickname) {
         // given
         SignUpCommand command = SignUpCommand.builder()
-                .email("user@test.com")
-                .password("password1!")
-                .nickname(nickname)
-                .build();
+            .email("user@test.com")
+            .password("password1!")
+            .nickname(nickname)
+            .build();
         when(passwordEncoder.encode("password1!")).thenReturn("encoded");
 
         // when
         UserCreateState state = UserCommandToStateMapper.mapToState(
-                command, AuthVendor.NATIVE, null, List.of(), ReferenceCode.of("REF123"), passwordEncoder
+            command, AuthVendor.NATIVE, null, List.of(), ReferenceCode.of("REF123"), passwordEncoder
         );
 
         // then

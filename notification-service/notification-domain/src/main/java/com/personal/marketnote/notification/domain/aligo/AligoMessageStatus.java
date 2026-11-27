@@ -13,12 +13,12 @@ public enum AligoMessageStatus {
     FAILOVERED("대체문자전환");
 
     private static final Map<AligoMessageStatus, Set<AligoMessageStatus>> ALLOWED_TRANSITIONS = Map.of(
-            REQUESTED, Set.of(SENT, FAILED, CANCELLED, FAILOVERED),
-            SENT, Set.of(DELIVERED, FAILED),
-            DELIVERED, Set.of(),
-            FAILED, Set.of(),
-            CANCELLED, Set.of(),
-            FAILOVERED, Set.of()
+        REQUESTED, Set.of(SENT, FAILED, CANCELLED, FAILOVERED),
+        SENT, Set.of(DELIVERED, FAILED),
+        DELIVERED, Set.of(),
+        FAILED, Set.of(),
+        CANCELLED, Set.of(),
+        FAILOVERED, Set.of()
     );
 
     private final String description;

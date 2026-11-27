@@ -19,24 +19,24 @@ public class BrandTalkWideItem {
     public static BrandTalkWideItem from(BrandTalkWideItemCreateState state) {
         validate(state.getTitle());
         return BrandTalkWideItem.builder()
-                .title(state.getTitle())
-                .imageUrl(state.getImageUrl())
-                .linkM(state.getLinkM())
-                .linkP(state.getLinkP())
-                .linkI(state.getLinkI())
-                .linkA(state.getLinkA())
-                .build();
+            .title(state.getTitle())
+            .imageUrl(state.getImageUrl())
+            .linkM(state.getLinkM())
+            .linkP(state.getLinkP())
+            .linkI(state.getLinkI())
+            .linkA(state.getLinkA())
+            .build();
     }
 
     public static BrandTalkWideItem from(BrandTalkWideItemSnapshotState state) {
         return BrandTalkWideItem.builder()
-                .title(state.getTitle())
-                .imageUrl(state.getImageUrl())
-                .linkM(state.getLinkM())
-                .linkP(state.getLinkP())
-                .linkI(state.getLinkI())
-                .linkA(state.getLinkA())
-                .build();
+            .title(state.getTitle())
+            .imageUrl(state.getImageUrl())
+            .linkM(state.getLinkM())
+            .linkP(state.getLinkP())
+            .linkI(state.getLinkI())
+            .linkA(state.getLinkA())
+            .build();
     }
 
     private static void validate(String title) {

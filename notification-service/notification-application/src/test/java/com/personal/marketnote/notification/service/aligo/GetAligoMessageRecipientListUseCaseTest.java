@@ -37,10 +37,10 @@ class GetAligoMessageRecipientListUseCaseTest {
         // given
         Long messageId = 100L;
         AligoMessage message = createMessageWithRecipients(messageId, List.of(
-                createRecipientState(1L, "01011111111", "홍길동", AligoMessageRecipientStatus.SUCCESS,
-                        "MSG_001", "0", "성공", NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)),
-                createRecipientState(2L, "01022222222", "김철수", AligoMessageRecipientStatus.FAILED,
-                        "MSG_002", "-1", "수신 실패", NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2))
+            createRecipientState(1L, "01011111111", "홍길동", AligoMessageRecipientStatus.SUCCESS,
+                "MSG_001", "0", "성공", NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)),
+            createRecipientState(2L, "01022222222", "김철수", AligoMessageRecipientStatus.FAILED,
+                "MSG_002", "-1", "수신 실패", NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2))
         ));
         when(findAligoMessagePort.findById(messageId)).thenReturn(Optional.of(message));
 
@@ -73,7 +73,7 @@ class GetAligoMessageRecipientListUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getAligoMessageRecipientListService.getRecipientList(messageId))
-                .isInstanceOf(AligoMessageNotFoundException.class);
+            .isInstanceOf(AligoMessageNotFoundException.class);
     }
 
     @Test
@@ -93,43 +93,43 @@ class GetAligoMessageRecipientListUseCaseTest {
     }
 
     private AligoMessageRecipientSnapshotState createRecipientState(
-            Long id, String receiver, String recvName, AligoMessageRecipientStatus status,
-            String msgId, String rslt, String rsltMessage,
-            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+        Long id, String receiver, String recvName, AligoMessageRecipientStatus status,
+        String msgId, String rslt, String rsltMessage,
+        LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
     ) {
         return AligoMessageRecipientSnapshotState.builder()
-                .id(id)
-                .receiver(receiver)
-                .recvName(recvName)
-                .recipientStatus(status)
-                .msgId(msgId)
-                .rslt(rslt)
-                .rsltMessage(rsltMessage)
-                .sentAt(sentAt)
-                .resultAt(resultAt)
-                .reportAt(reportAt)
-                .build();
+            .id(id)
+            .receiver(receiver)
+            .recvName(recvName)
+            .recipientStatus(status)
+            .msgId(msgId)
+            .rslt(rslt)
+            .rsltMessage(rsltMessage)
+            .sentAt(sentAt)
+            .resultAt(resultAt)
+            .reportAt(reportAt)
+            .build();
     }
 
     private AligoMessage createMessageWithRecipients(Long id, List<AligoMessageRecipientSnapshotState> recipients) {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(id)
-                .senderKey("test-sender-key")
-                .templateCode("TPL_TEST")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트 메시지")
-                .title("테스트")
-                .messageStatus(AligoMessageStatus.SENT)
-                .aligoMid("MID_TEST")
-                .successCount(1)
-                .failCount(0)
-                .requestedAt(NOW.minusHours(1))
-                .sentAt(NOW.minusMinutes(55))
-                .recipients(recipients)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW.minusHours(1))
-                .modifiedAt(NOW.minusHours(1))
-                .build());
+            .id(id)
+            .senderKey("test-sender-key")
+            .templateCode("TPL_TEST")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트 메시지")
+            .title("테스트")
+            .messageStatus(AligoMessageStatus.SENT)
+            .aligoMid("MID_TEST")
+            .successCount(1)
+            .failCount(0)
+            .requestedAt(NOW.minusHours(1))
+            .sentAt(NOW.minusMinutes(55))
+            .recipients(recipients)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW.minusHours(1))
+            .modifiedAt(NOW.minusHours(1))
+            .build());
     }
 }

@@ -9,11 +9,11 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "order_product_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_order_product_read_model_order_price_policy",
-                columnNames = {"orderId", "pricePolicyId"}
-        )
+    name = "order_product_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_order_product_read_model_order_price_policy",
+        columnNames = {"orderId", "pricePolicyId"}
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,11 +35,11 @@ public class OrderProductReadModelJpaEntity extends BaseGeneralEntity {
 
     public static OrderProductReadModelJpaEntity of(Long orderId, Long pricePolicyId, Long buyerId, Long unitAmount) {
         return OrderProductReadModelJpaEntity.builder()
-                .orderId(orderId)
-                .pricePolicyId(pricePolicyId)
-                .buyerId(buyerId)
-                .unitAmount(unitAmount)
-                .build();
+            .orderId(orderId)
+            .pricePolicyId(pricePolicyId)
+            .buyerId(buyerId)
+            .unitAmount(unitAmount)
+            .build();
     }
 
     public void updateFrom(Long buyerId, Long unitAmount) {

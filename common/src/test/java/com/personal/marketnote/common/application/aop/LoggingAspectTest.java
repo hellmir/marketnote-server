@@ -24,9 +24,9 @@ class LoggingAspectTest {
     void shouldLogOriginalValueForNonSensitiveParam() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"name", "age"},
-                new Object[]{"홍길동", 25},
-                "result"
+            new String[]{"name", "age"},
+            new Object[]{"홍길동", 25},
+            "result"
         );
 
         // when
@@ -41,9 +41,9 @@ class LoggingAspectTest {
     void shouldMaskPasswordParameter() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"username", "password"},
-                new Object[]{"user1", "secret123"},
-                "ok"
+            new String[]{"username", "password"},
+            new Object[]{"user1", "secret123"},
+            "ok"
         );
 
         // when
@@ -58,9 +58,9 @@ class LoggingAspectTest {
     void shouldMaskTokenParameter() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"accessToken"},
-                new Object[]{"eyJhbGciOiJIUzI1NiJ9"},
-                "ok"
+            new String[]{"accessToken"},
+            new Object[]{"eyJhbGciOiJIUzI1NiJ9"},
+            "ok"
         );
 
         // when
@@ -75,9 +75,9 @@ class LoggingAspectTest {
     void shouldMaskApiKeyParameter() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"apiKey"},
-                new Object[]{"sk-abc123"},
-                "ok"
+            new String[]{"apiKey"},
+            new Object[]{"sk-abc123"},
+            "ok"
         );
 
         // when
@@ -92,9 +92,9 @@ class LoggingAspectTest {
     void shouldMaskCredentialParameter() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"userCredential"},
-                new Object[]{"cred-value"},
-                "ok"
+            new String[]{"userCredential"},
+            new Object[]{"cred-value"},
+            "ok"
         );
 
         // when
@@ -109,9 +109,9 @@ class LoggingAspectTest {
     void shouldMaskAuthorizationParameter() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"authorization"},
-                new Object[]{"Bearer token123"},
-                "ok"
+            new String[]{"authorization"},
+            new Object[]{"Bearer token123"},
+            "ok"
         );
 
         // when
@@ -126,9 +126,9 @@ class LoggingAspectTest {
     void shouldLogSuccessfullyWhenNoParameters() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{},
-                new Object[]{},
-                "empty"
+            new String[]{},
+            new Object[]{},
+            "empty"
         );
 
         // when
@@ -154,8 +154,8 @@ class LoggingAspectTest {
 
         // when & then
         assertThatThrownBy(() -> loggingAspect.serviceLogAroundForStringValue(joinPoint))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("execution failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("execution failed");
     }
 
     @Test
@@ -163,9 +163,9 @@ class LoggingAspectTest {
     void shouldPerformLoggingForClientPointcut() throws Throwable {
         // given
         ProceedingJoinPoint joinPoint = createJoinPoint(
-                new String[]{"url"},
-                new Object[]{"http://api.example.com"},
-                "response"
+            new String[]{"url"},
+            new Object[]{"http://api.example.com"},
+            "response"
         );
 
         // when

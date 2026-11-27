@@ -6,23 +6,23 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record ApprovePaymentResponse(
-        Long orderId,
-        String orderKey,
-        String pgPaymentKey,
-        Long amount,
-        String resultCode,
-        String resultMessage,
-        String payMethod
+    Long orderId,
+    String orderKey,
+    String pgPaymentKey,
+    Long amount,
+    String resultCode,
+    String resultMessage,
+    String payMethod
 ) {
     public static ApprovePaymentResponse from(ApprovePaymentResult result) {
         return ApprovePaymentResponse.builder()
-                .orderId(result.orderId())
-                .orderKey(result.orderKey())
-                .pgPaymentKey(result.pgPaymentKey())
-                .amount(result.amount())
-                .resultCode(result.resultCode())
-                .resultMessage(result.resultMessage())
-                .payMethod(result.payMethod())
-                .build();
+            .orderId(result.orderId())
+            .orderKey(result.orderKey())
+            .pgPaymentKey(result.pgPaymentKey())
+            .amount(result.amount())
+            .resultCode(result.resultCode())
+            .resultMessage(result.resultMessage())
+            .payMethod(result.payMethod())
+            .build();
     }
 }

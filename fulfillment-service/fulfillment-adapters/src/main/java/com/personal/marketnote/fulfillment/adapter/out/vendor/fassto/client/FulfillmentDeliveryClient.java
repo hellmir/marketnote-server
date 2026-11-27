@@ -59,14 +59,14 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     private final Sleeper sleeper;
 
     public FulfillmentDeliveryClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -182,12 +182,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryListUri(
-                query.getCustomerCode(),
-                query.getStartDate(),
-                query.getEndDate(),
-                query.getStatus(),
-                query.getOutDiv(),
-                query.getOrdNo()
+            query.getCustomerCode(),
+            query.getStartDate(),
+            query.getEndDate(),
+            query.getStatus(),
+            query.getOutDiv(),
+            query.getOrdNo()
         );
         String path = properties.getDeliveryListPath();
         Exception error = new Exception();
@@ -204,10 +204,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -215,12 +215,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -247,22 +247,22 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String exception = isSuccess ? null : resolveDeliveryListException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -278,9 +278,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery list request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -308,10 +308,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryStatusUri(
-                query.getCustomerCode(),
-                query.getStartDate(),
-                query.getEndDate(),
-                query.getOutDiv()
+            query.getCustomerCode(),
+            query.getStartDate(),
+            query.getEndDate(),
+            query.getOutDiv()
         );
         String path = properties.getDeliveryStatusPath();
         Exception error = new Exception();
@@ -328,10 +328,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -339,12 +339,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -371,22 +371,22 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String exception = isSuccess ? null : resolveDeliveryStatusException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -402,9 +402,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery status request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -448,10 +448,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -459,12 +459,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -491,22 +491,22 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String exception = isSuccess ? null : resolveOutOrdGoodsDetailException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -526,9 +526,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment out-ord goods detail request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -556,10 +556,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildOutOrdGoodsByOrdNoUri(
-                query.getCustomerCode(),
-                query.getStartDate(),
-                query.getEndDate(),
-                query.getOrdNo()
+            query.getCustomerCode(),
+            query.getStartDate(),
+            query.getEndDate(),
+            query.getOrdNo()
         );
         String path = properties.getDeliveryOutOrdGoodsByOrdNoPath();
         Exception error = new Exception();
@@ -576,10 +576,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -587,12 +587,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -619,22 +619,22 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String exception = isSuccess ? null : resolveOutOrdGoodsByOrdNoException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -650,9 +650,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment out-ord goods by ordNo request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -680,10 +680,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryGoodDetailUri(
-                query.getCustomerCode(),
-                query.getStartDate(),
-                query.getEndDate(),
-                query.getOrdNo()
+            query.getCustomerCode(),
+            query.getStartDate(),
+            query.getEndDate(),
+            query.getOrdNo()
         );
         String path = properties.getDeliveryGoodDetailPath();
         Exception error = new Exception();
@@ -700,10 +700,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -711,12 +711,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -743,22 +743,22 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String exception = isSuccess ? null : resolveDeliveryGoodDetailException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -774,9 +774,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery good detail request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -819,10 +819,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -830,12 +830,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -862,22 +862,22 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String exception = isSuccess ? null : resolveDeliveryDetailException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -893,9 +893,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery detail request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -911,10 +911,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryMutation(
-            FulfillmentDeliveryMapper request,
-            String action,
-            HttpMethod method,
-            boolean isUpdate
+        FulfillmentDeliveryMapper request,
+        String action,
+        HttpMethod method,
+        boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery request is required.");
@@ -937,11 +937,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.method(method)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -949,12 +949,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -964,8 +964,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment delivery",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment delivery",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -983,26 +983,26 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             RegisterFulfillmentDeliveryResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -1018,10 +1018,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -1034,8 +1034,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment delivery request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment delivery request",
+            uri, path, error
         );
 
         if (isUpdate) {
@@ -1045,10 +1045,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryCarMutation(
-            FulfillmentDeliveryCarMapper request,
-            String action,
-            HttpMethod method,
-            boolean isUpdate
+        FulfillmentDeliveryCarMapper request,
+        String action,
+        HttpMethod method,
+        boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery car request is required.");
@@ -1071,11 +1071,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.method(method)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -1083,12 +1083,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1098,8 +1098,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment delivery car",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment delivery car",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1116,26 +1116,26 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             RegisterFulfillmentDeliveryResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -1151,10 +1151,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery car {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -1166,8 +1166,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment delivery car request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment delivery car request",
+            uri, path, error
         );
 
         if (isUpdate) {
@@ -1177,9 +1177,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryIcsMutation(
-            FulfillmentDeliveryIcsMapper request,
-            String action,
-            HttpMethod method
+        FulfillmentDeliveryIcsMapper request,
+        String action,
+        HttpMethod method
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery ics request is required.");
@@ -1202,11 +1202,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.method(method)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -1214,12 +1214,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1229,8 +1229,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment delivery ics",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment delivery ics",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1247,26 +1247,26 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             RegisterFulfillmentDeliveryResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -1282,10 +1282,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery ics {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -1297,16 +1297,16 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment delivery ics request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment delivery ics request",
+            uri, path, error
         );
 
         throw new RegisterFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private FulfillmentDeliveryIcsCompletionListResponse executeDeliveryIcsCompletionMutation(
-            FulfillmentDeliveryIcsCompletionMapper request,
-            String action
+        FulfillmentDeliveryIcsCompletionMapper request,
+        String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery ics completion request is required.");
@@ -1329,11 +1329,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.method(HttpMethod.PATCH)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -1341,12 +1341,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1356,8 +1356,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment delivery ics completion",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment delivery ics completion",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1374,26 +1374,26 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             FulfillmentDeliveryIcsCompletionListResponse parsedResponse = parseDeliveryIcsCompletionResponse(response);
             boolean isSuccess = isDeliveryIcsCompletionSuccess(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveDeliveryIcsCompletionException(response, parsedResponse);
+                ? null
+                : resolveDeliveryIcsCompletionException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -1409,10 +1409,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery ics completion {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -1424,16 +1424,16 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment delivery ics completion request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment delivery ics completion request",
+            uri, path, error
         );
 
         throw new CompleteFulfillmentDeliveryIcsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryCancellation(
-            FulfillmentDeliveryCancelMapper request,
-            String action
+        FulfillmentDeliveryCancelMapper request,
+        String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery cancel request is required.");
@@ -1456,11 +1456,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             ResponseEntity<String> response;
             try {
                 response = restClient.method(HttpMethod.PATCH)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -1468,12 +1468,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1483,8 +1483,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment delivery",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment delivery",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1501,26 +1501,26 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             RegisterFulfillmentDeliveryResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -1536,10 +1536,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             }
 
             log.warn("Fulfillment delivery {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -1551,8 +1551,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment delivery request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment delivery request",
+            uri, path, error
         );
 
         throw new CancelFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
@@ -1561,132 +1561,132 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     private URI buildDeliveryUri(String customerCode) {
         validateDeliveryProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getDeliveryPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildDeliveryCarUri(String customerCode) {
         validateDeliveryCarProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryCarPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getDeliveryCarPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildDeliveryIcsUri(String customerCode) {
         validateDeliveryIcsProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryIcsPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getDeliveryIcsPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildDeliveryIcsCompletedUri(String customerCode) {
         validateDeliveryIcsCompletedProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryIcsCompletedPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getDeliveryIcsCompletedPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildDeliveryListUri(
-            String customerCode,
-            String startDate,
-            String endDate,
-            String status,
-            String outDiv,
-            String ordNo
+        String customerCode,
+        String startDate,
+        String endDate,
+        String status,
+        String outDiv,
+        String ordNo
     ) {
         validateDeliveryListProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryListPath());
+            .path(properties.getDeliveryListPath());
         if (FormatValidator.hasValue(ordNo)) {
             builder.queryParam("ordNo", ordNo);
         }
         return builder
-                .buildAndExpand(customerCode, startDate, endDate, status, outDiv)
-                .toUri();
+            .buildAndExpand(customerCode, startDate, endDate, status, outDiv)
+            .toUri();
     }
 
     private URI buildDeliveryStatusUri(
-            String customerCode,
-            String startDate,
-            String endDate,
-            String outDiv
+        String customerCode,
+        String startDate,
+        String endDate,
+        String outDiv
     ) {
         validateDeliveryStatusProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryStatusPath())
-                .buildAndExpand(customerCode, startDate, endDate, outDiv)
-                .toUri();
+            .path(properties.getDeliveryStatusPath())
+            .buildAndExpand(customerCode, startDate, endDate, outDiv)
+            .toUri();
     }
 
     private URI buildDeliveryDetailUri(
-            String customerCode,
-            String slipNo,
-            String ordNo
+        String customerCode,
+        String slipNo,
+        String ordNo
     ) {
         validateDeliveryDetailProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryDetailPath());
+            .path(properties.getDeliveryDetailPath());
         if (FormatValidator.hasValue(ordNo)) {
             builder.queryParam("ordNo", ordNo);
         }
         return builder
-                .buildAndExpand(customerCode, slipNo)
-                .toUri();
+            .buildAndExpand(customerCode, slipNo)
+            .toUri();
     }
 
     private URI buildOutOrdGoodsDetailUri(String customerCode, String outOrdSlipNo) {
         validateDeliveryOutOrdGoodsDetailProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryOutOrdGoodsDetailPath())
-                .queryParam("outOrdSlipNo", outOrdSlipNo)
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getDeliveryOutOrdGoodsDetailPath())
+            .queryParam("outOrdSlipNo", outOrdSlipNo)
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildOutOrdGoodsByOrdNoUri(
-            String customerCode,
-            String startDate,
-            String endDate,
-            String ordNo
+        String customerCode,
+        String startDate,
+        String endDate,
+        String ordNo
     ) {
         validateDeliveryOutOrdGoodsByOrdNoProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryOutOrdGoodsByOrdNoPath());
+            .path(properties.getDeliveryOutOrdGoodsByOrdNoPath());
         if (FormatValidator.hasValue(ordNo)) {
             builder.queryParam("ordNo", ordNo);
         }
         return builder
-                .buildAndExpand(customerCode, startDate, endDate)
-                .toUri();
+            .buildAndExpand(customerCode, startDate, endDate)
+            .toUri();
     }
 
     private URI buildDeliveryGoodDetailUri(
-            String customerCode,
-            String startDate,
-            String endDate,
-            String ordNo
+        String customerCode,
+        String startDate,
+        String endDate,
+        String ordNo
     ) {
         validateDeliveryGoodDetailProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryGoodDetailPath());
+            .path(properties.getDeliveryGoodDetailPath());
         if (FormatValidator.hasValue(ordNo)) {
             builder.queryParam("ordNo", ordNo);
         }
         return builder
-                .buildAndExpand(customerCode, startDate, endDate)
-                .toUri();
+            .buildAndExpand(customerCode, startDate, endDate)
+            .toUri();
     }
 
     private URI buildDeliveryCancelUri(String customerCode) {
         validateDeliveryCancelProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDeliveryCancelPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getDeliveryCancelPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders(String accessToken) {
@@ -2018,66 +2018,66 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     private boolean isSuccessResponse(ResponseEntity<String> response, RegisterFulfillmentDeliveryResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isDeliveryListSuccess(ResponseEntity<String> response, FulfillmentDeliveryListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isDeliveryStatusSuccess(ResponseEntity<String> response, FulfillmentDeliveryStatusListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isDeliveryDetailSuccess(ResponseEntity<String> response, FulfillmentDeliveryDetailListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isOutOrdGoodsDetailSuccess(ResponseEntity<String> response, FulfillmentOutOrdGoodsDetailListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isOutOrdGoodsDetailEmptyDataResponse(ResponseEntity<String> response, FulfillmentOutOrdGoodsDetailListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && FormatValidator.hasValue(parsedResponse.header())
-                && FormatValidator.hasNoValue(parsedResponse.data());
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && FormatValidator.hasValue(parsedResponse.header())
+            && FormatValidator.hasNoValue(parsedResponse.data());
     }
 
     private boolean isOutOrdGoodsByOrdNoSuccess(ResponseEntity<String> response, FulfillmentOutOrdGoodsByOrdNoListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isDeliveryGoodDetailSuccess(ResponseEntity<String> response, FulfillmentDeliveryGoodDetailListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private boolean isDeliveryIcsCompletionSuccess(ResponseEntity<String> response, FulfillmentDeliveryIcsCompletionListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveResponseException(ResponseEntity<String> response, RegisterFulfillmentDeliveryResponse parsedResponse) {
@@ -2154,8 +2154,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private String resolveOutOrdGoodsDetailException(
-            ResponseEntity<String> response,
-            FulfillmentOutOrdGoodsDetailListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentOutOrdGoodsDetailListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -2176,8 +2176,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private String resolveOutOrdGoodsByOrdNoException(
-            ResponseEntity<String> response,
-            FulfillmentOutOrdGoodsByOrdNoListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentOutOrdGoodsByOrdNoListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -2198,8 +2198,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private String resolveDeliveryGoodDetailException(
-            ResponseEntity<String> response,
-            FulfillmentDeliveryGoodDetailListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentDeliveryGoodDetailListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -2220,8 +2220,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private String resolveDeliveryIcsCompletionException(
-            ResponseEntity<String> response,
-            FulfillmentDeliveryIcsCompletionListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentDeliveryIcsCompletionListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -2242,10 +2242,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildRequestPayloadJson(
-            FulfillmentDeliveryMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentDeliveryMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.POST.name());
@@ -2259,10 +2259,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildCarRequestPayloadJson(
-            FulfillmentDeliveryCarMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentDeliveryCarMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.POST.name());
@@ -2276,10 +2276,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildIcsRequestPayloadJson(
-            FulfillmentDeliveryIcsMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentDeliveryIcsMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.POST.name());
@@ -2293,10 +2293,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildCancelRequestPayloadJson(
-            FulfillmentDeliveryCancelMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentDeliveryCancelMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.PATCH.name());
@@ -2310,10 +2310,10 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildIcsCompletionRequestPayloadJson(
-            FulfillmentDeliveryIcsCompletionMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentDeliveryIcsCompletionMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.PATCH.name());
@@ -2371,9 +2371,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildOutOrdGoodsDetailRequestPayloadJson(
-            FulfillmentDeliveryOutOrdGoodsDetailQuery query,
-            URI uri,
-            int attempt
+        FulfillmentDeliveryOutOrdGoodsDetailQuery query,
+        URI uri,
+        int attempt
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.GET.name());
@@ -2386,9 +2386,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildOutOrdGoodsByOrdNoRequestPayloadJson(
-            FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query,
-            URI uri,
-            int attempt
+        FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query,
+        URI uri,
+        int attempt
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.GET.name());
@@ -2405,9 +2405,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private JsonNode buildDeliveryGoodDetailRequestPayloadJson(
-            FulfillmentDeliveryGoodDetailQuery query,
-            URI uri,
-            int attempt
+        FulfillmentDeliveryGoodDetailQuery query,
+        URI uri,
+        int attempt
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.GET.name());
@@ -2448,323 +2448,323 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     private RegisterFulfillmentDeliveryResult mapDeliveryResult(RegisterFulfillmentDeliveryResponse response) {
         List<RegisterFulfillmentDeliveryItemResult> deliveries = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapDeliveryItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapDeliveryItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return RegisterFulfillmentDeliveryResult.of(dataCount, deliveries);
     }
 
     private CancelFulfillmentDeliveryResult mapCancelDeliveryResult(RegisterFulfillmentDeliveryResponse response) {
         List<CancelFulfillmentDeliveryItemResult> deliveries = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapCancelDeliveryItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapCancelDeliveryItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return CancelFulfillmentDeliveryResult.of(dataCount, deliveries);
     }
 
     private GetFulfillmentDeliveriesResult mapDeliveryListResult(FulfillmentDeliveryListResponse response) {
         List<FulfillmentDeliveryInfoResult> deliveries = response.data().stream()
-                .map(this::mapDeliveryInfo)
-                .toList();
+            .map(this::mapDeliveryInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentDeliveriesResult.of(dataCount, deliveries);
     }
 
     private GetFulfillmentDeliveryStatusesResult mapDeliveryStatusResult(FulfillmentDeliveryStatusListResponse response) {
         List<FulfillmentDeliveryStatusInfoResult> statuses = response.data().stream()
-                .map(this::mapDeliveryStatusInfo)
-                .toList();
+            .map(this::mapDeliveryStatusInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentDeliveryStatusesResult.of(dataCount, statuses);
     }
 
     private GetFulfillmentDeliveryDetailResult mapDeliveryDetailResult(FulfillmentDeliveryDetailListResponse response) {
         List<FulfillmentDeliveryDetailInfoResult> deliveries = response.data().stream()
-                .map(this::mapDeliveryDetailInfo)
-                .toList();
+            .map(this::mapDeliveryDetailInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentDeliveryDetailResult.of(dataCount, deliveries);
     }
 
     private GetFulfillmentDeliveryOutOrdGoodsDetailResult mapOutOrdGoodsDetailResult(FulfillmentOutOrdGoodsDetailListResponse response) {
         List<FulfillmentDeliveryOutOrdGoodsInfoResult> goodsByInvoice = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapOutOrdGoodsByInvoice).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapOutOrdGoodsByInvoice).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentDeliveryOutOrdGoodsDetailResult.of(dataCount, goodsByInvoice);
     }
 
     private GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult mapOutOrdGoodsByOrdNoResult(FulfillmentOutOrdGoodsByOrdNoListResponse response) {
         List<FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult> goodsByOrdNo = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapOutOrdGoodsByOrdNo).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapOutOrdGoodsByOrdNo).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult.of(dataCount, goodsByOrdNo);
     }
 
     private GetFulfillmentDeliveryGoodDetailResult mapDeliveryGoodDetailResult(FulfillmentDeliveryGoodDetailListResponse response) {
         List<FulfillmentDeliveryGoodDetailInfoResult> goodDetails = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapDeliveryGoodDetailItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapDeliveryGoodDetailItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentDeliveryGoodDetailResult.of(dataCount, goodDetails);
     }
 
     private CompleteFulfillmentDeliveryIcsResult mapDeliveryIcsCompletionResult(FulfillmentDeliveryIcsCompletionListResponse response) {
         List<CompleteFulfillmentDeliveryIcsItemResult> completions = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapDeliveryIcsCompletionItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapDeliveryIcsCompletionItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return CompleteFulfillmentDeliveryIcsResult.of(dataCount, completions);
     }
 
     private RegisterFulfillmentDeliveryItemResult mapDeliveryItem(RegisterFulfillmentDeliveryItemResponse item) {
         return RegisterFulfillmentDeliveryItemResult.builder()
-                .fulfillmentSlipNumber(item.fmsSlipNo())
-                .orderNumber(item.orderNo())
-                .message(item.msg())
-                .code(item.code())
-                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
-                .build();
+            .fulfillmentSlipNumber(item.fmsSlipNo())
+            .orderNumber(item.orderNo())
+            .message(item.msg())
+            .code(item.code())
+            .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+            .build();
     }
 
     private CancelFulfillmentDeliveryItemResult mapCancelDeliveryItem(RegisterFulfillmentDeliveryItemResponse item) {
         return CancelFulfillmentDeliveryItemResult.builder()
-                .fulfillmentSlipNumber(item.fmsSlipNo())
-                .orderNumber(item.orderNo())
-                .message(item.msg())
-                .code(item.code())
-                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
-                .build();
+            .fulfillmentSlipNumber(item.fmsSlipNo())
+            .orderNumber(item.orderNo())
+            .message(item.msg())
+            .code(item.code())
+            .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+            .build();
     }
 
     private FulfillmentDeliveryInfoResult mapDeliveryInfo(FulfillmentDeliveryItemResponse item) {
         List<Object> goodsSerialNo = FormatValidator.hasValue(item.goodsSerialNo())
-                ? item.goodsSerialNo()
-                : List.of();
+            ? item.goodsSerialNo()
+            : List.of();
 
         return FulfillmentDeliveryInfoResult.builder()
-                .releaseDate(item.outDt())
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .warehouseName(item.whNm())
-                .slipNumber(item.slipNo())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .shopCode(item.shopCd())
-                .mappingSlipNumber(item.mapSlipNo())
-                .shopName(item.shopNm())
-                .sku(item.sku())
-                .orderQuantity(item.ordQty())
-                .additionalProductOrderQuantity(item.addGodOrdQty())
-                .releaseDivision(item.outDiv())
-                .releaseDivisionName(item.outDivNm())
-                .customerShopCode(item.cstShopCd())
-                .orderNumber(item.ordNo())
-                .orderSequence(item.ordSeq())
-                .shippingRequestTerm(item.shipReqTerm())
-                .salesChannel(item.salChanel())
-                .releaseMethod(item.outWay())
-                .orderDivision(item.ordDiv())
-                .releaseMethodName(item.outWayNm())
-                .workStatus(item.wrkStat())
-                .workStatusName(item.wrkStatNm())
-                .invoiceNumber(item.invoiceNo())
-                .courierName(item.parcelNm())
-                .courierCode(item.parcelCd())
-                .recipientName(item.custNm())
-                .goodsSerialNo(goodsSerialNo)
-                .recipientAddress(item.custAddr())
-                .supplierCode(item.supCd())
-                .recipientPhoneNumber(item.custTelNo())
-                .supplierName(item.supNm())
-                .remark(item.remark())
-                .senderName(item.sendNm())
-                .senderPhoneNumber(item.sendTelNo())
-                .updatedByName(item.updUserNm())
-                .updatedTime(item.updTime())
-                .build();
+            .releaseDate(item.outDt())
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .warehouseName(item.whNm())
+            .slipNumber(item.slipNo())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .shopCode(item.shopCd())
+            .mappingSlipNumber(item.mapSlipNo())
+            .shopName(item.shopNm())
+            .sku(item.sku())
+            .orderQuantity(item.ordQty())
+            .additionalProductOrderQuantity(item.addGodOrdQty())
+            .releaseDivision(item.outDiv())
+            .releaseDivisionName(item.outDivNm())
+            .customerShopCode(item.cstShopCd())
+            .orderNumber(item.ordNo())
+            .orderSequence(item.ordSeq())
+            .shippingRequestTerm(item.shipReqTerm())
+            .salesChannel(item.salChanel())
+            .releaseMethod(item.outWay())
+            .orderDivision(item.ordDiv())
+            .releaseMethodName(item.outWayNm())
+            .workStatus(item.wrkStat())
+            .workStatusName(item.wrkStatNm())
+            .invoiceNumber(item.invoiceNo())
+            .courierName(item.parcelNm())
+            .courierCode(item.parcelCd())
+            .recipientName(item.custNm())
+            .goodsSerialNo(goodsSerialNo)
+            .recipientAddress(item.custAddr())
+            .supplierCode(item.supCd())
+            .recipientPhoneNumber(item.custTelNo())
+            .supplierName(item.supNm())
+            .remark(item.remark())
+            .senderName(item.sendNm())
+            .senderPhoneNumber(item.sendTelNo())
+            .updatedByName(item.updUserNm())
+            .updatedTime(item.updTime())
+            .build();
     }
 
     private FulfillmentDeliveryStatusInfoResult mapDeliveryStatusInfo(FulfillmentDeliveryStatusItemResponse item) {
         List<Object> goodsSerialNo = FormatValidator.hasValue(item.goodsSerialNo())
-                ? item.goodsSerialNo()
-                : List.of();
+            ? item.goodsSerialNo()
+            : List.of();
 
         return FulfillmentDeliveryStatusInfoResult.builder()
-                .boxDivision(item.boxDiv())
-                .boxDivisionName(item.boxDivNm())
-                .boxName(item.boxNm())
-                .boxNumber(item.boxNo())
-                .boxType(item.boxTp())
-                .cargoStatus(item.crgSt())
-                .cargoStatusName(item.crgStNm())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .recipientAddress(item.custAddr())
-                .recipientName(item.custNm())
-                .recipientPhoneNumber(item.custTelNo())
-                .deliveryMismatchYn(item.dlvMisYn())
-                .productCode(item.godCd())
-                .productName(item.godNm())
-                .invoiceNumber(item.invoiceNo())
-                .orderNumber(item.ordNo())
-                .orderSequence(item.ordSeq())
-                .releaseDivision(item.outDiv())
-                .releaseDivisionName(item.outDivNm())
-                .releaseOrderSlipNumber(item.outOrdSlipNo())
-                .packingDate(item.packDt())
-                .packingQuantity(item.packQty())
-                .packingSequence(item.packSeq())
-                .courierCode(item.parcelCd())
-                .courierLinkYn(item.parcelLinkYn())
-                .courierName(item.parcelNm())
-                .pickingSequence(item.pickSeq())
-                .postYn(item.postYn())
-                .printCount(item.printCnt())
-                .returnAddress1(item.rtnAddr1())
-                .returnAddress2(item.rtnAddr2())
-                .returnCheck(item.rtnCheck())
-                .returnEmployeeName(item.rtnEmpNm())
-                .returnOrderDate(item.rtnOrdDt())
-                .returnPhoneNumber(item.rtnTelNo())
-                .returnZipCode(item.rtnZipCd())
-                .salesChannel(item.salChanel())
-                .shippingRequestTerm(item.shipReqTerm())
-                .shopCode(item.shopCd())
-                .shopName(item.shopNm())
-                .sku(item.sku())
-                .warehouseCode(item.whCd())
-                .goodsSerialNo(goodsSerialNo)
-                .supplierCode(item.supCd())
-                .supplierName(item.supNm())
-                .build();
+            .boxDivision(item.boxDiv())
+            .boxDivisionName(item.boxDivNm())
+            .boxName(item.boxNm())
+            .boxNumber(item.boxNo())
+            .boxType(item.boxTp())
+            .cargoStatus(item.crgSt())
+            .cargoStatusName(item.crgStNm())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .recipientAddress(item.custAddr())
+            .recipientName(item.custNm())
+            .recipientPhoneNumber(item.custTelNo())
+            .deliveryMismatchYn(item.dlvMisYn())
+            .productCode(item.godCd())
+            .productName(item.godNm())
+            .invoiceNumber(item.invoiceNo())
+            .orderNumber(item.ordNo())
+            .orderSequence(item.ordSeq())
+            .releaseDivision(item.outDiv())
+            .releaseDivisionName(item.outDivNm())
+            .releaseOrderSlipNumber(item.outOrdSlipNo())
+            .packingDate(item.packDt())
+            .packingQuantity(item.packQty())
+            .packingSequence(item.packSeq())
+            .courierCode(item.parcelCd())
+            .courierLinkYn(item.parcelLinkYn())
+            .courierName(item.parcelNm())
+            .pickingSequence(item.pickSeq())
+            .postYn(item.postYn())
+            .printCount(item.printCnt())
+            .returnAddress1(item.rtnAddr1())
+            .returnAddress2(item.rtnAddr2())
+            .returnCheck(item.rtnCheck())
+            .returnEmployeeName(item.rtnEmpNm())
+            .returnOrderDate(item.rtnOrdDt())
+            .returnPhoneNumber(item.rtnTelNo())
+            .returnZipCode(item.rtnZipCd())
+            .salesChannel(item.salChanel())
+            .shippingRequestTerm(item.shipReqTerm())
+            .shopCode(item.shopCd())
+            .shopName(item.shopNm())
+            .sku(item.sku())
+            .warehouseCode(item.whCd())
+            .goodsSerialNo(goodsSerialNo)
+            .supplierCode(item.supCd())
+            .supplierName(item.supNm())
+            .build();
     }
 
     private FulfillmentDeliveryDetailInfoResult mapDeliveryDetailInfo(FulfillmentDeliveryDetailItemResponse item) {
         List<FulfillmentDeliveryDetailGoodsInfoResult> goods = FormatValidator.hasValue(item.goods())
-                ? item.goods().stream().map(this::mapDeliveryDetailGoods).toList()
-                : List.of();
+            ? item.goods().stream().map(this::mapDeliveryDetailGoods).toList()
+            : List.of();
 
         return FulfillmentDeliveryDetailInfoResult.builder()
-                .releaseDate(item.outDt())
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .warehouseName(item.whNm())
-                .slipNumber(item.slipNo())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .customerShopCode(item.cstShopCd())
-                .shopCode(item.shopCd())
-                .mappingSlipNumber(item.mapSlipNo())
-                .shopName(item.shopNm())
-                .sku(item.sku())
-                .orderQuantity(item.ordQty())
-                .additionalProductOrderQuantity(item.addGodOrdQty())
-                .releaseDivision(item.outDiv())
-                .releaseDivisionName(item.outDivNm())
-                .orderNumber(item.ordNo())
-                .orderSequence(item.ordSeq())
-                .shippingRequestTerm(item.shipReqTerm())
-                .salesChannel(item.salChanel())
-                .releaseMethod(item.outWay())
-                .orderDivision(item.ordDiv())
-                .releaseMethodName(item.outWayNm())
-                .workStatus(item.wrkStat())
-                .workStatusName(item.wrkStatNm())
-                .invoiceNumber(item.invoiceNo())
-                .courierName(item.parcelNm())
-                .courierCode(item.parcelCd())
-                .recipientName(item.custNm())
-                .recipientAddress(item.custAddr())
-                .recipientPhoneNumber(item.custTelNo())
-                .senderName(item.sendNm())
-                .senderPhoneNumber(item.sendTelNo())
-                .updatedByName(item.updUserNm())
-                .updatedTime(item.updTime())
-                .goods(goods)
-                .remark(item.remark())
-                .build();
+            .releaseDate(item.outDt())
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .warehouseName(item.whNm())
+            .slipNumber(item.slipNo())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .customerShopCode(item.cstShopCd())
+            .shopCode(item.shopCd())
+            .mappingSlipNumber(item.mapSlipNo())
+            .shopName(item.shopNm())
+            .sku(item.sku())
+            .orderQuantity(item.ordQty())
+            .additionalProductOrderQuantity(item.addGodOrdQty())
+            .releaseDivision(item.outDiv())
+            .releaseDivisionName(item.outDivNm())
+            .orderNumber(item.ordNo())
+            .orderSequence(item.ordSeq())
+            .shippingRequestTerm(item.shipReqTerm())
+            .salesChannel(item.salChanel())
+            .releaseMethod(item.outWay())
+            .orderDivision(item.ordDiv())
+            .releaseMethodName(item.outWayNm())
+            .workStatus(item.wrkStat())
+            .workStatusName(item.wrkStatNm())
+            .invoiceNumber(item.invoiceNo())
+            .courierName(item.parcelNm())
+            .courierCode(item.parcelCd())
+            .recipientName(item.custNm())
+            .recipientAddress(item.custAddr())
+            .recipientPhoneNumber(item.custTelNo())
+            .senderName(item.sendNm())
+            .senderPhoneNumber(item.sendTelNo())
+            .updatedByName(item.updUserNm())
+            .updatedTime(item.updTime())
+            .goods(goods)
+            .remark(item.remark())
+            .build();
     }
 
     private FulfillmentDeliveryDetailGoodsInfoResult mapDeliveryDetailGoods(FulfillmentDeliveryDetailGoodsResponse item) {
         return FulfillmentDeliveryDetailGoodsInfoResult.builder()
-                .orderDate(item.ordDt())
-                .warehouseCode(item.whCd())
-                .slipNumber(item.slipNo())
-                .customerCode(item.cstCd())
-                .shopCode(item.shopCd())
-                .supplierCode(item.supCd())
-                .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
-                .productName(item.godNm())
-                .originalProductCode(item.orgGodCd())
-                .productType(item.godType())
-                .productTypeName(item.godTypeNm())
-                .expirationDate(item.distTermDt())
-                .stockQuantity(item.stockQty())
-                .orderQuantity(item.ordQty())
-                .additionalProductOrderQuantity(item.addGodOrdQty())
-                .orderQuantitySum(item.ordQtySum())
-                .giftDivision(item.giftDiv())
-                .additionalType(item.addType())
-                .emergencyYn(item.emgrYn())
-                .build();
+            .orderDate(item.ordDt())
+            .warehouseCode(item.whCd())
+            .slipNumber(item.slipNo())
+            .customerCode(item.cstCd())
+            .shopCode(item.shopCd())
+            .supplierCode(item.supCd())
+            .productCode(item.godCd())
+            .customerProductCode(item.cstGodCd())
+            .productName(item.godNm())
+            .originalProductCode(item.orgGodCd())
+            .productType(item.godType())
+            .productTypeName(item.godTypeNm())
+            .expirationDate(item.distTermDt())
+            .stockQuantity(item.stockQty())
+            .orderQuantity(item.ordQty())
+            .additionalProductOrderQuantity(item.addGodOrdQty())
+            .orderQuantitySum(item.ordQtySum())
+            .giftDivision(item.giftDiv())
+            .additionalType(item.addType())
+            .emergencyYn(item.emgrYn())
+            .build();
     }
 
     private FulfillmentDeliveryOutOrdGoodsInfoResult mapOutOrdGoodsByInvoice(FulfillmentOutOrdGoodsByInvoiceResponse item) {
         List<FulfillmentDeliveryOutOrdGoodsItemInfoResult> delivered = FormatValidator.hasValue(item.goodsDeliveredList())
-                ? item.goodsDeliveredList().stream().map(this::mapOutOrdGoodsDelivered).toList()
-                : List.of();
+            ? item.goodsDeliveredList().stream().map(this::mapOutOrdGoodsDelivered).toList()
+            : List.of();
 
         return FulfillmentDeliveryOutOrdGoodsInfoResult.of(item.invoiceNo(), delivered);
     }
 
     private FulfillmentDeliveryOutOrdGoodsItemInfoResult mapOutOrdGoodsDelivered(FulfillmentOutOrdGoodsDeliveredResponse item) {
         return FulfillmentDeliveryOutOrdGoodsItemInfoResult.of(
-                item.cstGodCd(),
-                item.godNm(),
-                item.packQty()
+            item.cstGodCd(),
+            item.godNm(),
+            item.packQty()
         );
     }
 
     private FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult mapOutOrdGoodsByOrdNo(FulfillmentOutOrdGoodsByOrdNoItemResponse item) {
         List<FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult> goods = FormatValidator.hasValue(item.goods())
-                ? item.goods().stream().map(this::mapOutOrdGoodsByOrdNoGoods).toList()
-                : List.of();
+            ? item.goods().stream().map(this::mapOutOrdGoodsByOrdNoGoods).toList()
+            : List.of();
 
         return FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult.of(item.ordNo(), item.invoiceNo(), goods);
     }
 
     private FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult mapOutOrdGoodsByOrdNoGoods(FulfillmentOutOrdGoodsByOrdNoGoodsResponse item) {
         return FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult.of(
-                item.cstGodCd(),
-                item.godNm(),
-                item.ordQty()
+            item.cstGodCd(),
+            item.godNm(),
+            item.ordQty()
         );
     }
 
     private FulfillmentDeliveryGoodDetailInfoResult mapDeliveryGoodDetailItem(FulfillmentDeliveryGoodDetailItemResponse item) {
         return FulfillmentDeliveryGoodDetailInfoResult.builder()
-                .releaseDate(item.outDt())
-                .slipNumber(item.slipNo())
-                .releaseOrderSlipNumber(item.outOrdSlipNo())
-                .orderNumber(item.orderNo())
-                .productOrderNo(item.productOrderNo())
-                .orderDivision(item.ordDiv())
-                .invoiceNumber(item.invoiceNo())
-                .sellerChannel(item.sellerChannel())
-                .recipientName(item.custNm())
-                .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
-                .productName(item.godNm())
-                .releaseQuantity(item.outQty())
-                .markedPrAmount(item.markedPrAmount())
-                .sellingPrAmount(item.sellingPrAmount())
-                .dcAmount(item.dcAmount())
-                .sellerDcAmount(item.sellerDcAmount())
-                .naverDcAmount(item.naverDcAmount())
-                .build();
+            .releaseDate(item.outDt())
+            .slipNumber(item.slipNo())
+            .releaseOrderSlipNumber(item.outOrdSlipNo())
+            .orderNumber(item.orderNo())
+            .productOrderNo(item.productOrderNo())
+            .orderDivision(item.ordDiv())
+            .invoiceNumber(item.invoiceNo())
+            .sellerChannel(item.sellerChannel())
+            .recipientName(item.custNm())
+            .productCode(item.godCd())
+            .customerProductCode(item.cstGodCd())
+            .productName(item.godNm())
+            .releaseQuantity(item.outQty())
+            .markedPrAmount(item.markedPrAmount())
+            .sellingPrAmount(item.sellingPrAmount())
+            .dcAmount(item.dcAmount())
+            .sellerDcAmount(item.sellerDcAmount())
+            .naverDcAmount(item.naverDcAmount())
+            .build();
     }
 
     private CompleteFulfillmentDeliveryIcsItemResult mapDeliveryIcsCompletionItem(FulfillmentDeliveryIcsCompletionItemResponse item) {
@@ -2903,8 +2903,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -2914,8 +2914,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

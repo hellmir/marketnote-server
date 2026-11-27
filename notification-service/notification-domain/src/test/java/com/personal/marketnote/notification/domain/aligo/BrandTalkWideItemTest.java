@@ -15,21 +15,21 @@ class BrandTalkWideItemTest {
     void shouldThrowExceptionWhenTemplateHeaderExceedsMaxLength() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender-key")
-                .templateCode("BT_WIL_001")
-                .templateName("와이드 아이템 리스트")
-                .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
-                .templateContent("내용")
-                .templateHeader("가".repeat(21))
-                .subWideItems(List.of(
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
-                ))
-                .build();
+            .senderKey("sender-key")
+            .templateCode("BT_WIL_001")
+            .templateName("와이드 아이템 리스트")
+            .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
+            .templateContent("내용")
+            .templateHeader("가".repeat(21))
+            .subWideItems(List.of(
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
+            ))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 
     @Test
@@ -37,21 +37,21 @@ class BrandTalkWideItemTest {
     void shouldThrowExceptionWhenTemplateHeaderContainsNewline() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender-key")
-                .templateCode("BT_WIL_002")
-                .templateName("와이드 아이템 리스트")
-                .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
-                .templateContent("내용")
-                .templateHeader("헤더\n줄바꿈")
-                .subWideItems(List.of(
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
-                ))
-                .build();
+            .senderKey("sender-key")
+            .templateCode("BT_WIL_002")
+            .templateName("와이드 아이템 리스트")
+            .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
+            .templateContent("내용")
+            .templateHeader("헤더\n줄바꿈")
+            .subWideItems(List.of(
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
+            ))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 
     @Test
@@ -59,19 +59,19 @@ class BrandTalkWideItemTest {
     void shouldThrowExceptionWhenSubWideItemsLessThanTwo() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender-key")
-                .templateCode("BT_WIL_003")
-                .templateName("와이드 아이템 리스트")
-                .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
-                .templateContent("내용")
-                .subWideItems(List.of(
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
-                ))
-                .build();
+            .senderKey("sender-key")
+            .templateCode("BT_WIL_003")
+            .templateName("와이드 아이템 리스트")
+            .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
+            .templateContent("내용")
+            .subWideItems(List.of(
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
+            ))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 
     @Test
@@ -79,22 +79,22 @@ class BrandTalkWideItemTest {
     void shouldThrowExceptionWhenSubWideItemsMoreThanThree() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender-key")
-                .templateCode("BT_WIL_004")
-                .templateName("와이드 아이템 리스트")
-                .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
-                .templateContent("내용")
-                .subWideItems(List.of(
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브3").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브4").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
-                ))
-                .build();
+            .senderKey("sender-key")
+            .templateCode("BT_WIL_004")
+            .templateName("와이드 아이템 리스트")
+            .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
+            .templateContent("내용")
+            .subWideItems(List.of(
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브3").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브4").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
+            ))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 
     @Test
@@ -102,18 +102,18 @@ class BrandTalkWideItemTest {
     void shouldCreateWideItemListTemplate() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender-key")
-                .templateCode("BT_WIL_005")
-                .templateName("와이드 아이템 리스트")
-                .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
-                .templateContent("내용")
-                .templateHeader("20자이내헤더")
-                .mainWideItem(BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("메인").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()))
-                .subWideItems(List.of(
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
-                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
-                ))
-                .build();
+            .senderKey("sender-key")
+            .templateCode("BT_WIL_005")
+            .templateName("와이드 아이템 리스트")
+            .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
+            .templateContent("내용")
+            .templateHeader("20자이내헤더")
+            .mainWideItem(BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("메인").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()))
+            .subWideItems(List.of(
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
+            ))
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -129,7 +129,7 @@ class BrandTalkWideItemTest {
     @DisplayName("BrandTalkWideItem의 title이 누락되면 예외가 발생한다")
     void shouldThrowExceptionWhenWideItemTitleMissing() {
         assertThatThrownBy(() -> BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(null).imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 
     @Test
@@ -138,14 +138,14 @@ class BrandTalkWideItemTest {
         // given: invariant 위반(title null)도 복원 성공해야 함
         // when
         BrandTalkWideItem item = BrandTalkWideItem.from(
-                BrandTalkWideItemSnapshotState.builder()
-                        .title(null)
-                        .imageUrl("https://img.example.com/1.jpg")
-                        .linkM("https://m.example.com")
-                        .linkP("https://www.example.com")
-                        .linkI("example://open")
-                        .linkA("android://open")
-                        .build()
+            BrandTalkWideItemSnapshotState.builder()
+                .title(null)
+                .imageUrl("https://img.example.com/1.jpg")
+                .linkM("https://m.example.com")
+                .linkP("https://www.example.com")
+                .linkI("example://open")
+                .linkA("android://open")
+                .build()
         );
 
         // then

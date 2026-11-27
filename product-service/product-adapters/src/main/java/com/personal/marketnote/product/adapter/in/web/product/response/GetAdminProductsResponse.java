@@ -6,15 +6,15 @@ import com.personal.marketnote.product.port.in.result.product.GetAdminProductsRe
 public record GetAdminProductsResponse(OffsetResponse<ProductItemResponse> products) {
     public static GetAdminProductsResponse from(GetAdminProductsResult result) {
         return new GetAdminProductsResponse(
-                new OffsetResponse<>(
-                        result.page(),
-                        result.pageSize(),
-                        result.totalElements(),
-                        result.totalPages(),
-                        result.products().stream()
-                                .map(ProductItemResponse::from)
-                                .toList()
-                )
+            new OffsetResponse<>(
+                result.page(),
+                result.pageSize(),
+                result.totalElements(),
+                result.totalPages(),
+                result.products().stream()
+                    .map(ProductItemResponse::from)
+                    .toList()
+            )
         );
     }
 }

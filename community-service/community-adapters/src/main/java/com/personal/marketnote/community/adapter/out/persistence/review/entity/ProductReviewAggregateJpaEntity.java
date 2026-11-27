@@ -51,16 +51,16 @@ public class ProductReviewAggregateJpaEntity extends BaseEntity {
 
     public static ProductReviewAggregateJpaEntity from(ProductReviewAggregate aggregate) {
         return ProductReviewAggregateJpaEntity.builder()
-                .productId(aggregate.getProductId())
-                .totalCount(aggregate.getTotalCount())
-                .fivePointCount(aggregate.getFivePointCount())
-                .fourPointCount(aggregate.getFourPointCount())
-                .threePointCount(aggregate.getThreePointCount())
-                .twoPointCount(aggregate.getTwoPointCount())
-                .onePointCount(aggregate.getOnePointCount())
-                .totalRating(aggregate.getTotalRating())
-                .averageRating(aggregate.getAverageRating())
-                .build();
+            .productId(aggregate.getProductId())
+            .totalCount(aggregate.getTotalCount())
+            .fivePointCount(aggregate.getFivePointCount())
+            .fourPointCount(aggregate.getFourPointCount())
+            .threePointCount(aggregate.getThreePointCount())
+            .twoPointCount(aggregate.getTwoPointCount())
+            .onePointCount(aggregate.getOnePointCount())
+            .totalRating(aggregate.getTotalRating())
+            .averageRating(aggregate.getAverageRating())
+            .build();
     }
 
     public void updateFrom(ProductReviewAggregate aggregate) {

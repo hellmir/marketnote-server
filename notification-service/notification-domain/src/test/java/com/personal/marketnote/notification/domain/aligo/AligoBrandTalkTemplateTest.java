@@ -17,12 +17,12 @@ class AligoBrandTalkTemplateTest {
     void shouldCreateTextTemplate() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("BT_TEXT_001")
-                .templateName("텍스트 템플릿")
-                .templateType(BrandTalkTemplateType.TEXT)
-                .templateContent("안녕하세요 #{이름}님")
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("BT_TEXT_001")
+            .templateName("텍스트 템플릿")
+            .templateType(BrandTalkTemplateType.TEXT)
+            .templateContent("안녕하세요 #{이름}님")
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -39,12 +39,12 @@ class AligoBrandTalkTemplateTest {
     void shouldCreateImageTemplateAndRequireImage() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("BT_IMAGE_001")
-                .templateName("이미지 템플릿")
-                .templateType(BrandTalkTemplateType.IMAGE)
-                .templateContent("이미지 내용")
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("BT_IMAGE_001")
+            .templateName("이미지 템플릿")
+            .templateType(BrandTalkTemplateType.IMAGE)
+            .templateContent("이미지 내용")
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -59,12 +59,12 @@ class AligoBrandTalkTemplateTest {
     void shouldCreateWideTemplateAndRequireImage() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("BT_WIDE_001")
-                .templateName("와이드 템플릿")
-                .templateType(BrandTalkTemplateType.WIDE)
-                .templateContent("와이드 내용")
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("BT_WIDE_001")
+            .templateName("와이드 템플릿")
+            .templateType(BrandTalkTemplateType.WIDE)
+            .templateContent("와이드 내용")
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -79,15 +79,15 @@ class AligoBrandTalkTemplateTest {
     void shouldThrowExceptionWhenSenderKeyMissing() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .templateCode("BT_TEXT_001")
-                .templateName("이름")
-                .templateType(BrandTalkTemplateType.TEXT)
-                .templateContent("내용")
-                .build();
+            .templateCode("BT_TEXT_001")
+            .templateName("이름")
+            .templateType(BrandTalkTemplateType.TEXT)
+            .templateContent("내용")
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 
     @Test
@@ -95,18 +95,18 @@ class AligoBrandTalkTemplateTest {
     void shouldRestoreFromSnapshotWithoutValidation() {
         // given
         AligoBrandTalkTemplateSnapshotState state = AligoBrandTalkTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("sender")
-                .templateCode("BT_TEXT_001")
-                .templateName("이름")
-                .templateType(BrandTalkTemplateType.TEXT)
-                .templateContent("내용")
-                .adult(false)
-                .buttons(List.of())
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build();
+            .id(1L)
+            .senderKey("sender")
+            .templateCode("BT_TEXT_001")
+            .templateName("이름")
+            .templateType(BrandTalkTemplateType.TEXT)
+            .templateContent("내용")
+            .adult(false)
+            .buttons(List.of())
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -123,8 +123,8 @@ class AligoBrandTalkTemplateTest {
 
     private List<BrandTalkCarouselItem> createCarouselItems(int count) {
         return java.util.stream.IntStream.rangeClosed(1, count)
-                .mapToObj(i -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목" + i).content("내용" + i).imageUrl(null).buttons(List.of(createTestButton())).coupon(null).build()))
-                .toList();
+            .mapToObj(i -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목" + i).content("내용" + i).imageUrl(null).buttons(List.of(createTestButton())).coupon(null).build()))
+            .toList();
     }
 
     @Test
@@ -132,19 +132,19 @@ class AligoBrandTalkTemplateTest {
     void shouldThrowExceptionWhenCarouselHeaderExceedsMaxLength() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CF_001")
-                .templateName("캐러셀 피드")
-                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
-                .templateContent("내용")
-                .carouselHeader("가나다라마바사아자차카타파하가나다라마바사")
-                .carouselItems(createCarouselItems(3))
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CF_001")
+            .templateName("캐러셀 피드")
+            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+            .templateContent("내용")
+            .carouselHeader("가나다라마바사아자차카타파하가나다라마바사")
+            .carouselItems(createCarouselItems(3))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("carouselHeader");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("carouselHeader");
     }
 
     @Test
@@ -152,19 +152,19 @@ class AligoBrandTalkTemplateTest {
     void shouldValidateMaxCarouselItemsWithIntro() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CF_002")
-                .templateName("캐러셀 피드")
-                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
-                .templateContent("내용")
-                .carouselHeader("인트로 헤더")
-                .carouselItems(createCarouselItems(6))
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CF_002")
+            .templateName("캐러셀 피드")
+            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+            .templateContent("내용")
+            .carouselHeader("인트로 헤더")
+            .carouselItems(createCarouselItems(6))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("인트로 사용 시");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("인트로 사용 시");
     }
 
     @Test
@@ -172,13 +172,13 @@ class AligoBrandTalkTemplateTest {
     void shouldAllowMaxSixCarouselItemsWithoutIntro() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CF_003")
-                .templateName("캐러셀 피드")
-                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
-                .templateContent("내용")
-                .carouselItems(createCarouselItems(6))
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CF_003")
+            .templateName("캐러셀 피드")
+            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+            .templateContent("내용")
+            .carouselItems(createCarouselItems(6))
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -193,18 +193,18 @@ class AligoBrandTalkTemplateTest {
     void shouldThrowExceptionWhenCarouselItemsEmpty() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CF_004")
-                .templateName("캐러셀 피드")
-                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
-                .templateContent("내용")
-                .carouselItems(List.of())
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CF_004")
+            .templateName("캐러셀 피드")
+            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+            .templateContent("내용")
+            .carouselItems(List.of())
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("carouselItems가 필수");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("carouselItems가 필수");
     }
 
     @Test
@@ -212,18 +212,18 @@ class AligoBrandTalkTemplateTest {
     void shouldThrowExceptionWhenCarouselCommercesMissing() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CC_001")
-                .templateName("캐러셀 커머스")
-                .templateType(BrandTalkTemplateType.CAROUSEL_COMMERCE)
-                .templateContent("내용")
-                .carouselItems(createCarouselItems(3))
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CC_001")
+            .templateName("캐러셀 커머스")
+            .templateType(BrandTalkTemplateType.CAROUSEL_COMMERCE)
+            .templateContent("내용")
+            .carouselItems(createCarouselItems(3))
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("carouselCommerces가 필수");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("carouselCommerces가 필수");
     }
 
     @Test
@@ -231,17 +231,17 @@ class AligoBrandTalkTemplateTest {
     void shouldThrowExceptionWhenPremiumVideoUrlMissing() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_PV_001")
-                .templateName("프리미엄 동영상")
-                .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
-                .templateContent("내용")
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_PV_001")
+            .templateName("프리미엄 동영상")
+            .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
+            .templateContent("내용")
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("videoUrl이 필수");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("videoUrl이 필수");
     }
 
     @Test
@@ -249,13 +249,13 @@ class AligoBrandTalkTemplateTest {
     void shouldCreatePremiumVideoTemplate() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_PV_002")
-                .templateName("프리미엄 동영상")
-                .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
-                .templateContent("내용")
-                .videoUrl("https://tv.kakao.com/v/12345")
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_PV_002")
+            .templateName("프리미엄 동영상")
+            .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
+            .templateContent("내용")
+            .videoUrl("https://tv.kakao.com/v/12345")
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
@@ -270,17 +270,17 @@ class AligoBrandTalkTemplateTest {
     void shouldThrowExceptionWhenCommerceInfoMissing() {
         // given
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CM_001")
-                .templateName("커머스")
-                .templateType(BrandTalkTemplateType.COMMERCE)
-                .templateContent("내용")
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CM_001")
+            .templateName("커머스")
+            .templateType(BrandTalkTemplateType.COMMERCE)
+            .templateContent("내용")
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
-                .isInstanceOf(InvalidBrandTalkTemplateException.class)
-                .hasMessageContaining("commerceInfo가 필수");
+            .isInstanceOf(InvalidBrandTalkTemplateException.class)
+            .hasMessageContaining("commerceInfo가 필수");
     }
 
     @Test
@@ -289,13 +289,13 @@ class AligoBrandTalkTemplateTest {
         // given
         BrandTalkCommerceInfo commerceInfo = BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title("상품명").regularPrice("10000").discountPrice("8000").discountRate("20").discountFixed(null).build());
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
-                .senderKey("sender")
-                .templateCode("BT_CM_002")
-                .templateName("커머스")
-                .templateType(BrandTalkTemplateType.COMMERCE)
-                .templateContent("내용")
-                .commerceInfo(commerceInfo)
-                .build();
+            .senderKey("sender")
+            .templateCode("BT_CM_002")
+            .templateName("커머스")
+            .templateType(BrandTalkTemplateType.COMMERCE)
+            .templateContent("내용")
+            .commerceInfo(commerceInfo)
+            .build();
 
         // when
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);

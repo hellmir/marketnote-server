@@ -60,15 +60,15 @@ class NotificationTemplateControllerTest {
         void shouldRegisterAndReturnCreated() {
             // given
             RegisterNotificationTemplateRequest request = new RegisterNotificationTemplateRequest(
-                    "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
-                    NotificationCategory.INFORMATIONAL, "주문 완료", "{name}님의 주문이 완료되었습니다.", "/orders/{orderId}"
+                "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
+                NotificationCategory.INFORMATIONAL, "주문 완료", "{name}님의 주문이 완료되었습니다.", "/orders/{orderId}"
             );
             when(registerNotificationTemplateUseCase.registerNotificationTemplate(any()))
-                    .thenReturn(RegisterNotificationTemplateResult.of(1L));
+                .thenReturn(RegisterNotificationTemplateResult.of(1L));
 
             // when
             ResponseEntity<BaseResponse<RegisterNotificationTemplateResponse>> response =
-                    controller.registerNotificationTemplate(request);
+                controller.registerNotificationTemplate(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -85,14 +85,14 @@ class NotificationTemplateControllerTest {
         void shouldReturnTemplates() {
             // given
             GetNotificationTemplateResult result = new GetNotificationTemplateResult(
-                    1L, "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
-                    NotificationCategory.INFORMATIONAL, "주문 완료", "본문", "/orders", null, null
+                1L, "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
+                NotificationCategory.INFORMATIONAL, "주문 완료", "본문", "/orders", null, null
             );
             when(getNotificationTemplateUseCase.getNotificationTemplates()).thenReturn(List.of(result));
 
             // when
             ResponseEntity<BaseResponse<List<GetNotificationTemplateResponse>>> response =
-                    controller.getNotificationTemplates();
+                controller.getNotificationTemplates();
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -109,14 +109,14 @@ class NotificationTemplateControllerTest {
         void shouldReturnSingleTemplate() {
             // given
             GetNotificationTemplateResult result = new GetNotificationTemplateResult(
-                    1L, "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
-                    NotificationCategory.INFORMATIONAL, "주문 완료", "본문", "/orders", null, null
+                1L, "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
+                NotificationCategory.INFORMATIONAL, "주문 완료", "본문", "/orders", null, null
             );
             when(getNotificationTemplateUseCase.getNotificationTemplate(1L)).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetNotificationTemplateResponse>> response =
-                    controller.getNotificationTemplate(1L);
+                controller.getNotificationTemplate(1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -132,18 +132,18 @@ class NotificationTemplateControllerTest {
         void shouldUpdateAndReturnOk() {
             // given
             UpdateNotificationTemplateRequest request = new UpdateNotificationTemplateRequest(
-                    "수정된 제목", "수정된 본문", "/updated"
+                "수정된 제목", "수정된 본문", "/updated"
             );
             UpdateNotificationTemplateResult result = new UpdateNotificationTemplateResult(
-                    1L, "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
-                    NotificationCategory.INFORMATIONAL, "수정된 제목", "수정된 본문", "/updated"
+                1L, "ORDER_COMPLETE", NotificationType.ORDER_PAYMENT_COMPLETED,
+                NotificationCategory.INFORMATIONAL, "수정된 제목", "수정된 본문", "/updated"
             );
             when(updateNotificationTemplateUseCase.updateNotificationTemplate(eq(1L), any()))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<UpdateNotificationTemplateResponse>> response =
-                    controller.updateNotificationTemplate(1L, request);
+                controller.updateNotificationTemplate(1L, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

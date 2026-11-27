@@ -29,14 +29,14 @@ class ContinuousPeriodTest {
     @DisplayName("0으로 생성 시 InvalidContinuousPeriodException이 발생한다")
     void shouldThrowWhenZero() {
         assertThatThrownBy(() -> ContinuousPeriod.of((short) 0))
-                .isInstanceOf(InvalidContinuousPeriodException.class);
+            .isInstanceOf(InvalidContinuousPeriodException.class);
     }
 
     @Test
     @DisplayName("음수로 생성 시 InvalidContinuousPeriodException이 발생한다")
     void shouldThrowWhenNegative() {
         assertThatThrownBy(() -> ContinuousPeriod.of((short) -1))
-                .isInstanceOf(InvalidContinuousPeriodException.class);
+            .isInstanceOf(InvalidContinuousPeriodException.class);
     }
 
     @Test

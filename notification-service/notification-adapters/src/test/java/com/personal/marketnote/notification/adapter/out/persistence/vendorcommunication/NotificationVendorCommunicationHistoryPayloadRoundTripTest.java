@@ -6,12 +6,7 @@ import com.personal.marketnote.common.configuration.ObjectMapperConfig;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.notification.adapter.out.persistence.vendorcommunication.entity.NotificationVendorCommunicationHistoryJpaEntity;
 import com.personal.marketnote.notification.adapter.out.vendor.aligo.AttemptResult;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationHistory;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationHistoryCreateState;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationSenderType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorName;
+import com.personal.marketnote.notification.domain.vendorcommunication.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,19 +29,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 class NotificationVendorCommunicationHistoryPayloadRoundTripTest {
 
     private static final NotificationVendorCommunicationTargetType TARGET_TYPE =
-            NotificationVendorCommunicationTargetType.ALIMTALK;
+        NotificationVendorCommunicationTargetType.ALIMTALK;
 
     private final ObjectMapper objectMapper = new ObjectMapperConfig().objectMapper();
     private final VendorCommunicationPayloadGenerator payloadGenerator =
-            new VendorCommunicationPayloadGenerator(objectMapper);
+        new VendorCommunicationPayloadGenerator(objectMapper);
 
     @Test
     @DisplayName("attempts 배열을 포함한 payload JSON은 문자열 직렬화 후 동일 JsonNode로 복원된다")
     void shouldPreserveAttemptsArrayThroughJsonStringRoundTrip() throws Exception {
         List<AttemptResult> attempts = List.of(
-                AttemptResult.httpFailure(1, 502, "ServerErrorException"),
-                AttemptResult.parseFailure(2, "JsonParseException"),
-                AttemptResult.success(3, null)
+            AttemptResult.httpFailure(1, 502, "ServerErrorException"),
+            AttemptResult.parseFailure(2, "JsonParseException"),
+            AttemptResult.success(3, null)
         );
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("resultCode", 0);
@@ -72,8 +67,8 @@ class NotificationVendorCommunicationHistoryPayloadRoundTripTest {
     @DisplayName("payload JSON 메타를 가진 도메인은 JpaEntity로 변환 후 다시 도메인으로 복원해도 동등하다")
     void shouldRoundTripDomainThroughJpaEntityMapper() {
         List<AttemptResult> attempts = List.of(
-                AttemptResult.httpFailure(1, 500, "ServerErrorException"),
-                AttemptResult.success(2, "RESULT_CODE_-101")
+            AttemptResult.httpFailure(1, 500, "ServerErrorException"),
+            AttemptResult.success(2, "RESULT_CODE_-101")
         );
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("resultCode", -101);
@@ -85,21 +80,21 @@ class NotificationVendorCommunicationHistoryPayloadRoundTripTest {
         String payload = payloadJson.toString();
 
         NotificationVendorCommunicationHistory original = NotificationVendorCommunicationHistory.from(
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(TARGET_TYPE)
-                        .targetId("template-1")
-                        .vendorName(NotificationVendorName.ALIGO)
-                        .communicationType(NotificationVendorCommunicationType.RESPONSE)
-                        .sender(NotificationVendorCommunicationSenderType.VENDOR)
-                        .exception("RESULT_CODE_-101")
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .attemptCount(2)
-                        .build()
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(TARGET_TYPE)
+                .targetId("template-1")
+                .vendorName(NotificationVendorName.ALIGO)
+                .communicationType(NotificationVendorCommunicationType.RESPONSE)
+                .sender(NotificationVendorCommunicationSenderType.VENDOR)
+                .exception("RESULT_CODE_-101")
+                .payload(payload)
+                .payloadJson(payloadJson)
+                .attemptCount(2)
+                .build()
         );
 
         NotificationVendorCommunicationHistoryJpaEntity entity =
-                NotificationVendorCommunicationHistoryJpaEntity.from(original);
+            NotificationVendorCommunicationHistoryJpaEntity.from(original);
         NotificationVendorCommunicationHistory restored = entity.toDomain();
 
         assertThat(restored.getAttemptCount()).isEqualTo(2);
@@ -110,7 +105,7 @@ class NotificationVendorCommunicationHistoryPayloadRoundTripTest {
         assertThat(restored.getPayloadJson().get("attempts").get(0).get("httpStatus").asInt()).isEqualTo(500);
         assertThat(restored.getPayloadJson().get("attempts").get(1).get("status").asText()).isEqualTo("SUCCESS");
         assertThat(restored.getPayloadJson().get("attempts").get(1).get("exception").asText())
-                .isEqualTo("RESULT_CODE_-101");
+            .isEqualTo("RESULT_CODE_-101");
     }
 
     @Test

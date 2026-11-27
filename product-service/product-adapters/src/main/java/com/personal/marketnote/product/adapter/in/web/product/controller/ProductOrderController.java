@@ -45,20 +45,20 @@ public class ProductOrderController {
     @PostMapping
     @GetMyOrderingProductsApiDocs
     public ResponseEntity<BaseResponse<GetMyOrderingProductsResponse>> getMyOrderingProducts(
-            @Valid @RequestBody GetMyOrderingProductsRequest request
+        @Valid @RequestBody GetMyOrderingProductsRequest request
     ) {
         GetMyOrderProductsResult result = getMyOrderingProductsUseCase.getMyOrderingProducts(
-                ProductRequestToCommandMapper.mapToCommand(request)
+            ProductRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetMyOrderingProductsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 주문 대기 상품 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetMyOrderingProductsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 주문 대기 상품 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

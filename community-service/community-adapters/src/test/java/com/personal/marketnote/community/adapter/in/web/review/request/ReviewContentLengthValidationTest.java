@@ -45,7 +45,7 @@ class ReviewContentLengthValidationTest {
             Set<ConstraintViolation<RegisterReviewRequest>> violations = validator.validate(request);
 
             assertThat(violations).anyMatch(v ->
-                    v.getPropertyPath().toString().equals("content"));
+                v.getPropertyPath().toString().equals("content"));
         }
 
         @Test
@@ -64,7 +64,7 @@ class ReviewContentLengthValidationTest {
             Set<ConstraintViolation<RegisterReviewRequest>> violations = validator.validate(request);
 
             assertThat(violations).noneMatch(v ->
-                    v.getPropertyPath().toString().equals("content"));
+                v.getPropertyPath().toString().equals("content"));
         }
     }
 
@@ -82,7 +82,7 @@ class ReviewContentLengthValidationTest {
             Set<ConstraintViolation<UpdateReviewRequest>> violations = validator.validate(request);
 
             assertThat(violations).anyMatch(v ->
-                    v.getPropertyPath().toString().equals("content"));
+                v.getPropertyPath().toString().equals("content"));
         }
 
         @Test
@@ -95,7 +95,7 @@ class ReviewContentLengthValidationTest {
             Set<ConstraintViolation<UpdateReviewRequest>> violations = validator.validate(request);
 
             assertThat(violations).noneMatch(v ->
-                    v.getPropertyPath().toString().equals("content"));
+                v.getPropertyPath().toString().equals("content"));
         }
     }
 

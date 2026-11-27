@@ -10,17 +10,17 @@ public class PaymentCancelIdempotencyEntityToDomainMapper {
 
     public static PaymentCancelIdempotency toDomain(PaymentCancelIdempotencyJpaEntity entity) {
         return PaymentCancelIdempotency.from(
-                PaymentCancelIdempotencySnapshotState.builder()
-                        .id(entity.getId())
-                        .idempotencyKey(entity.getIdempotencyKey())
-                        .paymentId(entity.getPaymentId())
-                        .buyerId(entity.getBuyerId())
-                        .status(entity.getStatus())
-                        .result(entity.getResult())
-                        .failedReason(entity.getFailedReason())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            PaymentCancelIdempotencySnapshotState.builder()
+                .id(entity.getId())
+                .idempotencyKey(entity.getIdempotencyKey())
+                .paymentId(entity.getPaymentId())
+                .buyerId(entity.getBuyerId())
+                .status(entity.getStatus())
+                .result(entity.getResult())
+                .failedReason(entity.getFailedReason())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 }

@@ -31,14 +31,14 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     @Override
     public Optional<GifticonGoods> findByGoodsCode(String goodsCode) {
         return repository.findByGoodsCode(goodsCode)
-                .map(GifticonGoodsJpaEntity::toDomain);
+            .map(GifticonGoodsJpaEntity::toDomain);
     }
 
     @Override
     public List<GifticonGoods> findAllByGoodsStatus(GoodsStatus goodsStatus) {
         return repository.findAllByGoodsStatus(goodsStatus).stream()
-                .map(GifticonGoodsJpaEntity::toDomain)
-                .toList();
+            .map(GifticonGoodsJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
@@ -49,38 +49,38 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     @Override
     public void update(GifticonGoods goods) {
         GifticonGoodsJpaEntity entity = repository.findById(goods.getId())
-                .orElseThrow(() -> {
-                    log.warn(
-                            "기프티콘 상품을 찾을 수 없습니다. goodsCode={}",
-                            goods.getGoodsCode().getValue()
-                    );
-                    return new GifticonGoodsNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn(
+                    "기프티콘 상품을 찾을 수 없습니다. goodsCode={}",
+                    goods.getGoodsCode().getValue()
+                );
+                return new GifticonGoodsNotFoundException();
+            });
         entity.updateFrom(goods);
     }
 
     @Override
     public List<GifticonGoodsBrandProjection> findDistinctBrandsByCategoryCode(String categoryCode) {
         return repository.findDistinctBrandsByCategoryCode(categoryCode, GoodsStatus.SALE).stream()
-                .map(row -> new GifticonGoodsBrandProjection(
-                        (String) row[0],
-                        (String) row[1],
-                        (String) row[2]
-                ))
-                .toList();
+            .map(row -> new GifticonGoodsBrandProjection(
+                (String) row[0],
+                (String) row[1],
+                (String) row[2]
+            ))
+            .toList();
     }
 
     @Override
     public FindAllForAdminResult findAllForAdmin(
-            int page, int pageSize, GoodsStatus goodsStatus, Boolean exposed, String keyword
+        int page, int pageSize, GoodsStatus goodsStatus, Boolean exposed, String keyword
     ) {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
         Page<GifticonGoodsJpaEntity> pageResult = repository.findAllForAdmin(
-                goodsStatus, exposed, keyword, pageRequest
+            goodsStatus, exposed, keyword, pageRequest
         );
         List<GifticonGoods> items = pageResult.getContent().stream()
-                .map(GifticonGoodsJpaEntity::toDomain)
-                .toList();
+            .map(GifticonGoodsJpaEntity::toDomain)
+            .toList();
         return new FindAllForAdminResult(items, pageResult.getTotalElements());
     }
 
@@ -91,30 +91,30 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         Pageable pageable = PageRequest.of(0, limit);
 
         List<GifticonGoodsJpaEntity> entities = fetchExposed(
-                categoryCodeParam, brandCodeParam, cursor, pageable
+            categoryCodeParam, brandCodeParam, cursor, pageable
         );
         return entities.stream()
-                .map(GifticonGoodsJpaEntity::toDomain)
-                .toList();
+            .map(GifticonGoodsJpaEntity::toDomain)
+            .toList();
     }
 
     private List<GifticonGoodsJpaEntity> fetchExposed(
-            String categoryCodeParam, String brandCodeParam, Long cursor, Pageable pageable
+        String categoryCodeParam, String brandCodeParam, Long cursor, Pageable pageable
     ) {
         if (FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE)) {
             return repository.findExposedByAnchor(
-                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, null, null, pageable
+                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, null, null, pageable
             );
         }
         Optional<GifticonGoodsJpaEntity> anchor = repository.findById(cursor);
         if (anchor.isEmpty()) {
             return repository.findExposedByAnchor(
-                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, null, null, pageable
+                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, null, null, pageable
             );
         }
         Integer anchorOrderNum = anchor.get().getOrderNum();
         return repository.findExposedByAnchor(
-                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, anchorOrderNum, cursor, pageable
+            categoryCodeParam, brandCodeParam, GoodsStatus.SALE, anchorOrderNum, cursor, pageable
         );
     }
 
@@ -134,7 +134,7 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     public List<GifticonGoods> findAllPopularAndExposed(int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return repository.findAllPopularAndExposed(GoodsStatus.SALE, pageable).stream()
-                .map(GifticonGoodsJpaEntity::toDomain)
-                .toList();
+            .map(GifticonGoodsJpaEntity::toDomain)
+            .toList();
     }
 }

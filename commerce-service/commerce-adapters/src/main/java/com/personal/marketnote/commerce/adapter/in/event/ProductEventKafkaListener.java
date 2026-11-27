@@ -28,12 +28,12 @@ public class ProductEventKafkaListener {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_REGISTERED,
-            groupId = "commerce-service"
+        topics = KafkaTopicConstants.PRODUCT_REGISTERED,
+        groupId = "commerce-service"
     )
     public void handleProductRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,13 +51,13 @@ public class ProductEventKafkaListener {
             ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
 
             log.info("상품 등록 이벤트 수신. eventId={}, productId={}, productKey={}, pricePolicyId={}",
-                    envelope.eventId(), payload.productId(), payload.productKey(), payload.pricePolicyId()
+                envelope.eventId(), payload.productId(), payload.productKey(), payload.pricePolicyId()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(),
-                    EventPayloadValidator.id("productId", payload.productId()),
-                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
+                envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()),
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -65,17 +65,17 @@ public class ProductEventKafkaListener {
 
             if (FormatValidator.hasNoValue(payload.productKey())) {
                 log.warn("상품 등록 이벤트 productKey 누락. eventId={}, productId={}",
-                        envelope.eventId(), payload.productId()
+                    envelope.eventId(), payload.productId()
                 );
             }
 
             RegisterInventoryCommand command = RegisterInventoryCommand.of(
-                    payload.productId(), payload.productKey(), payload.pricePolicyId()
+                payload.productId(), payload.productKey(), payload.pricePolicyId()
             );
             registerInventoryUseCase.registerInventory(command);
 
             log.info("Kafka 이벤트로 재고 등록 완료. productId={}, pricePolicyId={}",
-                    payload.productId(), payload.pricePolicyId()
+                payload.productId(), payload.pricePolicyId()
             );
         } catch (InventoryAlreadyExistsException ignored) {
             // 동일 pricePolicyId 재고가 이미 존재 — Kafka 재처리/중복 이벤트 멱등 처리
@@ -86,12 +86,12 @@ public class ProductEventKafkaListener {
     }
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_UPDATED,
-            groupId = "commerce-inventory-backfill"
+        topics = KafkaTopicConstants.PRODUCT_UPDATED,
+        groupId = "commerce-inventory-backfill"
     )
     public void handleProductUpdatedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -108,8 +108,8 @@ public class ProductEventKafkaListener {
         ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId())
+            envelope.eventId(),
+            EventPayloadValidator.id("productId", payload.productId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -117,14 +117,14 @@ public class ProductEventKafkaListener {
 
         if (FormatValidator.hasNoValue(payload.productKey())) {
             log.warn("상품 수정 이벤트 productKey 누락. 백필 스킵. eventId={}, productId={}",
-                    envelope.eventId(), payload.productId()
+                envelope.eventId(), payload.productId()
             );
             acknowledgment.acknowledge();
             return;
         }
 
         backfillInventoryProductKeyUseCase.backfillProductKey(
-                BackfillInventoryProductKeyCommand.of(payload.productId(), payload.productKey())
+            BackfillInventoryProductKeyCommand.of(payload.productId(), payload.productKey())
         );
 
         acknowledgment.acknowledge();

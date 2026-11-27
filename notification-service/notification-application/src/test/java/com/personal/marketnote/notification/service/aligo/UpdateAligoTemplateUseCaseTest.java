@@ -46,7 +46,7 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(existing));
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, List.of()
+            "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, List.of()
         );
 
         // when
@@ -65,12 +65,12 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("UNKNOWN")).thenReturn(Optional.empty());
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "UNKNOWN", "sender-key", "이름", "내용", null, null, List.of()
+            "UNKNOWN", "sender-key", "이름", "내용", null, null, List.of()
         );
 
         // when & then
         assertThatThrownBy(() -> updateAligoTemplateService.updateTemplate(command))
-                .isInstanceOf(AligoTemplateNotFoundException.class);
+            .isInstanceOf(AligoTemplateNotFoundException.class);
         verifyNoInteractions(updateAligoTemplateExternalPort, updateAligoTemplatePort);
     }
 
@@ -82,12 +82,12 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(approved));
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "이름", "내용", null, null, List.of()
+            "TPL001", "sender-key", "이름", "내용", null, null, List.of()
         );
 
         // when & then
         assertThatThrownBy(() -> updateAligoTemplateService.updateTemplate(command))
-                .isInstanceOf(InvalidAligoTemplateModificationException.class);
+            .isInstanceOf(InvalidAligoTemplateModificationException.class);
         verifyNoInteractions(updateAligoTemplateExternalPort, updateAligoTemplatePort);
     }
 
@@ -99,7 +99,7 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(existing));
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, null
+            "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, null
         );
 
         // when
@@ -120,7 +120,7 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(existing));
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, List.of()
+            "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, List.of()
         );
 
         // when
@@ -140,13 +140,13 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(existing));
 
         AligoTemplateButtonCommand buttonCommand = new AligoTemplateButtonCommand(
-                1, "자세히 보기", "WL",
-                "https://m.example.com", "https://www.example.com",
-                null, null
+            1, "자세히 보기", "WL",
+            "https://m.example.com", "https://www.example.com",
+            null, null
         );
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "수정된 이름", "수정된 내용",
-                null, null, List.of(buttonCommand)
+            "TPL001", "sender-key", "수정된 이름", "수정된 내용",
+            null, null, List.of(buttonCommand)
         );
 
         // when
@@ -169,7 +169,7 @@ class UpdateAligoTemplateUseCaseTest {
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(existing));
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, List.of()
+            "TPL001", "sender-key", "수정된 이름", "수정된 내용", null, null, List.of()
         );
 
         // when
@@ -188,33 +188,33 @@ class UpdateAligoTemplateUseCaseTest {
         AligoTemplate existing = createTemplate("REG");
         when(findAligoTemplatePort.findByTemplateCode("TPL001")).thenReturn(Optional.of(existing));
         doThrow(new RuntimeException("외부 API 실패"))
-                .when(updateAligoTemplateExternalPort).updateTemplate(any(AligoTemplate.class));
+            .when(updateAligoTemplateExternalPort).updateTemplate(any(AligoTemplate.class));
 
         UpdateAligoTemplateCommand command = new UpdateAligoTemplateCommand(
-                "TPL001", "sender-key", "이름", "내용", null, null, List.of()
+            "TPL001", "sender-key", "이름", "내용", null, null, List.of()
         );
 
         // when & then
         assertThatThrownBy(() -> updateAligoTemplateService.updateTemplate(command))
-                .isInstanceOf(RuntimeException.class);
+            .isInstanceOf(RuntimeException.class);
         verify(updateAligoTemplateExternalPort).updateTemplate(any(AligoTemplate.class));
         verifyNoInteractions(updateAligoTemplatePort);
     }
 
     private AligoTemplate createTemplate(String inspStatus) {
         return AligoTemplate.from(
-                AligoTemplateSnapshotState.builder()
-                        .id(1L)
-                        .senderKey("sender-key")
-                        .templateCode("TPL001")
-                        .templateName("원본 이름")
-                        .templateContent("원본 내용")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .inspStatus(inspStatus)
-                        .templateStatus(AligoTemplateStatus.R)
-                        .buttons(List.of())
-                        .build()
+            AligoTemplateSnapshotState.builder()
+                .id(1L)
+                .senderKey("sender-key")
+                .templateCode("TPL001")
+                .templateName("원본 이름")
+                .templateContent("원본 내용")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus(inspStatus)
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build()
         );
     }
 }

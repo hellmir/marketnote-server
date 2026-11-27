@@ -42,15 +42,15 @@ class PaymentCancelledPartialProductPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, Long partialProductPendingDeduction, boolean isFullCancel
+        Long orderId, Long buyerId, Long partialProductPendingDeduction, boolean isFullCancel
     ) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                orderId, "order-key-1", buyerId, 30000L, 80000L, 1000L,
-                isFullCancel, 0L, null, null, null, partialProductPendingDeduction
+            orderId, "order-key-1", buyerId, 30000L, 80000L, 1000L,
+            isFullCancel, 0L, null, null, null, partialProductPendingDeduction
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.payment.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -168,15 +168,15 @@ class PaymentCancelledPartialProductPointConsumerTest {
     void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                1L, "order-key-1", 100L, 30000L, 80000L, 1000L,
-                false, 0L, null, null, null, 1500L
+            1L, "order-key-1", 100L, 30000L, 80000L, 1000L,
+            false, 0L, null, null, null, 1500L
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", envelope
+            "commerce.payment.cancelled", 0, 0L, "1", envelope
         );
 
         // when
@@ -248,7 +248,7 @@ class PaymentCancelledPartialProductPointConsumerTest {
     void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", null
+            "commerce.payment.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -265,7 +265,7 @@ class PaymentCancelledPartialProductPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1500L, false);
         doThrow(new DuplicateUserPointHistoryException())
-                .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+            .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
@@ -281,12 +281,12 @@ class PaymentCancelledPartialProductPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1500L, false);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+            .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -298,17 +298,17 @@ class PaymentCancelledPartialProductPointConsumerTest {
     void handlePaymentCancelledEvent_invalidPayload_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.payment.cancelled", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verifyNoInteractions(modifyPendingPointUseCase);
         verify(acknowledgment, never()).acknowledge();

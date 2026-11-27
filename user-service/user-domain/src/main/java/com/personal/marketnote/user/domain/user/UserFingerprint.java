@@ -25,23 +25,23 @@ public class UserFingerprint {
 
         LocalDateTime now = state.getFirstSeenAt();
         return UserFingerprint.builder()
-                .userId(state.getUserId())
-                .fingerprint(state.getFingerprint())
-                .source(state.getSource())
-                .firstSeenAt(now)
-                .lastSeenAt(now)
-                .build();
+            .userId(state.getUserId())
+            .fingerprint(state.getFingerprint())
+            .source(state.getSource())
+            .firstSeenAt(now)
+            .lastSeenAt(now)
+            .build();
     }
 
     public static UserFingerprint from(UserFingerprintSnapshotState state) {
         return UserFingerprint.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .fingerprint(state.getFingerprint())
-                .source(state.getSource())
-                .firstSeenAt(state.getFirstSeenAt())
-                .lastSeenAt(state.getLastSeenAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .fingerprint(state.getFingerprint())
+            .source(state.getSource())
+            .firstSeenAt(state.getFirstSeenAt())
+            .lastSeenAt(state.getLastSeenAt())
+            .build();
     }
 
     public void updateLastSeenAt(LocalDateTime lastSeenAt) {

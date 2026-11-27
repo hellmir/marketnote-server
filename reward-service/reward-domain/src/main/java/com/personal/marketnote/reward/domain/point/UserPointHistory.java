@@ -26,30 +26,30 @@ public class UserPointHistory {
     public static UserPointHistory from(UserPointHistoryCreateState state) {
         validate(state.getChangeType(), state.getAmount());
         return UserPointHistory.builder()
-                .userId(state.getUserId())
-                .changeType(state.getChangeType())
-                .amount(state.getAmount())
-                .isReflected(state.getIsReflected())
-                .sourceType(state.getSourceType())
-                .sourceId(state.getSourceId())
-                .reason(state.getReason())
-                .accumulatedAt(state.getAccumulatedAt())
-                .build();
+            .userId(state.getUserId())
+            .changeType(state.getChangeType())
+            .amount(state.getAmount())
+            .isReflected(state.getIsReflected())
+            .sourceType(state.getSourceType())
+            .sourceId(state.getSourceId())
+            .reason(state.getReason())
+            .accumulatedAt(state.getAccumulatedAt())
+            .build();
     }
 
     public static UserPointHistory from(UserPointHistorySnapshotState state) {
         return UserPointHistory.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .changeType(state.getChangeType())
-                .amount(state.getAmount())
-                .isReflected(state.getIsReflected())
-                .sourceType(state.getSourceType())
-                .sourceId(state.getSourceId())
-                .reason(state.getReason())
-                .accumulatedAt(state.getAccumulatedAt())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .changeType(state.getChangeType())
+            .amount(state.getAmount())
+            .isReflected(state.getIsReflected())
+            .sourceType(state.getSourceType())
+            .sourceId(state.getSourceId())
+            .reason(state.getReason())
+            .accumulatedAt(state.getAccumulatedAt())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     public boolean isAccrual() {

@@ -45,23 +45,23 @@ public class FulfillmentSettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentSettlementDailyCostsApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentSettlementDailyCostsResponse>> getDailyCosts(
-            @PathVariable String yearMonth,
-            @PathVariable String whCd,
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String yearMonth,
+        @PathVariable String whCd,
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentSettlementDailyCostsResult result = getFulfillmentSettlementDailyCostsUseCase.getDailyCosts(
-                FulfillmentSettlementRequestToCommandMapper.mapToDailyCostsCommand(yearMonth, whCd, customerCode, accessToken)
+            FulfillmentSettlementRequestToCommandMapper.mapToDailyCostsCommand(yearMonth, whCd, customerCode, accessToken)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentSettlementDailyCostsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 물류비 일별 비용 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentSettlementDailyCostsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 물류비 일별 비용 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

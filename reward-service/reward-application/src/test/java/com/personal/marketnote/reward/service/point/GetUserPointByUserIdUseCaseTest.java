@@ -34,13 +34,13 @@ class GetUserPointByUserIdUseCaseTest {
 
     private UserPoint createUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .userId(USER_ID)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
     }
 
@@ -69,7 +69,7 @@ class GetUserPointByUserIdUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getUserPointService.getUserPoint(USER_ID))
-                .isInstanceOf(UserNotFoundException.class);
+            .isInstanceOf(UserNotFoundException.class);
 
         verify(findUserPointPort).findByUserId(USER_ID);
     }

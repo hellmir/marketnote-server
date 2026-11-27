@@ -28,12 +28,12 @@ public class OrderPaymentCompletedInventoryConsumer {
     private final ReduceProductInventoryUseCase reduceProductInventoryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "commerce-inventory"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "commerce-inventory"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -49,16 +49,16 @@ public class OrderPaymentCompletedInventoryConsumer {
 
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
-                    OrderPaymentCompletedEvent.class, objectMapper
+                OrderPaymentCompletedEvent.class, objectMapper
             );
 
             log.info("주문 결제 완료 이벤트 수신 (재고 차감). eventId={}, orderId={}, orderProducts={}건",
-                    envelope.eventId(), payload.orderId(),
-                    FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0
+                envelope.eventId(), payload.orderId(),
+                FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -79,7 +79,7 @@ public class OrderPaymentCompletedInventoryConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("재고 차감 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }
@@ -89,15 +89,15 @@ public class OrderPaymentCompletedInventoryConsumer {
 
     private List<OrderProduct> convertToOrderProducts(List<OrderProductItem> items) {
         return items.stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .quantity(item.quantity())
-                                .unitAmount(item.unitAmount())
-                                .sharerKey(item.sharerKey())
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .toList();
+            .map(item -> OrderProduct.from(
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(item.pricePolicyId())
+                    .quantity(item.quantity())
+                    .unitAmount(item.unitAmount())
+                    .sharerKey(item.sharerKey())
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .toList();
     }
 }

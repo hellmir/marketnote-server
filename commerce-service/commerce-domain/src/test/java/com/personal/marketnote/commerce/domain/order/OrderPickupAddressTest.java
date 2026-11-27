@@ -25,7 +25,7 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("부재시 경비실에 맡겨주세요").build())
+                ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("부재시 경비실에 맡겨주세요").build())
             );
 
             // then
@@ -75,7 +75,7 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
+                ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
             );
 
             // then
@@ -85,7 +85,7 @@ class OrderPickupAddressTest {
             assertThat(order.getShippingAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getShippingAddress().getAddressDetail()).isEqualTo("테헤란로 123");
             assertThat(order.getShippingAddress().getDeliveryRequestType())
-                    .isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
+                .isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
         }
 
         @Test
@@ -93,22 +93,22 @@ class OrderPickupAddressTest {
         void shouldRestorePickupAddressFromSnapshot() {
             // given & when
             Order order = Order.from(OrderSnapshotState.builder()
-                    .id(1L)
-                    .buyerId(1L)
-                    .orderKey(UUID.randomUUID())
-                    .orderNumber(OrderNumber.of("ORD-1"))
-                    .orderStatus(OrderStatus.RETURN_REQUESTED)
-                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
-                    .shippingAddress(
-                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build())
-                    )
-                    .pickupAddress(
-                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
-                    )
-                    .orderProductStates(List.of())
-                    .createdAt(LocalDateTime.now())
-                    .modifiedAt(LocalDateTime.now())
-                    .build());
+                .id(1L)
+                .buyerId(1L)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-1"))
+                .orderStatus(OrderStatus.RETURN_REQUESTED)
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
+                .shippingAddress(
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build())
+                )
+                .pickupAddress(
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
+                )
+                .orderProductStates(List.of())
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
 
             // then
             assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
@@ -122,28 +122,28 @@ class OrderPickupAddressTest {
 
     private Order createOrderWithDeliveryAddress() {
         return Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-1"))
-                .orderStatus(OrderStatus.DELIVERED)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
-                .shippingAddress(
-                        ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build())
-                )
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L)
-                                .sellerId(10L)
-                                .pricePolicyId(100L)
-                                .quantity(1)
-                                .unitAmount(50000L)
-                                .accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.DELIVERED)
-                                .build()
-                ))
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(1L)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-1"))
+            .orderStatus(OrderStatus.DELIVERED)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
+            .shippingAddress(
+                ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build())
+            )
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .build()
+            ))
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

@@ -6,17 +6,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public record GetBoardCategoriesResult(
-        List<BoardCategoryItemResult> categories
+    List<BoardCategoryItemResult> categories
 ) {
     public static GetBoardCategoriesResult from(PostCategory[] postCategories) {
         return new GetBoardCategoriesResult(
-                Arrays.stream(postCategories)
-                        .map(
-                                category -> BoardCategoryItemResult.of(
-                                        category.getCode(), category.getDescription(), category.isDefault()
-                                )
-                        )
-                        .toList()
+            Arrays.stream(postCategories)
+                .map(
+                    category -> BoardCategoryItemResult.of(
+                        category.getCode(), category.getDescription(), category.isDefault()
+                    )
+                )
+                .toList()
         );
     }
 }

@@ -13,14 +13,14 @@ class AligoTemplateButtonTest {
     void shouldCreateFromState() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name("웹링크 버튼")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkMo("https://m.example.com")
-                .linkPc("https://www.example.com")
-                .linkIos(null)
-                .linkAnd(null)
-                .build();
+            .ordering(1)
+            .name("웹링크 버튼")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkMo("https://m.example.com")
+            .linkPc("https://www.example.com")
+            .linkIos(null)
+            .linkAnd(null)
+            .build();
 
         // when
         AligoTemplateButton button = AligoTemplateButton.from(state);
@@ -40,14 +40,14 @@ class AligoTemplateButtonTest {
     void shouldCreateAlButtonWithAppLinks() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(2)
-                .name("앱링크 버튼")
-                .linkType(AligoTemplateButtonLinkType.AL)
-                .linkMo(null)
-                .linkPc(null)
-                .linkIos("ios://app")
-                .linkAnd("android://app")
-                .build();
+            .ordering(2)
+            .name("앱링크 버튼")
+            .linkType(AligoTemplateButtonLinkType.AL)
+            .linkMo(null)
+            .linkPc(null)
+            .linkIos("ios://app")
+            .linkAnd("android://app")
+            .build();
 
         // when
         AligoTemplateButton button = AligoTemplateButton.from(state);
@@ -65,15 +65,15 @@ class AligoTemplateButtonTest {
     void shouldRequireNameNotNull() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name(null)
-                .linkType(AligoTemplateButtonLinkType.AC)
-                .build();
+            .ordering(1)
+            .name(null)
+            .linkType(AligoTemplateButtonLinkType.AC)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateButton.from(state))
-                .isInstanceOf(InvalidAligoTemplateButtonException.class)
-                .hasMessageContaining("버튼 name은 필수입니다.");
+            .isInstanceOf(InvalidAligoTemplateButtonException.class)
+            .hasMessageContaining("버튼 name은 필수입니다.");
     }
 
     @Test
@@ -81,15 +81,15 @@ class AligoTemplateButtonTest {
     void shouldRequireNameNotBlank() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name("")
-                .linkType(AligoTemplateButtonLinkType.AC)
-                .build();
+            .ordering(1)
+            .name("")
+            .linkType(AligoTemplateButtonLinkType.AC)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateButton.from(state))
-                .isInstanceOf(InvalidAligoTemplateButtonException.class)
-                .hasMessageContaining("버튼 name은 필수입니다.");
+            .isInstanceOf(InvalidAligoTemplateButtonException.class)
+            .hasMessageContaining("버튼 name은 필수입니다.");
     }
 
     @Test
@@ -97,17 +97,17 @@ class AligoTemplateButtonTest {
     void shouldRequireLinkMoForWlType() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name("웹링크")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkMo(null)
-                .linkPc("https://www.example.com")
-                .build();
+            .ordering(1)
+            .name("웹링크")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkMo(null)
+            .linkPc("https://www.example.com")
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateButton.from(state))
-                .isInstanceOf(InvalidAligoTemplateButtonException.class)
-                .hasMessageContaining("WL 타입 버튼은 linkMo, linkPc가 필수입니다.");
+            .isInstanceOf(InvalidAligoTemplateButtonException.class)
+            .hasMessageContaining("WL 타입 버튼은 linkMo, linkPc가 필수입니다.");
     }
 
     @Test
@@ -115,17 +115,17 @@ class AligoTemplateButtonTest {
     void shouldRequireLinkPcForWlType() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name("웹링크")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkMo("https://m.example.com")
-                .linkPc(null)
-                .build();
+            .ordering(1)
+            .name("웹링크")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkMo("https://m.example.com")
+            .linkPc(null)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateButton.from(state))
-                .isInstanceOf(InvalidAligoTemplateButtonException.class)
-                .hasMessageContaining("WL 타입 버튼은 linkMo, linkPc가 필수입니다.");
+            .isInstanceOf(InvalidAligoTemplateButtonException.class)
+            .hasMessageContaining("WL 타입 버튼은 linkMo, linkPc가 필수입니다.");
     }
 
     @Test
@@ -133,17 +133,17 @@ class AligoTemplateButtonTest {
     void shouldRequireLinkIosForAlType() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name("앱링크")
-                .linkType(AligoTemplateButtonLinkType.AL)
-                .linkIos(null)
-                .linkAnd("android://app")
-                .build();
+            .ordering(1)
+            .name("앱링크")
+            .linkType(AligoTemplateButtonLinkType.AL)
+            .linkIos(null)
+            .linkAnd("android://app")
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateButton.from(state))
-                .isInstanceOf(InvalidAligoTemplateButtonException.class)
-                .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
+            .isInstanceOf(InvalidAligoTemplateButtonException.class)
+            .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
     }
 
     @Test
@@ -151,17 +151,17 @@ class AligoTemplateButtonTest {
     void shouldRequireLinkAndForAlType() {
         // given
         AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
-                .ordering(1)
-                .name("앱링크")
-                .linkType(AligoTemplateButtonLinkType.AL)
-                .linkIos("ios://app")
-                .linkAnd(null)
-                .build();
+            .ordering(1)
+            .name("앱링크")
+            .linkType(AligoTemplateButtonLinkType.AL)
+            .linkIos("ios://app")
+            .linkAnd(null)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateButton.from(state))
-                .isInstanceOf(InvalidAligoTemplateButtonException.class)
-                .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
+            .isInstanceOf(InvalidAligoTemplateButtonException.class)
+            .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
     }
 
     @Test
@@ -169,10 +169,10 @@ class AligoTemplateButtonTest {
     void shouldRestoreFromSnapshotWithNullName() {
         // given
         AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
-                .ordering(1)
-                .name(null)
-                .linkType(AligoTemplateButtonLinkType.AC)
-                .build();
+            .ordering(1)
+            .name(null)
+            .linkType(AligoTemplateButtonLinkType.AC)
+            .build();
 
         // when
         AligoTemplateButton button = AligoTemplateButton.from(snapshot);
@@ -187,12 +187,12 @@ class AligoTemplateButtonTest {
     void shouldRestoreFromSnapshotWlWithNullLinks() {
         // given
         AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
-                .ordering(1)
-                .name("웹링크")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkMo(null)
-                .linkPc(null)
-                .build();
+            .ordering(1)
+            .name("웹링크")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkMo(null)
+            .linkPc(null)
+            .build();
 
         // when
         AligoTemplateButton button = AligoTemplateButton.from(snapshot);
@@ -208,12 +208,12 @@ class AligoTemplateButtonTest {
     void shouldRestoreFromSnapshotAlWithNullLinks() {
         // given
         AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
-                .ordering(1)
-                .name("앱링크")
-                .linkType(AligoTemplateButtonLinkType.AL)
-                .linkIos(null)
-                .linkAnd(null)
-                .build();
+            .ordering(1)
+            .name("앱링크")
+            .linkType(AligoTemplateButtonLinkType.AL)
+            .linkIos(null)
+            .linkAnd(null)
+            .build();
 
         // when
         AligoTemplateButton button = AligoTemplateButton.from(snapshot);
@@ -229,14 +229,14 @@ class AligoTemplateButtonTest {
     void shouldRestoreAllFieldsFromSnapshot() {
         // given
         AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
-                .ordering(3)
-                .name("혼합 버튼")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkMo("https://m.example.com")
-                .linkPc("https://www.example.com")
-                .linkIos("ios://app")
-                .linkAnd("android://app")
-                .build();
+            .ordering(3)
+            .name("혼합 버튼")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkMo("https://m.example.com")
+            .linkPc("https://www.example.com")
+            .linkIos("ios://app")
+            .linkAnd("android://app")
+            .build();
 
         // when
         AligoTemplateButton button = AligoTemplateButton.from(snapshot);

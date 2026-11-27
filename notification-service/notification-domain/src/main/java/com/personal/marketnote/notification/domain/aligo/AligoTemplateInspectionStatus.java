@@ -11,10 +11,10 @@ public enum AligoTemplateInspectionStatus {
     REJ("반려");
 
     private static final Map<AligoTemplateInspectionStatus, Set<AligoTemplateInspectionStatus>> ALLOWED_TRANSITIONS = Map.of(
-            REG, Set.of(REQ),
-            REQ, Set.of(APR, REJ),
-            REJ, Set.of(REG, REQ),
-            APR, Set.of()
+        REG, Set.of(REQ),
+        REQ, Set.of(APR, REJ),
+        REJ, Set.of(REG, REQ),
+        APR, Set.of()
     );
 
     private final String description;

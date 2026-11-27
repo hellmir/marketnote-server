@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RandomCodeGeneratorTest {
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-09-20T00:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-20T00:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @Test

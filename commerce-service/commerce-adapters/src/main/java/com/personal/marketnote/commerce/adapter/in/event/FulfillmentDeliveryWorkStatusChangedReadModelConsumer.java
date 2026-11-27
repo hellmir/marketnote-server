@@ -23,12 +23,12 @@ public class FulfillmentDeliveryWorkStatusChangedReadModelConsumer {
     private final SaveFulfillmentWorkStatusReadModelPort saveFulfillmentWorkStatusReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
-            groupId = "commerce-fulfillment-work-status-read-model"
+        topics = KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
+        groupId = "commerce-fulfillment-work-status-read-model"
     )
     public void handleFulfillmentDeliveryWorkStatusChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -38,21 +38,21 @@ public class FulfillmentDeliveryWorkStatusChangedReadModelConsumer {
         }
 
         if (EventPayloadValidator.hasEventTypeMismatch(
-                envelope, KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED
+            envelope, KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED
         )) {
             acknowledgment.acknowledge();
             return;
         }
 
         FulfillmentDeliveryWorkStatusChangedEvent payload =
-                envelope.getPayloadAs(FulfillmentDeliveryWorkStatusChangedEvent.class, objectMapper);
+            envelope.getPayloadAs(FulfillmentDeliveryWorkStatusChangedEvent.class, objectMapper);
 
         log.info("풀필먼트 배송 작업 상태 변경 이벤트 수신. eventId={}, orderId={}, workStatus={}",
-                envelope.eventId(), payload.orderId(), payload.workStatus()
+            envelope.eventId(), payload.orderId(), payload.workStatus()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;

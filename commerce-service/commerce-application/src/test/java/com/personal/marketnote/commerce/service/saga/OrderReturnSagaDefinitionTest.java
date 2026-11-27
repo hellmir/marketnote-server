@@ -135,16 +135,16 @@ class OrderReturnSagaDefinitionTest {
         @BeforeEach
         void setUp() {
             List<ReturnProductItem> returnProducts = List.of(
-                    new ReturnProductItem(
-                            10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L
-                    ),
-                    new ReturnProductItem(20L, null, 1, 10000L)
+                new ReturnProductItem(
+                    10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L
+                ),
+                new ReturnProductItem(20L, null, 1, 10000L)
             );
             context = new OrderReturnSagaContext(
-                    1L, "order-key-1", 100L,
-                    50000L, 60000L, 5000L, 3000L,
-                    true, 0L, 5000L,
-                    returnProducts, "RET-SAGA-001"
+                1L, "order-key-1", 100L,
+                50000L, 60000L, 5000L, 3000L,
+                true, 0L, 5000L,
+                returnProducts, "RET-SAGA-001"
             );
         }
 

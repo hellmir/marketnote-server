@@ -9,27 +9,27 @@ import java.time.LocalDateTime;
 
 @Builder
 public record GetSettlementPolicyResponse(
-        Long id,
-        Long sellerId,
-        Integer pgFeeRate,
-        Integer platformFeeRate,
-        SettlementCycle settlementCycle,
-        Long minPayoutAmount,
-        EntityStatus status,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt
+    Long id,
+    Long sellerId,
+    Integer pgFeeRate,
+    Integer platformFeeRate,
+    SettlementCycle settlementCycle,
+    Long minPayoutAmount,
+    EntityStatus status,
+    LocalDateTime createdAt,
+    LocalDateTime modifiedAt
 ) {
     public static GetSettlementPolicyResponse from(GetSettlementPolicyResult result) {
         return GetSettlementPolicyResponse.builder()
-                .id(result.id())
-                .sellerId(result.sellerId())
-                .pgFeeRate(result.pgFeeRate())
-                .platformFeeRate(result.platformFeeRate())
-                .settlementCycle(result.settlementCycle())
-                .minPayoutAmount(result.minPayoutAmount())
-                .status(result.status())
-                .createdAt(result.createdAt())
-                .modifiedAt(result.modifiedAt())
-                .build();
+            .id(result.id())
+            .sellerId(result.sellerId())
+            .pgFeeRate(result.pgFeeRate())
+            .platformFeeRate(result.platformFeeRate())
+            .settlementCycle(result.settlementCycle())
+            .minPayoutAmount(result.minPayoutAmount())
+            .status(result.status())
+            .createdAt(result.createdAt())
+            .modifiedAt(result.modifiedAt())
+            .build();
     }
 }

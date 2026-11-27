@@ -16,9 +16,9 @@ public class ProductOptionResponse {
 
     public static ProductOptionResponse from(ProductOptionItemResult result) {
         return ProductOptionResponse.builder()
-                .id(result.id())
-                .content(result.content())
-                .status(result.status())
-                .build();
+            .id(result.id())
+            .content(result.content())
+            .status(result.status())
+            .build();
     }
 }

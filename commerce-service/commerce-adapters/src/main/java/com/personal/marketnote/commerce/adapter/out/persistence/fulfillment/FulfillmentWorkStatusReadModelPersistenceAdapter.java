@@ -18,8 +18,8 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FulfillmentWorkStatusReadModelPersistenceAdapter implements
-        SaveFulfillmentWorkStatusReadModelPort,
-        GetFulfillmentWorkStatusPort {
+    SaveFulfillmentWorkStatusReadModelPort,
+    GetFulfillmentWorkStatusPort {
 
     private final FulfillmentWorkStatusReadModelJpaRepository repository;
 
@@ -27,7 +27,7 @@ public class FulfillmentWorkStatusReadModelPersistenceAdapter implements
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(Long orderId, String workStatus) {
         Optional<FulfillmentWorkStatusReadModelJpaEntity> existing =
-                repository.findByOrderId(orderId);
+            repository.findByOrderId(orderId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(workStatus);
@@ -36,13 +36,13 @@ public class FulfillmentWorkStatusReadModelPersistenceAdapter implements
 
         try {
             FulfillmentWorkStatusReadModelJpaEntity entity =
-                    FulfillmentWorkStatusReadModelJpaEntity.of(orderId, workStatus);
+                FulfillmentWorkStatusReadModelJpaEntity.of(orderId, workStatus);
             repository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("풀필먼트 작업 상태 Read Model 중복 저장 (멱등 처리). orderId={}", orderId);
             repository.findByOrderId(orderId)
-                    .ifPresent(entity -> entity.updateFrom(workStatus));
+                .ifPresent(entity -> entity.updateFrom(workStatus));
         }
     }
 
@@ -50,8 +50,8 @@ public class FulfillmentWorkStatusReadModelPersistenceAdapter implements
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public String getWorkStatus(Long orderId) {
         return repository.findByOrderId(orderId)
-                .filter(entity -> entity.getStatus().isActive())
-                .map(FulfillmentWorkStatusReadModelJpaEntity::getWorkStatus)
-                .orElse("NOT_REGISTERED");
+            .filter(entity -> entity.getStatus().isActive())
+            .map(FulfillmentWorkStatusReadModelJpaEntity::getWorkStatus)
+            .orElse("NOT_REGISTERED");
     }
 }

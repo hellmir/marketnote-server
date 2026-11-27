@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductPricePolicyInfoResult(
-        Long id,
-        Long price,
-        Long discountPrice,
-        Long accumulatedPoint
+    Long id,
+    Long price,
+    Long discountPrice,
+    Long accumulatedPoint
 ) {
 }

@@ -45,11 +45,11 @@ class ReviewDeletedPointConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long reviewerId, Long reviewId) {
         ReviewDeletedEvent event = new ReviewDeletedEvent(
-                reviewId, 50L, 9, new BigDecimal("4.20"), reviewerId
+            reviewId, 50L, 9, new BigDecimal("4.20"), reviewerId
         );
         EventEnvelope<ReviewDeletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", KafkaTopicConstants.REVIEW_DELETED, "community-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", KafkaTopicConstants.REVIEW_DELETED, "community-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         return new ConsumerRecord<>(KafkaTopicConstants.REVIEW_DELETED, 0, 0L, "50", envelope);
     }
@@ -84,7 +84,7 @@ class ReviewDeletedPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 200L);
         doThrow(new DuplicateUserPointHistoryException())
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when
         consumer.handleReviewDeletedEvent(record, acknowledgment);
@@ -99,7 +99,7 @@ class ReviewDeletedPointConsumerTest {
     void handleReviewDeletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.REVIEW_DELETED, 0, 0L, "50", null
+            KafkaTopicConstants.REVIEW_DELETED, 0, 0L, "50", null
         );
 
         // when
@@ -116,11 +116,11 @@ class ReviewDeletedPointConsumerTest {
         // given
         ReviewDeletedEvent event = new ReviewDeletedEvent(200L, 50L, 9, new BigDecimal("4.20"), 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.REVIEW_DELETED, 0, 0L, "50", envelope
+            KafkaTopicConstants.REVIEW_DELETED, 0, 0L, "50", envelope
         );
 
         // when

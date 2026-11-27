@@ -42,25 +42,25 @@ public class PostItemResult {
         }
 
         return PostItemResult.builder()
-                .id(post.getId())
-                .userId(post.getUserId())
-                .parentId(post.getParentId())
-                .board(post.getBoard().name())
-                .category(categoryCode)
-                .targetType(post.getTargetType())
-                .targetId(post.getTargetId())
-                .productImageUrl(post.getProductImageUrl())
-                .maskedWriterName(post.getMaskedWriterName())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .isPrivate(post.isPrivate())
-                .isPhoto(post.isPhoto())
-                .images(images)
-                .isAnswered(post.hasReply())
-                .createdAt(post.getCreatedAt())
-                .modifiedAt(post.getModifiedAt())
-                .product(productInfo)
-                .build();
+            .id(post.getId())
+            .userId(post.getUserId())
+            .parentId(post.getParentId())
+            .board(post.getBoard().name())
+            .category(categoryCode)
+            .targetType(post.getTargetType())
+            .targetId(post.getTargetId())
+            .productImageUrl(post.getProductImageUrl())
+            .maskedWriterName(post.getMaskedWriterName())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .isPrivate(post.isPrivate())
+            .isPhoto(post.isPhoto())
+            .images(images)
+            .isAnswered(post.hasReply())
+            .createdAt(post.getCreatedAt())
+            .modifiedAt(post.getModifiedAt())
+            .product(productInfo)
+            .build();
     }
 
     public static PostItemResult from(Post post, List<GetFileResult> images) {
@@ -70,24 +70,24 @@ public class PostItemResult {
         }
 
         return PostItemResult.builder()
-                .id(post.getId())
-                .userId(post.getUserId())
-                .parentId(post.getParentId())
-                .board(post.getBoard().name())
-                .category(categoryCode)
-                .targetType(post.getTargetType())
-                .targetId(post.getTargetId())
-                .productImageUrl(post.getProductImageUrl())
-                .maskedWriterName(post.getMaskedWriterName())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .isPrivate(post.isPrivate())
-                .isPhoto(post.isPhoto())
-                .images(images)
-                .isAnswered(post.hasReply())
-                .createdAt(post.getCreatedAt())
-                .modifiedAt(post.getModifiedAt())
-                .build();
+            .id(post.getId())
+            .userId(post.getUserId())
+            .parentId(post.getParentId())
+            .board(post.getBoard().name())
+            .category(categoryCode)
+            .targetType(post.getTargetType())
+            .targetId(post.getTargetId())
+            .productImageUrl(post.getProductImageUrl())
+            .maskedWriterName(post.getMaskedWriterName())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .isPrivate(post.isPrivate())
+            .isPhoto(post.isPhoto())
+            .images(images)
+            .isAnswered(post.hasReply())
+            .createdAt(post.getCreatedAt())
+            .modifiedAt(post.getModifiedAt())
+            .build();
     }
 
     public void maskPrivatePost(Long userId) {
@@ -104,9 +104,9 @@ public class PostItemResult {
 
     public void addReplies(Post post, Map<Long, List<GetFileResult>> postImages) {
         replies = post.getReplies()
-                .stream()
-                .map(reply -> PostItemResult.from(reply, postImages.get(reply.getId())))
-                .toList();
+            .stream()
+            .map(reply -> PostItemResult.from(reply, postImages.get(reply.getId())))
+            .toList();
 
         if (FormatValidator.hasValue(replies)) {
             isAnswered = true;

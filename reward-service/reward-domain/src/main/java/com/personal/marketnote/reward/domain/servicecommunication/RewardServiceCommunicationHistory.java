@@ -22,27 +22,27 @@ public class RewardServiceCommunicationHistory {
 
     public static RewardServiceCommunicationHistory from(RewardServiceCommunicationHistoryCreateState state) {
         return RewardServiceCommunicationHistory.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .build();
     }
 
     public static RewardServiceCommunicationHistory from(RewardServiceCommunicationHistorySnapshotState state) {
         return RewardServiceCommunicationHistory.builder()
-                .id(state.getId())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

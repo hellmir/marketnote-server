@@ -65,14 +65,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsOrderProductsWhenOrdersExist() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true)
+                productState(100L, true)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -84,22 +84,22 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsAllProductsFromMultipleOrdersAsFlatList() {
             Long buyerId = 1L;
             Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true),
-                    productState(200L, false)
+                productState(100L, true),
+                productState(200L, false)
             ));
             Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
-                    productState(300L, true)
+                productState(300L, true)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -111,14 +111,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void resultOrderProductsIsNotNull() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -141,7 +141,7 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -155,7 +155,7 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -176,20 +176,20 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsAllProductsWhenIsReviewedIsNull() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true),
-                    productState(200L, false),
-                    productState(300L, null)
+                productState(100L, true),
+                productState(200L, false),
+                productState(300L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -201,16 +201,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsOnlyReviewedProductsWhenIsReviewedIsTrue() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true),
-                    productState(200L, false),
-                    productState(300L, null)
+                productState(100L, true),
+                productState(200L, false),
+                productState(300L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, true);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -223,26 +223,26 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsOnlyUnreviewedProductsWhenIsReviewedIsFalse() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true),
-                    productState(200L, false),
-                    productState(300L, null)
+                productState(100L, true),
+                productState(200L, false),
+                productState(300L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
             assertThat(result.orderProducts()).hasSize(2);
             assertThat(result.orderProducts())
-                    .extracting(GetBuyerOrderProductResult::pricePolicyId)
-                    .containsExactlyInAnyOrder(200L, 300L);
+                .extracting(GetBuyerOrderProductResult::pricePolicyId)
+                .containsExactlyInAnyOrder(200L, 300L);
         }
 
         @Test
@@ -250,13 +250,13 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsEmptyWhenIsReviewedTrueButNoReviewedProducts() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, false),
-                    productState(200L, null)
+                productState(100L, false),
+                productState(200L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, true);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -268,18 +268,18 @@ class GetBuyerOrderProductsUseCaseTest {
         void includesNullReviewedProductsWhenIsReviewedIsFalse() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null),
-                    productState(200L, null)
+                productState(100L, null),
+                productState(200L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -291,14 +291,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void includesFalseReviewedProductsWhenIsReviewedIsFalse() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, false)
+                productState(100L, false)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -311,29 +311,29 @@ class GetBuyerOrderProductsUseCaseTest {
         void reviewFilterAppliesToAllOrders() {
             Long buyerId = 1L;
             Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true),
-                    productState(200L, false)
+                productState(100L, true),
+                productState(200L, false)
             ));
             Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
-                    productState(300L, true),
-                    productState(400L, false)
+                productState(300L, true),
+                productState(400L, false)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, true);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
             assertThat(result.orderProducts()).hasSize(2);
             assertThat(result.orderProducts())
-                    .extracting(GetBuyerOrderProductResult::pricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 300L);
+                .extracting(GetBuyerOrderProductResult::pricePolicyId)
+                .containsExactlyInAnyOrder(100L, 300L);
         }
     }
 
@@ -351,14 +351,14 @@ class GetBuyerOrderProductsUseCaseTest {
             Long buyerId = 1L;
             Long orderId = 42L;
             Order order = createOrderWithReviewedProducts(orderId, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -370,14 +370,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void mapsOrderNumberCorrectly() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -390,19 +390,19 @@ class GetBuyerOrderProductsUseCaseTest {
             Long buyerId = 1L;
             LocalDateTime createdAt = LocalDateTime.of(2026, 1, 15, 10, 30, 0);
             Order order = createOrderWithTimestamp(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ), createdAt);
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
             assertThat(result.orderProducts().get(0).orderDate())
-                    .isEqualTo(createdAt.toLocalDate());
+                .isEqualTo(createdAt.toLocalDate());
         }
 
         @Test
@@ -410,14 +410,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void mapsPricePolicyIdCorrectly() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(777L, null)
+                productState(777L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(777L, createProductInfo(777L, "상품A")));
+                .thenReturn(Map.of(777L, createProductInfo(777L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -429,14 +429,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void mapsQuantityCorrectly() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithQuantity(100L, null, 5)
+                productStateWithQuantity(100L, null, 5)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -448,14 +448,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void mapsProductNameFromProductInfo() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스 90")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스 90")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -467,16 +467,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void mapsBrandNameFromProductInfo() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, new ProductInfoResult(100L, null, null, "상품A", "나이키", null, null, null, List.of())
-                    ));
+                .thenReturn(Map.of(
+                    100L, new ProductInfoResult(100L, null, null, "상품A", "나이키", null, null, null, List.of())
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -488,14 +488,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void productNameIsNullWhenProductInfoNotFound() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(999L, createProductInfo(999L, "다른상품")));
+                .thenReturn(Map.of(999L, createProductInfo(999L, "다른상품")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -507,14 +507,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void brandNameIsNullWhenProductInfoNotFound() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(999L, createProductInfo(999L, "다른상품")));
+                .thenReturn(Map.of(999L, createProductInfo(999L, "다른상품")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -526,14 +526,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void productIdIsNullWhenProductInfoNotFound() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(999L, createProductInfo(999L, "다른상품")));
+                .thenReturn(Map.of(999L, createProductInfo(999L, "다른상품")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -545,14 +545,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void mapsIsReviewedCorrectly() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true)
+                productState(100L, true)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -565,19 +565,19 @@ class GetBuyerOrderProductsUseCaseTest {
             Long buyerId = 1L;
             LocalDateTime confirmedAt = LocalDateTime.of(2026, 2, 1, 10, 0, 0);
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, confirmedAt)
+                productStateWithConfirmedAt(100L, confirmedAt)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
             assertThat(result.orderProducts().get(0).reviewDeadline())
-                    .isEqualTo(confirmedAt.plusDays(30));
+                .isEqualTo(confirmedAt.plusDays(30));
         }
 
         @Test
@@ -585,14 +585,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void reviewDeadlineIsNullWhenConfirmedAtIsNull() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, null)
+                productStateWithConfirmedAt(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -606,26 +606,26 @@ class GetBuyerOrderProductsUseCaseTest {
             LocalDateTime confirmedAt1 = LocalDateTime.of(2026, 2, 1, 10, 0, 0);
             LocalDateTime confirmedAt2 = LocalDateTime.of(2026, 2, 15, 14, 0, 0);
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, confirmedAt1),
-                    productStateWithConfirmedAt(200L, confirmedAt2)
+                productStateWithConfirmedAt(100L, confirmedAt1),
+                productStateWithConfirmedAt(200L, confirmedAt2)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
             assertThat(result.orderProducts()).hasSize(2);
             assertThat(result.orderProducts().get(0).reviewDeadline())
-                    .isEqualTo(confirmedAt1.plusDays(30));
+                .isEqualTo(confirmedAt1.plusDays(30));
             assertThat(result.orderProducts().get(1).reviewDeadline())
-                    .isEqualTo(confirmedAt2.plusDays(30));
+                .isEqualTo(confirmedAt2.plusDays(30));
         }
     }
 
@@ -645,9 +645,9 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -668,14 +668,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void includesConfirmedOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.CONFIRMED)
+                productStateWithStatus(100L, null, OrderStatus.CONFIRMED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -687,12 +687,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesPaidOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.PAID)
+                productStateWithStatus(100L, null, OrderStatus.PAID)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -704,12 +704,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesDeliveredOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.DELIVERED)
+                productStateWithStatus(100L, null, OrderStatus.DELIVERED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -721,12 +721,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesShippingOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.SHIPPING)
+                productStateWithStatus(100L, null, OrderStatus.SHIPPING)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -738,12 +738,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesCancelledOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.CANCELLED)
+                productStateWithStatus(100L, null, OrderStatus.CANCELLED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -755,12 +755,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesReturnedOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.RETURNED)
+                productStateWithStatus(100L, null, OrderStatus.RETURNED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -772,16 +772,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsOnlyConfirmedWhenMixed() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.CONFIRMED),
-                    productStateWithStatus(200L, null, OrderStatus.PAID),
-                    productStateWithStatus(300L, null, OrderStatus.SHIPPING)
+                productStateWithStatus(100L, null, OrderStatus.CONFIRMED),
+                productStateWithStatus(200L, null, OrderStatus.PAID),
+                productStateWithStatus(300L, null, OrderStatus.SHIPPING)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -794,29 +794,29 @@ class GetBuyerOrderProductsUseCaseTest {
         void confirmedFilterAppliesToAllOrders() {
             Long buyerId = 1L;
             Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.CONFIRMED),
-                    productStateWithStatus(200L, null, OrderStatus.PAID)
+                productStateWithStatus(100L, null, OrderStatus.CONFIRMED),
+                productStateWithStatus(200L, null, OrderStatus.PAID)
             ));
             Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
-                    productStateWithStatus(300L, null, OrderStatus.SHIPPING),
-                    productStateWithStatus(400L, null, OrderStatus.CONFIRMED)
+                productStateWithStatus(300L, null, OrderStatus.SHIPPING),
+                productStateWithStatus(400L, null, OrderStatus.CONFIRMED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            400L, createProductInfo(400L, "상품D")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    400L, createProductInfo(400L, "상품D")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
             assertThat(result.orderProducts()).hasSize(2);
             assertThat(result.orderProducts())
-                    .extracting(GetBuyerOrderProductResult::pricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 400L);
+                .extracting(GetBuyerOrderProductResult::pricePolicyId)
+                .containsExactlyInAnyOrder(100L, 400L);
         }
 
         @Test
@@ -824,16 +824,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void confirmedAndReviewFilterApplyTogether() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, false, OrderStatus.CONFIRMED),
-                    productStateWithStatus(200L, true, OrderStatus.CONFIRMED),
-                    productStateWithStatus(300L, false, OrderStatus.PAID)
+                productStateWithStatus(100L, false, OrderStatus.CONFIRMED),
+                productStateWithStatus(200L, true, OrderStatus.CONFIRMED),
+                productStateWithStatus(300L, false, OrderStatus.PAID)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -846,14 +846,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsEmptyWhenNoConfirmedProducts() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.PAID),
-                    productStateWithStatus(200L, null, OrderStatus.SHIPPING),
-                    productStateWithStatus(300L, null, OrderStatus.DELIVERED)
+                productStateWithStatus(100L, null, OrderStatus.PAID),
+                productStateWithStatus(200L, null, OrderStatus.SHIPPING),
+                productStateWithStatus(300L, null, OrderStatus.DELIVERED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -865,12 +865,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesNullStatusOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, null)
+                productStateWithStatus(100L, null, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -893,15 +893,15 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderProducts(query);
 
             verify(findOrderPort).findByBuyerId(
-                    buyerIdCaptor.capture(),
-                    startDateCaptor.capture(),
-                    endDateCaptor.capture(),
-                    statusesCaptor.capture()
+                buyerIdCaptor.capture(),
+                startDateCaptor.capture(),
+                endDateCaptor.capture(),
+                statusesCaptor.capture()
             );
             assertThat(buyerIdCaptor.getValue()).isEqualTo(42L);
             assertThat(startDateCaptor.getValue()).isNull();
@@ -916,12 +916,12 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderProducts(query);
 
             verify(findOrderPort, times(1)).findByBuyerId(
-                    eq(buyerId), isNull(), isNull(), eq(List.of())
+                eq(buyerId), isNull(), isNull(), eq(List.of())
             );
         }
 
@@ -930,14 +930,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void callsProductPortWhenOrdersExist() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderProducts(query);
 
@@ -951,7 +951,7 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderProducts(query);
 
@@ -963,14 +963,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void doesNotInteractWithFindOrderProductPort() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderProducts(query);
 
@@ -982,16 +982,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void excludesFilteredProductPricePolicyIdsFromProductLookup() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, true),
-                    productState(200L, false),
-                    productState(300L, null)
+                productState(100L, true),
+                productState(200L, false),
+                productState(300L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, true);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderProducts(query);
 
@@ -1005,17 +1005,17 @@ class GetBuyerOrderProductsUseCaseTest {
         void deduplicatesPricePolicyIds() {
             Long buyerId = 1L;
             Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderProducts(query);
 
@@ -1044,15 +1044,15 @@ class GetBuyerOrderProductsUseCaseTest {
         void withinDeadline29DaysIncluded() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
             ProductInfoResult productInfo = createProductInfo(1L, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, productInfo));
+                .thenReturn(Map.of(100L, productInfo));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1064,15 +1064,15 @@ class GetBuyerOrderProductsUseCaseTest {
         void exactlyOnDeadlineIncluded() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_30_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_30_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
             ProductInfoResult productInfo = createProductInfo(1L, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, productInfo));
+                .thenReturn(Map.of(100L, productInfo));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1084,12 +1084,12 @@ class GetBuyerOrderProductsUseCaseTest {
         void pastDeadline31DaysExcluded() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_31_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_31_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1101,15 +1101,15 @@ class GetBuyerOrderProductsUseCaseTest {
         void nullConfirmedAtTreatedAsWithinDeadline() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, null)
+                productStateWithConfirmedAt(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
             ProductInfoResult productInfo = createProductInfo(1L, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, productInfo));
+                .thenReturn(Map.of(100L, productInfo));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1121,16 +1121,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void mixedDeadlineReturnsOnlyWithin() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO),
-                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO),
+                productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
             ProductInfoResult productInfo = createProductInfo(1L, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, productInfo));
+                .thenReturn(Map.of(100L, productInfo));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1143,18 +1143,18 @@ class GetBuyerOrderProductsUseCaseTest {
         void deadlineFilterAppliedConsistentlyAcrossOrders() {
             Long buyerId = 1L;
             Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO)
             ));
             Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
-                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+                productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
             ProductInfoResult productInfo = createProductInfo(1L, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, productInfo));
+                .thenReturn(Map.of(100L, productInfo));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1167,16 +1167,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void deadlineAndReviewFilterAppliedTogether() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    new ProductStateInput(100L, true, 1, OrderStatus.CONFIRMED, CONFIRMED_29_DAYS_AGO),
-                    new ProductStateInput(200L, null, 1, OrderStatus.CONFIRMED, CONFIRMED_29_DAYS_AGO)
+                new ProductStateInput(100L, true, 1, OrderStatus.CONFIRMED, CONFIRMED_29_DAYS_AGO),
+                new ProductStateInput(200L, null, 1, OrderStatus.CONFIRMED, CONFIRMED_29_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
             ProductInfoResult productInfo200 = createProductInfo(2L, "상품B");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(200L)))
-                    .thenReturn(Map.of(200L, productInfo200));
+                .thenReturn(Map.of(200L, productInfo200));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1189,13 +1189,13 @@ class GetBuyerOrderProductsUseCaseTest {
         void allExpiredReturnsEmpty() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_31_DAYS_AGO),
-                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_31_DAYS_AGO),
+                productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1207,16 +1207,16 @@ class GetBuyerOrderProductsUseCaseTest {
         void expiredProductPricePolicyIdExcludedFromQuery() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO),
-                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+                productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO),
+                productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
             ProductInfoResult productInfo = createProductInfo(1L, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIdsCaptor.capture()))
-                    .thenReturn(Map.of(100L, productInfo));
+                .thenReturn(Map.of(100L, productInfo));
 
             getOrderService.getBuyerOrderProducts(query);
 
@@ -1240,7 +1240,7 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1252,14 +1252,14 @@ class GetBuyerOrderProductsUseCaseTest {
         void handlesNullReturnFromProductPort() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null)
+                productState(100L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1272,26 +1272,26 @@ class GetBuyerOrderProductsUseCaseTest {
         void includesAllProductsFromMultipleOrdersWithMultipleProducts() {
             Long buyerId = 1L;
             Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, null),
-                    productState(200L, null)
+                productState(100L, null),
+                productState(200L, null)
             ));
             Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
-                    productState(300L, null),
-                    productState(400L, null),
-                    productState(500L, null)
+                productState(300L, null),
+                productState(400L, null),
+                productState(500L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C"),
-                            400L, createProductInfo(400L, "상품D"),
-                            500L, createProductInfo(500L, "상품E")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C"),
+                    400L, createProductInfo(400L, "상품D"),
+                    500L, createProductInfo(500L, "상품E")
+                ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1307,7 +1307,7 @@ class GetBuyerOrderProductsUseCaseTest {
             GetBuyerOrderProductsQuery query2 = createQuery(buyerId2, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderProducts(query1);
             getOrderService.getBuyerOrderProducts(query2);
@@ -1321,13 +1321,13 @@ class GetBuyerOrderProductsUseCaseTest {
         void returnsEmptyWhenReviewFilterRemovesAllProducts() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productState(100L, false),
-                    productState(200L, null)
+                productState(100L, false),
+                productState(200L, null)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, true);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
@@ -1365,93 +1365,93 @@ class GetBuyerOrderProductsUseCaseTest {
 
     private Order createOrderWithReviewedProducts(Long orderId, Long buyerId, List<ProductStateInput> productInputs) {
         List<OrderProductSnapshotState> productStates = productInputs.stream()
-                .map(input -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(input.pricePolicyId())
-                        .quantity(input.quantity())
-                        .unitAmount(50000L)
-                        .imageUrl("https://img.example.com/" + input.pricePolicyId())
-                        .orderStatus(input.orderStatus())
-                        .isReviewed(input.isReviewed())
-                        .confirmedAt(input.confirmedAt())
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .map(input -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(input.pricePolicyId())
+                .quantity(input.quantity())
+                .unitAmount(50000L)
+                .imageUrl("https://img.example.com/" + input.pricePolicyId())
+                .orderStatus(input.orderStatus())
+                .isReviewed(input.isReviewed())
+                .confirmedAt(input.confirmedAt())
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithTimestamp(
-            Long orderId, Long buyerId, List<ProductStateInput> productInputs, LocalDateTime createdAt
+        Long orderId, Long buyerId, List<ProductStateInput> productInputs, LocalDateTime createdAt
     ) {
         List<OrderProductSnapshotState> productStates = productInputs.stream()
-                .map(input -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(input.pricePolicyId())
-                        .quantity(input.quantity())
-                        .unitAmount(50000L)
-                        .orderStatus(input.orderStatus())
-                        .isReviewed(input.isReviewed())
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .map(input -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(input.pricePolicyId())
+                .quantity(input.quantity())
+                .unitAmount(50000L)
+                .orderStatus(input.orderStatus())
+                .isReviewed(input.isReviewed())
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(createdAt)
-                .modifiedAt(createdAt)
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(createdAt)
+            .modifiedAt(createdAt)
+            .build());
     }
 
     private Order createOrderWithProductStatus(
-            Long orderId, Long buyerId, Long pricePolicyId,
-            OrderStatus productStatus, OrderStatus orderStatus
+        Long orderId, Long buyerId, Long pricePolicyId,
+        OrderStatus productStatus, OrderStatus orderStatus
     ) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(productStatus)
-                        .isReviewed(null)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(productStatus)
+                .isReviewed(null)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(orderStatus)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(orderStatus)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private ProductInfoResult createProductInfo(Long id, String name) {

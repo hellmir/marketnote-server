@@ -22,18 +22,18 @@ public class GetPricePoliciesService implements GetPricePoliciesUseCase {
     @Override
     public GetPricePoliciesResult getPricePoliciesAndOptions(Long productId) {
         List<GetProductPricePolicyWithOptionsResult> items = findPricePoliciesPort.findByProductId(productId)
-                .stream()
-                .map(
-                        pricePolicy -> new GetProductPricePolicyWithOptionsResult(
-                                pricePolicy.getId(),
-                                pricePolicy.getPrice().getValue(),
-                                pricePolicy.getDiscountPrice().getValue(),
-                                pricePolicy.getAccumulatedPoint().getValue(),
-                                pricePolicy.getDiscountRate().getValue(),
-                                pricePolicy.getOptionIds()
-                        )
+            .stream()
+            .map(
+                pricePolicy -> new GetProductPricePolicyWithOptionsResult(
+                    pricePolicy.getId(),
+                    pricePolicy.getPrice().getValue(),
+                    pricePolicy.getDiscountPrice().getValue(),
+                    pricePolicy.getAccumulatedPoint().getValue(),
+                    pricePolicy.getDiscountRate().getValue(),
+                    pricePolicy.getOptionIds()
                 )
-                .toList();
+            )
+            .toList();
 
         return GetPricePoliciesResult.of(items);
     }

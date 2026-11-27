@@ -85,8 +85,8 @@ class SendBatchNotificationUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-09-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-03T05:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     @Captor
@@ -107,11 +107,11 @@ class SendBatchNotificationUseCaseTest {
             // given
             SendBatchNotificationCommand command = createCommand(List.of(1L, 2L));
             when(findNotificationTemplatePort.findActiveByTemplateCode(TEMPLATE_CODE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> sendBatchNotificationService.sendBatchNotification(command))
-                    .isInstanceOf(NotificationTemplateNotFoundException.class);
+                .isInstanceOf(NotificationTemplateNotFoundException.class);
         }
     }
 
@@ -124,15 +124,15 @@ class SendBatchNotificationUseCaseTest {
         void shouldThrowWhenUserIdsExceedMaxBatchSize() {
             // given
             List<Long> largeUserIds = java.util.stream.LongStream.rangeClosed(1, 10_001)
-                    .boxed().toList();
+                .boxed().toList();
             SendBatchNotificationCommand command = createCommand(largeUserIds);
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateFound(template);
 
             // when & then
             assertThatThrownBy(() -> sendBatchNotificationService.sendBatchNotification(command))
-                    .isInstanceOf(InvalidNotificationException.class)
-                    .hasMessageContaining("10000");
+                .isInstanceOf(InvalidNotificationException.class)
+                .hasMessageContaining("10000");
         }
     }
 
@@ -227,7 +227,7 @@ class SendBatchNotificationUseCaseTest {
             assertThat(result.sentUserCount()).isEqualTo(3);
             assertThat(result.skippedUserCount()).isZero();
             verify(findNotificationPreferencePort, never())
-                    .findEnabledByUserIdsAndNotificationType(anyList(), any());
+                .findEnabledByUserIdsAndNotificationType(anyList(), any());
         }
 
         @Test
@@ -240,11 +240,11 @@ class SendBatchNotificationUseCaseTest {
             setupTemplateFound(template);
 
             List<NotificationPreference> enabledPrefs = List.of(
-                    createPreference(1L, true),
-                    createPreference(3L, true)
+                createPreference(1L, true),
+                createPreference(3L, true)
             );
             when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+                userIds, NotificationType.ORDER_PAYMENT_COMPLETED
             )).thenReturn(enabledPrefs);
 
             setupSaveAllReturnsWithIds();
@@ -270,7 +270,7 @@ class SendBatchNotificationUseCaseTest {
             setupTemplateFound(template);
 
             when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+                userIds, NotificationType.ORDER_PAYMENT_COMPLETED
             )).thenReturn(List.of());
 
             setupSaveAllReturnsWithIds();
@@ -325,8 +325,8 @@ class SendBatchNotificationUseCaseTest {
         void shouldScheduleForPromotionalAtNight() {
             // given
             Clock nightClock = Clock.fixed(
-                    Instant.parse("2026-09-03T13:00:00Z"),
-                    ZoneId.of("Asia/Seoul")
+                Instant.parse("2026-09-03T13:00:00Z"),
+                ZoneId.of("Asia/Seoul")
             );
             when(clock.instant()).thenReturn(nightClock.instant());
             when(clock.getZone()).thenReturn(nightClock.getZone());
@@ -365,14 +365,14 @@ class SendBatchNotificationUseCaseTest {
             setupSaveAllReturnsWithIds();
 
             List<DeviceToken> tokens = List.of(
-                    createDeviceToken(10L, 1L, "token-1", Platform.ANDROID),
-                    createDeviceToken(20L, 2L, "token-2", Platform.IOS)
+                createDeviceToken(10L, 1L, "token-1", Platform.ANDROID),
+                createDeviceToken(20L, 2L, "token-2", Platform.IOS)
             );
             when(findDeviceTokenPort.findActiveByUserIds(userIds)).thenReturn(tokens);
 
             SendBatchPushNotificationResult batchResult = new SendBatchPushNotificationResult(
-                    1, 1,
-                    List.of(new SendBatchPushNotificationResult.FailedToken("token-2", "INTERNAL", false))
+                1, 1,
+                List.of(new SendBatchPushNotificationResult.FailedToken("token-2", "INTERNAL", false))
             );
             when(sendPushNotificationPort.sendBatch(anyList())).thenReturn(batchResult);
 
@@ -397,13 +397,13 @@ class SendBatchNotificationUseCaseTest {
             setupSaveAllReturnsWithIds();
 
             List<DeviceToken> tokens = List.of(
-                    createDeviceToken(10L, 1L, "invalid-token", Platform.ANDROID)
+                createDeviceToken(10L, 1L, "invalid-token", Platform.ANDROID)
             );
             when(findDeviceTokenPort.findActiveByUserIds(userIds)).thenReturn(tokens);
 
             SendBatchPushNotificationResult batchResult = new SendBatchPushNotificationResult(
-                    0, 1,
-                    List.of(new SendBatchPushNotificationResult.FailedToken("invalid-token", "UNREGISTERED", true))
+                0, 1,
+                List.of(new SendBatchPushNotificationResult.FailedToken("invalid-token", "UNREGISTERED", true))
             );
             when(sendPushNotificationPort.sendBatch(anyList())).thenReturn(batchResult);
 
@@ -425,7 +425,7 @@ class SendBatchNotificationUseCaseTest {
             setupSaveAllReturnsWithIds();
 
             List<DeviceToken> tokens = List.of(
-                    createDeviceToken(10L, 1L, "token-1", Platform.ANDROID)
+                createDeviceToken(10L, 1L, "token-1", Platform.ANDROID)
             );
             when(findDeviceTokenPort.findActiveByUserIds(userIds)).thenReturn(tokens);
             setupBatchPushSuccess(1);
@@ -449,7 +449,7 @@ class SendBatchNotificationUseCaseTest {
             // given
             List<Long> userIds = List.of(1L, 2L);
             SendBatchNotificationCommand command = new SendBatchNotificationCommand(
-                    userIds, TEMPLATE_CODE, Map.of(), "IN_APP_ONLY", null);
+                userIds, TEMPLATE_CODE, Map.of(), "IN_APP_ONLY", null);
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateFound(template);
             setupSaveAllReturnsWithIds();
@@ -515,13 +515,13 @@ class SendBatchNotificationUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(5L)
+                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(5L)
             );
             verify(publishSseEventPort).publish(
-                    2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(3L)
+                2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(3L)
             );
             verify(publishSseEventPort).publish(
-                    3L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
+                3L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
             );
             verify(findNotificationPort).countUnreadByUserId(1L);
             verify(findNotificationPort).countUnreadByUserId(2L);
@@ -534,7 +534,7 @@ class SendBatchNotificationUseCaseTest {
             // given
             List<Long> userIds = List.of(1L, 2L);
             SendBatchNotificationCommand command = new SendBatchNotificationCommand(
-                    userIds, TEMPLATE_CODE, Map.of(), "IN_APP_ONLY", null);
+                userIds, TEMPLATE_CODE, Map.of(), "IN_APP_ONLY", null);
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateFound(template);
             setupSaveAllReturnsWithIds();
@@ -546,10 +546,10 @@ class SendBatchNotificationUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(2L)
+                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(2L)
             );
             verify(publishSseEventPort).publish(
-                    2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(4L)
+                2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(4L)
             );
         }
 
@@ -563,10 +563,10 @@ class SendBatchNotificationUseCaseTest {
             setupTemplateFound(template);
 
             List<NotificationPreference> enabledPrefs = List.of(
-                    createPreference(1L, true)
+                createPreference(1L, true)
             );
             when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+                userIds, NotificationType.ORDER_PAYMENT_COMPLETED
             )).thenReturn(enabledPrefs);
 
             setupSaveAllReturnsWithIds();
@@ -581,13 +581,13 @@ class SendBatchNotificationUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
+                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
             );
             verify(publishSseEventPort).publish(
-                    2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
+                2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
             );
             verify(publishSseEventPort).publish(
-                    3L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
+                3L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
             );
         }
 
@@ -612,41 +612,41 @@ class SendBatchNotificationUseCaseTest {
 
     private SendBatchNotificationCommand createCommand(List<Long> userIds) {
         return new SendBatchNotificationCommand(
-                userIds, TEMPLATE_CODE, Map.of(), "PUSH_ONLY", null
+            userIds, TEMPLATE_CODE, Map.of(), "PUSH_ONLY", null
         );
     }
 
     private NotificationTemplate createTemplate(NotificationCategory category) {
         return NotificationTemplate.from(
-                NotificationTemplateSnapshotState.builder()
-                        .id(1L)
-                        .templateCode(TEMPLATE_CODE)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .notificationCategory(category)
-                        .title("알림 제목")
-                        .bodyTemplate("알림 본문")
-                        .urlTemplate("/test")
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationTemplateSnapshotState.builder()
+                .id(1L)
+                .templateCode(TEMPLATE_CODE)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(category)
+                .title("알림 제목")
+                .bodyTemplate("알림 본문")
+                .urlTemplate("/test")
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private void setupTemplateFound(NotificationTemplate template) {
         when(findNotificationTemplatePort.findActiveByTemplateCode(TEMPLATE_CODE))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
     }
 
     private void setupSaveAllReturnsWithIds() {
         when(saveNotificationPort.saveAll(anyList()))
-                .thenAnswer(invocation -> {
-                    List<Notification> notifications = invocation.getArgument(0);
-                    long idCounter = 100L;
-                    return notifications.stream()
-                            .map(n -> withId(n, idCounter + notifications.indexOf(n)))
-                            .toList();
-                });
+            .thenAnswer(invocation -> {
+                List<Notification> notifications = invocation.getArgument(0);
+                long idCounter = 100L;
+                return notifications.stream()
+                    .map(n -> withId(n, idCounter + notifications.indexOf(n)))
+                    .toList();
+            });
     }
 
     private void setupDeviceTokensForUsers(List<Long> userIds, int devicesPerUser) {
@@ -662,68 +662,68 @@ class SendBatchNotificationUseCaseTest {
 
     private void setupBatchPushSuccess(int count) {
         SendBatchPushNotificationResult batchResult = new SendBatchPushNotificationResult(
-                count, 0, List.of()
+            count, 0, List.of()
         );
         when(sendPushNotificationPort.sendBatch(anyList())).thenReturn(batchResult);
     }
 
     private void setupConsentForUsers(List<Long> userIds) {
         List<NotificationPreference> prefs = userIds.stream()
-                .map(userId -> createPreference(userId, true))
-                .toList();
+            .map(userId -> createPreference(userId, true))
+            .toList();
         when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+            userIds, NotificationType.ORDER_PAYMENT_COMPLETED
         )).thenReturn(prefs);
     }
 
     private NotificationPreference createPreference(Long userId, boolean enabled) {
         return NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(userId)
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .enabled(enabled)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(userId)
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .enabled(enabled)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private DeviceToken createDeviceToken(Long id, Long userId, String token, Platform platform) {
         return DeviceToken.from(
-                DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .token(token)
-                        .platform(platform)
-                        .deviceId("device-" + id)
-                        .lastUsedAt(LocalDateTime.now())
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            DeviceTokenSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .token(token)
+                .platform(platform)
+                .deviceId("device-" + id)
+                .lastUsedAt(LocalDateTime.now())
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private Notification withId(Notification notification, Long id) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(notification.getUserId())
-                        .notificationType(notification.getNotificationType())
-                        .title(notification.getTitle())
-                        .body(notification.getBody())
-                        .data(notification.getData())
-                        .deliveryChannel(notification.getDeliveryChannel())
-                        .isRead(notification.isRead())
-                        .landingUrl(notification.getLandingUrl())
-                        .sendStatus(notification.getSendStatus())
-                        .scheduledAt(notification.getScheduledAt())
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(notification.getUserId())
+                .notificationType(notification.getNotificationType())
+                .title(notification.getTitle())
+                .body(notification.getBody())
+                .data(notification.getData())
+                .deliveryChannel(notification.getDeliveryChannel())
+                .isRead(notification.isRead())
+                .landingUrl(notification.getLandingUrl())
+                .sendStatus(notification.getSendStatus())
+                .scheduledAt(notification.getScheduledAt())
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

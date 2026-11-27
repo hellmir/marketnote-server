@@ -50,20 +50,20 @@ class AdminPaymentEventControllerTest {
         void shouldReturnUnknownPaymentEvents() {
             // given
             GetUnknownPaymentEventsResult result = GetUnknownPaymentEventsResult.builder()
-                    .id(1L)
-                    .orderId(10L)
-                    .orderKey("ORDER_KEY_1")
-                    .amount(10_000L)
-                    .method("CARD")
-                    .resultCode("9999")
-                    .resultMessage("UNKNOWN")
-                    .createdAt(LocalDateTime.of(2026, 1, 15, 0, 0))
-                    .build();
+                .id(1L)
+                .orderId(10L)
+                .orderKey("ORDER_KEY_1")
+                .amount(10_000L)
+                .method("CARD")
+                .resultCode("9999")
+                .resultMessage("UNKNOWN")
+                .createdAt(LocalDateTime.of(2026, 1, 15, 0, 0))
+                .build();
             when(getUnknownPaymentEventsUseCase.getUnknownPaymentEvents()).thenReturn(List.of(result));
 
             // when
             ResponseEntity<BaseResponse<List<GetUnknownPaymentEventsResponse>>> response =
-                    adminPaymentEventController.getUnknownPaymentEvents();
+                adminPaymentEventController.getUnknownPaymentEvents();
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -83,25 +83,25 @@ class AdminPaymentEventControllerTest {
             // given
             String orderKey = "ORDER_KEY_1";
             ResolveUnknownPaymentRequest request = new ResolveUnknownPaymentRequest(
-                    "COMPLETE", "0000", "정상", "PG_KEY_1", "APPROVAL_1", "20260115120000"
+                "COMPLETE", "0000", "정상", "PG_KEY_1", "APPROVAL_1", "20260115120000"
             );
             ResolveUnknownPaymentResult result = ResolveUnknownPaymentResult.builder()
-                    .orderKey(orderKey)
-                    .resolvedStatus("COMPLETE")
-                    .orderId(10L)
-                    .build();
+                .orderKey(orderKey)
+                .resolvedStatus("COMPLETE")
+                .orderId(10L)
+                .build();
             when(resolveUnknownPaymentUseCase.resolve(any(ResolveUnknownPaymentCommand.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<ResolveUnknownPaymentResponse>> response =
-                    adminPaymentEventController.resolveUnknownPaymentEvent(orderKey, request);
+                adminPaymentEventController.resolveUnknownPaymentEvent(orderKey, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             ArgumentCaptor<ResolveUnknownPaymentCommand> captor =
-                    ArgumentCaptor.forClass(ResolveUnknownPaymentCommand.class);
+                ArgumentCaptor.forClass(ResolveUnknownPaymentCommand.class);
             verify(resolveUnknownPaymentUseCase).resolve(captor.capture());
             assertThat(captor.getValue().orderKey()).isEqualTo(orderKey);
             assertThat(captor.getValue().resolvedStatus()).isEqualTo("COMPLETE");

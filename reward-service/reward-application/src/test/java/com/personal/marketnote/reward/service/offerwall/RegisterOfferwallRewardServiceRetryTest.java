@@ -63,15 +63,15 @@ class RegisterOfferwallRewardServiceRetryTest {
 
         @Bean
         RegisterOfferwallRewardUseCase registerOfferwallRewardUseCase(
-                GetUserPointUseCase getUserPointUseCase,
-                ModifyUserPointUseCase modifyUserPointUseCase,
-                SaveOfferwallMapperPort saveOfferwallMapperPort,
-                GetOfferwallMapperUseCase getOfferwallMapperUseCase,
-                ValidateOfferwallSignaturePort validateOfferwallSignaturePort
+            GetUserPointUseCase getUserPointUseCase,
+            ModifyUserPointUseCase modifyUserPointUseCase,
+            SaveOfferwallMapperPort saveOfferwallMapperPort,
+            GetOfferwallMapperUseCase getOfferwallMapperUseCase,
+            ValidateOfferwallSignaturePort validateOfferwallSignaturePort
         ) {
             return new RegisterOfferwallRewardService(
-                    getUserPointUseCase, modifyUserPointUseCase, saveOfferwallMapperPort,
-                    getOfferwallMapperUseCase, validateOfferwallSignaturePort
+                getUserPointUseCase, modifyUserPointUseCase, saveOfferwallMapperPort,
+                getOfferwallMapperUseCase, validateOfferwallSignaturePort
             );
         }
     }
@@ -97,32 +97,32 @@ class RegisterOfferwallRewardServiceRetryTest {
     @AfterEach
     void resetMocks() {
         reset(getUserPointUseCase, modifyUserPointUseCase, saveOfferwallMapperPort,
-                getOfferwallMapperUseCase, validateOfferwallSignaturePort);
+            getOfferwallMapperUseCase, validateOfferwallSignaturePort);
     }
 
     private RegisterOfferwallRewardCommand buildCommand() {
         return RegisterOfferwallRewardCommand.builder()
-                .offerwallType(OfferwallType.ADPOPCORN)
-                .userDeviceType(UserDeviceType.ANDROID)
-                .userKey("user-key")
-                .rewardKey("reward-key")
-                .signedValue("signed-value")
-                .quantity(100L)
-                .campaignKey("campaign")
-                .rewardUnit("UNIT")
-                .build();
+            .offerwallType(OfferwallType.ADPOPCORN)
+            .userDeviceType(UserDeviceType.ANDROID)
+            .userKey("user-key")
+            .rewardKey("reward-key")
+            .signedValue("signed-value")
+            .quantity(100L)
+            .campaignKey("campaign")
+            .rewardUnit("UNIT")
+            .build();
     }
 
     private OfferwallMapper savedMapper() {
         return OfferwallMapper.from(
-                OfferwallMapperSnapshotState.builder()
-                        .id(1L)
-                        .offerwallType(OfferwallType.ADPOPCORN)
-                        .rewardKey("reward-key")
-                        .userKey("user-key")
-                        .isSuccess(true)
-                        .failureCount((short) 0)
-                        .build()
+            OfferwallMapperSnapshotState.builder()
+                .id(1L)
+                .offerwallType(OfferwallType.ADPOPCORN)
+                .rewardKey("reward-key")
+                .userKey("user-key")
+                .isSuccess(true)
+                .failureCount((short) 0)
+                .build()
         );
     }
 
@@ -133,12 +133,12 @@ class RegisterOfferwallRewardServiceRetryTest {
         RegisterOfferwallRewardCommand command = buildCommand();
         when(getUserPointUseCase.existsUserPoint("user-key")).thenReturn(true);
         when(getOfferwallMapperUseCase.existsSucceededOfferwallMapper(OfferwallType.ADPOPCORN, "reward-key"))
-                .thenReturn(false);
+            .thenReturn(false);
         when(saveOfferwallMapperPort.save(any(OfferwallMapper.class))).thenReturn(savedMapper());
         when(modifyUserPointUseCase.modify(any()))
-                .thenThrow(new ObjectOptimisticLockingFailureException(Object.class, 1L))
-                .thenThrow(new ObjectOptimisticLockingFailureException(Object.class, 1L))
-                .thenReturn(mock(UpdateUserPointResult.class));
+            .thenThrow(new ObjectOptimisticLockingFailureException(Object.class, 1L))
+            .thenThrow(new ObjectOptimisticLockingFailureException(Object.class, 1L))
+            .thenReturn(mock(UpdateUserPointResult.class));
 
         // when
         Long result = registerOfferwallRewardUseCase.register(command);
@@ -156,14 +156,14 @@ class RegisterOfferwallRewardServiceRetryTest {
         RegisterOfferwallRewardCommand command = buildCommand();
         when(getUserPointUseCase.existsUserPoint("user-key")).thenReturn(true);
         when(getOfferwallMapperUseCase.existsSucceededOfferwallMapper(OfferwallType.ADPOPCORN, "reward-key"))
-                .thenReturn(false);
+            .thenReturn(false);
         when(saveOfferwallMapperPort.save(any(OfferwallMapper.class))).thenReturn(savedMapper());
         when(modifyUserPointUseCase.modify(any()))
-                .thenThrow(new ObjectOptimisticLockingFailureException(Object.class, 1L));
+            .thenThrow(new ObjectOptimisticLockingFailureException(Object.class, 1L));
 
         // expect
         assertThatThrownBy(() -> registerOfferwallRewardUseCase.register(command))
-                .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+            .isInstanceOf(ObjectOptimisticLockingFailureException.class);
 
         verify(modifyUserPointUseCase, times(3)).modify(any());
     }
@@ -172,6 +172,6 @@ class RegisterOfferwallRewardServiceRetryTest {
     @DisplayName("RegisterOfferwallRewardUseCase는 AOP 프록시로 생성되어 @Retryable이 실제로 적용된다")
     void shouldBeAopProxy() {
         assertThat(org.springframework.aop.support.AopUtils.isAopProxy(registerOfferwallRewardUseCase))
-                .as("@Retryable 적용을 위해 AOP 프록시여야 한다").isTrue();
+            .as("@Retryable 적용을 위해 AOP 프록시여야 한다").isTrue();
     }
 }

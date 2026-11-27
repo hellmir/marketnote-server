@@ -12,39 +12,39 @@ import java.util.List;
 public class FulfillmentDirectReturnDeliveryRequestToCommandMapper {
 
     public static RegisterFulfillmentDirectReturnDeliveryCommand mapToRegisterCommand(
-            String customerCode,
-            String accessToken,
-            List<RegisterFulfillmentDirectReturnDeliveryRequest> request
+        String customerCode,
+        String accessToken,
+        List<RegisterFulfillmentDirectReturnDeliveryRequest> request
     ) {
         List<RegisterFulfillmentDirectReturnDeliveryItemCommand> directReturnDeliveryRequests = request.stream()
-                .map(FulfillmentDirectReturnDeliveryRequestToCommandMapper::mapItem)
-                .toList();
+            .map(FulfillmentDirectReturnDeliveryRequestToCommandMapper::mapItem)
+            .toList();
 
         return RegisterFulfillmentDirectReturnDeliveryCommand.of(customerCode, accessToken, directReturnDeliveryRequests);
     }
 
     private static RegisterFulfillmentDirectReturnDeliveryItemCommand mapItem(RegisterFulfillmentDirectReturnDeliveryRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = FormatValidator.hasValue(item.getGodCds())
-                ? item.getGodCds().stream()
-                .map(FulfillmentDirectReturnDeliveryRequestToCommandMapper::mapGoods)
-                .toList()
-                : List.of();
+            ? item.getGodCds().stream()
+            .map(FulfillmentDirectReturnDeliveryRequestToCommandMapper::mapGoods)
+            .toList()
+            : List.of();
 
         return RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .supplierCode(item.getSupCd())
-                .originalCourierCode(item.getOrgParcelCd())
-                .originalInvoiceNumber(item.getOrgInvoiceNo())
-                .returnReceiveMethod(item.getInWay())
-                .recipientName(item.getCustNm())
-                .returnCourierCompany(item.getRtnParcelComp())
-                .returnInvoiceNumber(item.getRtnInvoiceNo())
-                .returnType(item.getRtnGubun())
-                .returnReason(item.getRtnReason())
-                .returnDetailReason(item.getRtnDetailReason())
-                .remark(item.getRemark())
-                .products(goods)
-                .build();
+            .orderDate(item.getOrdDt())
+            .supplierCode(item.getSupCd())
+            .originalCourierCode(item.getOrgParcelCd())
+            .originalInvoiceNumber(item.getOrgInvoiceNo())
+            .returnReceiveMethod(item.getInWay())
+            .recipientName(item.getCustNm())
+            .returnCourierCompany(item.getRtnParcelComp())
+            .returnInvoiceNumber(item.getRtnInvoiceNo())
+            .returnType(item.getRtnGubun())
+            .returnReason(item.getRtnReason())
+            .returnDetailReason(item.getRtnDetailReason())
+            .remark(item.getRemark())
+            .products(goods)
+            .build();
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapGoods(RegisterFulfillmentDeliveryGoodsRequest item) {

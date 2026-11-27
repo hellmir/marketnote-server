@@ -13,10 +13,10 @@ public class GetAttendancePoliciesResponse {
 
     public static GetAttendancePoliciesResponse from(GetAttendancePoliciesResult result) {
         return GetAttendancePoliciesResponse.builder()
-                .policies(result.policies().stream()
-                        .map(AttendancePolicyResponse::from)
-                        .toList())
-                .build();
+            .policies(result.policies().stream()
+                .map(AttendancePolicyResponse::from)
+                .toList())
+            .build();
     }
 }
 

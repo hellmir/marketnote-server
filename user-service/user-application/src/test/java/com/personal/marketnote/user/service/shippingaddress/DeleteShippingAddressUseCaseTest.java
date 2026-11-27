@@ -44,21 +44,21 @@ class DeleteShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.OTHER)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("4층")
-                .addressAlias("사무실")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.OTHER)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("4층")
+            .addressAlias("사무실")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when
         deleteShippingAddressService.deleteShippingAddress(shippingAddressId, userId);
@@ -67,7 +67,7 @@ class DeleteShippingAddressUseCaseTest {
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "4층", null, ShippingAddressChangeAction.DELETED
+            1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "4층", null, ShippingAddressChangeAction.DELETED
         );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
@@ -80,12 +80,12 @@ class DeleteShippingAddressUseCaseTest {
         Long userId = 100L;
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // expect
         assertThatThrownBy(() -> deleteShippingAddressService.deleteShippingAddress(shippingAddressId, userId))
-                .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessage("배송지를 찾을 수 없습니다.");
+            .isInstanceOf(ShippingAddressNotFoundException.class)
+            .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -100,25 +100,25 @@ class DeleteShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 456")
-                .addressDetail("101호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 456")
+            .addressDetail("101호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // expect
         assertThatThrownBy(() -> deleteShippingAddressService.deleteShippingAddress(shippingAddressId, userId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("집 배송지는 삭제할 수 없습니다.");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("집 배송지는 삭제할 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -133,26 +133,26 @@ class DeleteShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.COMPANY)
-                .address("서울시 서초구 서초대로 789")
-                .addressDetail("5층")
-                .companyName("오포니티")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.COMPANY)
+            .address("서울시 서초구 서초대로 789")
+            .addressDetail("5층")
+            .companyName("오포니티")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // expect
         assertThatThrownBy(() -> deleteShippingAddressService.deleteShippingAddress(shippingAddressId, userId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요.");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);

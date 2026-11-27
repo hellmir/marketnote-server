@@ -40,7 +40,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleProductRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_REGISTERED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_REGISTERED)) {
             ack.acknowledge();
             return;
         }
@@ -52,38 +52,38 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            EventPayloadValidator.id("productId", payload.productId()),
+            EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
             ack.acknowledge();
             return;
         }
 
         if (FormatValidator.hasNoValue(payload.productName())) {
             log.warn(
-                    "ProductRegistered 이벤트 productName 누락 — skip. eventId={}, pricePolicyId={}, productId={}",
-                    envelope.eventId(), payload.pricePolicyId(), payload.productId()
+                "ProductRegistered 이벤트 productName 누락 — skip. eventId={}, pricePolicyId={}, productId={}",
+                envelope.eventId(), payload.pricePolicyId(), payload.productId()
             );
             ack.acknowledge();
             return;
         }
 
         saveProductCatalogReadModelPort.upsertCatalog(
-                payload.pricePolicyId(),
-                payload.productId(),
-                payload.sellerId(),
-                null,
-                payload.productName(),
-                payload.brandName(),
-                FormatValidator.hasValue(payload.price()) ? payload.price() : 0L,
-                FormatValidator.hasValue(payload.discountPrice()) ? payload.discountPrice() : 0L,
-                BigDecimal.ZERO,
-                FormatValidator.hasValue(payload.accumulatedPoint()) ? payload.accumulatedPoint() : 0L,
-                BigDecimal.ZERO,
-                0L,
-                0L,
-                FormatValidator.hasValue(payload.sales()) ? payload.sales() : 0L,
-                serializeProductTags(payload.productTags(), payload.pricePolicyId()),
-                serializeSelectedOptions(payload.selectedOptions(), payload.pricePolicyId())
+            payload.pricePolicyId(),
+            payload.productId(),
+            payload.sellerId(),
+            null,
+            payload.productName(),
+            payload.brandName(),
+            FormatValidator.hasValue(payload.price()) ? payload.price() : 0L,
+            FormatValidator.hasValue(payload.discountPrice()) ? payload.discountPrice() : 0L,
+            BigDecimal.ZERO,
+            FormatValidator.hasValue(payload.accumulatedPoint()) ? payload.accumulatedPoint() : 0L,
+            BigDecimal.ZERO,
+            0L,
+            0L,
+            FormatValidator.hasValue(payload.sales()) ? payload.sales() : 0L,
+            serializeProductTags(payload.productTags(), payload.pricePolicyId()),
+            serializeSelectedOptions(payload.selectedOptions(), payload.pricePolicyId())
         );
         evictProductListFirstCache();
 
@@ -92,7 +92,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     private String serializeProductTags(
-            List<ProductRegisteredEvent.ProductTagSnapshot> tags, Long pricePolicyId
+        List<ProductRegisteredEvent.ProductTagSnapshot> tags, Long pricePolicyId
     ) {
         if (FormatValidator.hasNoValue(tags)) {
             return null;
@@ -106,7 +106,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     private String serializeSelectedOptions(
-            List<ProductRegisteredEvent.ProductOptionSnapshot> options, Long pricePolicyId
+        List<ProductRegisteredEvent.ProductOptionSnapshot> options, Long pricePolicyId
     ) {
         if (FormatValidator.hasNoValue(options)) {
             return null;
@@ -123,7 +123,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleProductTagChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_TAG_CHANGED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_TAG_CHANGED)) {
             ack.acknowledge();
             return;
         }
@@ -135,7 +135,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+            EventPayloadValidator.id("productId", payload.productId()))) {
             ack.acknowledge();
             return;
         }
@@ -165,7 +165,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handlePricePolicyCreated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_CREATED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_CREATED)) {
             ack.acknowledge();
             return;
         }
@@ -177,16 +177,16 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            EventPayloadValidator.id("productId", payload.productId()),
+            EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
             ack.acknowledge();
             return;
         }
 
         if (FormatValidator.hasNoValue(payload.productName())) {
             log.warn(
-                    "PricePolicyCreated 이벤트 productName 누락 (구 스키마 추정) — skip. eventId={}, pricePolicyId={}, productId={}",
-                    envelope.eventId(), payload.pricePolicyId(), payload.productId()
+                "PricePolicyCreated 이벤트 productName 누락 (구 스키마 추정) — skip. eventId={}, pricePolicyId={}, productId={}",
+                envelope.eventId(), payload.pricePolicyId(), payload.productId()
             );
             ack.acknowledge();
             return;
@@ -207,7 +207,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handlePricePolicyDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_DELETED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_DELETED)) {
             ack.acknowledge();
             return;
         }
@@ -219,7 +219,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
             ack.acknowledge();
             return;
         }
@@ -234,7 +234,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleInventoryChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.INVENTORY_CHANGED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.INVENTORY_CHANGED)) {
             ack.acknowledge();
             return;
         }
@@ -246,7 +246,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
             ack.acknowledge();
             return;
         }
@@ -254,7 +254,7 @@ public class ProductCatalogReadModelSyncConsumer {
         saveProductCatalogReadModelPort.updateStockQuantity(payload.pricePolicyId(), payload.stockQuantity());
         evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 재고 업데이트. pricePolicyId={}, stock={}",
-                payload.pricePolicyId(), payload.stockQuantity());
+            payload.pricePolicyId(), payload.stockQuantity());
         ack.acknowledge();
     }
 
@@ -262,7 +262,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleImageChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.FILE_IMAGE_CHANGED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.FILE_IMAGE_CHANGED)) {
             ack.acknowledge();
             return;
         }
@@ -274,7 +274,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("targetId", payload.targetId()))) {
+            EventPayloadValidator.id("targetId", payload.targetId()))) {
             ack.acknowledge();
             return;
         }
@@ -285,9 +285,9 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         saveProductCatalogReadModelPort.updateRepresentativeImage(
-                payload.targetId(),
-                payload.imageUrl(),
-                toResizedImageUrls(payload.resizedImages())
+            payload.targetId(),
+            payload.imageUrl(),
+            toResizedImageUrls(payload.resizedImages())
         );
         evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 대표 이미지 업데이트. productId={}", payload.targetId());
@@ -306,29 +306,29 @@ public class ProductCatalogReadModelSyncConsumer {
             return List.of();
         }
         return resizedImages.stream()
-                .map(ImageChangedEvent.ResizedImageInfo::storageUrl)
-                .filter(FormatValidator::hasValue)
-                .toList();
+            .map(ImageChangedEvent.ResizedImageInfo::storageUrl)
+            .filter(FormatValidator::hasValue)
+            .toList();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_REGISTERED, groupId = CONSUMER_GROUP_ID)
     public void handleReviewRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_REGISTERED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_REGISTERED)) {
             ack.acknowledge();
             return;
         }
 
         ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
         if (FormatValidator.hasNoValue(payload)
-                || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
+            || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
             ack.acknowledge();
             return;
         }
 
         saveProductCatalogReadModelPort.updateReviewAggregate(
-                payload.productId(), payload.totalCount(), payload.averageRating()
+            payload.productId(), payload.totalCount(), payload.averageRating()
         );
         evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (등록). productId={}", payload.productId());
@@ -339,20 +339,20 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleReviewUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_UPDATED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_UPDATED)) {
             ack.acknowledge();
             return;
         }
 
         ReviewUpdatedEvent payload = envelope.getPayloadAs(ReviewUpdatedEvent.class, objectMapper);
         if (FormatValidator.hasNoValue(payload)
-                || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
+            || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
             ack.acknowledge();
             return;
         }
 
         saveProductCatalogReadModelPort.updateReviewAggregate(
-                payload.productId(), payload.totalCount(), payload.averageRating()
+            payload.productId(), payload.totalCount(), payload.averageRating()
         );
         evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (수정). productId={}", payload.productId());
@@ -363,20 +363,20 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleReviewDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_DELETED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_DELETED)) {
             ack.acknowledge();
             return;
         }
 
         ReviewDeletedEvent payload = envelope.getPayloadAs(ReviewDeletedEvent.class, objectMapper);
         if (FormatValidator.hasNoValue(payload)
-                || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
+            || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
             ack.acknowledge();
             return;
         }
 
         saveProductCatalogReadModelPort.updateReviewAggregate(
-                payload.productId(), payload.totalCount(), payload.averageRating()
+            payload.productId(), payload.totalCount(), payload.averageRating()
         );
         evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (삭제). productId={}", payload.productId());
@@ -385,16 +385,16 @@ public class ProductCatalogReadModelSyncConsumer {
 
     private boolean isProductCatalogRepresentativeImage(ImageChangedEvent payload) {
         return FormatValidator.hasValue(payload.fileSort())
-                && FileSort.PRODUCT_CATALOG_IMAGE.name().equals(payload.fileSort())
-                && FormatValidator.hasValue(payload.sortOrder())
-                && payload.sortOrder() == 0;
+            && FileSort.PRODUCT_CATALOG_IMAGE.name().equals(payload.fileSort())
+            && FormatValidator.hasValue(payload.sortOrder())
+            && payload.sortOrder() == 0;
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_UPDATED, groupId = CONSUMER_GROUP_ID)
     public void handleProductUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_UPDATED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_UPDATED)) {
             ack.acknowledge();
             return;
         }
@@ -406,13 +406,13 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+            EventPayloadValidator.id("productId", payload.productId()))) {
             ack.acknowledge();
             return;
         }
 
         saveProductCatalogReadModelPort.updateProductInfo(
-                payload.productId(), payload.productName(), payload.brandName()
+            payload.productId(), payload.productName(), payload.brandName()
         );
         evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 상품 정보 업데이트. productId={}", payload.productId());
@@ -423,7 +423,7 @@ public class ProductCatalogReadModelSyncConsumer {
     public void handleProductDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_DELETED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_DELETED)) {
             ack.acknowledge();
             return;
         }
@@ -435,7 +435,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+            EventPayloadValidator.id("productId", payload.productId()))) {
             ack.acknowledge();
             return;
         }

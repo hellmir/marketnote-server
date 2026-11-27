@@ -83,28 +83,28 @@ class IpAddressTest {
         @DisplayName("IPv4 옥텟 범위 초과(256.1.1.1)로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenIpv4OctetOverflow() {
             assertThatThrownBy(() -> IpAddress.of("256.1.1.1"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("IPv4 선행 0(192.168.01.1)으로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenIpv4LeadingZero() {
             assertThatThrownBy(() -> IpAddress.of("192.168.01.1"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("IPv6 연속 콜론 3개(2001:::1)로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenIpv6TripleColon() {
             assertThatThrownBy(() -> IpAddress.of("2001:::1"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("IPv6 비허용 문자(gggg::1)로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenIpv6InvalidHex() {
             assertThatThrownBy(() -> IpAddress.of("gggg::1"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
@@ -113,49 +113,49 @@ class IpAddressTest {
             String tooLong = "a".repeat(100);
 
             assertThatThrownBy(() -> IpAddress.of(tooLong))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("IPv4 옥텟 개수 부족(192.168.1)으로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenIpv4OctetMissing() {
             assertThatThrownBy(() -> IpAddress.of("192.168.1"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("잘못된 형식(abc.def.ghi.jkl)으로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenInvalidFormat() {
             assertThatThrownBy(() -> IpAddress.of("abc.def.ghi.jkl"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("호스트명(example.com)으로 생성 시 InvalidIpAddressException을 던진다")
         void shouldThrowWhenHostname() {
             assertThatThrownBy(() -> IpAddress.of("example.com"))
-                    .isInstanceOf(InvalidIpAddressException.class);
+                .isInstanceOf(InvalidIpAddressException.class);
         }
 
         @Test
         @DisplayName("null로 생성 시 IpAddressNoValueException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> IpAddress.of(null))
-                    .isInstanceOf(IpAddressNoValueException.class);
+                .isInstanceOf(IpAddressNoValueException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 IpAddressNoValueException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> IpAddress.of(""))
-                    .isInstanceOf(IpAddressNoValueException.class);
+                .isInstanceOf(IpAddressNoValueException.class);
         }
 
         @Test
         @DisplayName("공백 문자열로 생성 시 IpAddressNoValueException을 던진다")
         void shouldThrowWhenBlank() {
             assertThatThrownBy(() -> IpAddress.of("   "))
-                    .isInstanceOf(IpAddressNoValueException.class);
+                .isInstanceOf(IpAddressNoValueException.class);
         }
     }
 

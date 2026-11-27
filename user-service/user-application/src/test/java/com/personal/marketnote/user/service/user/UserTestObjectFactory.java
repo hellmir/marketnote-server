@@ -16,95 +16,95 @@ final class UserTestObjectFactory {
     }
 
     static User createDefaultUser(
-            Long id,
-            EntityStatus status,
-            boolean withdrawalYn,
-            List<UserAuthProvider> userAuthProviders
+        Long id,
+        EntityStatus status,
+        boolean withdrawalYn,
+        List<UserAuthProvider> userAuthProviders
     ) {
         return createUser(
-                id,
-                "tester",
-                "user@test.com",
-                "홍길동",
-                "01011112222",
-                "REF123",
-                Role.getBuyer(),
-                userAuthProviders,
-                LocalDateTime.of(2024, 1, 1, 10, 0),
-                LocalDateTime.of(2024, 1, 2, 11, 0),
-                status,
-                withdrawalYn,
-                5L
+            id,
+            "tester",
+            "user@test.com",
+            "홍길동",
+            "01011112222",
+            "REF123",
+            Role.getBuyer(),
+            userAuthProviders,
+            LocalDateTime.of(2024, 1, 1, 10, 0),
+            LocalDateTime.of(2024, 1, 2, 11, 0),
+            status,
+            withdrawalYn,
+            5L
         );
     }
 
     static User createUser(
-            Long id,
-            String nickname,
-            String email,
-            String fullName,
-            String phoneNumber,
-            String referenceCode,
-            Role role,
-            List<UserAuthProvider> userAuthProviders,
-            LocalDateTime signedUpAt,
-            LocalDateTime lastLoggedInAt,
-            EntityStatus status,
-            boolean withdrawalYn,
-            Long orderNum
+        Long id,
+        String nickname,
+        String email,
+        String fullName,
+        String phoneNumber,
+        String referenceCode,
+        Role role,
+        List<UserAuthProvider> userAuthProviders,
+        LocalDateTime signedUpAt,
+        LocalDateTime lastLoggedInAt,
+        EntityStatus status,
+        boolean withdrawalYn,
+        Long orderNum
     ) {
         return createUser(
-                id,
-                nickname,
-                email,
-                fullName,
-                phoneNumber,
-                referenceCode,
-                role,
-                userAuthProviders,
-                signedUpAt,
-                lastLoggedInAt,
-                status,
-                withdrawalYn,
-                orderNum,
-                null
+            id,
+            nickname,
+            email,
+            fullName,
+            phoneNumber,
+            referenceCode,
+            role,
+            userAuthProviders,
+            signedUpAt,
+            lastLoggedInAt,
+            status,
+            withdrawalYn,
+            orderNum,
+            null
         );
     }
 
     static User createUser(
-            Long id,
-            String nickname,
-            String email,
-            String fullName,
-            String phoneNumber,
-            String referenceCode,
-            Role role,
-            List<UserAuthProvider> userAuthProviders,
-            LocalDateTime signedUpAt,
-            LocalDateTime lastLoggedInAt,
-            EntityStatus status,
-            boolean withdrawalYn,
-            Long orderNum,
-            LocalDateTime deactivatedUntil
+        Long id,
+        String nickname,
+        String email,
+        String fullName,
+        String phoneNumber,
+        String referenceCode,
+        Role role,
+        List<UserAuthProvider> userAuthProviders,
+        LocalDateTime signedUpAt,
+        LocalDateTime lastLoggedInAt,
+        EntityStatus status,
+        boolean withdrawalYn,
+        Long orderNum,
+        LocalDateTime deactivatedUntil
     ) {
         UserSnapshotState state = UserSnapshotState.builder()
-                .id(id)
-                .userKey(DEFAULT_USER_KEY)
-                .nickname(Nickname.of(nickname))
-                .email(email)
-                .fullName(fullName)
-                .phoneNumber(phoneNumber)
-                .referenceCode(toReferenceCode(referenceCode))
-                .role(role)
-                .userAuthProviders(userAuthProviders)
-                .userTerms(List.of())
-                .signedUpAt(signedUpAt)
-                .lastLoggedInAt(lastLoggedInAt)
-                .status(status)
-                .withdrawalYn(withdrawalYn)
-                .orderNum(orderNum)
-                .deactivatedUntil(deactivatedUntil)
-                .build();
+            .id(id)
+            .userKey(DEFAULT_USER_KEY)
+            .nickname(Nickname.of(nickname))
+            .email(email)
+            .fullName(fullName)
+            .phoneNumber(phoneNumber)
+            .referenceCode(toReferenceCode(referenceCode))
+            .role(role)
+            .userAuthProviders(userAuthProviders)
+            .userTerms(List.of())
+            .signedUpAt(signedUpAt)
+            .lastLoggedInAt(lastLoggedInAt)
+            .status(status)
+            .withdrawalYn(withdrawalYn)
+            .orderNum(orderNum)
+            .deactivatedUntil(deactivatedUntil)
+            .build();
 
         return User.from(state);
     }

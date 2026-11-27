@@ -37,8 +37,8 @@ public class UpdateUserService implements UpdateUserUseCase {
     @Override
     public void updateUserInfo(boolean isAdmin, Long id, UpdateUserInfoCommand updateUserInfoCommand) {
         User user = isAdmin
-                ? getUserUseCase.getAllStatusUser(id)
-                : getUserUseCase.getUser(id);
+            ? getUserUseCase.getAllStatusUser(id)
+            : getUserUseCase.getUser(id);
         updateTarget(isAdmin, updateUserInfoCommand, user);
         updateUserPort.update(user);
     }

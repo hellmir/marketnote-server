@@ -65,14 +65,14 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("상품 불량")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("상품 불량")
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -84,14 +84,14 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("상품 불량")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("상품 불량")
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -103,13 +103,13 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -121,12 +121,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -138,11 +138,11 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("상품 불량")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("상품 불량")
+                .buyerId(buyerId)
+                .build();
 
             requestReturnService.requestReturn(command);
 
@@ -158,11 +158,11 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("상품 불량")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("상품 불량")
+                .buyerId(buyerId)
+                .build();
 
             requestReturnService.requestReturn(command);
 
@@ -178,17 +178,17 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("상품 불량")
-                    .buyerId(buyerId)
-                    .pickupRecipientName("회수 수령인")
-                    .pickupRecipientPhoneNumber("01099998888")
-                    .pickupZipCode("54321")
-                    .pickupAddress("회수지 주소")
-                    .pickupAddressDetail("회수지 상세주소")
-                    .pickupRequestMessage("부재시 경비실에 맡겨주세요")
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("상품 불량")
+                .buyerId(buyerId)
+                .pickupRecipientName("회수 수령인")
+                .pickupRecipientPhoneNumber("01099998888")
+                .pickupZipCode("54321")
+                .pickupAddress("회수지 주소")
+                .pickupAddressDetail("회수지 상세주소")
+                .pickupRequestMessage("부재시 경비실에 맡겨주세요")
+                .build();
 
             requestReturnService.requestReturn(command);
 
@@ -209,23 +209,23 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .buyerId(buyerId)
-                    .pickupRecipientName("회수 수령인")
-                    .pickupRecipientPhoneNumber("010-9999-8888")
-                    .pickupZipCode("54321")
-                    .pickupAddress("회수지 주소")
-                    .pickupAddressDetail("회수지 상세주소")
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .buyerId(buyerId)
+                .pickupRecipientName("회수 수령인")
+                .pickupRecipientPhoneNumber("010-9999-8888")
+                .pickupZipCode("54321")
+                .pickupAddress("회수지 주소")
+                .pickupAddressDetail("회수지 상세주소")
+                .build();
 
             requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue())
-                    .isEqualTo("01099998888");
+                .isEqualTo("01099998888");
 
             ArgumentCaptor<RegisterFulfillmentReturnDeliveryCommand> captor =
-                    ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
+                ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
             verify(createReturnTrackerAfterReturnRequestService).createReturnTracker(captor.capture());
 
             RegisterFulfillmentReturnDeliveryCommand deliveryCommand = captor.getValue();
@@ -245,10 +245,10 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .buyerId(buyerId)
+                .build();
 
             requestReturnService.requestReturn(command);
 
@@ -277,13 +277,13 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -295,14 +295,14 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("기타 사유")
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("기타 사유")
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -314,13 +314,13 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(InvalidReasonCategoryException.class);
+                .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -335,12 +335,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> requestReturnService.requestReturn(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -362,12 +362,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(attackerBuyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(attackerBuyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
 
         @Test
@@ -380,12 +380,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(attackerBuyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(attackerBuyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -409,12 +409,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+                .isInstanceOf(OrderStatusAlreadyChangedException.class);
         }
 
         @Test
@@ -426,12 +426,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
@@ -443,12 +443,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
@@ -460,12 +460,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
@@ -477,12 +477,12 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -506,16 +506,16 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .pricePolicyIds(null)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .pricePolicyIds(null)
+                .build();
 
             requestReturnService.requestReturn(command);
 
             assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
             order.getOrderProducts().forEach(product ->
-                    assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED)
+                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED)
             );
         }
 
@@ -528,10 +528,10 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of())
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of())
+                .build();
 
             requestReturnService.requestReturn(command);
 
@@ -547,10 +547,10 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L))
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L))
+                .build();
 
             requestReturnService.requestReturn(command);
 
@@ -568,13 +568,13 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L, 999L))
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L, 999L))
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(InvalidReturnTargetPricePolicyException.class);
+                .isInstanceOf(InvalidReturnTargetPricePolicyException.class);
         }
 
         @Test
@@ -586,15 +586,15 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(200L))
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(200L))
+                .build();
 
             requestReturnService.requestReturn(command);
 
             ArgumentCaptor<RegisterFulfillmentReturnDeliveryCommand> captor =
-                    ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
+                ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
             verify(createReturnTrackerAfterReturnRequestService).createReturnTracker(captor.capture());
 
             RegisterFulfillmentReturnDeliveryCommand deliveryCommand = captor.getValue();
@@ -613,14 +613,14 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             requestReturnService.requestReturn(command);
 
             ArgumentCaptor<RegisterFulfillmentReturnDeliveryCommand> captor =
-                    ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
+                ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
             verify(createReturnTrackerAfterReturnRequestService).createReturnTracker(captor.capture());
 
             RegisterFulfillmentReturnDeliveryCommand deliveryCommand = captor.getValue();
@@ -638,13 +638,13 @@ class RequestReturnUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .pricePolicyIds(List.of(100L))
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .pricePolicyIds(List.of(100L))
+                .build();
 
             assertThatThrownBy(() -> requestReturnService.requestReturn(command))
-                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+                .isInstanceOf(OrderStatusAlreadyChangedException.class);
         }
     }
 
@@ -654,118 +654,118 @@ class RequestReturnUseCaseTest {
 
     private Order createOrderWithTwoProducts(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .productKey(UUID.randomUUID())
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .productKey(UUID.randomUUID())
-                        .sellerId(10L)
-                        .pricePolicyId(200L)
-                        .quantity(2)
-                        .unitAmount(30000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .productKey(UUID.randomUUID())
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .productKey(UUID.randomUUID())
+                .sellerId(10L)
+                .pricePolicyId(200L)
+                .quantity(2)
+                .unitAmount(30000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithProductKeys(Long orderId, Long buyerId, UUID productKey1, UUID productKey2) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId).productKey(productKey1).sellerId(10L).pricePolicyId(100L)
-                        .quantity(1).unitAmount(50000L).accumulatedPoint(0L)
-                        .orderStatus(OrderStatus.DELIVERED).build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId).productKey(productKey2).sellerId(10L).pricePolicyId(200L)
-                        .quantity(2).unitAmount(30000L).accumulatedPoint(0L)
-                        .orderStatus(OrderStatus.DELIVERED).build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId).productKey(productKey1).sellerId(10L).pricePolicyId(100L)
+                .quantity(1).unitAmount(50000L).accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED).build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId).productKey(productKey2).sellerId(10L).pricePolicyId(200L)
+                .quantity(2).unitAmount(30000L).accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED).build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.DELIVERED)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.DELIVERED)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithMixedProductStatuses(Long orderId, Long buyerId) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId).productKey(UUID.randomUUID()).sellerId(10L).pricePolicyId(100L)
-                        .quantity(1).unitAmount(50000L).accumulatedPoint(0L)
-                        .orderStatus(OrderStatus.RETURN_REQUESTED).build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId).productKey(UUID.randomUUID()).sellerId(10L).pricePolicyId(200L)
-                        .quantity(2).unitAmount(30000L).accumulatedPoint(0L)
-                        .orderStatus(OrderStatus.DELIVERED).build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId).productKey(UUID.randomUUID()).sellerId(10L).pricePolicyId(100L)
+                .quantity(1).unitAmount(50000L).accumulatedPoint(0L)
+                .orderStatus(OrderStatus.RETURN_REQUESTED).build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId).productKey(UUID.randomUUID()).sellerId(10L).pricePolicyId(200L)
+                .quantity(2).unitAmount(30000L).accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED).build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithBuyerId(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

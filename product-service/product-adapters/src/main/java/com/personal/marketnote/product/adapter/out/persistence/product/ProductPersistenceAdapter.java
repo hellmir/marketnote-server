@@ -37,10 +37,10 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
         savedEntity.getProductTagJpaEntities().forEach(ProductTagJpaEntity::setIdToOrderNum);
 
         return ProductJpaEntityToDomainMapper.mapToDomain(savedEntity)
-                .orElseThrow(() -> {
-                    log.warn("저장된 상품을 도메인으로 매핑할 수 없습니다. productId={}", savedEntity.getId());
-                    return new ProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("저장된 상품을 도메인으로 매핑할 수 없습니다. productId={}", savedEntity.getId());
+                return new ProductNotFoundException();
+            });
     }
 
     private ProductJpaEntity saveEntity(Product product) {
@@ -72,13 +72,13 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
 
     @Override
     @Cacheable(
-            value = "product:detail",
-            key = "#id",
-            unless = "#result == null || T(java.util.Optional).empty().equals(#result)"
+        value = "product:detail",
+        key = "#id",
+        unless = "#result == null || T(java.util.Optional).empty().equals(#result)"
     )
     public Optional<Product> findById(Long id) {
         return ProductJpaEntityToDomainMapper.mapToDomain(
-                productJpaRepository.findById(id).orElse(null));
+            productJpaRepository.findById(id).orElse(null));
     }
 
     @Override
@@ -89,28 +89,28 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
     @Override
     public List<Product> findAll() {
         return loadProductsWithAssociations(productJpaRepository.findAll()).stream()
-                .map(ProductJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(ProductJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
     public List<Product> findAllByCategoryId(Long categoryId) {
         return loadProductsWithAssociations(productJpaRepository.findAllByCategoryIdOrderByOrderNumAsc(categoryId)).stream()
-                .map(ProductJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(ProductJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
     public List<Product> findByPricePolicyIds(List<Long> pricePolicyIds) {
         return loadProductsWithAssociations(productJpaRepository.findByPricePolicyIds(pricePolicyIds)).stream()
-                .map(ProductJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(ProductJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
@@ -124,10 +124,10 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
 
     private ProductJpaEntity findEntityById(Long id) throws ProductNotFoundException {
         return productJpaRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("상품을 찾을 수 없습니다. productId={}", id);
-                    return new ProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("상품을 찾을 수 없습니다. productId={}", id);
+                return new ProductNotFoundException();
+            });
     }
 
     private List<ProductJpaEntity> loadProductsWithAssociations(List<ProductJpaEntity> baseEntities) {
@@ -136,9 +136,9 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
         }
 
         List<Long> ids = baseEntities.stream()
-                .map(ProductJpaEntity::getId)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(ProductJpaEntity::getId)
+            .filter(Objects::nonNull)
+            .toList();
 
         if (FormatValidator.hasNoValue(ids)) {
             return List.of();
@@ -156,8 +156,8 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
         }
 
         return ids.stream()
-                .map(hydratedById::get)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(hydratedById::get)
+            .filter(Objects::nonNull)
+            .toList();
     }
 }

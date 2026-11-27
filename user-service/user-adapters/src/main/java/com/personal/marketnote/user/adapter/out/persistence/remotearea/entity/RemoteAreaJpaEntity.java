@@ -8,8 +8,8 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "remote_areas",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"province", "district", "village", "subarea"})
+    name = "remote_areas",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"province", "district", "village", "subarea"})
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -39,11 +39,11 @@ public class RemoteAreaJpaEntity extends BaseGeneralEntity {
 
     public static RemoteAreaJpaEntity from(RemoteArea remoteArea) {
         return RemoteAreaJpaEntity.builder()
-                .province(remoteArea.getProvince())
-                .district(remoteArea.getDistrict())
-                .village(remoteArea.getVillage())
-                .subarea(remoteArea.getSubarea())
-                .regionType(remoteArea.getRegionType())
-                .build();
+            .province(remoteArea.getProvince())
+            .district(remoteArea.getDistrict())
+            .village(remoteArea.getVillage())
+            .subarea(remoteArea.getSubarea())
+            .regionType(remoteArea.getRegionType())
+            .build();
     }
 }

@@ -37,8 +37,8 @@ class DeletePricePolicyUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> deletePricePolicyService.delete(userId, false, productId, pricePolicyId))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verifyNoInteractions(deletePricePolicyPort);
@@ -87,7 +87,7 @@ class DeletePricePolicyUseCaseTest {
         doThrow(exception).when(deletePricePolicyPort).deleteById(pricePolicyId);
 
         assertThatThrownBy(() -> deletePricePolicyService.delete(userId, false, productId, pricePolicyId))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verify(deletePricePolicyPort).deleteById(pricePolicyId);

@@ -45,29 +45,29 @@ class AligoBrandTalkMessagePersistenceAdapterTest {
     void shouldSaveRecipientsAsBatch() {
         // given
         AligoBrandTalkMessage message = AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageCreateState.builder()
-                        .senderKey("sender-key-save")
-                        .sender("01000000000")
-                        .kakaoTarget(BrandTalkKakaoTarget.M)
-                        .advertYn(false)
-                        .templateCode("TPL-MSG-001")
-                        .failoverEnabled(false)
-                        .requestedAt(LocalDateTime.now())
-                        .recipients(List.of(
-                                AligoBrandTalkMessageRecipientCreateState.builder()
-                                        .receiver("01011112222")
-                                        .receiverMessage("{\"body\":\"msg1\"}")
-                                        .build(),
-                                AligoBrandTalkMessageRecipientCreateState.builder()
-                                        .receiver("01033334444")
-                                        .receiverMessage("{\"body\":\"msg2\"}")
-                                        .build(),
-                                AligoBrandTalkMessageRecipientCreateState.builder()
-                                        .receiver("01055556666")
-                                        .receiverMessage("{\"body\":\"msg3\"}")
-                                        .build()
-                        ))
+            AligoBrandTalkMessageCreateState.builder()
+                .senderKey("sender-key-save")
+                .sender("01000000000")
+                .kakaoTarget(BrandTalkKakaoTarget.M)
+                .advertYn(false)
+                .templateCode("TPL-MSG-001")
+                .failoverEnabled(false)
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of(
+                    AligoBrandTalkMessageRecipientCreateState.builder()
+                        .receiver("01011112222")
+                        .receiverMessage("{\"body\":\"msg1\"}")
+                        .build(),
+                    AligoBrandTalkMessageRecipientCreateState.builder()
+                        .receiver("01033334444")
+                        .receiverMessage("{\"body\":\"msg2\"}")
+                        .build(),
+                    AligoBrandTalkMessageRecipientCreateState.builder()
+                        .receiver("01055556666")
+                        .receiverMessage("{\"body\":\"msg3\"}")
                         .build()
+                ))
+                .build()
         );
 
         // when
@@ -79,10 +79,10 @@ class AligoBrandTalkMessagePersistenceAdapterTest {
         AligoBrandTalkMessageJpaEntity reloaded = repository.findByIdWithRecipients(saved.getId()).orElseThrow();
         assertThat(reloaded.getRecipients()).hasSize(3);
         assertThat(reloaded.getRecipients())
-                .extracting("receiver")
-                .containsExactlyInAnyOrder("01011112222", "01033334444", "01055556666");
+            .extracting("receiver")
+            .containsExactlyInAnyOrder("01011112222", "01033334444", "01055556666");
         assertThat(reloaded.getRecipients())
-                .allSatisfy(r -> assertThat(r.getId()).isNotNull());
+            .allSatisfy(r -> assertThat(r.getId()).isNotNull());
     }
 
     @Test
@@ -95,26 +95,26 @@ class AligoBrandTalkMessagePersistenceAdapterTest {
 
         LocalDateTime sentAt = LocalDateTime.of(2026, 4, 20, 10, 30);
         AligoBrandTalkMessage sent = AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageSnapshotState.builder()
-                        .id(saved.getId())
-                        .senderKey(saved.getSenderKey())
-                        .sender(saved.getSender())
-                        .kakaoTarget(saved.getKakaoTarget())
-                        .advertYn(saved.isAdvertYn())
-                        .templateCode(saved.getTemplateCode())
-                        .messageStatus(BrandTalkMessageStatus.SENT)
-                        .costType(BrandTalkMessageCostType.BNF)
-                        .unitCost(15)
-                        .totalCost(30)
-                        .aligoMid("ALIGO-MID-001")
-                        .successCount(2)
-                        .failCount(0)
-                        .failoverEnabled(false)
-                        .requestedAt(saved.getRequestedAt())
-                        .sentAt(sentAt)
-                        .recipients(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AligoBrandTalkMessageSnapshotState.builder()
+                .id(saved.getId())
+                .senderKey(saved.getSenderKey())
+                .sender(saved.getSender())
+                .kakaoTarget(saved.getKakaoTarget())
+                .advertYn(saved.isAdvertYn())
+                .templateCode(saved.getTemplateCode())
+                .messageStatus(BrandTalkMessageStatus.SENT)
+                .costType(BrandTalkMessageCostType.BNF)
+                .unitCost(15)
+                .totalCost(30)
+                .aligoMid("ALIGO-MID-001")
+                .successCount(2)
+                .failCount(0)
+                .failoverEnabled(false)
+                .requestedAt(saved.getRequestedAt())
+                .sentAt(sentAt)
+                .recipients(List.of())
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         // when
@@ -143,24 +143,24 @@ class AligoBrandTalkMessagePersistenceAdapterTest {
         entityManager.clear();
 
         AligoBrandTalkMessage failed = AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageSnapshotState.builder()
-                        .id(saved.getId())
-                        .senderKey(saved.getSenderKey())
-                        .sender(saved.getSender())
-                        .kakaoTarget(saved.getKakaoTarget())
-                        .advertYn(saved.isAdvertYn())
-                        .templateCode(saved.getTemplateCode())
-                        .messageStatus(BrandTalkMessageStatus.FAILED)
-                        .aligoMid("should-not-apply")
-                        .unitCost(99)
-                        .totalCost(999)
-                        .successCount(0)
-                        .failCount(2)
-                        .failoverEnabled(false)
-                        .requestedAt(saved.getRequestedAt())
-                        .recipients(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AligoBrandTalkMessageSnapshotState.builder()
+                .id(saved.getId())
+                .senderKey(saved.getSenderKey())
+                .sender(saved.getSender())
+                .kakaoTarget(saved.getKakaoTarget())
+                .advertYn(saved.isAdvertYn())
+                .templateCode(saved.getTemplateCode())
+                .messageStatus(BrandTalkMessageStatus.FAILED)
+                .aligoMid("should-not-apply")
+                .unitCost(99)
+                .totalCost(999)
+                .successCount(0)
+                .failCount(2)
+                .failoverEnabled(false)
+                .requestedAt(saved.getRequestedAt())
+                .recipients(List.of())
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         // when
@@ -185,26 +185,26 @@ class AligoBrandTalkMessagePersistenceAdapterTest {
     void shouldThrowWhenUpdatingNonExistentMessage() {
         // given
         AligoBrandTalkMessage missing = AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageSnapshotState.builder()
-                        .id(999L)
-                        .senderKey("sender-key")
-                        .sender("01000000000")
-                        .kakaoTarget(BrandTalkKakaoTarget.M)
-                        .advertYn(false)
-                        .templateCode("TPL")
-                        .messageStatus(BrandTalkMessageStatus.FAILED)
-                        .successCount(0)
-                        .failCount(0)
-                        .failoverEnabled(false)
-                        .requestedAt(LocalDateTime.now())
-                        .recipients(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AligoBrandTalkMessageSnapshotState.builder()
+                .id(999L)
+                .senderKey("sender-key")
+                .sender("01000000000")
+                .kakaoTarget(BrandTalkKakaoTarget.M)
+                .advertYn(false)
+                .templateCode("TPL")
+                .messageStatus(BrandTalkMessageStatus.FAILED)
+                .successCount(0)
+                .failCount(0)
+                .failoverEnabled(false)
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of())
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         // when & then
         assertThatThrownBy(() -> adapter.update(missing))
-                .isInstanceOf(AligoBrandTalkMessageNotFoundException.class);
+            .isInstanceOf(AligoBrandTalkMessageNotFoundException.class);
     }
 
     @Test
@@ -239,21 +239,21 @@ class AligoBrandTalkMessagePersistenceAdapterTest {
 
     private AligoBrandTalkMessage buildInitialMessage(String templateCode) {
         return AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageCreateState.builder()
-                        .senderKey("sender-key-init")
-                        .sender("01000000000")
-                        .kakaoTarget(BrandTalkKakaoTarget.M)
-                        .advertYn(false)
-                        .templateCode(templateCode)
-                        .failoverEnabled(false)
-                        .requestedAt(LocalDateTime.of(2026, 4, 20, 9, 0))
-                        .recipients(List.of(
-                                AligoBrandTalkMessageRecipientCreateState.builder()
-                                        .receiver("01011112222")
-                                        .receiverMessage("{\"body\":\"msg\"}")
-                                        .build()
-                        ))
+            AligoBrandTalkMessageCreateState.builder()
+                .senderKey("sender-key-init")
+                .sender("01000000000")
+                .kakaoTarget(BrandTalkKakaoTarget.M)
+                .advertYn(false)
+                .templateCode(templateCode)
+                .failoverEnabled(false)
+                .requestedAt(LocalDateTime.of(2026, 4, 20, 9, 0))
+                .recipients(List.of(
+                    AligoBrandTalkMessageRecipientCreateState.builder()
+                        .receiver("01011112222")
+                        .receiverMessage("{\"body\":\"msg\"}")
                         .build()
+                ))
+                .build()
         );
     }
 

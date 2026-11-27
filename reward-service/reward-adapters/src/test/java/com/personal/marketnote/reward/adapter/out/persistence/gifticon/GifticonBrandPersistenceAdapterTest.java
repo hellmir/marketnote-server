@@ -34,13 +34,13 @@ class GifticonBrandPersistenceAdapterTest {
 
     private GifticonBrandJpaEntity buildEntity(Long id, String code) {
         GifticonBrand restored = GifticonBrand.from(GifticonBrandSnapshotState.builder()
-                .id(id)
-                .brandCode(code)
-                .brandName("스타벅스")
-                .brandImageUrl("http://img.test.com/brand.jpg")
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .brandCode(code)
+            .brandName("스타벅스")
+            .brandImageUrl("http://img.test.com/brand.jpg")
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
         return GifticonBrandJpaEntity.from(restored);
     }
 
@@ -80,7 +80,7 @@ class GifticonBrandPersistenceAdapterTest {
             GifticonBrandJpaEntity sample = buildEntity(99L, "B099");
             given(repository.findById(99L)).willReturn(Optional.empty());
             assertThatThrownBy(() -> adapter.update(sample.toDomain()))
-                    .isInstanceOf(GifticonBrandNotFoundException.class);
+                .isInstanceOf(GifticonBrandNotFoundException.class);
         }
     }
 }

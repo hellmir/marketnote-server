@@ -7,20 +7,20 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
 @AnalyzeClasses(
-        packages = "com.personal.marketnote.notification",
-        importOptions = {ImportOption.DoNotIncludeTests.class}
+    packages = "com.personal.marketnote.notification",
+    importOptions = {ImportOption.DoNotIncludeTests.class}
 )
 class DomainExceptionArchUnitTest {
 
     @ArchTest
     static final ArchRule alreadyExistsMustExtendDomainAlreadyExists =
-            DomainExceptionArchRules.alreadyExistsExceptionsMustExtendDomainAlreadyExistsException();
+        DomainExceptionArchRules.alreadyExistsExceptionsMustExtendDomainAlreadyExistsException();
 
     @ArchTest
     static final ArchRule notFoundMustExtendDomainNotFound =
-            DomainExceptionArchRules.notFoundExceptionsMustExtendDomainNotFoundException();
+        DomainExceptionArchRules.notFoundExceptionsMustExtendDomainNotFoundException();
 
     @ArchTest
     static final ArchRule domainExceptionConstructorsMustNotUseStringFormat =
-            DomainExceptionArchRules.domainExceptionConstructorsMustNotUseStringFormat();
+        DomainExceptionArchRules.domainExceptionConstructorsMustNotUseStringFormat();
 }

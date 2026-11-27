@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public interface OfferwallMapperJpaRepository extends JpaRepository<OfferwallMapperJpaEntity, Long> {
     boolean existsByOfferwallTypeAndRewardKeyAndIsSuccess(
-            OfferwallType offerwallType, String rewardKey, boolean isSuccess
+        OfferwallType offerwallType, String rewardKey, boolean isSuccess
     );
 
     Optional<OfferwallMapperJpaEntity> findTop1ByOfferwallTypeAndRewardKeyAndIsSuccessFalseOrderByFailureCountDesc(
-            OfferwallType offerwallType,
-            String rewardKey
+        OfferwallType offerwallType,
+        String rewardKey
     );
 }

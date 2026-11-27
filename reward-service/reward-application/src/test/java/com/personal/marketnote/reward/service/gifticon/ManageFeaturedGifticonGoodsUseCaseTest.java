@@ -41,10 +41,10 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         // given
         GifticonGoods goods = createExposedGoods("G001");
         when(findGifticonGoodsPort.findByGoodsCode("G001"))
-                .thenReturn(Optional.of(goods));
+            .thenReturn(Optional.of(goods));
 
         ManageFeaturedGifticonGoodsCommand command = new ManageFeaturedGifticonGoodsCommand(
-                List.of(new FeaturedGoodsItem("G001", true, 1))
+            List.of(new FeaturedGoodsItem("G001", true, 1))
         );
 
         // when
@@ -62,10 +62,10 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         // given
         GifticonGoods goods = createPopularGoods("G002");
         when(findGifticonGoodsPort.findByGoodsCode("G002"))
-                .thenReturn(Optional.of(goods));
+            .thenReturn(Optional.of(goods));
 
         ManageFeaturedGifticonGoodsCommand command = new ManageFeaturedGifticonGoodsCommand(
-                List.of(new FeaturedGoodsItem("G002", false, null))
+            List.of(new FeaturedGoodsItem("G002", false, null))
         );
 
         // when
@@ -82,15 +82,15 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
     void shouldThrowWhenGoodsNotFound() {
         // given
         when(findGifticonGoodsPort.findByGoodsCode("INVALID"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         ManageFeaturedGifticonGoodsCommand command = new ManageFeaturedGifticonGoodsCommand(
-                List.of(new FeaturedGoodsItem("INVALID", true, 1))
+            List.of(new FeaturedGoodsItem("INVALID", true, 1))
         );
 
         // when & then
         assertThatThrownBy(() -> manageFeaturedGifticonGoodsService.manageFeatured(command))
-                .isInstanceOf(GifticonGoodsNotFoundException.class);
+            .isInstanceOf(GifticonGoodsNotFoundException.class);
         verifyNoInteractions(updateGifticonGoodsPort);
     }
 
@@ -100,76 +100,76 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         // given
         GifticonGoods goods = createUnexposedGoods("G003");
         when(findGifticonGoodsPort.findByGoodsCode("G003"))
-                .thenReturn(Optional.of(goods));
+            .thenReturn(Optional.of(goods));
 
         ManageFeaturedGifticonGoodsCommand command = new ManageFeaturedGifticonGoodsCommand(
-                List.of(new FeaturedGoodsItem("G003", true, 1))
+            List.of(new FeaturedGoodsItem("G003", true, 1))
         );
 
         // when & then
         assertThatThrownBy(() -> manageFeaturedGifticonGoodsService.manageFeatured(command))
-                .isInstanceOf(GifticonGoodsNotExposedException.class);
+            .isInstanceOf(GifticonGoodsNotExposedException.class);
         verifyNoInteractions(updateGifticonGoodsPort);
     }
 
     private GifticonGoods createExposedGoods(String goodsCode) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(1L)
-                .goodsCode(goodsCode)
-                .goodsName("테스트 상품")
-                .brandCode("BR001")
-                .brandName("테스트 브랜드")
-                .brandImageUrl("https://example.com/brand.jpg")
-                .categoryCode("1")
-                .realPrice(10000L)
-                .salePrice(9000L)
-                .cashPrice(9000L)
-                .imageUrl("https://example.com/img.jpg")
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(true)
-                .popular(false)
-                .build()
+            .id(1L)
+            .goodsCode(goodsCode)
+            .goodsName("테스트 상품")
+            .brandCode("BR001")
+            .brandName("테스트 브랜드")
+            .brandImageUrl("https://example.com/brand.jpg")
+            .categoryCode("1")
+            .realPrice(10000L)
+            .salePrice(9000L)
+            .cashPrice(9000L)
+            .imageUrl("https://example.com/img.jpg")
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(true)
+            .popular(false)
+            .build()
         );
     }
 
     private GifticonGoods createPopularGoods(String goodsCode) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(2L)
-                .goodsCode(goodsCode)
-                .goodsName("인기 상품")
-                .brandCode("BR001")
-                .brandName("테스트 브랜드")
-                .brandImageUrl("https://example.com/brand.jpg")
-                .categoryCode("1")
-                .realPrice(10000L)
-                .salePrice(9000L)
-                .cashPrice(9000L)
-                .imageUrl("https://example.com/img.jpg")
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(true)
-                .popular(true)
-                .orderNum(1)
-                .build()
+            .id(2L)
+            .goodsCode(goodsCode)
+            .goodsName("인기 상품")
+            .brandCode("BR001")
+            .brandName("테스트 브랜드")
+            .brandImageUrl("https://example.com/brand.jpg")
+            .categoryCode("1")
+            .realPrice(10000L)
+            .salePrice(9000L)
+            .cashPrice(9000L)
+            .imageUrl("https://example.com/img.jpg")
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(true)
+            .popular(true)
+            .orderNum(1)
+            .build()
         );
     }
 
     private GifticonGoods createUnexposedGoods(String goodsCode) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(3L)
-                .goodsCode(goodsCode)
-                .goodsName("미노출 상품")
-                .brandCode("BR001")
-                .brandName("테스트 브랜드")
-                .brandImageUrl("https://example.com/brand.jpg")
-                .categoryCode("1")
-                .realPrice(10000L)
-                .salePrice(9000L)
-                .cashPrice(9000L)
-                .imageUrl("https://example.com/img.jpg")
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(false)
-                .popular(false)
-                .build()
+            .id(3L)
+            .goodsCode(goodsCode)
+            .goodsName("미노출 상품")
+            .brandCode("BR001")
+            .brandName("테스트 브랜드")
+            .brandImageUrl("https://example.com/brand.jpg")
+            .categoryCode("1")
+            .realPrice(10000L)
+            .salePrice(9000L)
+            .cashPrice(9000L)
+            .imageUrl("https://example.com/img.jpg")
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(false)
+            .popular(false)
+            .build()
         );
     }
 }

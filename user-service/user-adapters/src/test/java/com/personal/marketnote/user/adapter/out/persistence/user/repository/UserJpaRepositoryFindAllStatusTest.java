@@ -56,12 +56,12 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 ACTIVE 회원을 조회한다")
     void findAllStatusReturnsActiveUser() {
         Long savedId = persistUser(
-                "activeUser", "01011112222", "active@test.com",
-                AuthVendor.KAKAO, "oidc-active", EntityStatus.ACTIVE
+            "activeUser", "01011112222", "active@test.com",
+            AuthVendor.KAKAO, "oidc-active", EntityStatus.ACTIVE
         );
 
         Optional<UserJpaEntity> result = repository.findAllStatusUserByAuthVendorAndOidcId(
-                AuthVendor.KAKAO, "oidc-active"
+            AuthVendor.KAKAO, "oidc-active"
         );
 
         assertThat(result).isPresent();
@@ -73,12 +73,12 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 INACTIVE 회원도 조회한다")
     void findAllStatusReturnsInactiveUser() {
         Long savedId = persistUser(
-                "inactUser", "01011113333", "inactive@test.com",
-                AuthVendor.KAKAO, "oidc-inactive", EntityStatus.INACTIVE
+            "inactUser", "01011113333", "inactive@test.com",
+            AuthVendor.KAKAO, "oidc-inactive", EntityStatus.INACTIVE
         );
 
         Optional<UserJpaEntity> result = repository.findAllStatusUserByAuthVendorAndOidcId(
-                AuthVendor.KAKAO, "oidc-inactive"
+            AuthVendor.KAKAO, "oidc-inactive"
         );
 
         assertThat(result).isPresent();
@@ -90,12 +90,12 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 UNEXPOSED 회원도 조회한다")
     void findAllStatusReturnsUnexposedUser() {
         Long savedId = persistUser(
-                "hiddenUser", "01011114444", "hidden@test.com",
-                AuthVendor.KAKAO, "oidc-hidden", EntityStatus.UNEXPOSED
+            "hiddenUser", "01011114444", "hidden@test.com",
+            AuthVendor.KAKAO, "oidc-hidden", EntityStatus.UNEXPOSED
         );
 
         Optional<UserJpaEntity> result = repository.findAllStatusUserByAuthVendorAndOidcId(
-                AuthVendor.KAKAO, "oidc-hidden"
+            AuthVendor.KAKAO, "oidc-hidden"
         );
 
         assertThat(result).isPresent();
@@ -107,12 +107,12 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("기존 findByAuthVendorAndOidcId는 여전히 INACTIVE 회원을 조회하지 않는다")
     void existingQueryStillExcludesInactiveUser() {
         persistUser(
-                "legacyUser", "01011115555", "legacy@test.com",
-                AuthVendor.KAKAO, "oidc-legacy", EntityStatus.INACTIVE
+            "legacyUser", "01011115555", "legacy@test.com",
+            AuthVendor.KAKAO, "oidc-legacy", EntityStatus.INACTIVE
         );
 
         Optional<UserJpaEntity> result = repository.findByAuthVendorAndOidcId(
-                AuthVendor.KAKAO, "oidc-legacy"
+            AuthVendor.KAKAO, "oidc-legacy"
         );
 
         assertThat(result).isEmpty();
@@ -122,7 +122,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 일치하는 회원이 없으면 empty를 반환한다")
     void findAllStatusReturnsEmptyWhenNoMatch() {
         Optional<UserJpaEntity> result = repository.findAllStatusUserByAuthVendorAndOidcId(
-                AuthVendor.KAKAO, "oidc-missing"
+            AuthVendor.KAKAO, "oidc-missing"
         );
 
         assertThat(result).isEmpty();
@@ -136,29 +136,29 @@ class UserJpaRepositoryFindAllStatusTest {
         void returnsAllActiveUsersWhenKeywordEmpty() {
             // given
             persistUser(
-                    "sentOne", "01020000001", "sentinel1@test.com",
-                    AuthVendor.KAKAO, "oidc-sentinel-1", EntityStatus.ACTIVE
+                "sentOne", "01020000001", "sentinel1@test.com",
+                AuthVendor.KAKAO, "oidc-sentinel-1", EntityStatus.ACTIVE
             );
             persistUser(
-                    "sentTwo", "01020000002", "sentinel2@test.com",
-                    AuthVendor.KAKAO, "oidc-sentinel-2", EntityStatus.ACTIVE
+                "sentTwo", "01020000002", "sentinel2@test.com",
+                AuthVendor.KAKAO, "oidc-sentinel-2", EntityStatus.ACTIVE
             );
             // INACTIVE 사용자: 결과에 포함되지 않아야 함
             persistUser(
-                    "sentOff", "01020000003", "sentinel3@test.com",
-                    AuthVendor.KAKAO, "oidc-sentinel-3", EntityStatus.INACTIVE
+                "sentOff", "01020000003", "sentinel3@test.com",
+                AuthVendor.KAKAO, "oidc-sentinel-3", EntityStatus.INACTIVE
             );
 
             // when
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
-                    PageRequest.of(0, 10), false, false, false, false, false, ""
+                PageRequest.of(0, 10), false, false, false, false, false, ""
             );
 
             // then
             assertThat(result.getContent()).hasSize(2);
             assertThat(result.getContent())
-                    .extracting(UserJpaEntity::getStatus)
-                    .containsOnly(EntityStatus.ACTIVE);
+                .extracting(UserJpaEntity::getStatus)
+                .containsOnly(EntityStatus.ACTIVE);
         }
 
         @Test
@@ -166,17 +166,17 @@ class UserJpaRepositoryFindAllStatusTest {
         void filtersByNicknameWhenByNicknameTrue() {
             // given
             persistUser(
-                    "alphaNick", "01021000001", "alpha@test.com",
-                    AuthVendor.KAKAO, "oidc-alpha", EntityStatus.ACTIVE
+                "alphaNick", "01021000001", "alpha@test.com",
+                AuthVendor.KAKAO, "oidc-alpha", EntityStatus.ACTIVE
             );
             persistUser(
-                    "betaNick", "01021000002", "beta@test.com",
-                    AuthVendor.KAKAO, "oidc-beta", EntityStatus.ACTIVE
+                "betaNick", "01021000002", "beta@test.com",
+                AuthVendor.KAKAO, "oidc-beta", EntityStatus.ACTIVE
             );
 
             // when
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
-                    PageRequest.of(0, 10), false, true, false, false, false, "alpha"
+                PageRequest.of(0, 10), false, true, false, false, false, "alpha"
             );
 
             // then
@@ -189,13 +189,13 @@ class UserJpaRepositoryFindAllStatusTest {
         void returnsEmptyWhenKeywordPresentButAllFlagsFalse() {
             // given
             persistUser(
-                    "flagOff", "01022000001", "flagoff@test.com",
-                    AuthVendor.KAKAO, "oidc-flagoff", EntityStatus.ACTIVE
+                "flagOff", "01022000001", "flagoff@test.com",
+                AuthVendor.KAKAO, "oidc-flagoff", EntityStatus.ACTIVE
             );
 
             // when
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
-                    PageRequest.of(0, 10), false, false, false, false, false, "flagOff"
+                PageRequest.of(0, 10), false, false, false, false, false, "flagOff"
             );
 
             // then
@@ -207,13 +207,13 @@ class UserJpaRepositoryFindAllStatusTest {
         void matchesNicknameCaseInsensitively() {
             // given
             persistUser(
-                    "MixNick", "01023000001", "mixed@test.com",
-                    AuthVendor.KAKAO, "oidc-mixed", EntityStatus.ACTIVE
+                "MixNick", "01023000001", "mixed@test.com",
+                AuthVendor.KAKAO, "oidc-mixed", EntityStatus.ACTIVE
             );
 
             // when
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
-                    PageRequest.of(0, 10), false, true, false, false, false, "mixnick"
+                PageRequest.of(0, 10), false, true, false, false, false, "mixnick"
             );
 
             // then
@@ -223,26 +223,26 @@ class UserJpaRepositoryFindAllStatusTest {
     }
 
     private Long persistUser(
-            String nickname, String phoneNumber, String email,
-            AuthVendor vendor, String oidcId, EntityStatus targetStatus
+        String nickname, String phoneNumber, String email,
+        AuthVendor vendor, String oidcId, EntityStatus targetStatus
     ) {
         User user = User.from(
-                UserSnapshotState.builder()
-                        .userKey(UUID.randomUUID())
-                        .nickname(Nickname.of(nickname))
-                        .email(email)
-                        .password("encoded-password")
-                        .fullName("테스트")
-                        .phoneNumber(phoneNumber)
-                        .role(Role.getBuyer())
-                        .userAuthProviders(List.of(UserAuthProvider.of(vendor, oidcId)))
-                        .userTerms(List.of())
-                        .signedUpAt(LocalDateTime.now())
-                        .lastLoggedInAt(LocalDateTime.now())
-                        .status(EntityStatus.ACTIVE)
-                        .withdrawalYn(false)
-                        .penaltyCount(0)
-                        .build()
+            UserSnapshotState.builder()
+                .userKey(UUID.randomUUID())
+                .nickname(Nickname.of(nickname))
+                .email(email)
+                .password("encoded-password")
+                .fullName("테스트")
+                .phoneNumber(phoneNumber)
+                .role(Role.getBuyer())
+                .userAuthProviders(List.of(UserAuthProvider.of(vendor, oidcId)))
+                .userTerms(List.of())
+                .signedUpAt(LocalDateTime.now())
+                .lastLoggedInAt(LocalDateTime.now())
+                .status(EntityStatus.ACTIVE)
+                .withdrawalYn(false)
+                .penaltyCount(0)
+                .build()
         );
 
         UserJpaEntity entity = UserJpaEntity.from(user);
@@ -252,13 +252,13 @@ class UserJpaRepositoryFindAllStatusTest {
 
         if (targetStatus == EntityStatus.INACTIVE) {
             em.createNativeQuery("UPDATE users SET status = 'INACTIVE' WHERE id = :id")
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         if (targetStatus == EntityStatus.UNEXPOSED) {
             em.createNativeQuery("UPDATE users SET status = 'UNEXPOSED' WHERE id = :id")
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         em.flush();
         em.clear();

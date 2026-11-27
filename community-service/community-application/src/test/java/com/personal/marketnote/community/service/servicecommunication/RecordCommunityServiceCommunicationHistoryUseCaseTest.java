@@ -33,15 +33,15 @@ class RecordCommunityServiceCommunicationHistoryUseCaseTest {
     void shouldRecordCommunicationHistorySuccessfully() {
         // given
         CommunityServiceCommunicationHistoryCommand command = CommunityServiceCommunicationHistoryCommand.builder()
-                .targetType(CommunityServiceCommunicationTargetType.PRODUCT_INFO)
-                .targetId("product-123")
-                .communicationType(CommunityServiceCommunicationType.REQUEST)
-                .sender(CommunityServiceCommunicationSenderType.COMMERCE)
-                .payload("{\"productId\": 123}")
-                .build();
+            .targetType(CommunityServiceCommunicationTargetType.PRODUCT_INFO)
+            .targetId("product-123")
+            .communicationType(CommunityServiceCommunicationType.REQUEST)
+            .sender(CommunityServiceCommunicationSenderType.COMMERCE)
+            .payload("{\"productId\": 123}")
+            .build();
 
         when(saveServiceCommunicationHistoryPort.save(any(CommunityServiceCommunicationHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         CommunityServiceCommunicationHistory result = recordCommunityServiceCommunicationHistoryService.record(command);

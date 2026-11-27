@@ -60,27 +60,27 @@ public class NotificationTemplateController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterNotificationTemplateApiDocs
     public ResponseEntity<BaseResponse<RegisterNotificationTemplateResponse>> registerNotificationTemplate(
-            @Valid @RequestBody RegisterNotificationTemplateRequest request
+        @Valid @RequestBody RegisterNotificationTemplateRequest request
     ) {
         RegisterNotificationTemplateResult result = registerNotificationTemplateUseCase.registerNotificationTemplate(
-                new RegisterNotificationTemplateCommand(
-                        request.templateCode(),
-                        request.notificationType().name(),
-                        request.notificationCategory().name(),
-                        request.title(),
-                        request.bodyTemplate(),
-                        request.urlTemplate()
-                )
+            new RegisterNotificationTemplateCommand(
+                request.templateCode(),
+                request.notificationType().name(),
+                request.notificationCategory().name(),
+                request.title(),
+                request.bodyTemplate(),
+                request.urlTemplate()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterNotificationTemplateResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 템플릿 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterNotificationTemplateResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "알림 템플릿 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -99,17 +99,17 @@ public class NotificationTemplateController {
         List<GetNotificationTemplateResult> results = getNotificationTemplateUseCase.getNotificationTemplates();
 
         List<GetNotificationTemplateResponse> responses = results.stream()
-                .map(GetNotificationTemplateResponse::from)
-                .toList();
+            .map(GetNotificationTemplateResponse::from)
+            .toList();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        responses,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 템플릿 전체 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                responses,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 템플릿 전체 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -126,18 +126,18 @@ public class NotificationTemplateController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetNotificationTemplateApiDocs
     public ResponseEntity<BaseResponse<GetNotificationTemplateResponse>> getNotificationTemplate(
-            @PathVariable Long id
+        @PathVariable Long id
     ) {
         GetNotificationTemplateResult result = getNotificationTemplateUseCase.getNotificationTemplate(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetNotificationTemplateResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 템플릿 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetNotificationTemplateResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 템플릿 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -155,26 +155,26 @@ public class NotificationTemplateController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateNotificationTemplateApiDocs
     public ResponseEntity<BaseResponse<UpdateNotificationTemplateResponse>> updateNotificationTemplate(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateNotificationTemplateRequest request
+        @PathVariable Long id,
+        @Valid @RequestBody UpdateNotificationTemplateRequest request
     ) {
         UpdateNotificationTemplateResult result = updateNotificationTemplateUseCase.updateNotificationTemplate(
-                id,
-                new UpdateNotificationTemplateCommand(
-                        request.title(),
-                        request.bodyTemplate(),
-                        request.urlTemplate()
-                )
+            id,
+            new UpdateNotificationTemplateCommand(
+                request.title(),
+                request.bodyTemplate(),
+                request.urlTemplate()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateNotificationTemplateResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 템플릿 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateNotificationTemplateResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 템플릿 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -191,18 +191,18 @@ public class NotificationTemplateController {
     @PreAuthorize(ADMIN_POINTCUT)
     @DeleteNotificationTemplateApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteNotificationTemplate(
-            @PathVariable Long id
+        @PathVariable Long id
     ) {
         deleteNotificationTemplateUseCase.deleteNotificationTemplate(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 템플릿 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 템플릿 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

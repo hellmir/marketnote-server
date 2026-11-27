@@ -23,18 +23,18 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
         // given
         JsonNode payloadJson = objectMapper.createObjectNode().put("key", "value");
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                .targetId("target-123")
-                .communicationType(ProductServiceCommunicationType.REQUEST)
-                .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                .exception("RuntimeException")
-                .payload("payload text")
-                .payloadJson(payloadJson)
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+            .targetId("target-123")
+            .communicationType(ProductServiceCommunicationType.REQUEST)
+            .sender(ProductServiceCommunicationSenderType.PRODUCT)
+            .exception("RuntimeException")
+            .payload("payload text")
+            .payloadJson(payloadJson)
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getTargetType()).isEqualTo(ProductServiceCommunicationTargetType.INVENTORY);
@@ -51,18 +51,18 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
     void mapToCreateState_nullOptionalFields_mapsNulls() {
         // given
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE)
-                .targetId(null)
-                .communicationType(ProductServiceCommunicationType.RESPONSE)
-                .sender(ProductServiceCommunicationSenderType.COMMUNITY)
-                .exception(null)
-                .payload(null)
-                .payloadJson(null)
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE)
+            .targetId(null)
+            .communicationType(ProductServiceCommunicationType.RESPONSE)
+            .sender(ProductServiceCommunicationSenderType.COMMUNITY)
+            .exception(null)
+            .payload(null)
+            .payloadJson(null)
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getTargetType()).isEqualTo(ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE);
@@ -80,14 +80,14 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
         for (ProductServiceCommunicationTargetType targetType : ProductServiceCommunicationTargetType.values()) {
             // given
             ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                    .targetType(targetType)
-                    .communicationType(ProductServiceCommunicationType.REQUEST)
-                    .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                    .build();
+                .targetType(targetType)
+                .communicationType(ProductServiceCommunicationType.REQUEST)
+                .sender(ProductServiceCommunicationSenderType.PRODUCT)
+                .build();
 
             // when
             ProductServiceCommunicationHistoryCreateState state =
-                    ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
             // then
             assertThat(state.getTargetType()).isEqualTo(targetType);
@@ -100,14 +100,14 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
         for (ProductServiceCommunicationSenderType senderType : ProductServiceCommunicationSenderType.values()) {
             // given
             ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                    .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                    .communicationType(ProductServiceCommunicationType.REQUEST)
-                    .sender(senderType)
-                    .build();
+                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+                .communicationType(ProductServiceCommunicationType.REQUEST)
+                .sender(senderType)
+                .build();
 
             // when
             ProductServiceCommunicationHistoryCreateState state =
-                    ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
             // then
             assertThat(state.getSender()).isEqualTo(senderType);
@@ -120,14 +120,14 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
         for (ProductServiceCommunicationType commType : ProductServiceCommunicationType.values()) {
             // given
             ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                    .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                    .communicationType(commType)
-                    .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                    .build();
+                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+                .communicationType(commType)
+                .sender(ProductServiceCommunicationSenderType.PRODUCT)
+                .build();
 
             // when
             ProductServiceCommunicationHistoryCreateState state =
-                    ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
             // then
             assertThat(state.getCommunicationType()).isEqualTo(commType);
@@ -148,15 +148,15 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
         complexJson.set("body", body);
 
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.FULFILLMENT_GOODS)
-                .communicationType(ProductServiceCommunicationType.REQUEST)
-                .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                .payloadJson(complexJson)
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.FULFILLMENT_GOODS)
+            .communicationType(ProductServiceCommunicationType.REQUEST)
+            .sender(ProductServiceCommunicationSenderType.PRODUCT)
+            .payloadJson(complexJson)
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getPayloadJson()).isEqualTo(complexJson);
@@ -172,16 +172,16 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
     void mapToCreateState_payloadOnlyWithoutJson_mapsIndependently() {
         // given
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.PRODUCT_IMAGE)
-                .communicationType(ProductServiceCommunicationType.RESPONSE)
-                .sender(ProductServiceCommunicationSenderType.FILE)
-                .payload("text payload")
-                .payloadJson(null)
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.PRODUCT_IMAGE)
+            .communicationType(ProductServiceCommunicationType.RESPONSE)
+            .sender(ProductServiceCommunicationSenderType.FILE)
+            .payload("text payload")
+            .payloadJson(null)
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getPayload()).isEqualTo("text payload");
@@ -194,16 +194,16 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
         // given
         JsonNode json = objectMapper.createObjectNode().put("status", 200);
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.PRODUCT_IMAGE)
-                .communicationType(ProductServiceCommunicationType.RESPONSE)
-                .sender(ProductServiceCommunicationSenderType.FILE)
-                .payload(null)
-                .payloadJson(json)
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.PRODUCT_IMAGE)
+            .communicationType(ProductServiceCommunicationType.RESPONSE)
+            .sender(ProductServiceCommunicationSenderType.FILE)
+            .payload(null)
+            .payloadJson(json)
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getPayload()).isNull();
@@ -215,15 +215,15 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
     void mapToCreateState_emptyTargetId_mapsAsEmptyString() {
         // given
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                .targetId("")
-                .communicationType(ProductServiceCommunicationType.REQUEST)
-                .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+            .targetId("")
+            .communicationType(ProductServiceCommunicationType.REQUEST)
+            .sender(ProductServiceCommunicationSenderType.PRODUCT)
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getTargetId()).isEmpty();
@@ -234,15 +234,15 @@ class ProductServiceCommunicationHistoryCommandToStateMapperTest {
     void mapToCreateState_emptyException_mapsAsEmptyString() {
         // given
         ProductServiceCommunicationHistoryCommand command = ProductServiceCommunicationHistoryCommand.builder()
-                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                .communicationType(ProductServiceCommunicationType.REQUEST)
-                .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                .exception("")
-                .build();
+            .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+            .communicationType(ProductServiceCommunicationType.REQUEST)
+            .sender(ProductServiceCommunicationSenderType.PRODUCT)
+            .exception("")
+            .build();
 
         // when
         ProductServiceCommunicationHistoryCreateState state =
-                ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
+            ProductServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command);
 
         // then
         assertThat(state.getException()).isEmpty();

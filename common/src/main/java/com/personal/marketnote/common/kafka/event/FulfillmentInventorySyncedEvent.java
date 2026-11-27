@@ -7,13 +7,13 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentInventorySyncedEvent(
-        List<InventoryItem> inventories
+    List<InventoryItem> inventories
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record InventoryItem(
-            UUID productKey,
-            Integer stock
+        UUID productKey,
+        Integer stock
     ) {
     }
 }

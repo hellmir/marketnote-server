@@ -41,9 +41,9 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
         OrderStatusReasonCategory reasonCategory = resolveReasonCategory(command.reasonCategory());
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.of(
-                        command.orderId(), order.getOrderStatus(), reasonCategory, command.reason()
-                )
+            OrderStatusHistoryCreateState.of(
+                command.orderId(), order.getOrderStatus(), reasonCategory, command.reason()
+            )
         );
 
         updateOrderPort.update(order, orderStatusHistory);
@@ -51,22 +51,22 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
         List<OrderProduct> cancelProducts = mapToOrderProducts(command.cancelProducts());
 
         publishOrderEventPort.publishOrderCancelledEvent(
-                command.orderId(),
-                command.orderKey(),
-                command.buyerId(),
-                command.cancelAmount(),
-                command.paymentAmount(),
-                command.pointAmount(),
-                command.shippingFee(),
-                command.isFullCancel(),
-                command.alreadyRefunded(),
-                order.getOrderProducts(),
-                cancelProducts,
-                command.cancelId()
+            command.orderId(),
+            command.orderKey(),
+            command.buyerId(),
+            command.cancelAmount(),
+            command.paymentAmount(),
+            command.pointAmount(),
+            command.shippingFee(),
+            command.isFullCancel(),
+            command.alreadyRefunded(),
+            order.getOrderProducts(),
+            cancelProducts,
+            command.cancelId()
         );
 
         log.info("주문 취소 완료 처리. orderId={}, orderKey={}, isFullCancel={}",
-                command.orderId(), command.orderKey(), command.isFullCancel()
+            command.orderId(), command.orderKey(), command.isFullCancel()
         );
     }
 
@@ -90,8 +90,8 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
             return List.of();
         }
         return items.stream()
-                .map(CancelProductItemCommand::pricePolicyId)
-                .toList();
+            .map(CancelProductItemCommand::pricePolicyId)
+            .toList();
     }
 
     private List<OrderProduct> mapToOrderProducts(List<CancelProductItemCommand> items) {
@@ -99,10 +99,10 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
             return List.of();
         }
         return items.stream()
-                .map(item -> OrderProduct.from(OrderProductSnapshotState.forCancelItem(
-                        item.pricePolicyId(), item.sharerKey(), item.quantity(), item.unitAmount(), 0L
-                )))
-                .toList();
+            .map(item -> OrderProduct.from(OrderProductSnapshotState.forCancelItem(
+                item.pricePolicyId(), item.sharerKey(), item.quantity(), item.unitAmount(), 0L
+            )))
+            .toList();
     }
 
     private OrderStatusReasonCategory resolveReasonCategory(String reasonCategoryStr) {

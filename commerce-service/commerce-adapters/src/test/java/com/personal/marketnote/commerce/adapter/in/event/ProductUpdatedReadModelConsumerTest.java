@@ -39,30 +39,30 @@ class ProductUpdatedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", envelope
+            KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<ProductUpdatedEvent> createEnvelope(ProductUpdatedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.PRODUCT_UPDATED,
-                "product-service",
-                LocalDateTime.of(2026, 3, 31, 10, 0),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.PRODUCT_UPDATED,
+            "product-service",
+            LocalDateTime.of(2026, 3, 31, 10, 0),
+            payload
         );
     }
 
     private ProductUpdatedEvent createPayload(Long productId, String productName) {
         return new ProductUpdatedEvent(
-                productId, UUID.randomUUID(), productName, null, "1", "01",
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null
+            productId, UUID.randomUUID(), productName, null, "1", "01",
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null
         );
     }
 
@@ -87,7 +87,7 @@ class ProductUpdatedReadModelConsumerTest {
     void handleProductUpdatedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", null
+            KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", null
         );
 
         // when
@@ -104,11 +104,11 @@ class ProductUpdatedReadModelConsumerTest {
         // given
         ProductUpdatedEvent payload = createPayload(1L, "수정된 상품명");
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "product-service",
-                LocalDateTime.of(2026, 3, 31, 10, 0),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "product-service",
+            LocalDateTime.of(2026, 3, 31, 10, 0),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -189,19 +189,19 @@ class ProductUpdatedReadModelConsumerTest {
     void handleProductUpdatedEvent_deserializationFailure_propagatesException() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.PRODUCT_UPDATED,
-                "product-service",
-                LocalDateTime.of(2026, 3, 31, 10, 0),
-                "invalid-payload"
+            "test-event-id",
+            KafkaTopicConstants.PRODUCT_UPDATED,
+            "product-service",
+            LocalDateTime.of(2026, 3, 31, 10, 0),
+            "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", envelope
+            KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductUpdatedEvent(record, acknowledgment))
-                .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

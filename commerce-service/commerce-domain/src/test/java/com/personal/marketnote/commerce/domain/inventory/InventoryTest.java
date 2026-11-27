@@ -13,12 +13,12 @@ class InventoryTest {
 
     private Inventory createInventory(int stock, int reserved) {
         InventorySnapshotState state = InventorySnapshotState.builder()
-                .productId(1L)
-                .pricePolicyId(100L)
-                .stock(stock)
-                .version(0L)
-                .reserved(reserved)
-                .build();
+            .productId(1L)
+            .pricePolicyId(100L)
+            .stock(stock)
+            .version(0L)
+            .reserved(reserved)
+            .build();
         return Inventory.from(state);
     }
 
@@ -94,7 +94,7 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.reserve(5))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
         }
 
         @Test
@@ -119,9 +119,9 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.reserve(0))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
             assertThatThrownBy(() -> inventory.reserve(-1))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -166,7 +166,7 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.confirmReservation(5))
-                    .isInstanceOf(InvalidInventoryReservationQuantityException.class);
+                .isInstanceOf(InvalidInventoryReservationQuantityException.class);
         }
 
         @Test
@@ -177,9 +177,9 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.confirmReservation(0))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
             assertThatThrownBy(() -> inventory.confirmReservation(-1))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -237,9 +237,9 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.releaseReservation(0))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
             assertThatThrownBy(() -> inventory.releaseReservation(-1))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -275,7 +275,7 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.validateIsSufficient(8))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
         }
 
         @Test
@@ -286,7 +286,7 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.validateIsSufficient(5))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
         }
 
         @Test
@@ -297,9 +297,9 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.validateIsSufficient(5))
-                    .isInstanceOf(InsufficientAvailableStockException.class)
-                    .hasMessageContaining("현재 가용재고: 3")
-                    .hasMessageContaining("요청 수량: 5");
+                .isInstanceOf(InsufficientAvailableStockException.class)
+                .hasMessageContaining("현재 가용재고: 3")
+                .hasMessageContaining("요청 수량: 5");
         }
 
         @Test
@@ -310,7 +310,7 @@ class InventoryTest {
 
             // when & then
             assertThatThrownBy(() -> inventory.validateIsSufficient(6))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
         }
     }
 
@@ -323,12 +323,12 @@ class InventoryTest {
         void shouldRestoreFromSnapshotState() {
             // given
             InventorySnapshotState state = InventorySnapshotState.builder()
-                    .productId(1L)
-                    .pricePolicyId(100L)
-                    .stock(10)
-                    .version(5L)
-                    .reserved(3)
-                    .build();
+                .productId(1L)
+                .pricePolicyId(100L)
+                .stock(10)
+                .version(5L)
+                .reserved(3)
+                .build();
 
             // when
             Inventory inventory = Inventory.from(state);

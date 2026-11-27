@@ -50,34 +50,34 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
         short continuousPeriod = calculateContinuousPeriod(userAttendance.getId(), command.attendedAt());
         AttendancePolicy attendancePolicy = selectAttendancePolicy(continuousPeriod, attendedDate);
         UserAttendanceHistory savedHistory = saveUserAttendanceHistoryPort.save(
-                UserAttendanceHistory.from(
-                        RewardCommandToStateMapper.mapToUserAttendanceHistoryCreateState(
-                                command,
-                                attendancePolicy,
-                                continuousPeriod,
-                                userAttendance.getId()
-                        )
+            UserAttendanceHistory.from(
+                RewardCommandToStateMapper.mapToUserAttendanceHistoryCreateState(
+                    command,
+                    attendancePolicy,
+                    continuousPeriod,
+                    userAttendance.getId()
                 )
+            )
         );
 
         saveUserAttendancePort.save(
-                userAttendance.withAddedReward(attendancePolicy.getRewardQuantityValue())
+            userAttendance.withAddedReward(attendancePolicy.getRewardQuantityValue())
         );
 
         return new RegisterAttendanceResult(
-                savedHistory.getId(),
-                attendancePolicy.getRewardType(),
-                attendancePolicy.getRewardQuantityValue(),
-                continuousPeriod
+            savedHistory.getId(),
+            attendancePolicy.getRewardType(),
+            attendancePolicy.getRewardQuantityValue(),
+            continuousPeriod
         );
     }
 
     private void validateAttendedAt(LocalDateTime attendedAt) {
         LocalDateTime now = LocalDateTime.now();
         if (
-                FormatValidator.hasNoValue(attendedAt)
-                        || attendedAt.isAfter(now)
-                        || attendedAt.isBefore(now.minusMinutes(ALLOWED_DELAY_MINUTES))
+            FormatValidator.hasNoValue(attendedAt)
+                || attendedAt.isAfter(now)
+                || attendedAt.isBefore(now.minusMinutes(ALLOWED_DELAY_MINUTES))
         ) {
             throw new InvalidAttendanceTimeException("전송된 출석일시가 올바르지 않습니다.");
         }
@@ -88,27 +88,27 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
         Month month = Month.from(attendedDate.getMonthValue());
 
         return findUserAttendancePort.findByUserIdAndYearAndMonth(userId, year, month)
-                .orElseGet(() -> saveUserAttendancePort.save(
-                        UserAttendance.from(
-                                RewardCommandToStateMapper.mapToUserAttendanceCreateState(userId, year, month)
-                        )
-                ));
+            .orElseGet(() -> saveUserAttendancePort.save(
+                UserAttendance.from(
+                    RewardCommandToStateMapper.mapToUserAttendanceCreateState(userId, year, month)
+                )
+            ));
     }
 
     private short calculateContinuousPeriod(Long userAttendanceId, LocalDateTime attendedAt) {
         LocalDate attendedDate = attendedAt.toLocalDate();
 
         return findUserAttendanceHistoryPort.findLatestByUserAttendanceId(userAttendanceId)
-                .filter(last -> last.getAttendedAt().toLocalDate().equals(attendedDate.minusDays(1)))
-                .map(last -> (short) ((last.getContinuousPeriodValue() % RELAY_CYCLE_SIZE) + 1))
-                .orElse((short) 1);
+            .filter(last -> last.getAttendedAt().toLocalDate().equals(attendedDate.minusDays(1)))
+            .map(last -> (short) ((last.getContinuousPeriodValue() % RELAY_CYCLE_SIZE) + 1))
+            .orElse((short) 1);
     }
 
     private void assertNoDuplicateAttendanceToday(Long userAttendanceId, LocalDateTime attendedAt) {
         LocalDateTime startOfDay = attendedAt.toLocalDate().atStartOfDay();
         LocalDateTime endOfDayExclusive = startOfDay.plusDays(1);
         if (findUserAttendanceHistoryPort.existsByUserAttendanceIdAndAttendedAtBetween(
-                userAttendanceId, startOfDay, endOfDayExclusive
+            userAttendanceId, startOfDay, endOfDayExclusive
         )) {
             throw new InvalidAttendanceTimeException("이미 오늘 출석이 등록되었습니다.");
         }
@@ -116,11 +116,11 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
 
     private AttendancePolicy selectAttendancePolicy(short continuousPeriod, LocalDate attendedDate) {
         return findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(continuousPeriod, attendedDate)
-                .or(() -> findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull(continuousPeriod))
-                .or(() -> findAttendancePolicyPort.findById(DEFAULT_POLICY_ID))
-                .orElseThrow(() -> {
-                    log.warn("출석 정책을 찾을 수 없습니다. attendancePolicyId={}", DEFAULT_POLICY_ID);
-                    return new AttendancePolicyNotFoundException();
-                });
+            .or(() -> findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull(continuousPeriod))
+            .or(() -> findAttendancePolicyPort.findById(DEFAULT_POLICY_ID))
+            .orElseThrow(() -> {
+                log.warn("출석 정책을 찾을 수 없습니다. attendancePolicyId={}", DEFAULT_POLICY_ID);
+                return new AttendancePolicyNotFoundException();
+            });
     }
 }

@@ -9,11 +9,11 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "fulfillment_goods_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_fulfillment_goods_read_model_customer_goods_code",
-                columnNames = "customerGoodsCode"
-        )
+    name = "fulfillment_goods_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_fulfillment_goods_read_model_customer_goods_code",
+        columnNames = "customerGoodsCode"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -91,28 +91,28 @@ public class FulfillmentGoodsReadModelJpaEntity extends BaseGeneralEntity {
 
     public static FulfillmentGoodsReadModelJpaEntity of(String customerGoodsCode) {
         return FulfillmentGoodsReadModelJpaEntity.builder()
-                .customerGoodsCode(customerGoodsCode)
-                .build();
+            .customerGoodsCode(customerGoodsCode)
+            .build();
     }
 
     public void updateFrom(
-            String goodsCode, String goodsName, String goodsType, String goodsTypeName,
-            String invoiceGoodsNameEnabled, String goodsOptionCode1, String goodsOptionCode2,
-            String customerCode, String customerName, String supplierCode, String supplierName,
-            String categoryCode, String categoryName, String seasonCode, String genderCode,
-            String unitPrice, String supplyPrice, String salePrice, String handlingTemperature,
-            String pickingFacility, String giftDivision, String giftDivisionName,
-            String goodsWidth, String goodsLength, String goodsHeight, String manufactureYear,
-            String goodsBulk, String goodsWeight, String goodsSideSum, String goodsVolume,
-            String goodsBarcode, String boxWidth, String boxLength, String boxHeight,
-            String boxBulk, String boxWeight, String innerBoxBarcode, String innerBoxLength,
-            String innerBoxHeight, String innerBoxBulk, String innerBoxWidth, String innerBoxWeight,
-            String innerBoxSideSum, String boxInnerCount, String innerBoxInnerCount,
-            String palletInnerCount, String origin, String expirationDateManagementEnabled,
-            String shelfLifeDays, String outboundAvailableDays, String inboundAvailableDays,
-            String outboundBoxType, String cushioningEnabled, String loadingDirection,
-            String firstInboundDate, String enabled, String feeApplied, String saleUnitQuantity,
-            String oneDayDeliveryEnabled, String safetyStock
+        String goodsCode, String goodsName, String goodsType, String goodsTypeName,
+        String invoiceGoodsNameEnabled, String goodsOptionCode1, String goodsOptionCode2,
+        String customerCode, String customerName, String supplierCode, String supplierName,
+        String categoryCode, String categoryName, String seasonCode, String genderCode,
+        String unitPrice, String supplyPrice, String salePrice, String handlingTemperature,
+        String pickingFacility, String giftDivision, String giftDivisionName,
+        String goodsWidth, String goodsLength, String goodsHeight, String manufactureYear,
+        String goodsBulk, String goodsWeight, String goodsSideSum, String goodsVolume,
+        String goodsBarcode, String boxWidth, String boxLength, String boxHeight,
+        String boxBulk, String boxWeight, String innerBoxBarcode, String innerBoxLength,
+        String innerBoxHeight, String innerBoxBulk, String innerBoxWidth, String innerBoxWeight,
+        String innerBoxSideSum, String boxInnerCount, String innerBoxInnerCount,
+        String palletInnerCount, String origin, String expirationDateManagementEnabled,
+        String shelfLifeDays, String outboundAvailableDays, String inboundAvailableDays,
+        String outboundBoxType, String cushioningEnabled, String loadingDirection,
+        String firstInboundDate, String enabled, String feeApplied, String saleUnitQuantity,
+        String oneDayDeliveryEnabled, String safetyStock
     ) {
         this.goodsCode = goodsCode;
         this.goodsName = goodsName;

@@ -13,61 +13,61 @@ import java.util.List;
 public class FulfillmentReturnDeliveryRequestToCommandMapper {
 
     public static RegisterFulfillmentReturnDeliveryCommand mapToRegisterCommand(
-            String customerCode,
-            String accessToken,
-            List<RegisterFulfillmentReturnDeliveryRequest> request
+        String customerCode,
+        String accessToken,
+        List<RegisterFulfillmentReturnDeliveryRequest> request
     ) {
         List<RegisterFulfillmentReturnDeliveryItemCommand> returnDeliveryRequests = request.stream()
-                .map(FulfillmentReturnDeliveryRequestToCommandMapper::mapItem)
-                .toList();
+            .map(FulfillmentReturnDeliveryRequestToCommandMapper::mapItem)
+            .toList();
 
         return RegisterFulfillmentReturnDeliveryCommand.of(customerCode, accessToken, returnDeliveryRequests);
     }
 
     public static GetFulfillmentReturnGodDetailCommand mapToReturnGodDetailCommand(
-            String customerCode,
-            String accessToken,
-            String strDt,
-            String endDt,
-            String rtnSlipNoList,
-            String whCd
+        String customerCode,
+        String accessToken,
+        String strDt,
+        String endDt,
+        String rtnSlipNoList,
+        String whCd
     ) {
         return GetFulfillmentReturnGodDetailCommand.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(strDt)
-                .endDate(endDt)
-                .returnSlipNumbers(rtnSlipNoList)
-                .warehouseCode(whCd)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(strDt)
+            .endDate(endDt)
+            .returnSlipNumbers(rtnSlipNoList)
+            .warehouseCode(whCd)
+            .build();
     }
 
     private static RegisterFulfillmentReturnDeliveryItemCommand mapItem(RegisterFulfillmentReturnDeliveryRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = FormatValidator.hasValue(item.getGodCds())
-                ? item.getGodCds().stream()
-                .map(FulfillmentReturnDeliveryRequestToCommandMapper::mapGoods)
-                .toList()
-                : List.of();
+            ? item.getGodCds().stream()
+            .map(FulfillmentReturnDeliveryRequestToCommandMapper::mapGoods)
+            .toList()
+            : List.of();
 
         return RegisterFulfillmentReturnDeliveryItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .orderNumber(item.getOrdNo())
-                .courierCode(item.getParcelCd())
-                .invoiceNumber(item.getInvoiceNo())
-                .recipientName(item.getCustNm())
-                .recipientPhoneNumber(item.getCustTelNo())
-                .recipientAddress(item.getCustAddr())
-                .returnReceiverName(item.getRtnEmpNm())
-                .returnReceiverPhoneNumber(item.getRtnTelNo())
-                .returnZipCode(item.getRtnZipCd())
-                .returnAddress1(item.getRtnAddr1())
-                .returnAddress2(item.getRtnAddr2())
-                .returnType(item.getRtnGubun())
-                .returnReason(item.getRtnReason())
-                .returnDetailReason(item.getGetRtnDetailReason())
-                .returnShippingRequest(item.getRtnShipReqTerm())
-                .products(goods)
-                .build();
+            .orderDate(item.getOrdDt())
+            .orderNumber(item.getOrdNo())
+            .courierCode(item.getParcelCd())
+            .invoiceNumber(item.getInvoiceNo())
+            .recipientName(item.getCustNm())
+            .recipientPhoneNumber(item.getCustTelNo())
+            .recipientAddress(item.getCustAddr())
+            .returnReceiverName(item.getRtnEmpNm())
+            .returnReceiverPhoneNumber(item.getRtnTelNo())
+            .returnZipCode(item.getRtnZipCd())
+            .returnAddress1(item.getRtnAddr1())
+            .returnAddress2(item.getRtnAddr2())
+            .returnType(item.getRtnGubun())
+            .returnReason(item.getRtnReason())
+            .returnDetailReason(item.getGetRtnDetailReason())
+            .returnShippingRequest(item.getRtnShipReqTerm())
+            .products(goods)
+            .build();
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapGoods(RegisterFulfillmentDeliveryGoodsRequest item) {

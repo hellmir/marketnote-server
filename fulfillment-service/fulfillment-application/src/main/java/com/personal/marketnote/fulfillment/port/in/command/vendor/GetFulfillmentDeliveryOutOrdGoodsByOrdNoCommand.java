@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand(
-        String customerCode,
-        String accessToken,
-        String startDate,
-        String endDate,
-        String orderNumber
+    String customerCode,
+    String accessToken,
+    String startDate,
+    String endDate,
+    String orderNumber
 ) {
 }

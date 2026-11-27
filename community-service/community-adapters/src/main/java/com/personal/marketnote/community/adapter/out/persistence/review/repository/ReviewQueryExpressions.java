@@ -24,64 +24,64 @@ final class ReviewQueryExpressions {
     static JPQLQuery<Long> likeCountSubQuery(QReviewJpaEntity review) {
         QLikeJpaEntity like = new QLikeJpaEntity("likeCountSub");
         return JPAExpressions.select(like.count())
-                .from(like)
-                .where(
-                        like.id.targetType.eq(LikeTargetType.REVIEW),
-                        like.id.targetId.eq(review.id)
-                );
+            .from(like)
+            .where(
+                like.id.targetType.eq(LikeTargetType.REVIEW),
+                like.id.targetId.eq(review.id)
+            );
     }
 
     static JPQLQuery<Long> likeCountSubQueryForId(Long reviewId) {
         QLikeJpaEntity like = new QLikeJpaEntity("likeCountForId");
         return JPAExpressions.select(like.count())
-                .from(like)
-                .where(
-                        like.id.targetType.eq(LikeTargetType.REVIEW),
-                        like.id.targetId.eq(reviewId)
-                );
+            .from(like)
+            .where(
+                like.id.targetType.eq(LikeTargetType.REVIEW),
+                like.id.targetId.eq(reviewId)
+            );
     }
 
     static JPQLQuery<Long> orderNumSubQueryForId(Long reviewId) {
         QReviewJpaEntity cursorReview = new QReviewJpaEntity("cursorOrderNum");
         return JPAExpressions.select(cursorReview.orderNum)
-                .from(cursorReview)
-                .where(cursorReview.id.eq(reviewId));
+            .from(cursorReview)
+            .where(cursorReview.id.eq(reviewId));
     }
 
     static JPQLQuery<Float> ratingSubQueryForId(Long reviewId) {
         QReviewJpaEntity cursorReview = new QReviewJpaEntity("cursorRating");
         return JPAExpressions.select(cursorReview.rating)
-                .from(cursorReview)
-                .where(cursorReview.id.eq(reviewId));
+            .from(cursorReview)
+            .where(cursorReview.id.eq(reviewId));
     }
 
     static OrderSpecifier<?>[] orderSpecifiers(
-            String sortProperty, Boolean isAsc, QReviewJpaEntity review
+        String sortProperty, Boolean isAsc, QReviewJpaEntity review
     ) {
         boolean ascending = Boolean.TRUE.equals(isAsc);
         if (SORT_ORDER_NUM.equals(sortProperty)) {
             return ascending
-                    ? new OrderSpecifier<?>[]{review.orderNum.asc(), review.id.asc()}
-                    : new OrderSpecifier<?>[]{review.orderNum.desc(), review.id.desc()};
+                ? new OrderSpecifier<?>[]{review.orderNum.asc(), review.id.asc()}
+                : new OrderSpecifier<?>[]{review.orderNum.desc(), review.id.desc()};
         }
         if (SORT_LIKE_COUNT.equals(sortProperty)) {
             NumberExpression<Long> likeCount = wrapAsNumber(likeCountSubQuery(review));
             return ascending
-                    ? new OrderSpecifier<?>[]{likeCount.asc(), review.rating.asc(), review.id.asc()}
-                    : new OrderSpecifier<?>[]{likeCount.desc(), review.rating.desc(), review.id.desc()};
+                ? new OrderSpecifier<?>[]{likeCount.asc(), review.rating.asc(), review.id.asc()}
+                : new OrderSpecifier<?>[]{likeCount.desc(), review.rating.desc(), review.id.desc()};
         }
         if (SORT_RATING.equals(sortProperty)) {
             return ascending
-                    ? new OrderSpecifier<?>[]{review.rating.asc(), review.id.desc()}
-                    : new OrderSpecifier<?>[]{review.rating.desc(), review.id.desc()};
+                ? new OrderSpecifier<?>[]{review.rating.asc(), review.id.desc()}
+                : new OrderSpecifier<?>[]{review.rating.desc(), review.id.desc()};
         }
         return ascending
-                ? new OrderSpecifier<?>[]{review.id.asc()}
-                : new OrderSpecifier<?>[]{review.id.desc()};
+            ? new OrderSpecifier<?>[]{review.id.asc()}
+            : new OrderSpecifier<?>[]{review.id.desc()};
     }
 
     static BooleanExpression cursorCondition(
-            Long cursor, String sortProperty, Boolean isAsc, QReviewJpaEntity review
+        Long cursor, String sortProperty, Boolean isAsc, QReviewJpaEntity review
     ) {
         if (FormatValidator.hasNoValue(cursor)) {
             return null;
@@ -100,7 +100,7 @@ final class ReviewQueryExpressions {
     }
 
     private static BooleanExpression idCursorCondition(
-            Long cursor, boolean ascending, QReviewJpaEntity review
+        Long cursor, boolean ascending, QReviewJpaEntity review
     ) {
         if (ascending) {
             return review.id.gt(cursor);
@@ -109,7 +109,7 @@ final class ReviewQueryExpressions {
     }
 
     private static BooleanExpression orderNumCursorCondition(
-            Long cursor, boolean ascending, QReviewJpaEntity review
+        Long cursor, boolean ascending, QReviewJpaEntity review
     ) {
         JPQLQuery<Long> cursorOrderNum = orderNumSubQueryForId(cursor);
         if (ascending) {
@@ -123,7 +123,7 @@ final class ReviewQueryExpressions {
     }
 
     private static BooleanExpression likeCountCursorCondition(
-            Long cursor, boolean ascending, QReviewJpaEntity review
+        Long cursor, boolean ascending, QReviewJpaEntity review
     ) {
         NumberExpression<Long> rowLikeCount = wrapAsNumber(likeCountSubQuery(review));
         NumberExpression<Long> cursorLikeCount = wrapAsNumber(likeCountSubQueryForId(cursor));
@@ -131,18 +131,18 @@ final class ReviewQueryExpressions {
         if (ascending) {
             BooleanExpression greater = rowLikeCount.gt(cursorLikeCount);
             BooleanExpression equalLikeAndGreaterRating = rowLikeCount.eq(cursorLikeCount)
-                    .and(review.rating.gt(cursorRating));
+                .and(review.rating.gt(cursorRating));
             BooleanExpression equalLikeEqualRatingGreaterId = rowLikeCount.eq(cursorLikeCount)
-                    .and(review.rating.eq(cursorRating))
-                    .and(review.id.gt(cursor));
+                .and(review.rating.eq(cursorRating))
+                .and(review.id.gt(cursor));
             return greater.or(equalLikeAndGreaterRating).or(equalLikeEqualRatingGreaterId);
         }
         BooleanExpression less = rowLikeCount.lt(cursorLikeCount);
         BooleanExpression equalLikeAndLessRating = rowLikeCount.eq(cursorLikeCount)
-                .and(review.rating.lt(cursorRating));
+            .and(review.rating.lt(cursorRating));
         BooleanExpression equalLikeEqualRatingLessId = rowLikeCount.eq(cursorLikeCount)
-                .and(review.rating.eq(cursorRating))
-                .and(review.id.lt(cursor));
+            .and(review.rating.eq(cursorRating))
+            .and(review.id.lt(cursor));
         return less.or(equalLikeAndLessRating).or(equalLikeEqualRatingLessId);
     }
 
@@ -151,7 +151,7 @@ final class ReviewQueryExpressions {
     }
 
     private static BooleanExpression ratingCursorCondition(
-            Long cursor, boolean ascending, QReviewJpaEntity review
+        Long cursor, boolean ascending, QReviewJpaEntity review
     ) {
         JPQLQuery<Float> cursorRating = ratingSubQueryForId(cursor);
         if (ascending) {

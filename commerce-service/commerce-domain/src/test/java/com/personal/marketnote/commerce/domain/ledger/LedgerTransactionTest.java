@@ -23,26 +23,26 @@ class LedgerTransactionTest {
         void shouldPassWhenDebitEqualsCreditTotal() {
             // given
             LedgerTransaction transaction = LedgerTransaction.from(
-                    LedgerTransactionCreateState.builder()
-                            .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                            .targetType("ORDER")
-                            .targetId(1L)
-                            .description("결제 승인")
-                            .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
-                            .build()
+                LedgerTransactionCreateState.builder()
+                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                    .targetType("ORDER")
+                    .targetId(1L)
+                    .description("결제 승인")
+                    .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
+                    .build()
             );
 
             List<LedgerEntry> entries = List.of(
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(1L)
-                            .amount(10000L)
-                            .transactionType(TransactionType.DEBIT)
-                            .build()),
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(2L)
-                            .amount(10000L)
-                            .transactionType(TransactionType.CREDIT)
-                            .build())
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(1L)
+                    .amount(10000L)
+                    .transactionType(TransactionType.DEBIT)
+                    .build()),
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(2L)
+                    .amount(10000L)
+                    .transactionType(TransactionType.CREDIT)
+                    .build())
             );
 
             // when & then
@@ -54,33 +54,33 @@ class LedgerTransactionTest {
         void shouldThrowWhenDebitNotEqualsCredit() {
             // given
             LedgerTransaction transaction = LedgerTransaction.from(
-                    LedgerTransactionCreateState.builder()
-                            .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                            .targetType("ORDER")
-                            .targetId(1L)
-                            .description("결제 승인")
-                            .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
-                            .build()
+                LedgerTransactionCreateState.builder()
+                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                    .targetType("ORDER")
+                    .targetId(1L)
+                    .description("결제 승인")
+                    .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
+                    .build()
             );
 
             List<LedgerEntry> entries = List.of(
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(1L)
-                            .amount(10000L)
-                            .transactionType(TransactionType.DEBIT)
-                            .build()),
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(2L)
-                            .amount(5000L)
-                            .transactionType(TransactionType.CREDIT)
-                            .build())
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(1L)
+                    .amount(10000L)
+                    .transactionType(TransactionType.DEBIT)
+                    .build()),
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(2L)
+                    .amount(5000L)
+                    .transactionType(TransactionType.CREDIT)
+                    .build())
             );
 
             // when & then
             assertThatThrownBy(() -> transaction.validateEntries(entries))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("차변 합계")
-                    .hasMessageContaining("대변 합계");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("차변 합계")
+                .hasMessageContaining("대변 합계");
         }
 
         @Test
@@ -88,32 +88,32 @@ class LedgerTransactionTest {
         void shouldThrowWhenAmountIsZero() {
             // given
             LedgerTransaction transaction = LedgerTransaction.from(
-                    LedgerTransactionCreateState.builder()
-                            .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                            .targetType("ORDER")
-                            .targetId(1L)
-                            .description("결제 승인")
-                            .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
-                            .build()
+                LedgerTransactionCreateState.builder()
+                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                    .targetType("ORDER")
+                    .targetId(1L)
+                    .description("결제 승인")
+                    .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
+                    .build()
             );
 
             List<LedgerEntry> entries = List.of(
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(1L)
-                            .amount(0L)
-                            .transactionType(TransactionType.DEBIT)
-                            .build()),
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(2L)
-                            .amount(0L)
-                            .transactionType(TransactionType.CREDIT)
-                            .build())
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(1L)
+                    .amount(0L)
+                    .transactionType(TransactionType.DEBIT)
+                    .build()),
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(2L)
+                    .amount(0L)
+                    .transactionType(TransactionType.CREDIT)
+                    .build())
             );
 
             // when & then
             assertThatThrownBy(() -> transaction.validateEntries(entries))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("0보다 커야 합니다");
         }
 
         @Test
@@ -121,7 +121,7 @@ class LedgerTransactionTest {
         void shouldThrowWhenNegativeAmount() {
             // Money VO가 생성 시점에 음수를 거부하므로 Money.of(-5000L) 자체가 예외를 던진다
             assertThatThrownBy(() -> Money.of(-5000L))
-                    .isInstanceOf(InvalidMoneyAmountException.class);
+                .isInstanceOf(InvalidMoneyAmountException.class);
         }
 
         @Test
@@ -129,31 +129,31 @@ class LedgerTransactionTest {
         void shouldPassWithMultipleEntriesWhenTotalsMatch() {
             // given
             LedgerTransaction transaction = LedgerTransaction.from(
-                    LedgerTransactionCreateState.builder()
-                            .transactionType(LedgerTransactionType.PG_SETTLEMENT)
-                            .targetType("ORDER")
-                            .targetId(1L)
-                            .description("PG 정산")
-                            .idempotencyKey(IdempotencyKey.of("PG_SETTLEMENT:1"))
-                            .build()
+                LedgerTransactionCreateState.builder()
+                    .transactionType(LedgerTransactionType.PG_SETTLEMENT)
+                    .targetType("ORDER")
+                    .targetId(1L)
+                    .description("PG 정산")
+                    .idempotencyKey(IdempotencyKey.of("PG_SETTLEMENT:1"))
+                    .build()
             );
 
             List<LedgerEntry> entries = List.of(
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(1L)
-                            .amount(9700L)
-                            .transactionType(TransactionType.DEBIT)
-                            .build()),
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(3L)
-                            .amount(300L)
-                            .transactionType(TransactionType.DEBIT)
-                            .build()),
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(2L)
-                            .amount(10000L)
-                            .transactionType(TransactionType.CREDIT)
-                            .build())
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(1L)
+                    .amount(9700L)
+                    .transactionType(TransactionType.DEBIT)
+                    .build()),
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(3L)
+                    .amount(300L)
+                    .transactionType(TransactionType.DEBIT)
+                    .build()),
+                LedgerEntry.from(LedgerEntryCreateState.builder()
+                    .accountId(2L)
+                    .amount(10000L)
+                    .transactionType(TransactionType.CREDIT)
+                    .build())
             );
 
             // when & then
@@ -170,12 +170,12 @@ class LedgerTransactionTest {
         void shouldCreateFromCreateState() {
             // given
             LedgerTransactionCreateState state = LedgerTransactionCreateState.builder()
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("ORDER")
-                    .targetId(100L)
-                    .description("주문 100 결제 승인")
-                    .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:100"))
-                    .build();
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(100L)
+                .description("주문 100 결제 승인")
+                .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:100"))
+                .build();
 
             // when
             LedgerTransaction transaction = LedgerTransaction.from(state);

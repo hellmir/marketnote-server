@@ -6,13 +6,13 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record RegisterOrderResponse(
-        Long id,
-        String orderKey
+    Long id,
+    String orderKey
 ) {
     public static RegisterOrderResponse from(RegisterOrderResult result) {
         return RegisterOrderResponse.builder()
-                .id(result.id())
-                .orderKey(result.orderKey())
-                .build();
+            .id(result.id())
+            .orderKey(result.orderKey())
+            .build();
     }
 }

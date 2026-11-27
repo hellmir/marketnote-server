@@ -51,7 +51,7 @@ class GetGifticonGoodsDetailUseCaseTest {
 
         // when
         GetGifticonGoodsDetailResult result = getGifticonGoodsDetailService.getGoodsDetail(
-                new GetGifticonGoodsDetailCommand(goodsCode, userId)
+            new GetGifticonGoodsDetailCommand(goodsCode, userId)
         );
 
         // then
@@ -76,7 +76,7 @@ class GetGifticonGoodsDetailUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getGifticonGoodsDetailService.getGoodsDetail(
-                new GetGifticonGoodsDetailCommand(goodsCode, userId)
+            new GetGifticonGoodsDetailCommand(goodsCode, userId)
         )).isInstanceOf(GifticonGoodsNotFoundException.class);
     }
 
@@ -91,7 +91,7 @@ class GetGifticonGoodsDetailUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getGifticonGoodsDetailService.getGoodsDetail(
-                new GetGifticonGoodsDetailCommand(goodsCode, userId)
+            new GetGifticonGoodsDetailCommand(goodsCode, userId)
         )).isInstanceOf(GifticonGoodsNotFoundException.class);
     }
 
@@ -106,43 +106,43 @@ class GetGifticonGoodsDetailUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getGifticonGoodsDetailService.getGoodsDetail(
-                new GetGifticonGoodsDetailCommand(goodsCode, userId)
+            new GetGifticonGoodsDetailCommand(goodsCode, userId)
         )).isInstanceOf(GifticonGoodsNotFoundException.class);
     }
 
     private GifticonGoods createGoods(String goodsCode, boolean exposed, String goodsStatus) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(1L)
-                .goodsCode(goodsCode)
-                .goodsName("아메리카노")
-                .brandCode("BR001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://img.com/sb.png")
-                .categoryCode("1")
-                .realPrice(5000L)
-                .salePrice(4500L)
-                .cashPrice(4000L)
-                .imageUrl("https://img.com/goods.png")
-                .description("맛있는 커피")
-                .validDays(30)
-                .goodsStatus("SUS".equals(goodsStatus) ? GoodsStatus.SUSPENDED : GoodsStatus.SALE)
-                .exposed(exposed)
-                .orderNum(1)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .id(1L)
+            .goodsCode(goodsCode)
+            .goodsName("아메리카노")
+            .brandCode("BR001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://img.com/sb.png")
+            .categoryCode("1")
+            .realPrice(5000L)
+            .salePrice(4500L)
+            .cashPrice(4000L)
+            .imageUrl("https://img.com/goods.png")
+            .description("맛있는 커피")
+            .validDays(30)
+            .goodsStatus("SUS".equals(goodsStatus) ? GoodsStatus.SUSPENDED : GoodsStatus.SALE)
+            .exposed(exposed)
+            .orderNum(1)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 
     private UserPoint createUserPoint(Long userId, Long amount) {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(userId)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .userId(userId)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 }

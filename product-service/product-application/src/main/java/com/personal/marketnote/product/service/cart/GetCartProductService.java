@@ -29,10 +29,10 @@ public class GetCartProductService implements GetCartProductUseCase {
     @Override
     public CartProduct getCartProduct(Long userId, Long pricePolicyId) {
         return findCartProductPort.findCartProductByUserIdAndPricePolicyId(userId, pricePolicyId)
-                .orElseThrow(() -> {
-                    log.warn("장바구니 상품을 찾을 수 없습니다. userId={}, pricePolicyId={}", userId, pricePolicyId);
-                    return new CartProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("장바구니 상품을 찾을 수 없습니다. userId={}, pricePolicyId={}", userId, pricePolicyId);
+                return new CartProductNotFoundException();
+            });
     }
 
     @Override
@@ -44,9 +44,9 @@ public class GetCartProductService implements GetCartProductUseCase {
     public GetMyCartProductsResult getMyCartProducts(Long userId) {
         List<CartProduct> cartProducts = findCartProductsPort.findByUserId(userId);
         Map<Long, Integer> inventories = getProductInventoryUseCase.getProductStocks(
-                cartProducts.stream()
-                        .map(CartProduct::getPricePolicyId)
-                        .toList()
+            cartProducts.stream()
+                .map(CartProduct::getPricePolicyId)
+                .toList()
         );
 
         return GetMyCartProductsResult.from(cartProducts, inventories);

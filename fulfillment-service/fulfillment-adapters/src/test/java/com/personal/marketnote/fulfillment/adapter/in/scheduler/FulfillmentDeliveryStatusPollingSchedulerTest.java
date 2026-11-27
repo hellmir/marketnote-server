@@ -110,11 +110,11 @@ class FulfillmentDeliveryStatusPollingSchedulerTest {
             stubClock("2026-09-28T05:00:00Z"); // KST 14:00
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
             doThrow(new RuntimeException("폴링 실패"))
-                    .when(pollShippingStatusUseCase).pollShippingStatuses(any(PollShippingStatusCommand.class));
+                .when(pollShippingStatusUseCase).pollShippingStatuses(any(PollShippingStatusCommand.class));
 
             // when & then
             assertThatCode(() -> scheduler.pollDeliveryStatuses())
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 }

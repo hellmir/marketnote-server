@@ -49,79 +49,79 @@ public class FulfillmentGoodsItemMapper {
     private String externalGodImgUrl;
 
     public static FulfillmentGoodsItemMapper of(
-            String cstGodCd,
-            String godNm,
-            String godType,
-            String giftDiv,
-            String godOptCd1,
-            String godOptCd2,
-            String invGodNmUseYn,
-            String invGodNm,
-            String supCd,
-            String cateCd,
-            String seasonCd,
-            String genderCd,
-            String makeYr,
-            String godPr,
-            String inPr,
-            String salPr,
-            String dealTemp,
-            String pickFac,
-            String godBarcd,
-            String boxWeight,
-            String origin,
-            String distTermMgtYn,
-            String useTermDay,
-            String outCanDay,
-            String inCanDay,
-            String boxDiv,
-            String bufGodYn,
-            String loadingDirection,
-            String subMate,
-            String useYn,
-            String safetyStock,
-            String feeYn,
-            String saleUnitQty,
-            String cstGodImgUrl,
-            String externalGodImgUrl
+        String cstGodCd,
+        String godNm,
+        String godType,
+        String giftDiv,
+        String godOptCd1,
+        String godOptCd2,
+        String invGodNmUseYn,
+        String invGodNm,
+        String supCd,
+        String cateCd,
+        String seasonCd,
+        String genderCd,
+        String makeYr,
+        String godPr,
+        String inPr,
+        String salPr,
+        String dealTemp,
+        String pickFac,
+        String godBarcd,
+        String boxWeight,
+        String origin,
+        String distTermMgtYn,
+        String useTermDay,
+        String outCanDay,
+        String inCanDay,
+        String boxDiv,
+        String bufGodYn,
+        String loadingDirection,
+        String subMate,
+        String useYn,
+        String safetyStock,
+        String feeYn,
+        String saleUnitQty,
+        String cstGodImgUrl,
+        String externalGodImgUrl
     ) {
         FulfillmentGoodsItemMapper mapper = FulfillmentGoodsItemMapper.builder()
-                .cstGodCd(cstGodCd)
-                .godNm(godNm)
-                .godType(godType)
-                .giftDiv(giftDiv)
-                .godOptCd1(godOptCd1)
-                .godOptCd2(godOptCd2)
-                .invGodNmUseYn(invGodNmUseYn)
-                .invGodNm(invGodNm)
-                .supCd(supCd)
-                .cateCd(cateCd)
-                .seasonCd(seasonCd)
-                .genderCd(genderCd)
-                .makeYr(makeYr)
-                .godPr(godPr)
-                .inPr(inPr)
-                .salPr(salPr)
-                .dealTemp(dealTemp)
-                .pickFac(pickFac)
-                .godBarcd(godBarcd)
-                .boxWeight(boxWeight)
-                .origin(origin)
-                .distTermMgtYn(distTermMgtYn)
-                .useTermDay(useTermDay)
-                .outCanDay(outCanDay)
-                .inCanDay(inCanDay)
-                .boxDiv(boxDiv)
-                .bufGodYn(bufGodYn)
-                .loadingDirection(loadingDirection)
-                .subMate(subMate)
-                .useYn(useYn)
-                .safetyStock(safetyStock)
-                .feeYn(feeYn)
-                .saleUnitQty(saleUnitQty)
-                .cstGodImgUrl(cstGodImgUrl)
-                .externalGodImgUrl(externalGodImgUrl)
-                .build();
+            .cstGodCd(cstGodCd)
+            .godNm(godNm)
+            .godType(godType)
+            .giftDiv(giftDiv)
+            .godOptCd1(godOptCd1)
+            .godOptCd2(godOptCd2)
+            .invGodNmUseYn(invGodNmUseYn)
+            .invGodNm(invGodNm)
+            .supCd(supCd)
+            .cateCd(cateCd)
+            .seasonCd(seasonCd)
+            .genderCd(genderCd)
+            .makeYr(makeYr)
+            .godPr(godPr)
+            .inPr(inPr)
+            .salPr(salPr)
+            .dealTemp(dealTemp)
+            .pickFac(pickFac)
+            .godBarcd(godBarcd)
+            .boxWeight(boxWeight)
+            .origin(origin)
+            .distTermMgtYn(distTermMgtYn)
+            .useTermDay(useTermDay)
+            .outCanDay(outCanDay)
+            .inCanDay(inCanDay)
+            .boxDiv(boxDiv)
+            .bufGodYn(bufGodYn)
+            .loadingDirection(loadingDirection)
+            .subMate(subMate)
+            .useYn(useYn)
+            .safetyStock(safetyStock)
+            .feeYn(feeYn)
+            .saleUnitQty(saleUnitQty)
+            .cstGodImgUrl(cstGodImgUrl)
+            .externalGodImgUrl(externalGodImgUrl)
+            .build();
         mapper.validate();
         return mapper;
     }

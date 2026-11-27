@@ -32,9 +32,9 @@ public class DeleteNotificationTemplateService implements DeleteNotificationTemp
 
     private NotificationTemplate findNotificationTemplate(Long id) {
         return findNotificationTemplatePort.findActiveById(id)
-                .orElseThrow(() -> {
-                    log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
-                    return new NotificationTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
+                return new NotificationTemplateNotFoundException();
+            });
     }
 }

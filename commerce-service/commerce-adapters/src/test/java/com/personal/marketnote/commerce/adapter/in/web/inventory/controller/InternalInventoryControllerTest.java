@@ -61,8 +61,8 @@ class InternalInventoryControllerTest {
             // given
             List<Long> pricePolicyIds = List.of(1L, 2L);
             Set<Inventory> inventories = Set.of(
-                    Inventory.of(1L, 1L, 100),
-                    Inventory.of(2L, 2L, 50)
+                Inventory.of(1L, 1L, 100),
+                Inventory.of(2L, 2L, 50)
             );
             when(getInventoryUseCase.getInventories(pricePolicyIds)).thenReturn(inventories);
 
@@ -82,11 +82,11 @@ class InternalInventoryControllerTest {
             List<Long> pricePolicyIds = List.of(1L, 2L);
             List<Long> productIds = List.of(10L, 20L);
             Set<Inventory> inventories = Set.of(
-                    Inventory.of(10L, 1L, 100),
-                    Inventory.of(20L, 2L, 50)
+                Inventory.of(10L, 1L, 100),
+                Inventory.of(20L, 2L, 50)
             );
             when(getInventoryUseCase.getOrCreateInventories(Map.of(1L, 10L, 2L, 20L)))
-                    .thenReturn(inventories);
+                .thenReturn(inventories);
 
             // when
             ResponseEntity<?> response = internalInventoryController.getInventories(pricePolicyIds, productIds);

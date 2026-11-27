@@ -35,7 +35,7 @@ class ReturnTrackerPersistenceUseCaseTest {
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
             when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
@@ -56,7 +56,7 @@ class ReturnTrackerPersistenceUseCaseTest {
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
             when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
@@ -76,7 +76,7 @@ class ReturnTrackerPersistenceUseCaseTest {
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
             when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
@@ -96,7 +96,7 @@ class ReturnTrackerPersistenceUseCaseTest {
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
             when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);

@@ -40,25 +40,25 @@ class ModifyPendingPointUseCaseTest {
 
     private UserPoint createUserPoint(Long amount, Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(1L)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.of(addExpectedAmount))
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
-                .build()
+            .userId(1L)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.of(addExpectedAmount))
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
+            .build()
         );
     }
 
     private ModifyPendingPointCommand createCommand(UserPointChangeType changeType, Long amount) {
         return ModifyPendingPointCommand.builder()
-                .userId(1L)
-                .changeType(changeType)
-                .amount(amount)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L)
-                .reason("주문 결제 적립 예정")
-                .build();
+            .userId(1L)
+            .changeType(changeType)
+            .amount(amount)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L)
+            .reason("주문 결제 적립 예정")
+            .build();
     }
 
     @Test
@@ -69,11 +69,11 @@ class ModifyPendingPointUseCaseTest {
         when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
-                        .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(PointAmount.of(500L)).isReflected(false)
-                        .sourceType(UserPointSourceType.ORDER).sourceId(100L)
-                        .reason("주문 결제 적립 예정").accumulatedAt(LocalDateTime.now())
-                        .build()));
+            .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
+                .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(PointAmount.of(500L)).isReflected(false)
+                .sourceType(UserPointSourceType.ORDER).sourceId(100L)
+                .reason("주문 결제 적립 예정").accumulatedAt(LocalDateTime.now())
+                .build()));
 
         ModifyPendingPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
 
@@ -92,11 +92,11 @@ class ModifyPendingPointUseCaseTest {
         when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
-                        .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(PointAmount.of(500L)).isReflected(false)
-                        .sourceType(UserPointSourceType.ORDER).sourceId(100L)
-                        .reason("주문 결제 적립 예정").accumulatedAt(LocalDateTime.now())
-                        .build()));
+            .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
+                .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(PointAmount.of(500L)).isReflected(false)
+                .sourceType(UserPointSourceType.ORDER).sourceId(100L)
+                .reason("주문 결제 적립 예정").accumulatedAt(LocalDateTime.now())
+                .build()));
 
         ModifyPendingPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
 
@@ -124,11 +124,11 @@ class ModifyPendingPointUseCaseTest {
         when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
-                        .userId(1L).changeType(UserPointChangeType.DEDUCTION).amount(PointAmount.of(300L)).isReflected(false)
-                        .sourceType(UserPointSourceType.ORDER).sourceId(100L)
-                        .reason("주문 취소 적립 예정 차감").accumulatedAt(LocalDateTime.now())
-                        .build()));
+            .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
+                .userId(1L).changeType(UserPointChangeType.DEDUCTION).amount(PointAmount.of(300L)).isReflected(false)
+                .sourceType(UserPointSourceType.ORDER).sourceId(100L)
+                .reason("주문 취소 적립 예정 차감").accumulatedAt(LocalDateTime.now())
+                .build()));
 
         ModifyPendingPointCommand command = createCommand(UserPointChangeType.DEDUCTION, 300L);
 
@@ -157,7 +157,7 @@ class ModifyPendingPointUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> modifyPendingPointService.modifyPending(command))
-                .isInstanceOf(InsufficientPendingPointAmountException.class);
+            .isInstanceOf(InsufficientPendingPointAmountException.class);
 
         verify(updateUserPointPort, never()).update(any());
         verify(saveUserPointHistoryPort, never()).save(any());
@@ -168,12 +168,12 @@ class ModifyPendingPointUseCaseTest {
     void shouldThrowWhenUserPointNotFound() {
         // given
         when(findUserPointPort.findByUserIdForUpdate(1L))
-                .thenReturn(java.util.Optional.empty());
+            .thenReturn(java.util.Optional.empty());
 
         ModifyPendingPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
 
         // expect
         assertThatThrownBy(() -> modifyPendingPointService.modifyPending(command))
-                .isInstanceOf(UserPointNotFoundException.class);
+            .isInstanceOf(UserPointNotFoundException.class);
     }
 }

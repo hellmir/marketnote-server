@@ -15,11 +15,11 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "inventory_reservation",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_inventory_reservation_order_policy",
-                columnNames = {"order_id", "price_policy_id"}
-        )
+    name = "inventory_reservation",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_inventory_reservation_order_policy",
+        columnNames = {"order_id", "price_policy_id"}
+    )
 )
 @DynamicInsert
 @DynamicUpdate
@@ -44,10 +44,10 @@ public class InventoryReservationJpaEntity extends BaseEntity {
     private LocalDateTime reservedAt;
 
     private InventoryReservationJpaEntity(
-            Long orderId,
-            Long pricePolicyId,
-            Integer quantity,
-            LocalDateTime reservedAt
+        Long orderId,
+        Long pricePolicyId,
+        Integer quantity,
+        LocalDateTime reservedAt
     ) {
         this.orderId = orderId;
         this.pricePolicyId = pricePolicyId;
@@ -57,10 +57,10 @@ public class InventoryReservationJpaEntity extends BaseEntity {
 
     public static InventoryReservationJpaEntity from(InventoryReservation inventoryReservation) {
         return new InventoryReservationJpaEntity(
-                inventoryReservation.getOrderId(),
-                inventoryReservation.getPricePolicyId(),
-                inventoryReservation.getQuantity().getValue(),
-                inventoryReservation.getReservedAt()
+            inventoryReservation.getOrderId(),
+            inventoryReservation.getPricePolicyId(),
+            inventoryReservation.getQuantity().getValue(),
+            inventoryReservation.getReservedAt()
         );
     }
 }

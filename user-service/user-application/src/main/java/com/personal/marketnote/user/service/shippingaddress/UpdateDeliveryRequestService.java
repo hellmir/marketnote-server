@@ -24,14 +24,14 @@ public class UpdateDeliveryRequestService implements UpdateDeliveryRequestUseCas
     @Override
     public void updateDeliveryRequest(Long shippingAddressId, Long userId, UpdateDeliveryRequestCommand command) {
         ShippingAddress shippingAddress = findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId)
-                .orElseThrow(() -> {
-                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
-                    return new ShippingAddressNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                return new ShippingAddressNotFoundException();
+            });
 
         shippingAddress.updateDeliveryRequest(
-                command.deliveryRequestType(),
-                command.deliveryRequestMessage()
+            command.deliveryRequestType(),
+            command.deliveryRequestMessage()
         );
 
         updateShippingAddressPort.update(shippingAddress);

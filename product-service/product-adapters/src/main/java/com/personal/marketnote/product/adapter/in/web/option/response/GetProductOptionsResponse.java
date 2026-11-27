@@ -17,13 +17,13 @@ public class GetProductOptionsResponse {
 
     public static GetProductOptionsResponse from(GetProductOptionsResult result) {
         return GetProductOptionsResponse.builder()
-                .categories(
-                        result.categories()
-                                .stream()
-                                .map(ProductOptionCategoryResponse::from)
-                                .collect(Collectors.toList())
-                )
-                .build();
+            .categories(
+                result.categories()
+                    .stream()
+                    .map(ProductOptionCategoryResponse::from)
+                    .collect(Collectors.toList())
+            )
+            .build();
     }
 }
 

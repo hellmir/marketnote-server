@@ -45,8 +45,8 @@ class DeleteCategoryUseCaseTest {
         when(findCategoryPort.existsById(10L)).thenReturn(false);
 
         assertThatThrownBy(() -> deleteCategoryService.deleteCategory(command))
-                .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessage("존재하지 않는 카테고리입니다.");
+            .isInstanceOf(CategoryNotFoundException.class)
+            .hasMessage("존재하지 않는 카테고리입니다.");
 
         verify(findCategoryPort).existsById(10L);
         verify(findCategoryPort, never()).existsChildren(anyLong());
@@ -62,8 +62,8 @@ class DeleteCategoryUseCaseTest {
         when(findCategoryPort.existsChildren(11L)).thenReturn(true);
 
         assertThatThrownBy(() -> deleteCategoryService.deleteCategory(command))
-                .isInstanceOf(CategoryHasChildrenException.class)
-                .hasMessageContaining("하위 카테고리");
+            .isInstanceOf(CategoryHasChildrenException.class)
+            .hasMessageContaining("하위 카테고리");
 
         verify(findCategoryPort).existsChildren(11L);
         verifyNoInteractions(findProductCategoryPort, getCategoryUseCase, updateCategoryPort);
@@ -79,8 +79,8 @@ class DeleteCategoryUseCaseTest {
         when(findProductCategoryPort.existsByCategoryId(12L)).thenReturn(true);
 
         assertThatThrownBy(() -> deleteCategoryService.deleteCategory(command))
-                .isInstanceOf(CategoryHasProductsException.class)
-                .hasMessageContaining("등록된 상품");
+            .isInstanceOf(CategoryHasProductsException.class)
+            .hasMessageContaining("등록된 상품");
 
         verify(findProductCategoryPort).existsByCategoryId(12L);
         verifyNoInteractions(getCategoryUseCase, updateCategoryPort);
@@ -119,7 +119,7 @@ class DeleteCategoryUseCaseTest {
         when(getCategoryUseCase.getCategory(14L)).thenThrow(exception);
 
         assertThatThrownBy(() -> deleteCategoryService.deleteCategory(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(updateCategoryPort);
     }
@@ -138,17 +138,17 @@ class DeleteCategoryUseCaseTest {
         doThrow(exception).when(updateCategoryPort).update(category);
 
         assertThatThrownBy(() -> deleteCategoryService.deleteCategory(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private Category buildCategory(Long id, Long parentId, String name) {
         return Category.from(
-                CategorySnapshotState.builder()
-                        .id(id)
-                        .parentCategoryId(parentId)
-                        .name(name)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CategorySnapshotState.builder()
+                .id(id)
+                .parentCategoryId(parentId)
+                .name(name)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

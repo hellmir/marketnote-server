@@ -48,8 +48,8 @@ import static com.personal.marketnote.common.utility.RegularExpressionConstant.E
 @RestController
 @RequestMapping("/api/v1/authentication")
 @Tag(
-        name = "인증 API",
-        description = "인증 관련 API"
+    name = "인증 API",
+    description = "인증 관련 API"
 )
 @Slf4j
 @RequiredArgsConstructor
@@ -75,13 +75,13 @@ public class AuthenticationController {
     @Oauth2LoginApiDocs
     @GetMapping("/{authVendor}/redirect-uri")
     public ResponseEntity<BaseResponse<GrantedTokenInfo>> oauth2Login(
-            @PathVariable("authVendor") String authVendor,
-            @RequestParam("code") String code,
-            @RequestParam(value = "state", required = false) String state,
-            HttpServletRequest request
+        @PathVariable("authVendor") String authVendor,
+        @RequestParam("code") String code,
+        @RequestParam(value = "state", required = false) String state,
+        HttpServletRequest request
     ) throws UnsupportedCodeException {
         OAuth2LoginResponse response = authServiceAdapter.loginByOAuth2(
-                new OAuth2LoginRequest(authVendor, code, state, request)
+            new OAuth2LoginRequest(authVendor, code, state, request)
         );
 
         return new ResponseEntity<>(response.headers(), HttpStatus.PERMANENT_REDIRECT);
@@ -99,21 +99,21 @@ public class AuthenticationController {
     @RefreshAccessTokenApiDocs
     @PostMapping("/access-token/refresh")
     public ResponseEntity<BaseResponse<RefreshedAccessTokenResponse>> refreshAccessToken(
-            @CookieValue(value = "refresh_token") String refreshToken
+        @CookieValue(value = "refresh_token") String refreshToken
     ) {
         refreshAccessTokenUseCase.validateRefreshToken(refreshToken);
 
         WebBasedTokenRefreshResponse response = authServiceAdapter.issueNewAccessToken(refreshToken);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        response.accessToken(),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "Access Token 재발급 성공"
-                ),
-                response.headers(),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                response.accessToken(),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "Access Token 재발급 성공"
+            ),
+            response.headers(),
+            HttpStatus.CREATED
         );
     }
 
@@ -128,21 +128,21 @@ public class AuthenticationController {
     @SendEmailVerificationApiDocs
     @PostMapping("/email/verification")
     public ResponseEntity<BaseResponse<Void>> sendEmailVerification(
-            @RequestParam("email")
-            @NotEmpty(message = "이메일 주소는 필수값입니다.")
-            @Pattern(regexp = EMAIL_PATTERN, message = INVALID_EMAIL_EXCEPTION_MESSAGE)
-            String email
+        @RequestParam("email")
+        @NotEmpty(message = "이메일 주소는 필수값입니다.")
+        @Pattern(regexp = EMAIL_PATTERN, message = INVALID_EMAIL_EXCEPTION_MESSAGE)
+        String email
     ) {
         sendEmailVerificationUseCase.sendEmailVerification(email);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "이메일 인증 요청 전송 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "이메일 인증 요청 전송 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -157,10 +157,10 @@ public class AuthenticationController {
     @PostMapping("/verification")
     @ValidateVerificationCodeApiDocs
     public ResponseEntity<BaseResponse<verifyCodeResponse>> verifyCode(
-            @Valid @RequestBody VerifyCodeRequest verifyCodeRequest
+        @Valid @RequestBody VerifyCodeRequest verifyCodeRequest
     ) {
         VerifyCodeResult result = verifyCodeUseCase.verifyCode(
-                UserRequestToCommandMapper.mapToCommand(verifyCodeRequest)
+            UserRequestToCommandMapper.mapToCommand(verifyCodeRequest)
         );
 
         List<String> roleIds = List.of(result.roleId());
@@ -170,13 +170,13 @@ public class AuthenticationController {
         String refreshToken = jwtUtil.generateRefreshToken(subject, id, roleIds, AuthVendor.NATIVE);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        verifyCodeResponse.of(accessToken, refreshToken),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "이메일 인증 코드 검증 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                verifyCodeResponse.of(accessToken, refreshToken),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "이메일 인증 코드 검증 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

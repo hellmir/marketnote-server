@@ -53,21 +53,21 @@ public class GetReviewService implements GetReviewUseCase {
     @Override
     public Review getReview(Long id) {
         return findReviewPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
-                    return new ReviewNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                return new ReviewNotFoundException();
+            });
     }
 
     @Override
     public Review getReview(Long id, Long userId) {
         Review review = findReviewPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
-                    return new ReviewNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                return new ReviewNotFoundException();
+            });
         review.updateIsUserLiked(
-                getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
+            getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
         );
 
         return review;
@@ -86,27 +86,27 @@ public class GetReviewService implements GetReviewUseCase {
 
     @Override
     public GetReviewsResult getProductReviews(
-            Long userId,
-            Long productId,
-            Boolean isPhoto,
-            Long cursor,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ReviewSortProperty sortProperty
+        Long userId,
+        Long productId,
+        Boolean isPhoto,
+        Long cursor,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ReviewSortProperty sortProperty
     ) {
         Pageable pageable = PageRequest.of(
-                0, pageSize + 1, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
+            0, pageSize + 1, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
         );
 
         Reviews productReviews = findReviewPort.findProductReviews(
-                productId, isPhoto, cursor, pageable, sortProperty
+            productId, isPhoto, cursor, pageable, sortProperty
         );
 
         // 무한 스크롤 페이지 설정
         boolean hasNext = productReviews.size() > pageSize;
         List<Review> pagedReviews = hasNext
-                ? productReviews.subList(0, pageSize)
-                : productReviews.getReviews();
+            ? productReviews.subList(0, pageSize)
+            : productReviews.getReviews();
 
         Long nextCursor = null;
         if (FormatValidator.hasValue(pagedReviews)) {
@@ -124,7 +124,7 @@ public class GetReviewService implements GetReviewUseCase {
         if (!isPhoto && FormatValidator.hasValue(userId)) {
             // 로그인 사용자가 각 리뷰에 좋아요를 눌렀는지 여부 업데이트
             pagedReviews.forEach(review -> review.updateIsUserLiked(
-                    getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
+                getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
             ));
         }
 
@@ -140,10 +140,10 @@ public class GetReviewService implements GetReviewUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true, propagation = REQUIRES_NEW)
     public ProductReviewAggregate getProductReviewAggregate(Long productId) {
         return findReviewPort.findProductReviewAggregateByProductId(productId)
-                .orElseThrow(() -> {
-                    log.warn("상품 리뷰 집계 정보를 찾을 수 없습니다. productId={}", productId);
-                    return new ProductReviewAggregateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("상품 리뷰 집계 정보를 찾을 수 없습니다. productId={}", productId);
+                return new ProductReviewAggregateNotFoundException();
+            });
     }
 
     @Override
@@ -153,42 +153,42 @@ public class GetReviewService implements GetReviewUseCase {
         }
 
         List<Long> validProductIds = productIds.stream()
-                .filter(productId -> FormatValidator.hasValue(productId))
-                .distinct()
-                .toList();
+            .filter(productId -> FormatValidator.hasValue(productId))
+            .distinct()
+            .toList();
 
         Map<Long, ProductReviewAggregate> aggregatesByProductId = FormatValidator.hasValue(validProductIds)
-                ? findReviewPort.findProductReviewAggregatesByProductIds(validProductIds)
-                : Map.of();
+            ? findReviewPort.findProductReviewAggregatesByProductIds(validProductIds)
+            : Map.of();
 
         List<ProductReviewAggregateSummaryResult> reviewAggregates = productIds.stream()
-                .filter(productId -> FormatValidator.hasValue(productId))
-                .map(productId -> ProductReviewAggregateSummaryResult.from(
-                        productId,
-                        aggregatesByProductId.get(productId)
-                ))
-                .toList();
+            .filter(productId -> FormatValidator.hasValue(productId))
+            .map(productId -> ProductReviewAggregateSummaryResult.from(
+                productId,
+                aggregatesByProductId.get(productId)
+            ))
+            .toList();
 
         return GetProductReviewAggregatesResult.from(reviewAggregates);
     }
 
     @Override
     public GetMyReviewsResult getWriterReviews(
-            Long userId, Long cursor, int pageSize, Sort.Direction sortDirection, ReviewSortProperty sortProperty
+        Long userId, Long cursor, int pageSize, Sort.Direction sortDirection, ReviewSortProperty sortProperty
     ) {
         Pageable pageable = PageRequest.of(
-                0, pageSize + 1, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
+            0, pageSize + 1, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
         );
 
         Reviews userReviews = findReviewPort.findUserReviews(
-                userId, cursor, pageable, sortProperty
+            userId, cursor, pageable, sortProperty
         );
 
         // 무한 스크롤 페이지 설정
         boolean hasNext = userReviews.size() > pageSize;
         List<Review> pagedReviews = hasNext
-                ? userReviews.subList(0, pageSize)
-                : userReviews.getReviews();
+            ? userReviews.subList(0, pageSize)
+            : userReviews.getReviews();
 
         Long nextCursor = null;
         if (FormatValidator.hasValue(pagedReviews)) {
@@ -206,12 +206,12 @@ public class GetReviewService implements GetReviewUseCase {
         Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId = findReviewProductInfo(pagedReviews);
 
         return GetMyReviewsResult.from(
-                hasNext,
-                nextCursor,
-                totalElements,
-                pagedReviews,
-                reviewImages,
-                productInfoByPricePolicyId
+            hasNext,
+            nextCursor,
+            totalElements,
+            pagedReviews,
+            reviewImages,
+            productInfoByPricePolicyId
         );
     }
 
@@ -225,14 +225,14 @@ public class GetReviewService implements GetReviewUseCase {
     @Override
     public ReviewItemResult getReviewDetail(Long id, Long userId) {
         Review review = findReviewPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
-                    return new ReviewNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                return new ReviewNotFoundException();
+            });
 
         if (FormatValidator.hasValue(userId)) {
             review.updateIsUserLiked(
-                    getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
+                getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
             );
         }
 
@@ -248,8 +248,8 @@ public class GetReviewService implements GetReviewUseCase {
         }
 
         return findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), REVIEW_IMAGE)
-                .map(result -> result.images())
-                .orElse(null);
+            .map(result -> result.images())
+            .orElse(null);
     }
 
     private ReviewProductInfoResult findReviewDetailProductInfo(Review review) {
@@ -259,7 +259,7 @@ public class GetReviewService implements GetReviewUseCase {
         }
 
         Map<Long, ProductInfoResult> productInfoMap
-                = findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId));
+            = findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId));
         ProductInfoResult productInfo = productInfoMap.get(pricePolicyId);
         if (FormatValidator.hasNoValue(productInfo)) {
             return null;
@@ -268,8 +268,8 @@ public class GetReviewService implements GetReviewUseCase {
         Long unitAmount = review.hasUnitAmount() ? review.getUnitAmount().getValue() : null;
         if (FormatValidator.hasNoValue(unitAmount) && FormatValidator.hasValue(review.getOrderId())) {
             unitAmount = findOrderProductPort
-                    .findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId)
-                    .orElse(null);
+                .findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId)
+                .orElse(null);
         }
 
         return ReviewProductInfoResult.from(productInfo, unitAmount);
@@ -296,12 +296,12 @@ public class GetReviewService implements GetReviewUseCase {
         Map<Long, List<GetFileResult>> reviewImagesByReviewId = new ConcurrentHashMap<>();
 
         List<CompletableFuture<Void>> futures = reviews.stream()
-                .filter(review -> Boolean.TRUE.equals(review.getIsPhoto()))
-                .map(review -> CompletableFuture.runAsync(
-                        () -> findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), REVIEW_IMAGE)
-                                .ifPresent(result -> reviewImagesByReviewId.put(review.getId(), result.images()))
-                ))
-                .toList();
+            .filter(review -> Boolean.TRUE.equals(review.getIsPhoto()))
+            .map(review -> CompletableFuture.runAsync(
+                () -> findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), REVIEW_IMAGE)
+                    .ifPresent(result -> reviewImagesByReviewId.put(review.getId(), result.images()))
+            ))
+            .toList();
 
         if (FormatValidator.hasValue(futures)) {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -317,17 +317,17 @@ public class GetReviewService implements GetReviewUseCase {
         }
 
         Map<Long, ProductInfoResult> productInfoByPricePolicyId
-                = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+            = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
         if (FormatValidator.hasNoValue(productInfoByPricePolicyId)) {
             return Map.of();
         }
 
         Map<Long, ReviewProductInfoResult> results = new HashMap<>();
         productInfoByPricePolicyId.forEach(
-                (pricePolicyId, productInfo) -> results.put(
-                        pricePolicyId,
-                        ReviewProductInfoResult.from(productInfo)
-                )
+            (pricePolicyId, productInfo) -> results.put(
+                pricePolicyId,
+                ReviewProductInfoResult.from(productInfo)
+            )
         );
 
         return results;
@@ -339,9 +339,9 @@ public class GetReviewService implements GetReviewUseCase {
         }
 
         return reviews.stream()
-                .map(Review::getPricePolicyId)
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .map(Review::getPricePolicyId)
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
     }
 }

@@ -26,9 +26,9 @@ class FulfillmentGoodsRegistrationTest {
             // given
             UUID productKey = UUID.randomUUID();
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
-                    .productKey(productKey)
-                    .fasstoProductCode(VALID_FASSTO_CODE)
-                    .build();
+                .productKey(productKey)
+                .fasstoProductCode(VALID_FASSTO_CODE)
+                .build();
 
             // when
             FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(state);
@@ -43,13 +43,13 @@ class FulfillmentGoodsRegistrationTest {
         void shouldThrowExceptionWhenProductKeyIsNull() {
             // given
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
-                    .productKey(null)
-                    .fasstoProductCode(VALID_FASSTO_CODE)
-                    .build();
+                .productKey(null)
+                .fasstoProductCode(VALID_FASSTO_CODE)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> FulfillmentGoodsRegistration.from(state))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
@@ -57,13 +57,13 @@ class FulfillmentGoodsRegistrationTest {
         void shouldThrowExceptionWhenFasstoProductCodeIsNull() {
             // given
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
-                    .productKey(UUID.randomUUID())
-                    .fasstoProductCode(null)
-                    .build();
+                .productKey(UUID.randomUUID())
+                .fasstoProductCode(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> FulfillmentGoodsRegistration.from(state))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
@@ -71,13 +71,13 @@ class FulfillmentGoodsRegistrationTest {
         void shouldThrowExceptionWhenFasstoProductCodeIsBlank() {
             // given
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
-                    .productKey(UUID.randomUUID())
-                    .fasstoProductCode("   ")
-                    .build();
+                .productKey(UUID.randomUUID())
+                .fasstoProductCode("   ")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> FulfillmentGoodsRegistration.from(state))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -92,11 +92,11 @@ class FulfillmentGoodsRegistrationTest {
             UUID productKey = UUID.randomUUID();
             LocalDateTime createdAt = LocalDateTime.of(2026, 4, 11, 10, 0, 0);
             FulfillmentGoodsRegistrationSnapshotState state = FulfillmentGoodsRegistrationSnapshotState.builder()
-                    .id(100L)
-                    .productKey(productKey)
-                    .fasstoProductCode(VALID_FASSTO_CODE)
-                    .createdAt(createdAt)
-                    .build();
+                .id(100L)
+                .productKey(productKey)
+                .fasstoProductCode(VALID_FASSTO_CODE)
+                .createdAt(createdAt)
+                .build();
 
             // when
             FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(state);

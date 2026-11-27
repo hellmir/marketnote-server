@@ -15,29 +15,29 @@ public interface GifticonOrderJpaRepository extends JpaRepository<GifticonOrderJ
     Optional<GifticonOrderJpaEntity> findByTrId(String trId);
 
     @Query("""
-            SELECT o FROM GifticonOrderJpaEntity o
-            WHERE o.userId = :userId
-            AND o.orderStatus IN :statuses
-            AND (:cursor = -1L OR o.id < :cursor)
-            ORDER BY o.createdAt DESC, o.id DESC
-            """)
+        SELECT o FROM GifticonOrderJpaEntity o
+        WHERE o.userId = :userId
+        AND o.orderStatus IN :statuses
+        AND (:cursor = -1L OR o.id < :cursor)
+        ORDER BY o.createdAt DESC, o.id DESC
+        """)
     List<GifticonOrderJpaEntity> findByUserIdAndStatusesOrderByCreatedAtDesc(
-            @Param("userId") Long userId,
-            @Param("statuses") List<GifticonOrderStatus> statuses,
-            @Param("cursor") Long cursor,
-            Pageable pageable
+        @Param("userId") Long userId,
+        @Param("statuses") List<GifticonOrderStatus> statuses,
+        @Param("cursor") Long cursor,
+        Pageable pageable
     );
 
     @Query("""
-            SELECT o FROM GifticonOrderJpaEntity o
-            WHERE o.userId = :userId
-            AND o.orderStatus IN :statuses
-            ORDER BY o.validEndDate ASC, o.id ASC
-            """)
+        SELECT o FROM GifticonOrderJpaEntity o
+        WHERE o.userId = :userId
+        AND o.orderStatus IN :statuses
+        ORDER BY o.validEndDate ASC, o.id ASC
+        """)
     List<GifticonOrderJpaEntity> findByUserIdAndStatusesOrderByValidEndDateAsc(
-            @Param("userId") Long userId,
-            @Param("statuses") List<GifticonOrderStatus> statuses,
-            Pageable pageable
+        @Param("userId") Long userId,
+        @Param("statuses") List<GifticonOrderStatus> statuses,
+        Pageable pageable
     );
 
     long countByUserIdAndOrderStatusIn(Long userId, List<GifticonOrderStatus> statuses);

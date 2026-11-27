@@ -26,10 +26,10 @@ public class GetSettlementDetailService implements GetSettlementDetailUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public List<GetSettlementDetailResult> getSettlementAllocations(Long settlementId) {
         findSettlementPort.findById(settlementId)
-                .orElseThrow(() -> {
-                    log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
-                    return new SettlementNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
+                return new SettlementNotFoundException();
+            });
 
         List<PaymentAllocation> allocations = findPaymentAllocationPort.findBySettlementId(settlementId);
         return GetSettlementDetailResult.fromList(allocations);

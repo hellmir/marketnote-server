@@ -8,10 +8,10 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RegisterFulfillmentDeliveryResponse(
-        FulfillmentResponseHeader header,
-        @JsonDeserialize(using = RegisterFulfillmentDeliveryDataDeserializer.class)
-        List<RegisterFulfillmentDeliveryItemResponse> data,
-        FulfillmentErrorInfo errorInfo
+    FulfillmentResponseHeader header,
+    @JsonDeserialize(using = RegisterFulfillmentDeliveryDataDeserializer.class)
+    List<RegisterFulfillmentDeliveryItemResponse> data,
+    FulfillmentErrorInfo errorInfo
 ) implements FulfillmentApiResponse {
     public boolean isSuccess() {
         if (FormatValidator.hasNoValue(header) || !header.isSuccess()) {

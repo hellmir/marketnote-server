@@ -35,14 +35,14 @@ class FeeRateTest {
     @DisplayName("음수로 FeeRate 생성 시 InvalidFeeRateException을 던진다")
     void shouldThrowWhenFeeRateIsNegative() {
         assertThatThrownBy(() -> FeeRate.of(-1))
-                .isInstanceOf(InvalidFeeRateException.class);
+            .isInstanceOf(InvalidFeeRateException.class);
     }
 
     @Test
     @DisplayName("10001로 FeeRate 생성 시 InvalidFeeRateException을 던진다")
     void shouldThrowWhenFeeRateExceedsMaximum() {
         assertThatThrownBy(() -> FeeRate.of(10001))
-                .isInstanceOf(InvalidFeeRateException.class);
+            .isInstanceOf(InvalidFeeRateException.class);
     }
 
     @Test

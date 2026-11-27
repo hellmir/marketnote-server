@@ -15,6 +15,6 @@ public class BusinessIdMdcWebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(businessIdMdcInterceptor)
-                .excludePathPatterns("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**");
+            .excludePathPatterns("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**");
     }
 }

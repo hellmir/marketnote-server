@@ -52,7 +52,7 @@ class RegisterProductUseCaseTest {
 
         when(saveProductPort.save(any(Product.class))).thenReturn(savedProduct);
         when(registerPricePolicyUseCase.registerPricePolicy(
-                eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
+            eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         )).thenReturn(RegisterPricePolicyResult.of(100L));
 
         RegisterProductResult result = registerProductService.registerProduct(command);
@@ -68,16 +68,16 @@ class RegisterProductUseCaseTest {
         assertThat(requestProduct.getDetail()).isEqualTo(command.detail());
         assertThat(requestProduct.isFindAllOptionsYn()).isEqualTo(command.isFindAllOptions());
         assertThat(requestProduct.getProductTags())
-                .extracting(ProductTag::getName)
-                .containsExactly("tag-1", "tag-2");
+            .extracting(ProductTag::getName)
+            .containsExactly("tag-1", "tag-2");
         assertThat(requestProduct.getProductTags())
-                .extracting(ProductTag::getStatus)
-                .containsOnly(EntityStatus.ACTIVE);
+            .extracting(ProductTag::getStatus)
+            .containsOnly(EntityStatus.ACTIVE);
 
         ArgumentCaptor<RegisterPricePolicyCommand> pricePolicyCaptor =
-                ArgumentCaptor.forClass(RegisterPricePolicyCommand.class);
+            ArgumentCaptor.forClass(RegisterPricePolicyCommand.class);
         verify(registerPricePolicyUseCase).registerPricePolicy(
-                eq(command.sellerId()), eq(false), pricePolicyCaptor.capture()
+            eq(command.sellerId()), eq(false), pricePolicyCaptor.capture()
         );
         RegisterPricePolicyCommand pricePolicyCommand = pricePolicyCaptor.getValue();
         assertThat(pricePolicyCommand.productId()).isEqualTo(savedProduct.getId());
@@ -87,14 +87,14 @@ class RegisterProductUseCaseTest {
         assertThat(pricePolicyCommand.optionIds()).isNull();
 
         verify(publishProductEventPort).publishProductRegisteredEvent(
-                10L, PRODUCT_KEY, 100L, command.sellerId(), "테스트 상품", null, "테스트 브랜드",
-                10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of(), FASSTO_PRODUCT_CODE, false
+            10L, PRODUCT_KEY, 100L, command.sellerId(), "테스트 상품", null, "테스트 브랜드",
+            10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of(), FASSTO_PRODUCT_CODE, false
         );
 
         verifyNoMoreInteractions(
-                registerPricePolicyUseCase,
-                saveProductPort,
-                publishProductEventPort
+            registerPricePolicyUseCase,
+            saveProductPort,
+            publishProductEventPort
         );
     }
 
@@ -107,14 +107,14 @@ class RegisterProductUseCaseTest {
 
         when(saveProductPort.save(any(Product.class))).thenReturn(savedProduct);
         when(registerPricePolicyUseCase.registerPricePolicy(
-                eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
+            eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         )).thenReturn(RegisterPricePolicyResult.of(101L));
 
         registerProductService.registerProduct(command);
 
         verify(publishProductEventPort).publishProductRegisteredEvent(
-                11L, PRODUCT_KEY, 101L, command.sellerId(), "테스트 상품", "2", "테스트 브랜드",
-                10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of(), FASSTO_PRODUCT_CODE, false
+            11L, PRODUCT_KEY, 101L, command.sellerId(), "테스트 상품", "2", "테스트 브랜드",
+            10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of(), FASSTO_PRODUCT_CODE, false
         );
     }
 
@@ -126,15 +126,15 @@ class RegisterProductUseCaseTest {
 
         when(saveProductPort.save(any(Product.class))).thenReturn(savedProduct);
         when(registerPricePolicyUseCase.registerPricePolicy(
-                eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
+            eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         )).thenThrow(new IllegalStateException("price policy fail"));
 
         assertThatThrownBy(() -> registerProductService.registerProduct(command))
-                .isInstanceOf(IllegalStateException.class);
+            .isInstanceOf(IllegalStateException.class);
 
         verify(saveProductPort).save(any(Product.class));
         verify(registerPricePolicyUseCase).registerPricePolicy(
-                eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
+            eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         );
         verifyNoInteractions(publishProductEventPort);
     }
@@ -144,23 +144,23 @@ class RegisterProductUseCaseTest {
     void registerProduct_imported_publishesImportedTrueEvent() {
         // given
         RegisterProductCommand command = RegisterProductCommand.builder()
-                .sellerId(1L)
-                .name("import 상품")
-                .brandName("브랜드")
-                .detail("설명")
-                .price(10000L)
-                .discountPrice(8000L)
-                .accumulatedPoint(100L)
-                .isFindAllOptions(true)
-                .tags(List.of("tag-1"))
-                .fulfillmentVendorGoods(null)
-                .fasstoProductCode("FASSTO0000000000000000001")
-                .build();
+            .sellerId(1L)
+            .name("import 상품")
+            .brandName("브랜드")
+            .detail("설명")
+            .price(10000L)
+            .discountPrice(8000L)
+            .accumulatedPoint(100L)
+            .isFindAllOptions(true)
+            .tags(List.of("tag-1"))
+            .fulfillmentVendorGoods(null)
+            .fasstoProductCode("FASSTO0000000000000000001")
+            .build();
         Product savedProduct = buildSavedProduct(50L, command);
 
         when(saveProductPort.save(any(Product.class))).thenReturn(savedProduct);
         when(registerPricePolicyUseCase.registerPricePolicy(
-                eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
+            eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         )).thenReturn(RegisterPricePolicyResult.of(500L));
 
         // when
@@ -168,9 +168,9 @@ class RegisterProductUseCaseTest {
 
         // then
         verify(publishProductEventPort).publishProductRegisteredEvent(
-                eq(50L), eq(PRODUCT_KEY), eq(500L), eq(command.sellerId()), eq("import 상품"),
-                eq((String) null), eq("브랜드"), eq(10000L), eq(8000L), eq(100L), eq(0L),
-                any(), any(), eq(FASSTO_PRODUCT_CODE), eq(true)
+            eq(50L), eq(PRODUCT_KEY), eq(500L), eq(command.sellerId()), eq("import 상품"),
+            eq((String) null), eq("브랜드"), eq(10000L), eq(8000L), eq(100L), eq(0L),
+            any(), any(), eq(FASSTO_PRODUCT_CODE), eq(true)
         );
     }
 
@@ -183,7 +183,7 @@ class RegisterProductUseCaseTest {
 
         when(saveProductPort.save(any(Product.class))).thenReturn(savedProduct);
         when(registerPricePolicyUseCase.registerPricePolicy(
-                eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
+            eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         )).thenReturn(RegisterPricePolicyResult.of(600L));
 
         // when
@@ -191,47 +191,47 @@ class RegisterProductUseCaseTest {
 
         // then
         verify(publishProductEventPort).publishProductRegisteredEvent(
-                eq(60L), eq(PRODUCT_KEY), eq(600L), eq(command.sellerId()), eq("테스트 상품"),
-                eq((String) null), eq("테스트 브랜드"), eq(10000L), eq(8000L), eq(100L), eq(0L),
-                any(), any(), eq(FASSTO_PRODUCT_CODE), eq(false)
+            eq(60L), eq(PRODUCT_KEY), eq(600L), eq(command.sellerId()), eq("테스트 상품"),
+            eq((String) null), eq("테스트 브랜드"), eq(10000L), eq(8000L), eq(100L), eq(0L),
+            any(), any(), eq(FASSTO_PRODUCT_CODE), eq(false)
         );
     }
 
     private RegisterProductCommand buildCommand(FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods) {
         return RegisterProductCommand.builder()
-                .sellerId(1L)
-                .name("테스트 상품")
-                .brandName("테스트 브랜드")
-                .detail("상세 설명")
-                .price(10000L)
-                .discountPrice(8000L)
-                .accumulatedPoint(100L)
-                .isFindAllOptions(true)
-                .tags(List.of("tag-1", "tag-2"))
-                .fulfillmentVendorGoods(fulfillmentVendorGoods)
-                .build();
+            .sellerId(1L)
+            .name("테스트 상품")
+            .brandName("테스트 브랜드")
+            .detail("상세 설명")
+            .price(10000L)
+            .discountPrice(8000L)
+            .accumulatedPoint(100L)
+            .isFindAllOptions(true)
+            .tags(List.of("tag-1", "tag-2"))
+            .fulfillmentVendorGoods(fulfillmentVendorGoods)
+            .build();
     }
 
     private Product buildSavedProduct(Long id, RegisterProductCommand command) {
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(PRODUCT_KEY)
-                        .sellerId(command.sellerId())
-                        .name(command.name())
-                        .brandName(command.brandName())
-                        .detail(command.detail())
-                        .findAllOptionsYn(command.isFindAllOptions())
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FASSTO_PRODUCT_CODE)
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(PRODUCT_KEY)
+                .sellerId(command.sellerId())
+                .name(command.name())
+                .brandName(command.brandName())
+                .detail(command.detail())
+                .findAllOptionsYn(command.isFindAllOptions())
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FASSTO_PRODUCT_CODE)
+                .build()
         );
     }
 
     private FulfillmentVendorGoodsOptionCommand buildFulfillmentOptions() {
         return FulfillmentVendorGoodsOptionCommand.builder()
-                .goodsType("2")
-                .build();
+            .goodsType("2")
+            .build();
     }
 }

@@ -34,21 +34,21 @@ public class FulfillmentGoodsRegistrationJpaEntity {
 
     public static FulfillmentGoodsRegistrationJpaEntity from(FulfillmentGoodsRegistration registration) {
         return FulfillmentGoodsRegistrationJpaEntity.builder()
-                .id(registration.getId())
-                .productKey(registration.getProductKey())
-                .fasstoProductCode(registration.getFasstoProductCode())
-                .createdAt(registration.getCreatedAt())
-                .build();
+            .id(registration.getId())
+            .productKey(registration.getProductKey())
+            .fasstoProductCode(registration.getFasstoProductCode())
+            .createdAt(registration.getCreatedAt())
+            .build();
     }
 
     public FulfillmentGoodsRegistration toDomain() {
         return FulfillmentGoodsRegistration.from(
-                FulfillmentGoodsRegistrationSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .fasstoProductCode(fasstoProductCode)
-                        .createdAt(createdAt)
-                        .build()
+            FulfillmentGoodsRegistrationSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .fasstoProductCode(fasstoProductCode)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

@@ -42,19 +42,19 @@ public interface FindPostPort {
      * @Description 게시글 목록을 조회합니다.
      */
     Posts findPublicPosts(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetId,
-            Long cursor,
-            Pageable pageable,
-            boolean isDesc,
-            PostSortProperty sortProperty,
-            Long userId,
-            PostFilterCategory filter,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Board board,
+        String category,
+        PostTargetGroupType targetGroupType,
+        Long targetId,
+        Long cursor,
+        Pageable pageable,
+        boolean isDesc,
+        PostSortProperty sortProperty,
+        Long userId,
+        PostFilterCategory filter,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     );
 
     /**
@@ -74,16 +74,16 @@ public interface FindPostPort {
      * @Description 회원 게시글 목록을 조회합니다.
      */
     Posts findUserPosts(
-            Long userId,
-            Board board,
-            Long cursor,
-            Pageable pageable,
-            boolean isDesc,
-            PostSortProperty sortProperty,
-            PostFilterCategory filter,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Long userId,
+        Board board,
+        Long cursor,
+        Pageable pageable,
+        boolean isDesc,
+        PostSortProperty sortProperty,
+        PostFilterCategory filter,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     );
 
     /**
@@ -102,15 +102,15 @@ public interface FindPostPort {
      * @Description 공개 게시판 게시글 개수를 조회합니다.
      */
     long countPublicPosts(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetGroupId,
-            Long userId,
-            PostFilterCategory filter,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Board board,
+        String category,
+        PostTargetGroupType targetGroupType,
+        Long targetGroupId,
+        Long userId,
+        PostFilterCategory filter,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     );
 
     /**
@@ -126,12 +126,12 @@ public interface FindPostPort {
      * @Description 회원 게시판 게시글 개수를 조회합니다.
      */
     long countUserPosts(
-            Long userId,
-            Board board,
-            PostFilterCategory filter,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Long userId,
+        Board board,
+        PostFilterCategory filter,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     );
 
     /**
@@ -147,12 +147,12 @@ public interface FindPostPort {
      * @Description 회원 게시글 목록을 오프셋 기반으로 조회합니다.
      */
     Posts findUserPostsByOffset(
-            Long userId,
-            Board board,
-            int page,
-            int pageSize,
-            boolean isDesc,
-            PostSortProperty sortProperty
+        Long userId,
+        Board board,
+        int page,
+        int pageSize,
+        boolean isDesc,
+        PostSortProperty sortProperty
     );
 
     /**

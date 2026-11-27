@@ -39,7 +39,7 @@ public class RedisSseEventPublishAdapter implements PublishSseEventPort {
             return objectMapper.writeValueAsString(message);
         } catch (JsonProcessingException exception) {
             log.error("SSE 이벤트 메시지 직렬화 실패: userId={}, eventType={}",
-                    message.userId(), message.eventType(), exception);
+                message.userId(), message.eventType(), exception);
             return null;
         }
     }

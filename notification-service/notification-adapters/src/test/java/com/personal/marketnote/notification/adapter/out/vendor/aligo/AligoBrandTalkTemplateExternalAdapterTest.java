@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,8 +52,8 @@ class AligoBrandTalkTemplateExternalAdapterTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoBrandTalkTemplateExternalAdapter(aligoHttpClient, objectMapper, properties);
     }
@@ -68,19 +68,19 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SENDER-KEY")
-                            .templateCode("TPL001")
-                            .templateName("템플릿명")
-                            .templateType(BrandTalkTemplateType.TEXT)
-                            .templateContent("본문")
-                            .adult(false)
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SENDER-KEY")
+                    .templateCode("TPL001")
+                    .templateName("템플릿명")
+                    .templateType(BrandTalkTemplateType.TEXT)
+                    .templateContent("본문")
+                    .adult(false)
+                    .build()
             );
 
             // when
@@ -96,30 +96,30 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             BrandTalkWideItem main = BrandTalkWideItem.from(
-                    BrandTalkWideItemCreateState.builder().title("메인").build()
+                BrandTalkWideItemCreateState.builder().title("메인").build()
             );
             BrandTalkWideItem sub1 = BrandTalkWideItem.from(
-                    BrandTalkWideItemCreateState.builder().title("서브1").build()
+                BrandTalkWideItemCreateState.builder().title("서브1").build()
             );
             BrandTalkWideItem sub2 = BrandTalkWideItem.from(
-                    BrandTalkWideItemCreateState.builder().title("서브2").build()
+                BrandTalkWideItemCreateState.builder().title("서브2").build()
             );
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL002")
-                            .templateName("WIL 템플릿")
-                            .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
-                            .templateContent("본문")
-                            .templateHeader("헤더")
-                            .mainWideItem(main)
-                            .subWideItems(List.of(sub1, sub2))
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL002")
+                    .templateName("WIL 템플릿")
+                    .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
+                    .templateContent("본문")
+                    .templateHeader("헤더")
+                    .mainWideItem(main)
+                    .subWideItems(List.of(sub1, sub2))
+                    .build()
             );
 
             // when
@@ -128,13 +128,13 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // then
             mockServer.verify();
             String mainJson = objectMapper.writeValueAsString(
-                    java.util.Map.of("title", "메인")
+                java.util.Map.of("title", "메인")
             );
             String sub1Json = objectMapper.writeValueAsString(
-                    java.util.Map.of("title", "서브1")
+                java.util.Map.of("title", "서브1")
             );
             String sub2Json = objectMapper.writeValueAsString(
-                    java.util.Map.of("title", "서브2")
+                java.util.Map.of("title", "서브2")
             );
             assertThat(mainJson).contains("메인");
             assertThat(sub1Json).contains("서브1");
@@ -147,36 +147,36 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             BrandTalkButton button = BrandTalkButton.from(
-                    BrandTalkButtonCreateState.builder()
-                            .name("자세히 보기")
-                            .linkType(AligoTemplateButtonLinkType.WL)
-                            .linkM("https://m.example.com")
-                            .linkP("https://www.example.com")
-                            .build()
+                BrandTalkButtonCreateState.builder()
+                    .name("자세히 보기")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkM("https://m.example.com")
+                    .linkP("https://www.example.com")
+                    .build()
             );
 
             BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
-                    BrandTalkCarouselItemCreateState.builder()
-                            .header("타이틀")
-                            .content("내용")
-                            .buttons(List.of(button))
-                            .build()
+                BrandTalkCarouselItemCreateState.builder()
+                    .header("타이틀")
+                    .content("내용")
+                    .buttons(List.of(button))
+                    .build()
             );
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL003")
-                            .templateName("캐러셀")
-                            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
-                            .templateContent("본문")
-                            .carouselHeader("헤더")
-                            .carouselItems(List.of(item))
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL003")
+                    .templateName("캐러셀")
+                    .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                    .templateContent("본문")
+                    .carouselHeader("헤더")
+                    .carouselItems(List.of(item))
+                    .build()
             );
 
             // when
@@ -192,27 +192,27 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             BrandTalkCommerceInfo commerceInfo = BrandTalkCommerceInfo.from(
-                    BrandTalkCommerceInfoCreateState.builder()
-                            .title("상품명")
-                            .regularPrice("10000")
-                            .discountPrice("8000")
-                            .discountRate("20")
-                            .build()
+                BrandTalkCommerceInfoCreateState.builder()
+                    .title("상품명")
+                    .regularPrice("10000")
+                    .discountPrice("8000")
+                    .discountRate("20")
+                    .build()
             );
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL004")
-                            .templateName("커머스")
-                            .templateType(BrandTalkTemplateType.COMMERCE)
-                            .templateContent("본문")
-                            .commerceInfo(commerceInfo)
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL004")
+                    .templateName("커머스")
+                    .templateType(BrandTalkTemplateType.COMMERCE)
+                    .templateContent("본문")
+                    .commerceInfo(commerceInfo)
+                    .build()
             );
 
             // when
@@ -235,23 +235,23 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL005")
-                            .templateName("IMG")
-                            .templateType(BrandTalkTemplateType.IMAGE)
-                            .templateContent("본문")
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL005")
+                    .templateName("IMG")
+                    .templateType(BrandTalkTemplateType.IMAGE)
+                    .templateContent("본문")
+                    .build()
             );
 
             // when
             adapter.registerTemplate(
-                    template, new byte[]{10, 20, 30}, "image.png", List.of(), List.of()
+                template, new byte[]{10, 20, 30}, "image.png", List.of(), List.of()
             );
 
             // then
@@ -264,8 +264,8 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             ObjectMapper failingMapper = Mockito.mock(ObjectMapper.class);
             Mockito.when(failingMapper.writeValueAsString(Mockito.any()))
-                    .thenThrow(new JsonProcessingException("직렬화 실패") {
-                    });
+                .thenThrow(new JsonProcessingException("직렬화 실패") {
+                });
 
             AligoProperties properties = new AligoProperties();
             properties.setBaseUrl("http://localhost");
@@ -281,35 +281,35 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             MockRestServiceServer.bindTo(builder).build();
             RestClient restClient = builder.baseUrl("http://localhost").build();
             AligoHttpClient httpClient = AligoHttpClientTestSupport.newClient(
-                    restClient, new ObjectMapper(), properties,
-                    new ExternalCallLogger(new SimpleMeterRegistry())
+                restClient, new ObjectMapper(), properties,
+                new ExternalCallLogger(new SimpleMeterRegistry())
             );
 
             AligoBrandTalkTemplateExternalAdapter failingAdapter =
-                    new AligoBrandTalkTemplateExternalAdapter(httpClient, failingMapper, properties);
+                new AligoBrandTalkTemplateExternalAdapter(httpClient, failingMapper, properties);
 
             BrandTalkButton button = BrandTalkButton.from(
-                    BrandTalkButtonCreateState.builder()
-                            .name("btn")
-                            .linkType(AligoTemplateButtonLinkType.WL)
-                            .linkM("https://m")
-                            .linkP("https://p")
-                            .build()
+                BrandTalkButtonCreateState.builder()
+                    .name("btn")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkM("https://m")
+                    .linkP("https://p")
+                    .build()
             );
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL999")
-                            .templateName("BTN")
-                            .templateType(BrandTalkTemplateType.TEXT)
-                            .templateContent("본문")
-                            .buttons(List.of(button))
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL999")
+                    .templateName("BTN")
+                    .templateType(BrandTalkTemplateType.TEXT)
+                    .templateContent("본문")
+                    .buttons(List.of(button))
+                    .build()
             );
 
             // when & then
             assertThatThrownBy(() -> failingAdapter.registerTemplate(template, null, null, List.of(), List.of()))
-                    .isInstanceOf(AligoApiRequestFailedException.class);
+                .isInstanceOf(AligoApiRequestFailedException.class);
         }
     }
 
@@ -322,33 +322,33 @@ class AligoBrandTalkTemplateExternalAdapterTest {
         void shouldMapPagedResponse() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "info": {
-                            "current_page": 1,
-                            "page_size": 10,
-                            "total": 25
-                        },
-                        "list": [
-                            {
-                                "tpl_code": "TPL001",
-                                "tpl_name": "템플릿1",
-                                "tpl_type": "TEXT",
-                                "tpl_status": "A",
-                                "send_variable": ["#{name}"],
-                                "create_at": "2026-10-31"
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "info": {
+                        "current_page": 1,
+                        "page_size": 10,
+                        "total": 25
+                    },
+                    "list": [
+                        {
+                            "tpl_code": "TPL001",
+                            "tpl_name": "템플릿1",
+                            "tpl_type": "TEXT",
+                            "tpl_status": "A",
+                            "send_variable": ["#{name}"],
+                            "create_at": "2026-10-31"
+                        }
+                    ]
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/brandtalk/template/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             GetBrandTalkTemplateListResult.ExternalListResponse response =
-                    adapter.getTemplateList("SK", 1, 10);
+                adapter.getTemplateList("SK", 1, 10);
 
             // then
             assertThat(response.pageInfo().currentPage()).isEqualTo(1);
@@ -365,23 +365,23 @@ class AligoBrandTalkTemplateExternalAdapterTest {
         void shouldMapEmptyTemplatesWhenListIsNull() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "info": {
-                            "current_page": 1,
-                            "page_size": 10,
-                            "total": 0
-                        }
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "info": {
+                        "current_page": 1,
+                        "page_size": 10,
+                        "total": 0
                     }
-                    """;
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/brandtalk/template/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             GetBrandTalkTemplateListResult.ExternalListResponse response =
-                    adapter.getTemplateList("SK", 1, 10);
+                adapter.getTemplateList("SK", 1, 10);
 
             // then
             assertThat(response.templates()).isEmpty();
@@ -394,32 +394,32 @@ class AligoBrandTalkTemplateExternalAdapterTest {
         void shouldMapEmptySendVariableWhenNull() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "info": {
-                            "current_page": 1,
-                            "page_size": 10,
-                            "total": 1
-                        },
-                        "list": [
-                            {
-                                "tpl_code": "TPL010",
-                                "tpl_name": "변수없음",
-                                "tpl_type": "TEXT",
-                                "tpl_status": "A",
-                                "create_at": "2026-11-03"
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "info": {
+                        "current_page": 1,
+                        "page_size": 10,
+                        "total": 1
+                    },
+                    "list": [
+                        {
+                            "tpl_code": "TPL010",
+                            "tpl_name": "변수없음",
+                            "tpl_type": "TEXT",
+                            "tpl_status": "A",
+                            "create_at": "2026-11-03"
+                        }
+                    ]
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/brandtalk/template/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             GetBrandTalkTemplateListResult.ExternalListResponse response =
-                    adapter.getTemplateList("SK", 1, 10);
+                adapter.getTemplateList("SK", 1, 10);
 
             // then
             assertThat(response.templates()).hasSize(1);
@@ -438,19 +438,19 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL-VIDEO")
-                            .templateName("프리미엄동영상")
-                            .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
-                            .templateContent("본문")
-                            .videoUrl("https://video.example.com/v.mp4")
-                            .videoThumbnailUrl("https://video.example.com/thumb.jpg")
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL-VIDEO")
+                    .templateName("프리미엄동영상")
+                    .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
+                    .templateContent("본문")
+                    .videoUrl("https://video.example.com/v.mp4")
+                    .videoThumbnailUrl("https://video.example.com/thumb.jpg")
+                    .build()
             );
 
             // when
@@ -466,29 +466,29 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             BrandTalkCoupon coupon = BrandTalkCoupon.from(
-                    BrandTalkCouponCreateState.builder()
-                            .title("쿠폰제목")
-                            .description("설명")
-                            .linkM("https://m.example.com")
-                            .linkP("https://p.example.com")
-                            .linkI("ios://link")
-                            .linkA("android://link")
-                            .build()
+                BrandTalkCouponCreateState.builder()
+                    .title("쿠폰제목")
+                    .description("설명")
+                    .linkM("https://m.example.com")
+                    .linkP("https://p.example.com")
+                    .linkI("ios://link")
+                    .linkA("android://link")
+                    .build()
             );
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL-COUPON")
-                            .templateName("쿠폰템플릿")
-                            .templateType(BrandTalkTemplateType.TEXT)
-                            .templateContent("본문")
-                            .coupon(coupon)
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL-COUPON")
+                    .templateName("쿠폰템플릿")
+                    .templateType(BrandTalkTemplateType.TEXT)
+                    .templateContent("본문")
+                    .coupon(coupon)
+                    .build()
             );
 
             // when
@@ -504,56 +504,56 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             BrandTalkButton itemButton = BrandTalkButton.from(
-                    BrandTalkButtonCreateState.builder()
-                            .name("자세히")
-                            .linkType(AligoTemplateButtonLinkType.WL)
-                            .linkM("https://m.example.com")
-                            .linkP("https://p.example.com")
-                            .build()
+                BrandTalkButtonCreateState.builder()
+                    .name("자세히")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkM("https://m.example.com")
+                    .linkP("https://p.example.com")
+                    .build()
             );
             BrandTalkCarouselItem item1 = BrandTalkCarouselItem.from(
-                    BrandTalkCarouselItemCreateState.builder()
-                            .header("h1").content("c1").buttons(List.of(itemButton)).build()
+                BrandTalkCarouselItemCreateState.builder()
+                    .header("h1").content("c1").buttons(List.of(itemButton)).build()
             );
             BrandTalkCarouselItem item2 = BrandTalkCarouselItem.from(
-                    BrandTalkCarouselItemCreateState.builder()
-                            .header("h2").content("c2").buttons(List.of(itemButton)).build()
+                BrandTalkCarouselItemCreateState.builder()
+                    .header("h2").content("c2").buttons(List.of(itemButton)).build()
             );
             BrandTalkCarouselCommerce commerce1 = BrandTalkCarouselCommerce.from(
-                    BrandTalkCarouselCommerceCreateState.builder()
-                            .title("상품1").regularPrice("10000").discountPrice("8000")
-                            .discountRate("20").discountFixed("2000").build()
+                BrandTalkCarouselCommerceCreateState.builder()
+                    .title("상품1").regularPrice("10000").discountPrice("8000")
+                    .discountRate("20").discountFixed("2000").build()
             );
             BrandTalkCarouselCommerce commerce2 = BrandTalkCarouselCommerce.from(
-                    BrandTalkCarouselCommerceCreateState.builder()
-                            .title("상품2").regularPrice("20000").build()
+                BrandTalkCarouselCommerceCreateState.builder()
+                    .title("상품2").regularPrice("20000").build()
             );
             BrandTalkCarouselTail tail = BrandTalkCarouselTail.of("https://m.example.com/tail");
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL-CC")
-                            .templateName("커머스캐러셀")
-                            .templateType(BrandTalkTemplateType.CAROUSEL_COMMERCE)
-                            .templateContent("본문")
-                            .carouselHeader("헤더")
-                            .carouselItems(List.of(item1, item2))
-                            .carouselCommerces(List.of(commerce1, commerce2))
-                            .carouselTail(tail)
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL-CC")
+                    .templateName("커머스캐러셀")
+                    .templateType(BrandTalkTemplateType.CAROUSEL_COMMERCE)
+                    .templateContent("본문")
+                    .carouselHeader("헤더")
+                    .carouselItems(List.of(item1, item2))
+                    .carouselCommerces(List.of(commerce1, commerce2))
+                    .carouselTail(tail)
+                    .build()
             );
 
             // when
             adapter.registerTemplate(
-                    template,
-                    new byte[]{1, 2}, "header.png",
-                    List.of(new byte[]{3}, new byte[]{4}),
-                    List.of("item1.png", "item2.png")
+                template,
+                new byte[]{1, 2}, "header.png",
+                List.of(new byte[]{3}, new byte[]{4}),
+                List.of("item1.png", "item2.png")
             );
 
             // then
@@ -566,37 +566,37 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             BrandTalkCoupon coupon = BrandTalkCoupon.from(
-                    BrandTalkCouponCreateState.builder()
-                            .title("쿠폰")
-                            .linkM("https://m.example.com")
-                            .build()
+                BrandTalkCouponCreateState.builder()
+                    .title("쿠폰")
+                    .linkM("https://m.example.com")
+                    .build()
             );
             BrandTalkButton btn = BrandTalkButton.from(
-                    BrandTalkButtonCreateState.builder()
-                            .name("자세히")
-                            .linkType(AligoTemplateButtonLinkType.WL)
-                            .linkM("https://m.example.com")
-                            .linkP("https://p.example.com")
-                            .build()
+                BrandTalkButtonCreateState.builder()
+                    .name("자세히")
+                    .linkType(AligoTemplateButtonLinkType.WL)
+                    .linkM("https://m.example.com")
+                    .linkP("https://p.example.com")
+                    .build()
             );
             BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
-                    BrandTalkCarouselItemCreateState.builder()
-                            .header("h").content("c").coupon(coupon).buttons(List.of(btn)).build()
+                BrandTalkCarouselItemCreateState.builder()
+                    .header("h").content("c").coupon(coupon).buttons(List.of(btn)).build()
             );
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL-CIC")
-                            .templateName("아이템쿠폰")
-                            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
-                            .templateContent("본문")
-                            .carouselItems(List.of(item))
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL-CIC")
+                    .templateName("아이템쿠폰")
+                    .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                    .templateContent("본문")
+                    .carouselItems(List.of(item))
+                    .build()
             );
 
             // when
@@ -612,18 +612,18 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                    AligoBrandTalkTemplateCreateState.builder()
-                            .senderKey("SK")
-                            .templateCode("TPL-IL")
-                            .templateName("이미지링크")
-                            .templateType(BrandTalkTemplateType.IMAGE)
-                            .templateContent("본문")
-                            .imageLink("https://landing.example.com")
-                            .build()
+                AligoBrandTalkTemplateCreateState.builder()
+                    .senderKey("SK")
+                    .templateCode("TPL-IL")
+                    .templateName("이미지링크")
+                    .templateType(BrandTalkTemplateType.IMAGE)
+                    .templateContent("본문")
+                    .imageLink("https://landing.example.com")
+                    .build()
             );
 
             // when

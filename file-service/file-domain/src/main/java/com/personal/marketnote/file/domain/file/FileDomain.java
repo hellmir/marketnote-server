@@ -34,31 +34,31 @@ public class FileDomain {
             throw new InvalidFileOwnerException();
         }
         return FileDomain.builder()
-                .ownerType(state.getOwnerType())
-                .ownerId(state.getOwnerId())
-                .sort(state.getSort())
-                .extension(state.getExtension())
-                .name(state.getName())
-                .userId(state.getUserId())
-                .ownerKey(state.getOwnerKey())
-                .build();
+            .ownerType(state.getOwnerType())
+            .ownerId(state.getOwnerId())
+            .sort(state.getSort())
+            .extension(state.getExtension())
+            .name(state.getName())
+            .userId(state.getUserId())
+            .ownerKey(state.getOwnerKey())
+            .build();
     }
 
     public static FileDomain from(FileDomainSnapshotState state) {
         return FileDomain.builder()
-                .id(state.getId())
-                .ownerType(state.getOwnerType())
-                .ownerId(state.getOwnerId())
-                .sort(state.getSort())
-                .extension(state.getExtension())
-                .name(state.getName())
-                .storageUrl(state.getStorageUrl())
-                .createdAt(state.getCreatedAt())
-                .status(state.getStatus())
-                .orderNum(state.getOrderNum())
-                .userId(state.getUserId())
-                .ownerKey(state.getOwnerKey())
-                .build();
+            .id(state.getId())
+            .ownerType(state.getOwnerType())
+            .ownerId(state.getOwnerId())
+            .sort(state.getSort())
+            .extension(state.getExtension())
+            .name(state.getName())
+            .storageUrl(state.getStorageUrl())
+            .createdAt(state.getCreatedAt())
+            .status(state.getStatus())
+            .orderNum(state.getOrderNum())
+            .userId(state.getUserId())
+            .ownerKey(state.getOwnerKey())
+            .build();
     }
 
     public boolean isActive() {

@@ -46,32 +46,32 @@ class GetLoginHistoryUseCaseTest {
 
         User user = UserTestObjectFactory.createDefaultUser(userId, EntityStatus.ACTIVE, false, List.of());
         LoginHistory history1 = buildLoginHistory(
-                10L,
-                user,
-                AuthVendor.NATIVE,
-                "127.0.0.1",
-                LocalDateTime.of(2024, 1, 1, 10, 0)
+            10L,
+            user,
+            AuthVendor.NATIVE,
+            "127.0.0.1",
+            LocalDateTime.of(2024, 1, 1, 10, 0)
         );
         LoginHistory history2 = buildLoginHistory(
-                11L,
-                user,
-                AuthVendor.KAKAO,
-                "10.0.0.2",
-                LocalDateTime.of(2024, 1, 2, 11, 0)
+            11L,
+            user,
+            AuthVendor.KAKAO,
+            "10.0.0.2",
+            LocalDateTime.of(2024, 1, 2, 11, 0)
         );
 
         Page<LoginHistory> histories = new PageImpl<>(
-                List.of(history1, history2),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
-                2
+            List.of(history1, history2),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
+            2
         );
 
         when(findLoginHistoryPort.findLoginHistoriesByUserId(any(Pageable.class), eq(userId)))
-                .thenReturn(histories);
+            .thenReturn(histories);
 
         // when
         Page<GetLoginHistoryResult> result = getLoginHistoryService.getLoginHistories(
-                userId, pageSize, pageNumber, sortDirection, sortProperty
+            userId, pageSize, pageNumber, sortDirection, sortProperty
         );
 
         // then
@@ -116,17 +116,17 @@ class GetLoginHistoryUseCaseTest {
         LoginHistorySortProperty sortProperty = LoginHistorySortProperty.USER_ID;
 
         Page<LoginHistory> histories = new PageImpl<>(
-                List.of(),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
-                0
+            List.of(),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
+            0
         );
 
         when(findLoginHistoryPort.findLoginHistoriesByUserId(any(Pageable.class), eq(userId)))
-                .thenReturn(histories);
+            .thenReturn(histories);
 
         // when
         Page<GetLoginHistoryResult> result = getLoginHistoryService.getLoginHistories(
-                userId, pageSize, pageNumber, sortDirection, sortProperty
+            userId, pageSize, pageNumber, sortDirection, sortProperty
         );
 
         // then
@@ -138,19 +138,19 @@ class GetLoginHistoryUseCaseTest {
     }
 
     private LoginHistory buildLoginHistory(
-            Long id,
-            User user,
-            AuthVendor authVendor,
-            String ipAddress,
-            LocalDateTime createdAt
+        Long id,
+        User user,
+        AuthVendor authVendor,
+        String ipAddress,
+        LocalDateTime createdAt
     ) {
         LoginHistorySnapshotState state = LoginHistorySnapshotState.builder()
-                .id(id)
-                .user(user)
-                .authVendor(authVendor)
-                .ipAddress(IpAddress.of(ipAddress))
-                .createdAt(createdAt)
-                .build();
+            .id(id)
+            .user(user)
+            .authVendor(authVendor)
+            .ipAddress(IpAddress.of(ipAddress))
+            .createdAt(createdAt)
+            .build();
 
         return LoginHistory.from(state);
     }

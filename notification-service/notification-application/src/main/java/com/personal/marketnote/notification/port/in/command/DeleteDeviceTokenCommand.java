@@ -3,16 +3,16 @@ package com.personal.marketnote.notification.port.in.command;
 import com.personal.marketnote.common.utility.FormatValidator;
 
 public record DeleteDeviceTokenCommand(
-        Long userId,
-        String deviceId
+    Long userId,
+    String deviceId
 ) {
 
     @Override
     public String toString() {
         return "DeleteDeviceTokenCommand{"
-                + "userId=" + userId
-                + ", deviceId=" + maskDeviceId(deviceId)
-                + "}";
+            + "userId=" + userId
+            + ", deviceId=" + maskDeviceId(deviceId)
+            + "}";
     }
 
     private static String maskDeviceId(String deviceId) {

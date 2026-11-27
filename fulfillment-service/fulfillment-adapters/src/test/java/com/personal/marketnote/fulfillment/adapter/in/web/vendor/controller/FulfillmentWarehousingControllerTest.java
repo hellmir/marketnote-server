@@ -56,11 +56,11 @@ class FulfillmentWarehousingControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentWarehousingUseCase.registerWarehousing(any(RegisterFulfillmentWarehousingCommand.class)))
-                    .thenReturn(RegisterFulfillmentWarehousingResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentWarehousingResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentWarehousingResponse>> response =
-                    controller.registerWarehousing(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerWarehousing(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -77,11 +77,11 @@ class FulfillmentWarehousingControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentWarehousingUseCase.getWarehousing(any(GetFulfillmentWarehousingCommand.class)))
-                    .thenReturn(GetFulfillmentWarehousingResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentWarehousingResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentWarehousingResponse>> response = controller.getWarehousing(
-                    CUSTOMER_CODE, "20260401", "20260415", ACCESS_TOKEN, "01", "ORD-1", "1"
+                CUSTOMER_CODE, "20260401", "20260415", ACCESS_TOKEN, "01", "ORD-1", "1"
             );
 
             // then
@@ -99,11 +99,11 @@ class FulfillmentWarehousingControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentWarehousingDetailUseCase.getWarehousingDetail(any(GetFulfillmentWarehousingDetailCommand.class)))
-                    .thenReturn(GetFulfillmentWarehousingDetailResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentWarehousingDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentWarehousingDetailResponse>> response =
-                    controller.getWarehousingDetail(CUSTOMER_CODE, "SLIP-1", ACCESS_TOKEN, "ORD-1");
+                controller.getWarehousingDetail(CUSTOMER_CODE, "SLIP-1", ACCESS_TOKEN, "ORD-1");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -120,12 +120,12 @@ class FulfillmentWarehousingControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentWarehousingInspecDetailUseCase.getWarehousingInspecDetail(
-                    any(GetFulfillmentWarehousingInspecDetailCommand.class)
+                any(GetFulfillmentWarehousingInspecDetailCommand.class)
             )).thenReturn(GetFulfillmentWarehousingInspecDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentWarehousingInspecDetailResponse>> response =
-                    controller.getWarehousingInspecDetail(CUSTOMER_CODE, "SLIP-1", "WH01", ACCESS_TOKEN);
+                controller.getWarehousingInspecDetail(CUSTOMER_CODE, "SLIP-1", "WH01", ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -142,11 +142,11 @@ class FulfillmentWarehousingControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentWarehousingAbnormalUseCase.getWarehousingAbnormal(any(GetFulfillmentWarehousingAbnormalCommand.class)))
-                    .thenReturn(GetFulfillmentWarehousingAbnormalResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentWarehousingAbnormalResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentWarehousingAbnormalResponse>> response =
-                    controller.getWarehousingAbnormal(CUSTOMER_CODE, "WH01", "SLIP-1", ACCESS_TOKEN);
+                controller.getWarehousingAbnormal(CUSTOMER_CODE, "WH01", "SLIP-1", ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -163,12 +163,12 @@ class FulfillmentWarehousingControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentWarehousingAbnormalImageUseCase.getWarehousingAbnormalImage(
-                    any(GetFulfillmentWarehousingAbnormalImageCommand.class)
+                any(GetFulfillmentWarehousingAbnormalImageCommand.class)
             )).thenReturn(GetFulfillmentWarehousingAbnormalImageResult.of(0, null));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentWarehousingAbnormalImageResponse>> response =
-                    controller.getWarehousingAbnormalImage("SLIP-1", "GOD01", "SN01", "1", "1", ACCESS_TOKEN);
+                controller.getWarehousingAbnormalImage("SLIP-1", "GOD01", "SN01", "1", "1", ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -185,11 +185,11 @@ class FulfillmentWarehousingControllerTest {
         void returnsOk() {
             // given
             when(updateFulfillmentWarehousingUseCase.updateWarehousing(any(UpdateFulfillmentWarehousingCommand.class)))
-                    .thenReturn(UpdateFulfillmentWarehousingResult.of(0, List.of()));
+                .thenReturn(UpdateFulfillmentWarehousingResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<UpdateFulfillmentWarehousingResponse>> response =
-                    controller.updateWarehousing(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.updateWarehousing(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

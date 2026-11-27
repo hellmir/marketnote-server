@@ -91,12 +91,12 @@ class OrderAutoConfirmFailedEventKafkaProducerTest {
     void throwsOnSerializationFailure() throws Exception {
         // given
         when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
-                .thenThrow(new JsonProcessingException("test failure") {
-                });
+            .thenThrow(new JsonProcessingException("test failure") {
+            });
 
         // when & then
         assertThatThrownBy(() -> producer.publish(300L, 99L, "오류", LocalDateTime.now()))
-                .isInstanceOf(OrderEventSerializationException.class);
+            .isInstanceOf(OrderEventSerializationException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 }

@@ -56,26 +56,26 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify("서울시 강남구 테헤란로 123"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
@@ -91,7 +91,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -102,31 +102,31 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.OTHER)
-                .address("서울시 마포구 월드컵로 456")
-                .addressDetail("201동 502호")
-                .addressAlias("친구 집")
-                .recipientName("김철수")
-                .recipientPhoneNumber("01098765432")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
-                .isDefault(true)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.OTHER)
+            .address("서울시 마포구 월드컵로 456")
+            .addressDetail("201동 502호")
+            .addressAlias("친구 집")
+            .recipientName("김철수")
+            .recipientPhoneNumber("01098765432")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
+            .isDefault(true)
+            .build();
 
         when(findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER))
-                .thenReturn(2L);
+            .thenReturn(2L);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(true);
+            .thenReturn(true);
         when(classifyShippingAddressRegionPort.classify("서울시 마포구 월드컵로 456"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress existingDefault = createShippingAddress(10L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL);
         when(findShippingAddressPort.findDefaultsByUserId(userId))
-                .thenReturn(List.of(existingDefault));
+            .thenReturn(List.of(existingDefault));
 
         ShippingAddress savedShippingAddress = createShippingAddress(2L, userId, ShippingAddressType.OTHER, true, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
@@ -143,7 +143,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 마포구 월드컵로 456");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                2L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            2L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -153,22 +153,22 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(true);
+            .thenReturn(true);
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(DomainAlreadyExistsException.class)
-                .hasMessageContaining("이미 등록된 집 배송지가 존재합니다");
+            .isInstanceOf(DomainAlreadyExistsException.class)
+            .hasMessageContaining("이미 등록된 집 배송지가 존재합니다");
 
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.HOME);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -181,23 +181,23 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.COMPANY)
-                .address("서울시 서초구 반포대로 789")
-                .addressDetail("5층")
-                .companyName("테스트 회사")
-                .recipientName("이영희")
-                .recipientPhoneNumber("01055556666")
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.COMPANY)
+            .address("서울시 서초구 반포대로 789")
+            .addressDetail("5층")
+            .companyName("테스트 회사")
+            .recipientName("이영희")
+            .recipientPhoneNumber("01055556666")
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.COMPANY))
-                .thenReturn(true);
+            .thenReturn(true);
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(DomainAlreadyExistsException.class)
-                .hasMessageContaining("이미 등록된 회사 배송지가 존재합니다");
+            .isInstanceOf(DomainAlreadyExistsException.class)
+            .hasMessageContaining("이미 등록된 회사 배송지가 존재합니다");
 
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.COMPANY);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -210,22 +210,22 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.OTHER)
-                .address("서울시 송파구 올림픽로 100")
-                .addressDetail("301동 801호")
-                .addressAlias("기타 주소")
-                .recipientName("박민수")
-                .recipientPhoneNumber("01077778888")
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.OTHER)
+            .address("서울시 송파구 올림픽로 100")
+            .addressDetail("301동 801호")
+            .addressAlias("기타 주소")
+            .recipientName("박민수")
+            .recipientPhoneNumber("01077778888")
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER))
-                .thenReturn(10L);
+            .thenReturn(10L);
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(TooManyOtherAddressesException.class);
+            .isInstanceOf(TooManyOtherAddressesException.class);
 
         verify(findShippingAddressPort).countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -238,26 +238,26 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(null)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(null)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify("서울시 강남구 테헤란로 123"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
@@ -270,7 +270,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -281,27 +281,27 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.OTHER)
-                .address("서울시 용산구 이태원로 200")
-                .addressDetail("401동 1202호")
-                .addressAlias("부모님 댁")
-                .recipientName("홍부모")
-                .recipientPhoneNumber("01033334444")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.OTHER)
+            .address("서울시 용산구 이태원로 200")
+            .addressDetail("401동 1202호")
+            .addressAlias("부모님 댁")
+            .recipientName("홍부모")
+            .recipientPhoneNumber("01033334444")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER))
-                .thenReturn(1L);
+            .thenReturn(1L);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(true);
+            .thenReturn(true);
         when(classifyShippingAddressRegionPort.classify("서울시 용산구 이태원로 200"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(3L, userId, ShippingAddressType.OTHER, false, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
@@ -317,7 +317,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 용산구 이태원로 200");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                3L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            3L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -329,27 +329,27 @@ class RegisterShippingAddressUseCaseTest {
         Long userId = 1L;
         String message = "a".repeat(60);
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                .deliveryRequestMessage(message)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.CUSTOM)
+            .deliveryRequestMessage(message)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify("서울시 강남구 테헤란로 123"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
@@ -359,11 +359,11 @@ class RegisterShippingAddressUseCaseTest {
 
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(argThat(sa ->
-                sa.getDeliveryRequestType() == DeliveryRequestType.CUSTOM
-                        && message.equals(sa.getDeliveryRequestMessage().getValue())
+            sa.getDeliveryRequestType() == DeliveryRequestType.CUSTOM
+                && message.equals(sa.getDeliveryRequestMessage().getValue())
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -374,28 +374,28 @@ class RegisterShippingAddressUseCaseTest {
         Long userId = 1L;
         String message = "a".repeat(61);
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                .deliveryRequestMessage(message)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.CUSTOM)
+            .deliveryRequestMessage(message)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify("서울시 강남구 테헤란로 123"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다");
 
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verifyNoInteractions(saveShippingAddressPort, publishShippingAddressEventPort);
@@ -407,27 +407,27 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify("서울시 강남구 테헤란로 123"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         registerShippingAddressService.registerShippingAddress(command);
@@ -435,12 +435,12 @@ class RegisterShippingAddressUseCaseTest {
         // then
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(argThat(sa ->
-                sa.getDeliveryRequestType() == DeliveryRequestType.LEAVE_AT_DOOR
-                        // 순수 null 체크 — FormatValidator.hasValue(Object)는 blank 검사 포함되어 String 필드 원본 값과 동치 아님
-                        && sa.getDeliveryRequestMessage() == null
+            sa.getDeliveryRequestType() == DeliveryRequestType.LEAVE_AT_DOOR
+                // 순수 null 체크 — FormatValidator.hasValue(Object)는 blank 검사 포함되어 String 필드 원본 값과 동치 아님
+                && sa.getDeliveryRequestMessage() == null
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -450,27 +450,27 @@ class RegisterShippingAddressUseCaseTest {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.OTHER)
-                .address("서울시 마포구 월드컵로 456")
-                .addressDetail("201동 502호")
-                .addressAlias(null)
-                .recipientName("김철수")
-                .recipientPhoneNumber("01098765432")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.OTHER)
+            .address("서울시 마포구 월드컵로 456")
+            .addressDetail("201동 502호")
+            .addressAlias(null)
+            .recipientName("김철수")
+            .recipientPhoneNumber("01098765432")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER))
-                .thenReturn(1L);
+            .thenReturn(1L);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(true);
+            .thenReturn(true);
         when(classifyShippingAddressRegionPort.classify("서울시 마포구 월드컵로 456"))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(5L, userId, ShippingAddressType.OTHER, false, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
@@ -482,7 +482,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 마포구 월드컵로 456");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                5L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            5L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -493,26 +493,26 @@ class RegisterShippingAddressUseCaseTest {
         Long userId = 1L;
         String jejuAddress = "제주특별자치도 제주시 한라산로 456";
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address(jejuAddress)
-                .addressDetail("101동 201호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address(jejuAddress)
+            .addressDetail("101동 201호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify(jejuAddress))
-                .thenReturn(ShippingAddressRegionType.JEJU);
+            .thenReturn(ShippingAddressRegionType.JEJU);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.JEJU);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         registerShippingAddressService.registerShippingAddress(command);
@@ -520,7 +520,7 @@ class RegisterShippingAddressUseCaseTest {
         // then
         verify(classifyShippingAddressRegionPort).classify(jejuAddress);
         verify(saveShippingAddressPort).save(argThat(sa ->
-                sa.getRegionType() == ShippingAddressRegionType.JEJU
+            sa.getRegionType() == ShippingAddressRegionType.JEJU
         ));
     }
 
@@ -531,26 +531,26 @@ class RegisterShippingAddressUseCaseTest {
         Long userId = 1L;
         String islandAddress = "인천광역시 옹진군 영흥면 선재리 123";
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address(islandAddress)
-                .addressDetail("101호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address(islandAddress)
+            .addressDetail("101호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify(islandAddress))
-                .thenReturn(ShippingAddressRegionType.ISLAND);
+            .thenReturn(ShippingAddressRegionType.ISLAND);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.ISLAND);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         registerShippingAddressService.registerShippingAddress(command);
@@ -558,7 +558,7 @@ class RegisterShippingAddressUseCaseTest {
         // then
         verify(classifyShippingAddressRegionPort).classify(islandAddress);
         verify(saveShippingAddressPort).save(argThat(sa ->
-                sa.getRegionType() == ShippingAddressRegionType.ISLAND
+            sa.getRegionType() == ShippingAddressRegionType.ISLAND
         ));
     }
 
@@ -569,26 +569,26 @@ class RegisterShippingAddressUseCaseTest {
         Long userId = 1L;
         String normalAddress = "서울특별시 강남구 테헤란로 123";
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address(normalAddress)
-                .addressDetail("101동 1001호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address(normalAddress)
+            .addressDetail("101동 1001호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify(normalAddress))
-                .thenReturn(ShippingAddressRegionType.NORMAL);
+            .thenReturn(ShippingAddressRegionType.NORMAL);
 
         ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true, ShippingAddressRegionType.NORMAL);
         when(saveShippingAddressPort.save(any(ShippingAddress.class)))
-                .thenReturn(savedShippingAddress);
+            .thenReturn(savedShippingAddress);
 
         // when
         registerShippingAddressService.registerShippingAddress(command);
@@ -596,7 +596,7 @@ class RegisterShippingAddressUseCaseTest {
         // then
         verify(classifyShippingAddressRegionPort).classify(normalAddress);
         verify(saveShippingAddressPort).save(argThat(sa ->
-                sa.getRegionType() == ShippingAddressRegionType.NORMAL
+            sa.getRegionType() == ShippingAddressRegionType.NORMAL
         ));
     }
 
@@ -607,51 +607,51 @@ class RegisterShippingAddressUseCaseTest {
         Long userId = 1L;
         String impossibleAddress = "충청남도 보령시 오천면 외연도리 123";
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address(impossibleAddress)
-                .addressDetail("101호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .build();
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address(impossibleAddress)
+            .addressDetail("101호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .build();
 
         when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
-                .thenReturn(false);
+            .thenReturn(false);
         when(findShippingAddressPort.existsByUserId(userId))
-                .thenReturn(false);
+            .thenReturn(false);
         when(classifyShippingAddressRegionPort.classify(impossibleAddress))
-                .thenReturn(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+            .thenReturn(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(DeliveryImpossibleAreaException.class);
+            .isInstanceOf(DeliveryImpossibleAreaException.class);
 
         verify(classifyShippingAddressRegionPort).classify(impossibleAddress);
         verifyNoInteractions(saveShippingAddressPort, publishShippingAddressEventPort);
     }
 
     private ShippingAddress createShippingAddress(
-            Long id,
-            Long userId,
-            ShippingAddressType addressType,
-            boolean isDefault,
-            ShippingAddressRegionType regionType
+        Long id,
+        Long userId,
+        ShippingAddressType addressType,
+        boolean isDefault,
+        ShippingAddressRegionType regionType
     ) {
         return ShippingAddress.from(
-                ShippingAddressSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .addressType(addressType)
-                        .address("서울시 강남구 테헤란로 123")
-                        .addressDetail("101동 1001호")
-                        .recipientName("홍길동")
-                        .recipientPhoneNumber("01012345678")
-                        .deliveryRequestType(DeliveryRequestType.NONE)
-                        .isDefault(isDefault)
-                        .regionType(regionType)
-                        .build()
+            ShippingAddressSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .addressType(addressType)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 1001호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .deliveryRequestType(DeliveryRequestType.NONE)
+                .isDefault(isDefault)
+                .regionType(regionType)
+                .build()
         );
     }
 }

@@ -40,8 +40,8 @@ class AligoMessageCascadeTest {
     void shouldCascadePersistRecipientsOnSave() {
         // given
         List<AligoMessageRecipientJpaEntity> recipients = List.of(
-                AligoMessageRecipientJpaEntity.create("01011112222", "수신자A"),
-                AligoMessageRecipientJpaEntity.create("01033334444", "수신자B")
+            AligoMessageRecipientJpaEntity.create("01011112222", "수신자A"),
+            AligoMessageRecipientJpaEntity.create("01033334444", "수신자B")
         );
         AligoMessageJpaEntity message = buildMessage(recipients);
 
@@ -54,10 +54,10 @@ class AligoMessageCascadeTest {
         AligoMessageJpaEntity reloaded = repository.findByIdWithRecipients(saved.getId()).orElseThrow();
         assertThat(reloaded.getRecipients()).hasSize(2);
         assertThat(reloaded.getRecipients())
-                .extracting(AligoMessageRecipientJpaEntity::getReceiver)
-                .containsExactlyInAnyOrder("01011112222", "01033334444");
+            .extracting(AligoMessageRecipientJpaEntity::getReceiver)
+            .containsExactlyInAnyOrder("01011112222", "01033334444");
         assertThat(reloaded.getRecipients())
-                .allSatisfy(r -> assertThat(r.getId()).isNotNull());
+            .allSatisfy(r -> assertThat(r.getId()).isNotNull());
     }
 
     @Test
@@ -72,7 +72,7 @@ class AligoMessageCascadeTest {
         // when
         AligoMessageJpaEntity reloaded = repository.findByIdWithRecipients(saved.getId()).orElseThrow();
         reloaded.getRecipients().get(0).updateResult(
-                AligoMessageRecipientStatus.SUCCESS, "msg-001", "1", "success"
+            AligoMessageRecipientStatus.SUCCESS, "msg-001", "1", "success"
         );
         entityManager.flush();
         entityManager.clear();
@@ -117,17 +117,17 @@ class AligoMessageCascadeTest {
         AligoMessageJpaEntity reloaded = repository.findByIdWithRecipients(saved.getId()).orElseThrow();
         repository.delete(reloaded);
         assertThatThrownBy(entityManager::flush)
-                .as("REMOVE cascade 가 제거되어 자식을 먼저 삭제하지 않으면 flush 단계에서 예외가 발생해야 한다")
-                .isInstanceOf(Exception.class);
+            .as("REMOVE cascade 가 제거되어 자식을 먼저 삭제하지 않으면 flush 단계에서 예외가 발생해야 한다")
+            .isInstanceOf(Exception.class);
 
         // 별도의 검증: DB 에서 recipient row 는 여전히 남아있다 (cascade REMOVE 면 제거됐을 row)
         entityManager.clear();
         AligoMessageRecipientJpaEntity surviving = entityManager.find(
-                AligoMessageRecipientJpaEntity.class, recipientId
+            AligoMessageRecipientJpaEntity.class, recipientId
         );
         assertThat(surviving)
-                .as("REMOVE cascade 가 없으므로 DB 에는 recipient row 가 남아있어야 한다")
-                .isNotNull();
+            .as("REMOVE cascade 가 없으므로 DB 에는 recipient row 가 남아있어야 한다")
+            .isNotNull();
     }
 
     private AligoMessageJpaEntity persistMessageWithRecipient() {
@@ -138,19 +138,19 @@ class AligoMessageCascadeTest {
 
     private AligoMessageJpaEntity buildMessage(List<AligoMessageRecipientJpaEntity> recipients) {
         return AligoMessageJpaEntity.create(
-                "sender-key",
-                "TEMPLATE_001",
-                "01000000000",
-                AligoMessageType.AT,
-                "테스트 메시지 본문",
-                "테스트 제목",
-                null,
-                AligoMessageStatus.REQUESTED,
-                null,
-                null,
-                LocalDateTime.now(),
-                null,
-                recipients
+            "sender-key",
+            "TEMPLATE_001",
+            "01000000000",
+            AligoMessageType.AT,
+            "테스트 메시지 본문",
+            "테스트 제목",
+            null,
+            AligoMessageStatus.REQUESTED,
+            null,
+            null,
+            LocalDateTime.now(),
+            null,
+            recipients
         );
     }
 }

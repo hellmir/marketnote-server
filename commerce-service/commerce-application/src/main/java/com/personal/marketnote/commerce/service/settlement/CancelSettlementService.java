@@ -52,25 +52,25 @@ public class CancelSettlementService implements CancelSettlementUseCase {
     @Transactional(isolation = READ_COMMITTED)
     public void cancelSettlement(Long settlementId) {
         Settlement settlement = findSettlementPort.findById(settlementId)
-                .orElseThrow(() -> {
-                    log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
-                    return new SettlementNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
+                return new SettlementNotFoundException();
+            });
 
         settlement.cancel();
 
         recordSettlementCancellation(
-                settlementId,
-                settlement.getTotalAllocatedAmount().getValue(),
-                settlement.getPgFeeAmount().getValue(),
-                settlement.getSellerPayoutAmount().getValue(),
-                settlement.getPlatformFeeAmount().getValue()
+            settlementId,
+            settlement.getTotalAllocatedAmount().getValue(),
+            settlement.getPgFeeAmount().getValue(),
+            settlement.getSellerPayoutAmount().getValue(),
+            settlement.getPlatformFeeAmount().getValue()
         );
 
         updateSettlementPort.update(settlement);
 
         log.info("정산 취소 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}",
-                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
+            settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
         );
     }
 
@@ -90,37 +90,37 @@ public class CancelSettlementService implements CancelSettlementUseCase {
      * </p>
      */
     private void recordSettlementCancellation(
-            Long settlementId,
-            long totalAllocatedAmount,
-            long pgFeeAmount,
-            long sellerPayoutAmount,
-            long platformFeeAmount
+        Long settlementId,
+        long totalAllocatedAmount,
+        long pgFeeAmount,
+        long sellerPayoutAmount,
+        long platformFeeAmount
     ) {
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                return new AccountNotFoundException();
+            });
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                return new AccountNotFoundException();
+            });
         Account pgFeeAccount = findAccountPort.findByName(ACCOUNT_PG_FEE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_FEE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_FEE);
+                return new AccountNotFoundException();
+            });
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                return new AccountNotFoundException();
+            });
         Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
-                .orElseThrow(() -> {
-                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PLATFORM_FEE_REVENUE);
-                    return new AccountNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PLATFORM_FEE_REVENUE);
+                return new AccountNotFoundException();
+            });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 

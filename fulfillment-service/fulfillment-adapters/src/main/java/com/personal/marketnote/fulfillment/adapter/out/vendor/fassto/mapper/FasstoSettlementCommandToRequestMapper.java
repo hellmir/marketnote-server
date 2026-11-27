@@ -6,10 +6,10 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillment
 public class FasstoSettlementCommandToRequestMapper {
     public static FulfillmentSettlementDailyCostQuery mapToQuery(GetFulfillmentSettlementDailyCostsCommand command) {
         return FulfillmentSettlementDailyCostQuery.of(
-                command.yearMonth(),
-                command.warehouseCode(),
-                command.customerCode(),
-                command.accessToken()
+            command.yearMonth(),
+            command.warehouseCode(),
+            command.customerCode(),
+            command.accessToken()
         );
     }
 }

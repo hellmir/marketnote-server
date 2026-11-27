@@ -44,37 +44,37 @@ class FulfillmentServiceCommunicationHistoryPersistenceAdapterTest {
             payloadNode.put("key", "value");
             JsonNode payloadJson = payloadNode;
             FulfillmentServiceCommunicationHistory history = FulfillmentServiceCommunicationHistory.from(
-                    FulfillmentServiceCommunicationHistoryCreateState.builder()
-                            .targetType(FulfillmentServiceCommunicationTargetType.COMMERCE_INVENTORY)
-                            .targetId("TARGET-1")
-                            .communicationType(FulfillmentServiceCommunicationType.REQUEST)
-                            .sender(FulfillmentServiceCommunicationSenderType.COMMERCE)
-                            .exception("ConnectionReset")
-                            .payload("raw-payload")
-                            .payloadJson(payloadJson)
-                            .build()
+                FulfillmentServiceCommunicationHistoryCreateState.builder()
+                    .targetType(FulfillmentServiceCommunicationTargetType.COMMERCE_INVENTORY)
+                    .targetId("TARGET-1")
+                    .communicationType(FulfillmentServiceCommunicationType.REQUEST)
+                    .sender(FulfillmentServiceCommunicationSenderType.COMMERCE)
+                    .exception("ConnectionReset")
+                    .payload("raw-payload")
+                    .payloadJson(payloadJson)
+                    .build()
             );
 
             FulfillmentServiceCommunicationHistoryJpaEntity persistedEntity = buildEntity(
-                    100L,
-                    FulfillmentServiceCommunicationTargetType.COMMERCE_INVENTORY,
-                    "TARGET-1",
-                    FulfillmentServiceCommunicationType.REQUEST,
-                    FulfillmentServiceCommunicationSenderType.COMMERCE,
-                    "ConnectionReset",
-                    "raw-payload",
-                    payloadJson,
-                    LocalDateTime.of(2026, 4, 15, 10, 0)
+                100L,
+                FulfillmentServiceCommunicationTargetType.COMMERCE_INVENTORY,
+                "TARGET-1",
+                FulfillmentServiceCommunicationType.REQUEST,
+                FulfillmentServiceCommunicationSenderType.COMMERCE,
+                "ConnectionReset",
+                "raw-payload",
+                payloadJson,
+                LocalDateTime.of(2026, 4, 15, 10, 0)
             );
             when(repository.save(any(FulfillmentServiceCommunicationHistoryJpaEntity.class)))
-                    .thenReturn(persistedEntity);
+                .thenReturn(persistedEntity);
 
             // when
             FulfillmentServiceCommunicationHistory result = adapter.save(history);
 
             // then
             ArgumentCaptor<FulfillmentServiceCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(FulfillmentServiceCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(FulfillmentServiceCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             FulfillmentServiceCommunicationHistoryJpaEntity captured = captor.getValue();
             assertThat(captured.getTargetType()).isEqualTo(FulfillmentServiceCommunicationTargetType.COMMERCE_INVENTORY);
@@ -103,30 +103,30 @@ class FulfillmentServiceCommunicationHistoryPersistenceAdapterTest {
         void savesEvenWhenOptionalFieldsAreNull() {
             // given
             FulfillmentServiceCommunicationHistory history = FulfillmentServiceCommunicationHistory.from(
-                    FulfillmentServiceCommunicationHistoryCreateState.builder()
-                            .targetType(FulfillmentServiceCommunicationTargetType.GENERAL)
-                            .targetId(null)
-                            .communicationType(FulfillmentServiceCommunicationType.RESPONSE)
-                            .sender(FulfillmentServiceCommunicationSenderType.FULFILLMENT)
-                            .exception(null)
-                            .payload(null)
-                            .payloadJson(null)
-                            .build()
+                FulfillmentServiceCommunicationHistoryCreateState.builder()
+                    .targetType(FulfillmentServiceCommunicationTargetType.GENERAL)
+                    .targetId(null)
+                    .communicationType(FulfillmentServiceCommunicationType.RESPONSE)
+                    .sender(FulfillmentServiceCommunicationSenderType.FULFILLMENT)
+                    .exception(null)
+                    .payload(null)
+                    .payloadJson(null)
+                    .build()
             );
 
             FulfillmentServiceCommunicationHistoryJpaEntity persistedEntity = buildEntity(
-                    200L,
-                    FulfillmentServiceCommunicationTargetType.GENERAL,
-                    null,
-                    FulfillmentServiceCommunicationType.RESPONSE,
-                    FulfillmentServiceCommunicationSenderType.FULFILLMENT,
-                    null,
-                    null,
-                    null,
-                    LocalDateTime.of(2026, 4, 15, 11, 0)
+                200L,
+                FulfillmentServiceCommunicationTargetType.GENERAL,
+                null,
+                FulfillmentServiceCommunicationType.RESPONSE,
+                FulfillmentServiceCommunicationSenderType.FULFILLMENT,
+                null,
+                null,
+                null,
+                LocalDateTime.of(2026, 4, 15, 11, 0)
             );
             when(repository.save(any(FulfillmentServiceCommunicationHistoryJpaEntity.class)))
-                    .thenReturn(persistedEntity);
+                .thenReturn(persistedEntity);
 
             // when
             FulfillmentServiceCommunicationHistory result = adapter.save(history);
@@ -144,30 +144,30 @@ class FulfillmentServiceCommunicationHistoryPersistenceAdapterTest {
     }
 
     private FulfillmentServiceCommunicationHistoryJpaEntity buildEntity(
-            Long id,
-            FulfillmentServiceCommunicationTargetType targetType,
-            String targetId,
-            FulfillmentServiceCommunicationType communicationType,
-            FulfillmentServiceCommunicationSenderType sender,
-            String exception,
-            String payload,
-            JsonNode payloadJson,
-            LocalDateTime createdAt
+        Long id,
+        FulfillmentServiceCommunicationTargetType targetType,
+        String targetId,
+        FulfillmentServiceCommunicationType communicationType,
+        FulfillmentServiceCommunicationSenderType sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson,
+        LocalDateTime createdAt
     ) {
         FulfillmentServiceCommunicationHistoryJpaEntity entity = FulfillmentServiceCommunicationHistoryJpaEntity.from(
-                FulfillmentServiceCommunicationHistory.from(
-                        FulfillmentServiceCommunicationHistorySnapshotState.builder()
-                                .id(id)
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(payloadJson)
-                                .createdAt(createdAt)
-                                .build()
-                )
+            FulfillmentServiceCommunicationHistory.from(
+                FulfillmentServiceCommunicationHistorySnapshotState.builder()
+                    .id(id)
+                    .targetType(targetType)
+                    .targetId(targetId)
+                    .communicationType(communicationType)
+                    .sender(sender)
+                    .exception(exception)
+                    .payload(payload)
+                    .payloadJson(payloadJson)
+                    .createdAt(createdAt)
+                    .build()
+            )
         );
         ReflectionTestUtils.setField(entity, "id", id);
         ReflectionTestUtils.setField(entity, "createdAt", createdAt);

@@ -41,13 +41,13 @@ public class BoardController {
         GetBoardsResult result = getBoardUseCase.getBoards();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetBoardsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시판 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetBoardsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시판 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -63,18 +63,18 @@ public class BoardController {
     @GetMapping("/categories")
     @GetBoardCategoriesApiDocs
     public ResponseEntity<BaseResponse<GetBoardCategoriesResponse>> getCategories(
-            @RequestParam("board") Board board
+        @RequestParam("board") Board board
     ) {
         GetBoardCategoriesResult result = getBoardUseCase.getCategories(board);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetBoardCategoriesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시판 카테고리 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetBoardCategoriesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시판 카테고리 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

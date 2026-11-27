@@ -24,8 +24,8 @@ class ExceptionMessageTest {
     @DisplayName("INVALID_EMAIL_EXCEPTION_MESSAGE 는 줄바꿈을 포함하지 않는다")
     void invalidEmailMessageDoesNotContainLineBreak() {
         assertThat(INVALID_EMAIL_EXCEPTION_MESSAGE)
-                .doesNotContain("\n")
-                .doesNotContain("\r");
+            .doesNotContain("\n")
+            .doesNotContain("\r");
     }
 
     @Test
@@ -61,7 +61,7 @@ class ExceptionMessageTest {
             InvalidIdException exception = new InvalidIdException("123");
 
             assertThat(exception.getMessage())
-                    .isEqualTo("ID는 양의 정수(1 이상의 숫자값)여야 합니다. 전송된 ID: 123");
+                .isEqualTo("ID는 양의 정수(1 이상의 숫자값)여야 합니다. 전송된 ID: 123");
         }
 
         @Test
@@ -78,7 +78,7 @@ class ExceptionMessageTest {
             InvalidIdException exception = new InvalidIdException("abc");
 
             assertThat(exception.getMessage())
-                    .isEqualTo("ID는 양의 정수(1 이상의 숫자값)여야 합니다. 전송된 ID: abc");
+                .isEqualTo("ID는 양의 정수(1 이상의 숫자값)여야 합니다. 전송된 ID: abc");
         }
     }
 }

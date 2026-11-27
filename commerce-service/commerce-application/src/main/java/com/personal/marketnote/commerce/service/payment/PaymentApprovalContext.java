@@ -15,23 +15,23 @@ import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
  * @param method        결제 수단
  */
 public record PaymentApprovalContext(
-        Payment payment,
-        PspPaymentEvent event,
-        Long orderId,
-        String orderKey,
-        Long paymentAmount,
-        String pgShopKey,
-        String method
+    Payment payment,
+    PspPaymentEvent event,
+    Long orderId,
+    String orderKey,
+    Long paymentAmount,
+    String pgShopKey,
+    String method
 ) {
     public static PaymentApprovalContext of(Payment payment, PspPaymentEvent event) {
         return new PaymentApprovalContext(
-                payment,
-                event,
-                payment.getOrderId(),
-                payment.getOrderKey().toString(),
-                payment.getPaymentAmount().getValue(),
-                event.getPgShopKey(),
-                event.getMethod()
+            payment,
+            event,
+            payment.getOrderId(),
+            payment.getOrderKey().toString(),
+            payment.getPaymentAmount().getValue(),
+            event.getPgShopKey(),
+            event.getMethod()
         );
     }
 }

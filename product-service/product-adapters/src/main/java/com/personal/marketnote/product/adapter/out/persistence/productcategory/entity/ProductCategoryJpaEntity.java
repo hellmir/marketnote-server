@@ -22,8 +22,8 @@ public class ProductCategoryJpaEntity extends BaseEntity {
 
     public static ProductCategoryJpaEntity of(Long productId, Long categoryId) {
         return ProductCategoryJpaEntity.builder()
-                .productId(productId)
-                .categoryId(categoryId)
-                .build();
+            .productId(productId)
+            .categoryId(categoryId)
+            .build();
     }
 }

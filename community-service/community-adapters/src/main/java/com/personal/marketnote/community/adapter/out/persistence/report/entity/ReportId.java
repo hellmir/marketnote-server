@@ -39,8 +39,8 @@ public class ReportId implements Serializable {
 
         ReportId that = (ReportId) o;
         return Objects.equals(targetType, that.targetType)
-                && Objects.equals(targetId, that.targetId)
-                && Objects.equals(reporterId, that.reporterId);
+            && Objects.equals(targetId, that.targetId)
+            && Objects.equals(reporterId, that.reporterId);
     }
 
     @Override

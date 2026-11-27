@@ -24,10 +24,7 @@ import java.time.ZoneId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShippingAddressEventKafkaProducer 테스트")
@@ -60,7 +57,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
 
         // then
@@ -84,7 +81,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
 
         // then
@@ -117,7 +114,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                2L, 200L, "김철수", "01098765432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL", ShippingAddressChangeAction.UPDATED
+            2L, 200L, "김철수", "01098765432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL", ShippingAddressChangeAction.UPDATED
         );
 
         // then
@@ -140,7 +137,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                3L, 300L, "이영희", "01055556666", "서울시 마포구 월드컵로 789", "301동 501호", null, ShippingAddressChangeAction.DELETED
+            3L, 300L, "이영희", "01055556666", "서울시 마포구 월드컵로 789", "301동 501호", null, ShippingAddressChangeAction.DELETED
         );
 
         // then
@@ -160,14 +157,14 @@ class ShippingAddressEventKafkaProducerTest {
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         doThrow(new RuntimeException("DB connection failed"))
-                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+            .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         // when & then
         assertThatThrownBy(() -> shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         ))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB connection failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("DB connection failed");
     }
 
     @Test
@@ -176,14 +173,14 @@ class ShippingAddressEventKafkaProducerTest {
         // given
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+            .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         // when & then
         assertThatThrownBy(() -> shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+            1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         ))
-                .isInstanceOf(ShippingAddressEventSerializationException.class)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(ShippingAddressEventSerializationException.class)
+            .hasCauseInstanceOf(JsonProcessingException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 

@@ -55,33 +55,33 @@ public class ShippingTrackerJpaEntity {
 
     public static ShippingTrackerJpaEntity from(ShippingTracker shippingTracker) {
         return ShippingTrackerJpaEntity.builder()
-                .id(shippingTracker.getId())
-                .orderId(shippingTracker.getOrderId())
-                .buyerId(shippingTracker.getBuyerId())
-                .trackingNumber(shippingTracker.getTrackingNumberValue())
-                .carrierCode(shippingTracker.getCarrierCodeValue())
-                .shippingStatus(shippingTracker.getShippingStatus())
-                .pollingActive(shippingTracker.isPollingActive())
-                .lastPolledAt(shippingTracker.getLastPolledAt())
-                .createdAt(shippingTracker.getCreatedAt())
-                .modifiedAt(shippingTracker.getModifiedAt())
-                .build();
+            .id(shippingTracker.getId())
+            .orderId(shippingTracker.getOrderId())
+            .buyerId(shippingTracker.getBuyerId())
+            .trackingNumber(shippingTracker.getTrackingNumberValue())
+            .carrierCode(shippingTracker.getCarrierCodeValue())
+            .shippingStatus(shippingTracker.getShippingStatus())
+            .pollingActive(shippingTracker.isPollingActive())
+            .lastPolledAt(shippingTracker.getLastPolledAt())
+            .createdAt(shippingTracker.getCreatedAt())
+            .modifiedAt(shippingTracker.getModifiedAt())
+            .build();
     }
 
     public ShippingTracker toDomain() {
         return ShippingTracker.from(
-                ShippingTrackerSnapshotState.builder()
-                        .id(id)
-                        .orderId(orderId)
-                        .buyerId(buyerId)
-                        .trackingNumber(toTrackingNumber(trackingNumber))
-                        .carrierCode(toCarrierCode(carrierCode))
-                        .shippingStatus(shippingStatus)
-                        .pollingActive(pollingActive)
-                        .lastPolledAt(lastPolledAt)
-                        .createdAt(createdAt)
-                        .modifiedAt(modifiedAt)
-                        .build()
+            ShippingTrackerSnapshotState.builder()
+                .id(id)
+                .orderId(orderId)
+                .buyerId(buyerId)
+                .trackingNumber(toTrackingNumber(trackingNumber))
+                .carrierCode(toCarrierCode(carrierCode))
+                .shippingStatus(shippingStatus)
+                .pollingActive(pollingActive)
+                .lastPolledAt(lastPolledAt)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .build()
         );
     }
 

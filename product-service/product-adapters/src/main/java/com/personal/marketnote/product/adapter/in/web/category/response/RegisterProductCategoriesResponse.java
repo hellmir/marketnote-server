@@ -17,8 +17,8 @@ public class RegisterProductCategoriesResponse {
 
     public static RegisterProductCategoriesResponse from(RegisterProductCategoriesResult result) {
         return RegisterProductCategoriesResponse.builder()
-                .productId(result.productId())
-                .categoryIds(result.categoryIds())
-                .build();
+            .productId(result.productId())
+            .categoryIds(result.categoryIds())
+            .build();
     }
 }

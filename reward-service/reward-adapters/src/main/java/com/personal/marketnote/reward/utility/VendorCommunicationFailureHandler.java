@@ -18,40 +18,40 @@ public class VendorCommunicationFailureHandler {
     private final OfferwallVendorCommunicationPayloadGenerator offerwallVendorCommunicationPayloadGenerator;
 
     public ResponseEntity<String> handleFailure(
-            RewardVendorCommunicationTargetType targetType,
-            RewardVendorName vendorName,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            Exception e,
-            int resultCode,
-            String resultMessage
+        RewardVendorCommunicationTargetType targetType,
+        RewardVendorName vendorName,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        Exception e,
+        int resultCode,
+        String resultMessage
     ) {
         log.error("Exception occurred while handling reward callback. vendor={}, target={}",
-                vendorName, targetType, e);
+            vendorName, targetType, e);
         String exceptionName = e.getClass().getSimpleName();
         vendorCommunicationRecorder.record(
-                targetType,
-                RewardVendorCommunicationType.REQUEST,
-                RewardVendorCommunicationSenderType.VENDOR,
-                vendorName,
-                requestPayload,
-                requestPayloadJson,
-                exceptionName
+            targetType,
+            RewardVendorCommunicationType.REQUEST,
+            RewardVendorCommunicationSenderType.VENDOR,
+            vendorName,
+            requestPayload,
+            requestPayloadJson,
+            exceptionName
         );
 
         JsonNode responsePayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
-                false, resultCode, resultMessage
+            false, resultCode, resultMessage
         );
         String responsePayload = responsePayloadJson.toString();
 
         vendorCommunicationRecorder.record(
-                targetType,
-                RewardVendorCommunicationType.RESPONSE,
-                RewardVendorCommunicationSenderType.SERVER,
-                vendorName,
-                responsePayload,
-                responsePayloadJson,
-                exceptionName
+            targetType,
+            RewardVendorCommunicationType.RESPONSE,
+            RewardVendorCommunicationSenderType.SERVER,
+            vendorName,
+            responsePayload,
+            responsePayloadJson,
+            exceptionName
         );
 
         return ResponseEntity.ok(responsePayload);

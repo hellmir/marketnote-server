@@ -38,7 +38,7 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
     @Override
     public void expireTimedOutReservations(LocalDateTime cutoff) {
         List<InventoryReservation> expiredReservations =
-                findExpiredInventoryReservationPort.findExpiredBefore(cutoff);
+            findExpiredInventoryReservationPort.findExpiredBefore(cutoff);
 
         if (expiredReservations.isEmpty()) {
             return;
@@ -47,7 +47,7 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
         log.info("만료 예약 감지. count={}", expiredReservations.size());
 
         Map<Long, List<InventoryReservation>> reservationsByOrderId = expiredReservations.stream()
-                .collect(Collectors.groupingBy(InventoryReservation::getOrderId));
+            .collect(Collectors.groupingBy(InventoryReservation::getOrderId));
 
         reservationsByOrderId.forEach(this::expireByOrderIdSafely);
     }
@@ -58,7 +58,7 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
             transactionTemplate.executeWithoutResult(status ->
-                    expireByOrderId(orderId, extractPricePolicyIds(reservations))
+                expireByOrderId(orderId, extractPricePolicyIds(reservations))
             );
             log.info("만료 예약 해소 완료. orderId={}", orderId);
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
     private void expireByOrderId(Long orderId, Set<Long> pricePolicyIds) {
         inventoryLockPort.executeWithLock(pricePolicyIds, () -> {
             List<InventoryReservation> currentReservations =
-                    findInventoryReservationPort.findByOrderIdAndPricePolicyIds(orderId, pricePolicyIds);
+                findInventoryReservationPort.findByOrderIdAndPricePolicyIds(orderId, pricePolicyIds);
 
             if (currentReservations.isEmpty()) {
                 log.info("예약이 이미 처리됨. orderId={}", orderId);
@@ -78,51 +78,51 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
             }
 
             Map<Long, Integer> quantityByPricePolicyId = currentReservations.stream()
-                    .collect(Collectors.toMap(
-                            InventoryReservation::getPricePolicyId,
-                            r -> r.getQuantity().getValue()
-                    ));
+                .collect(Collectors.toMap(
+                    InventoryReservation::getPricePolicyId,
+                    r -> r.getQuantity().getValue()
+                ));
 
             Set<Long> currentPricePolicyIds = quantityByPricePolicyId.keySet();
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(currentPricePolicyIds);
 
             inventories.forEach(inventory ->
-                    inventory.releaseReservation(quantityByPricePolicyId.get(inventory.getPricePolicyId()))
+                inventory.releaseReservation(quantityByPricePolicyId.get(inventory.getPricePolicyId()))
             );
 
             deleteInventoryReservationPort.deleteByOrderIdAndPricePolicyIds(orderId, currentPricePolicyIds);
             updateInventoryPort.update(inventories);
 
             Map<Long, Long> productIdsByPricePolicyId = inventories.stream()
-                    .collect(Collectors.toMap(Inventory::getPricePolicyId, Inventory::getProductId));
+                .collect(Collectors.toMap(Inventory::getPricePolicyId, Inventory::getProductId));
             saveInventoryRestorationHistoryPort.save(
-                    InventoryRestorationHistories.from(
-                            quantityByPricePolicyId, productIdsByPricePolicyId, orderId, "예약 만료 - 스케줄러 자동 해소"
-                    )
+                InventoryRestorationHistories.from(
+                    quantityByPricePolicyId, productIdsByPricePolicyId, orderId, "예약 만료 - 스케줄러 자동 해소"
+                )
             );
 
             saveCacheStockPort.save(inventories);
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishInventoryChangedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            inventory.getStockValue(), InventoryChangeAction.UPDATED
-                    )
+                publishInventoryEventPort.publishInventoryChangedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    inventory.getStockValue(), InventoryChangeAction.UPDATED
+                )
             );
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishStockReleasedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            quantityByPricePolicyId.get(inventory.getPricePolicyId()),
-                            "RESERVATION_EXPIRED", orderId
-                    )
+                publishInventoryEventPort.publishStockReleasedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    quantityByPricePolicyId.get(inventory.getPricePolicyId()),
+                    "RESERVATION_EXPIRED", orderId
+                )
             );
         });
     }
 
     private Set<Long> extractPricePolicyIds(List<InventoryReservation> reservations) {
         return reservations.stream()
-                .map(InventoryReservation::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(InventoryReservation::getPricePolicyId)
+            .collect(Collectors.toSet());
     }
 }

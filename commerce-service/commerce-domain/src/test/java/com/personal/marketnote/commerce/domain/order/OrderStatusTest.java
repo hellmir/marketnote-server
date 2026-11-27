@@ -206,8 +206,8 @@ class OrderStatusTest {
                     continue;
                 }
                 assertThat(OrderStatus.CANCEL_REQUESTED.canTransitionTo(target))
-                        .as("CANCEL_REQUESTED → %s는 불가해야 한다", target)
-                        .isFalse();
+                    .as("CANCEL_REQUESTED → %s는 불가해야 한다", target)
+                    .isFalse();
             }
         }
 

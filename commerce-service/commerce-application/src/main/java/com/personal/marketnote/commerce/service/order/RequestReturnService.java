@@ -60,9 +60,9 @@ public class RequestReturnService implements RequestReturnUseCase {
         order.applyPickupAddress(buildPickupAddress(command));
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.of(
-                        command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
-                )
+            OrderStatusHistoryCreateState.of(
+                command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
+            )
         );
 
         updateOrderPort.update(order, orderStatusHistory);
@@ -75,7 +75,7 @@ public class RequestReturnService implements RequestReturnUseCase {
     private void validateBuyerOwnership(RequestReturnCommand command, Order order) {
         if (!order.getBuyerId().equals(command.buyerId())) {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    command.id(), order.getBuyerId(), command.buyerId()
+                command.id(), order.getBuyerId(), command.buyerId()
             );
             throw new UnauthorizedOrderAccessException();
         }
@@ -99,12 +99,12 @@ public class RequestReturnService implements RequestReturnUseCase {
         }
 
         Set<Long> orderPricePolicyIds = order.getOrderProducts().stream()
-                .map(OrderProduct::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(OrderProduct::getPricePolicyId)
+            .collect(Collectors.toSet());
 
         List<Long> invalidIds = command.pricePolicyIds().stream()
-                .filter(id -> !orderPricePolicyIds.contains(id))
-                .toList();
+            .filter(id -> !orderPricePolicyIds.contains(id))
+            .toList();
 
         if (!invalidIds.isEmpty()) {
             throw new InvalidReturnTargetPricePolicyException(invalidIds);
@@ -129,19 +129,19 @@ public class RequestReturnService implements RequestReturnUseCase {
     }
 
     private void validatePartialReturnTransition(
-            RequestReturnCommand command,
-            Order order,
-            OrderStatus currentStatus
+        RequestReturnCommand command,
+        Order order,
+        OrderStatus currentStatus
     ) {
         boolean allTargetsAlreadyRequested = order.getOrderProducts().stream()
-                .filter(op -> command.pricePolicyIds().contains(op.getPricePolicyId()))
-                .allMatch(op -> op.getOrderStatus().isReturnRequested());
+            .filter(op -> command.pricePolicyIds().contains(op.getPricePolicyId()))
+            .allMatch(op -> op.getOrderStatus().isReturnRequested());
         if (allTargetsAlreadyRequested) {
             throw new OrderStatusAlreadyChangedException(TARGET_STATUS);
         }
 
         if (!currentStatus.canTransitionTo(OrderStatus.PARTIALLY_RETURN_REQUESTED)
-                && !currentStatus.canTransitionTo(TARGET_STATUS)) {
+            && !currentStatus.canTransitionTo(TARGET_STATUS)) {
             throw new InvalidOrderStatusTransitionException(currentStatus, OrderStatus.PARTIALLY_RETURN_REQUESTED);
         }
     }
@@ -156,64 +156,64 @@ public class RequestReturnService implements RequestReturnUseCase {
 
     private ShippingAddress buildPickupAddress(RequestReturnCommand command) {
         return ShippingAddress.from(ShippingAddressCreateState.forReturnPickup(
-                command.pickupRecipientName(),
-                command.pickupRecipientPhoneNumber(),
-                command.pickupZipCode(),
-                command.pickupAddress(),
-                command.pickupAddressDetail(),
-                command.pickupRequestMessage()
+            command.pickupRecipientName(),
+            command.pickupRecipientPhoneNumber(),
+            command.pickupZipCode(),
+            command.pickupAddress(),
+            command.pickupAddressDetail(),
+            command.pickupRequestMessage()
         ));
     }
 
     private RegisterFulfillmentReturnDeliveryCommand buildReturnDeliveryCommand(
-            RequestReturnCommand command,
-            Order order
+        RequestReturnCommand command,
+        Order order
     ) {
         String orderDate = FormatValidator.hasValue(order.getCreatedAt())
-                ? order.getCreatedAt().format(ORDER_DATE_FORMATTER)
-                : "";
+            ? order.getCreatedAt().format(ORDER_DATE_FORMATTER)
+            : "";
 
         List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> products = collectReturnDeliveryProducts(command, order);
 
         String reasonCategory = FormatValidator.hasValue(command.reasonCategory())
-                ? command.reasonCategory().getDescription()
-                : "";
+            ? command.reasonCategory().getDescription()
+            : "";
 
         String pickupPhoneCanonical = FormatValidator.hasValue(command.pickupRecipientPhoneNumber())
-                ? PhoneNumber.of(command.pickupRecipientPhoneNumber()).getValue()
-                : null;
+            ? PhoneNumber.of(command.pickupRecipientPhoneNumber()).getValue()
+            : null;
 
         return RegisterFulfillmentReturnDeliveryCommand.from(
-                command,
-                order,
-                RegisterFulfillmentReturnDeliveryCommand.DerivedInputs.of(
-                        products, pickupPhoneCanonical, reasonCategory, orderDate
-                )
+            command,
+            order,
+            RegisterFulfillmentReturnDeliveryCommand.DerivedInputs.of(
+                products, pickupPhoneCanonical, reasonCategory, orderDate
+            )
         );
     }
 
     private List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> collectReturnDeliveryProducts(
-            RequestReturnCommand command,
-            Order order
+        RequestReturnCommand command,
+        Order order
     ) {
         return order.getOrderProducts().stream()
-                .filter(op -> !command.isPartialReturn() || command.pricePolicyIds().contains(op.getPricePolicyId()))
-                .map(this::toProductItem)
-                .filter(FormatValidator::hasValue)
-                .toList();
+            .filter(op -> !command.isPartialReturn() || command.pricePolicyIds().contains(op.getPricePolicyId()))
+            .map(this::toProductItem)
+            .filter(FormatValidator::hasValue)
+            .toList();
     }
 
     private RegisterFulfillmentReturnDeliveryCommand.ProductItem toProductItem(OrderProduct orderProduct) {
         UUID productKey = orderProduct.getProductKey();
         if (FormatValidator.hasNoValue(productKey)) {
             log.warn("OrderProduct productKey 누락으로 Fassto 회수 품목에서 제외 - pricePolicyId: {}",
-                    orderProduct.getPricePolicyId()
+                orderProduct.getPricePolicyId()
             );
             return null;
         }
         return RegisterFulfillmentReturnDeliveryCommand.ProductItem.of(
-                productKey.toString(),
-                orderProduct.getQuantity().getValue()
+            productKey.toString(),
+            orderProduct.getQuantity().getValue()
         );
     }
 

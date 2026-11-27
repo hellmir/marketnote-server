@@ -44,8 +44,8 @@ class PaymentFailedOrderStatusConsumerTest {
                                                                  String resultCode, String resultMessage) {
         PaymentFailedEvent event = new PaymentFailedEvent(orderId, orderKey, resultCode, resultMessage);
         EventEnvelope<PaymentFailedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.failed", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "commerce.payment.failed", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.payment.failed", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -90,7 +90,7 @@ class PaymentFailedOrderStatusConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
         doThrow(new OrderStatusAlreadyChangedException(FAILED))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when
         consumer.handlePaymentFailedEvent(record, acknowledgment);
@@ -105,7 +105,7 @@ class PaymentFailedOrderStatusConsumerTest {
     void handlePaymentFailedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.failed", 0, 0L, "1", null
+            "commerce.payment.failed", 0, 0L, "1", null
         );
 
         // when
@@ -122,11 +122,11 @@ class PaymentFailedOrderStatusConsumerTest {
         // given
         PaymentFailedEvent event = new PaymentFailedEvent(1L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
         EventEnvelope<PaymentFailedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.failed", 0, 0L, "1", envelope
+            "commerce.payment.failed", 0, 0L, "1", envelope
         );
 
         // when
@@ -171,12 +171,12 @@ class PaymentFailedOrderStatusConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+            .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentFailedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
         verify(acknowledgment, never()).acknowledge();

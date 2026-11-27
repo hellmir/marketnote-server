@@ -78,15 +78,15 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
     private BrandTalkTemplateStatus templateStatus;
 
     public static AligoBrandTalkTemplateJpaEntity create(
-            String senderKey, String templateCode, String templateName,
-            BrandTalkTemplateType templateType, String templateContent,
-            boolean adult, String imageUrl, String imageLink,
-            String buttonsJson, String couponJson,
-            String templateHeader, String mainWideItemJson, String subWideItemsJson,
-            String carouselHeader, String carouselItemsJson,
-            String carouselCommercesJson, String carouselTailJson,
-            String videoUrl, String videoThumbnailUrl, String commerceInfoJson,
-            BrandTalkTemplateStatus templateStatus
+        String senderKey, String templateCode, String templateName,
+        BrandTalkTemplateType templateType, String templateContent,
+        boolean adult, String imageUrl, String imageLink,
+        String buttonsJson, String couponJson,
+        String templateHeader, String mainWideItemJson, String subWideItemsJson,
+        String carouselHeader, String carouselItemsJson,
+        String carouselCommercesJson, String carouselTailJson,
+        String videoUrl, String videoThumbnailUrl, String commerceInfoJson,
+        BrandTalkTemplateStatus templateStatus
     ) {
         AligoBrandTalkTemplateJpaEntity entity = new AligoBrandTalkTemplateJpaEntity();
         entity.senderKey = senderKey;

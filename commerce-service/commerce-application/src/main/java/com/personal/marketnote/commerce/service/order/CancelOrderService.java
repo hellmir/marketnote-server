@@ -95,30 +95,30 @@ public class CancelOrderService implements CancelOrderUseCase {
         List<OrderProductItem> orderProductItems = mapToOrderProductItems(order.getOrderProducts());
 
         OrderCancelSagaContext context = new OrderCancelSagaContext(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                amount.getPaidAmount().getValue(),
-                amount.getPaidAmount().getValue(),
-                amount.getPointAmount().getValue(),
-                amount.getShippingFee().getValue(),
-                true,
-                0L,
-                originalStatus.name(),
-                resolveReasonCategoryName(command.reasonCategory()),
-                command.reason(),
-                orderProductItems,
-                orderProductItems,
-                List.of(),
-                UUID.randomUUID().toString()
+            order.getId(),
+            order.getOrderKey().toString(),
+            order.getBuyerId(),
+            amount.getPaidAmount().getValue(),
+            amount.getPaidAmount().getValue(),
+            amount.getPointAmount().getValue(),
+            amount.getShippingFee().getValue(),
+            true,
+            0L,
+            originalStatus.name(),
+            resolveReasonCategoryName(command.reasonCategory()),
+            command.reason(),
+            orderProductItems,
+            orderProductItems,
+            List.of(),
+            UUID.randomUUID().toString()
         );
 
         orderCancelSagaStarter.start(context);
     }
 
     private void partialCancelViaSaga(
-            CancelOrderCommand command, Order order,
-            OrderStatus originalStatus, List<Long> pricePolicyIds
+        CancelOrderCommand command, Order order,
+        OrderStatus originalStatus, List<Long> pricePolicyIds
     ) {
         persistPartialStatusChange(command, order, pricePolicyIds, OrderStatus.CANCEL_REQUESTED);
 
@@ -126,33 +126,33 @@ public class CancelOrderService implements CancelOrderUseCase {
 
         List<OrderProductItem> allProductItems = mapToOrderProductItems(order.getOrderProducts());
         List<OrderProductItem> cancelProductItems = order.getOrderProducts().stream()
-                .filter(op -> pricePolicyIds.contains(op.getPricePolicyId()))
-                .map(op -> new OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
-                        op.getQuantity().getValue(), op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .filter(op -> pricePolicyIds.contains(op.getPricePolicyId()))
+            .map(op -> new OrderProductItem(
+                op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
+                op.getQuantity().getValue(), op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         long cancelAmount = calculateCancelAmount(order, pricePolicyIds);
         List<String> productKeys = extractProductKeys(cancelProductItems);
 
         OrderCancelSagaContext context = new OrderCancelSagaContext(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                cancelAmount,
-                amount.getPaidAmount().getValue(),
-                amount.getPointAmount().getValue(),
-                amount.getShippingFee().getValue(),
-                false,
-                0L,
-                originalStatus.name(),
-                resolveReasonCategoryName(command.reasonCategory()),
-                command.reason(),
-                allProductItems,
-                cancelProductItems,
-                productKeys,
-                UUID.randomUUID().toString()
+            order.getId(),
+            order.getOrderKey().toString(),
+            order.getBuyerId(),
+            cancelAmount,
+            amount.getPaidAmount().getValue(),
+            amount.getPointAmount().getValue(),
+            amount.getShippingFee().getValue(),
+            false,
+            0L,
+            originalStatus.name(),
+            resolveReasonCategoryName(command.reasonCategory()),
+            command.reason(),
+            allProductItems,
+            cancelProductItems,
+            productKeys,
+            UUID.randomUUID().toString()
         );
 
         orderCancelSagaStarter.start(context);
@@ -162,24 +162,24 @@ public class CancelOrderService implements CancelOrderUseCase {
         order.changeAllProductsStatus(targetStatus, null, 0L);
 
         OrderStatusHistory history = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.of(
-                        command.id(), targetStatus, command.reasonCategory(), command.reason()
-                )
+            OrderStatusHistoryCreateState.of(
+                command.id(), targetStatus, command.reasonCategory(), command.reason()
+            )
         );
 
         updateOrderPort.update(order, history);
     }
 
     private void persistPartialStatusChange(
-            CancelOrderCommand command, Order order,
-            List<Long> pricePolicyIds, OrderStatus targetProductStatus
+        CancelOrderCommand command, Order order,
+        List<Long> pricePolicyIds, OrderStatus targetProductStatus
     ) {
         order.changeProductsStatus(pricePolicyIds, targetProductStatus, null, 0L);
 
         OrderStatusHistory history = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.of(
-                        command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
-                )
+            OrderStatusHistoryCreateState.of(
+                command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
+            )
         );
 
         updateOrderPort.update(order, history);
@@ -231,28 +231,28 @@ public class CancelOrderService implements CancelOrderUseCase {
         Set<Long> uniqueCancelIds = new HashSet<>(cancelPricePolicyIds);
         if (uniqueCancelIds.size() != cancelPricePolicyIds.size()) {
             log.warn(
-                    "취소 대상 상품에 중복된 pricePolicyId가 포함되어 있습니다. cancelPricePolicyIdsSize={}",
-                    cancelPricePolicyIds.size()
+                "취소 대상 상품에 중복된 pricePolicyId가 포함되어 있습니다. cancelPricePolicyIdsSize={}",
+                cancelPricePolicyIds.size()
             );
             throw InvalidPartialCancelProductException.duplicatePricePolicy();
         }
 
         Map<Long, OrderProduct> orderProductByPolicyId = order.getOrderProducts().stream()
-                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op));
+            .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op));
 
         for (Long cancelPricePolicyId : cancelPricePolicyIds) {
             OrderProduct orderProduct = orderProductByPolicyId.get(cancelPricePolicyId);
             if (FormatValidator.hasNoValue(orderProduct)) {
                 log.warn(
-                        "취소 대상에 주문에 포함되지 않은 상품이 있습니다. cancelPricePolicyId={}",
-                        cancelPricePolicyId
+                    "취소 대상에 주문에 포함되지 않은 상품이 있습니다. cancelPricePolicyId={}",
+                    cancelPricePolicyId
                 );
                 throw InvalidPartialCancelProductException.notInOrder();
             }
             if (orderProduct.isCancelled()) {
                 log.warn(
-                        "이미 취소된 상품이 취소 대상에 포함되어 있습니다. cancelPricePolicyId={}",
-                        cancelPricePolicyId
+                    "이미 취소된 상품이 취소 대상에 포함되어 있습니다. cancelPricePolicyId={}",
+                    cancelPricePolicyId
                 );
                 throw InvalidPartialCancelProductException.alreadyCancelled();
             }
@@ -265,9 +265,9 @@ public class CancelOrderService implements CancelOrderUseCase {
 
     private boolean coversAllRemainingProducts(List<Long> pricePolicyIds, Order order) {
         List<Long> nonCancelledPricePolicyIds = order.getOrderProducts().stream()
-                .filter(op -> !op.isCancelled())
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
+            .filter(op -> !op.isCancelled())
+            .map(OrderProduct::getPricePolicyId)
+            .toList();
 
         return pricePolicyIds.containsAll(nonCancelledPricePolicyIds);
     }
@@ -277,8 +277,8 @@ public class CancelOrderService implements CancelOrderUseCase {
         for (OrderProduct orderProduct : order.getOrderProducts()) {
             if (cancelPricePolicyIds.contains(orderProduct.getPricePolicyId())) {
                 cancelAmount = Math.addExact(
-                        cancelAmount,
-                        Math.multiplyExact(orderProduct.getUnitAmount().getValue(), orderProduct.getQuantity().getValue())
+                    cancelAmount,
+                    Math.multiplyExact(orderProduct.getUnitAmount().getValue(), orderProduct.getQuantity().getValue())
                 );
             }
         }
@@ -287,19 +287,19 @@ public class CancelOrderService implements CancelOrderUseCase {
 
     private List<OrderProductItem> mapToOrderProductItems(List<OrderProduct> orderProducts) {
         return orderProducts.stream()
-                .map(op -> new OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
-                        op.getQuantity().getValue(), op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new OrderProductItem(
+                op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
+                op.getQuantity().getValue(), op.getUnitAmount().getValue()
+            ))
+            .toList();
     }
 
     private List<String> extractProductKeys(List<OrderProductItem> items) {
         return items.stream()
-                .map(OrderProductItem::productKey)
-                .filter(FormatValidator::hasValue)
-                .map(Object::toString)
-                .toList();
+            .map(OrderProductItem::productKey)
+            .filter(FormatValidator::hasValue)
+            .map(Object::toString)
+            .toList();
     }
 
     private String resolveReasonCategoryName(OrderStatusReasonCategory reasonCategory) {

@@ -25,12 +25,12 @@ public class OrderReturnedPgRefundConsumer {
     private final CompleteReturnRefundUseCase completeReturnRefundUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_RETURNED,
-            groupId = "commerce-order-returned-pg-refund"
+        topics = KafkaTopicConstants.ORDER_RETURNED,
+        groupId = "commerce-order-returned-pg-refund"
     )
     public void handleOrderReturnedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,11 +47,11 @@ public class OrderReturnedPgRefundConsumer {
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
         log.info("반품 완료 이벤트 수신 (PG 환불). eventId={}, orderId={}, isFullReturn={}, returnAmount={}",
-                envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount()
+            envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -59,16 +59,16 @@ public class OrderReturnedPgRefundConsumer {
 
         try {
             CompleteReturnRefundCommand command = CompleteReturnRefundCommand.builder()
-                    .orderId(payload.orderId())
-                    .orderKey(payload.orderKey())
-                    .buyerId(payload.buyerId())
-                    .returnAmount(payload.returnAmount())
-                    .paymentAmount(payload.paymentAmount())
-                    .pointAmount(payload.pointAmount())
-                    .shippingFee(payload.shippingFee())
-                    .isFullReturn(payload.isFullReturn())
-                    .returnShippingFee(FormatValidator.hasValue(payload.returnShippingFee()) ? payload.returnShippingFee() : 0L)
-                    .build();
+                .orderId(payload.orderId())
+                .orderKey(payload.orderKey())
+                .buyerId(payload.buyerId())
+                .returnAmount(payload.returnAmount())
+                .paymentAmount(payload.paymentAmount())
+                .pointAmount(payload.pointAmount())
+                .shippingFee(payload.shippingFee())
+                .isFullReturn(payload.isFullReturn())
+                .returnShippingFee(FormatValidator.hasValue(payload.returnShippingFee()) ? payload.returnShippingFee() : 0L)
+                .build();
 
             completeReturnRefundUseCase.completeReturnRefund(command);
 

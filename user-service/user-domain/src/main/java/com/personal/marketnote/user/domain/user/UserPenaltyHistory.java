@@ -19,23 +19,23 @@ public class UserPenaltyHistory {
 
     public static UserPenaltyHistory from(UserPenaltyHistoryCreateState state) {
         return UserPenaltyHistory.builder()
-                .userId(state.getUserId())
-                .previousCount(state.getPreviousCount())
-                .currentCount(state.getCurrentCount())
-                .reason(state.getReason())
-                .createdBy(state.getCreatedBy())
-                .build();
+            .userId(state.getUserId())
+            .previousCount(state.getPreviousCount())
+            .currentCount(state.getCurrentCount())
+            .reason(state.getReason())
+            .createdBy(state.getCreatedBy())
+            .build();
     }
 
     public static UserPenaltyHistory from(UserPenaltyHistorySnapshotState state) {
         return UserPenaltyHistory.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .previousCount(state.getPreviousCount())
-                .currentCount(state.getCurrentCount())
-                .reason(state.getReason())
-                .createdBy(state.getCreatedBy())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .previousCount(state.getPreviousCount())
+            .currentCount(state.getCurrentCount())
+            .reason(state.getReason())
+            .createdBy(state.getCreatedBy())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

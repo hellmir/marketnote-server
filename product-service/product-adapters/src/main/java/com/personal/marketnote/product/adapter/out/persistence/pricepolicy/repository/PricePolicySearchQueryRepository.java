@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface PricePolicySearchQueryRepository {
     List<PricePolicyJpaEntity> findActivePricePoliciesByOffset(
-            List<Long> pricePolicyIds,
-            int page,
-            int pageSize,
-            boolean isAsc,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword,
-            Long categoryId
+        List<Long> pricePolicyIds,
+        int page,
+        int pageSize,
+        boolean isAsc,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword,
+        Long categoryId
     );
 }

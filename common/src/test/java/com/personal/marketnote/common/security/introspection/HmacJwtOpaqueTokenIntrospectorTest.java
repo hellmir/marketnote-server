@@ -149,24 +149,24 @@ class HmacJwtOpaqueTokenIntrospectorTest {
     @DisplayName("토큰이 null이면 형식 오류로 예외를 던진다")
     void shouldThrowWhenTokenIsNull() {
         assertThatThrownBy(() -> introspector.introspect(null))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("Invalid token format");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("Invalid token format");
     }
 
     @Test
     @DisplayName("토큰이 빈 문자열이면 형식 오류로 예외를 던진다")
     void shouldThrowWhenTokenIsBlank() {
         assertThatThrownBy(() -> introspector.introspect(""))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("Invalid token format");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("Invalid token format");
     }
 
     @Test
     @DisplayName("토큰이 3 파트가 아니면 형식 오류로 예외를 던진다")
     void shouldThrowWhenTokenPartsNotThree() {
         assertThatThrownBy(() -> introspector.introspect("only.two"))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("Invalid token format");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("Invalid token format");
     }
 
     @Test
@@ -177,8 +177,8 @@ class HmacJwtOpaqueTokenIntrospectorTest {
         String token = signToken(header, payload, SECRET);
 
         assertThatThrownBy(() -> introspector.introspect(token))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("Unsupported alg");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("Unsupported alg");
     }
 
     @Test
@@ -189,8 +189,8 @@ class HmacJwtOpaqueTokenIntrospectorTest {
         String token = signToken(header, payload, "different-secret");
 
         assertThatThrownBy(() -> introspector.introspect(token))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("Invalid signature");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("Invalid signature");
     }
 
     @Test
@@ -201,8 +201,8 @@ class HmacJwtOpaqueTokenIntrospectorTest {
         String token = signToken(header, payload, SECRET);
 
         assertThatThrownBy(() -> introspector.introspect(token))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("expired");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("expired");
     }
 
     @Test
@@ -215,14 +215,14 @@ class HmacJwtOpaqueTokenIntrospectorTest {
         String token = headerB64 + "." + payloadB64 + "." + sigB64;
 
         assertThatThrownBy(() -> introspector.introspect(token))
-                .isInstanceOf(BadOpaqueTokenException.class)
-                .hasMessageContaining("Invalid token part");
+            .isInstanceOf(BadOpaqueTokenException.class)
+            .hasMessageContaining("Invalid token part");
     }
 
     private List<String> authorityValues(OAuth2AuthenticatedPrincipal principal) {
         return principal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList());
     }
 
     private String signToken(Map<String, Object> header, Map<String, Object> payload, String secret) throws Exception {

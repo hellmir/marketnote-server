@@ -39,8 +39,8 @@ public class HmacJwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
         String[] parts = FormatValidator.hasValue(token)
-                ? token.split("\\.")
-                : new String[0];
+            ? token.split("\\.")
+            : new String[0];
         if (parts.length != 3) {
             throw new BadOpaqueTokenException("Invalid token format");
         }
@@ -150,8 +150,8 @@ public class HmacJwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
             roles.add("ROLE_USER");
         }
         LinkedHashSet<GrantedAuthority> set = roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableSet(set);
     }
 }

@@ -37,16 +37,16 @@ public class GetUserOneOnOneInquiryPostsService implements GetUserOneOnOneInquir
         boolean isDesc = Sort.Direction.DESC.equals(command.sortDirection());
 
         Posts posts = findPostPort.findUserPostsByOffset(
-                command.userId(),
-                Board.ONE_ON_ONE_INQUERY,
-                command.page(),
-                command.pageSize(),
-                isDesc,
-                command.sortProperty()
+            command.userId(),
+            Board.ONE_ON_ONE_INQUERY,
+            command.page(),
+            command.pageSize(),
+            isDesc,
+            command.sortProperty()
         );
 
         long totalElements = findPostPort.countUserPosts(
-                command.userId(), Board.ONE_ON_ONE_INQUERY, null, null, null, null
+            command.userId(), Board.ONE_ON_ONE_INQUERY, null, null, null, null
         );
 
         int totalPages = computeTotalPages(totalElements, command.pageSize());
@@ -56,21 +56,21 @@ public class GetUserOneOnOneInquiryPostsService implements GetUserOneOnOneInquir
         Map<Long, List<GetFileResult>> postImagesByPostId = findPostImages(postList);
 
         List<PostItemResult> postItems = postList.stream()
-                .map(post -> toPostItemResult(post, postImagesByPostId))
-                .toList();
+            .map(post -> toPostItemResult(post, postImagesByPostId))
+            .toList();
 
         return GetUserOneOnOneInquiryPostsResult.of(
-                command.page(),
-                command.pageSize(),
-                totalElements,
-                totalPages,
-                postItems
+            command.page(),
+            command.pageSize(),
+            totalElements,
+            totalPages,
+            postItems
         );
     }
 
     private PostItemResult toPostItemResult(
-            Post post,
-            Map<Long, List<GetFileResult>> postImagesByPostId
+        Post post,
+        Map<Long, List<GetFileResult>> postImagesByPostId
     ) {
         List<GetFileResult> images = postImagesByPostId.get(post.getId());
 
@@ -97,19 +97,19 @@ public class GetUserOneOnOneInquiryPostsService implements GetUserOneOnOneInquir
         Map<Long, List<GetFileResult>> postImages = new ConcurrentHashMap<>();
 
         List<Post> photoPosts = posts.stream()
-                .flatMap(post -> {
-                    Stream<Post> replies = post.hasReplies() ? post.getReplies().stream() : Stream.empty();
-                    return Stream.concat(Stream.of(post), replies);
-                })
-                .filter(Post::isPhoto)
-                .toList();
+            .flatMap(post -> {
+                Stream<Post> replies = post.hasReplies() ? post.getReplies().stream() : Stream.empty();
+                return Stream.concat(Stream.of(post), replies);
+            })
+            .filter(Post::isPhoto)
+            .toList();
 
         List<CompletableFuture<Void>> futures = photoPosts.stream()
-                .map(post -> CompletableFuture.runAsync(
-                        () -> findPostImagesPort.findImagesByPostIdAndSort(post.getId(), POST_IMAGE)
-                                .ifPresent(result -> postImages.put(post.getId(), result.images()))
-                ))
-                .toList();
+            .map(post -> CompletableFuture.runAsync(
+                () -> findPostImagesPort.findImagesByPostIdAndSort(post.getId(), POST_IMAGE)
+                    .ifPresent(result -> postImages.put(post.getId(), result.images()))
+            ))
+            .toList();
 
         if (FormatValidator.hasValue(futures)) {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();

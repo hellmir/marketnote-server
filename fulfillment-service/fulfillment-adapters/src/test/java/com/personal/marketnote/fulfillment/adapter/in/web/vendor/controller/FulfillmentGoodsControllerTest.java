@@ -59,16 +59,16 @@ class FulfillmentGoodsControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentGoodsUseCase.registerGoods(any(RegisterFulfillmentGoodsCommand.class)))
-                    .thenReturn(RegisterFulfillmentGoodsResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentGoodsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentGoodsResponse>> response =
-                    controller.registerGoods(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerGoods(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterFulfillmentGoodsCommand> captor =
-                    ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
+                ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
             verify(registerFulfillmentGoodsUseCase).registerGoods(captor.capture());
             assertThat(captor.getValue().customerCode()).isEqualTo(CUSTOMER_CODE);
             assertThat(captor.getValue().accessToken()).isEqualTo(ACCESS_TOKEN);
@@ -84,11 +84,11 @@ class FulfillmentGoodsControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentGoodsUseCase.getGoods(any(GetFulfillmentGoodsCommand.class)))
-                    .thenReturn(GetFulfillmentGoodsResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentGoodsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentGoodsResponse>> response =
-                    controller.getGoods(CUSTOMER_CODE, ACCESS_TOKEN);
+                controller.getGoods(CUSTOMER_CODE, ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -105,11 +105,11 @@ class FulfillmentGoodsControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentGoodsDetailUseCase.getGoodsDetail(any(GetFulfillmentGoodsDetailCommand.class)))
-                    .thenReturn(GetFulfillmentGoodsResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentGoodsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentGoodsResponse>> response =
-                    controller.getGoodsDetail(CUSTOMER_CODE, ACCESS_TOKEN, "GOD_01");
+                controller.getGoodsDetail(CUSTOMER_CODE, ACCESS_TOKEN, "GOD_01");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -126,11 +126,11 @@ class FulfillmentGoodsControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentGoodsElementsUseCase.getGoodsElements(any(GetFulfillmentGoodsElementsCommand.class)))
-                    .thenReturn(GetFulfillmentGoodsElementsResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentGoodsElementsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentGoodsElementsResponse>> response =
-                    controller.getGoodsElements(CUSTOMER_CODE, ACCESS_TOKEN);
+                controller.getGoodsElements(CUSTOMER_CODE, ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -147,11 +147,11 @@ class FulfillmentGoodsControllerTest {
         void returnsOk() {
             // given
             when(updateFulfillmentGoodsUseCase.updateGoods(any(UpdateFulfillmentGoodsCommand.class)))
-                    .thenReturn(UpdateFulfillmentGoodsResult.of(0, List.of()));
+                .thenReturn(UpdateFulfillmentGoodsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<UpdateFulfillmentGoodsResponse>> response =
-                    controller.updateGoods(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.updateGoods(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

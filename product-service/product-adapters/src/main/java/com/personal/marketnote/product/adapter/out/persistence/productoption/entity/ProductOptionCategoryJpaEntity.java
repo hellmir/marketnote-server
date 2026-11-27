@@ -29,17 +29,17 @@ public class ProductOptionCategoryJpaEntity extends BaseOrderedGeneralEntity {
     private String name;
 
     public static ProductOptionCategoryJpaEntity from(
-            ProductOptionCategory category, ProductJpaEntity productJpaEntity
+        ProductOptionCategory category, ProductJpaEntity productJpaEntity
     ) {
         ProductOptionCategoryJpaEntity productOptionCategoryJpaEntity = ProductOptionCategoryJpaEntity.builder()
-                .productJpaEntity(productJpaEntity)
-                .name(category.getName())
-                .build();
+            .productJpaEntity(productJpaEntity)
+            .name(category.getName())
+            .build();
 
         List<ProductOptionJpaEntity> productOptionJpaEntities = category.getOptions()
-                .stream()
-                .map(option -> ProductOptionJpaEntity.from(productOptionCategoryJpaEntity, option))
-                .toList();
+            .stream()
+            .map(option -> ProductOptionJpaEntity.from(productOptionCategoryJpaEntity, option))
+            .toList();
         productOptionCategoryJpaEntity.productOptionJpaEntities = productOptionJpaEntities;
 
         return productOptionCategoryJpaEntity;

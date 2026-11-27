@@ -9,10 +9,10 @@ public class ReportCommandToStateMapper {
 
     public static ReportCreateState mapToState(ReportCommand command) {
         return ReportCreateState.builder()
-                .targetType(command.targetType())
-                .targetId(command.targetId())
-                .reporterId(command.reporterId())
-                .reason(command.reason())
-                .build();
+            .targetType(command.targetType())
+            .targetId(command.targetId())
+            .reporterId(command.reporterId())
+            .reason(command.reason())
+            .build();
     }
 }

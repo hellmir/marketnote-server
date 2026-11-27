@@ -26,7 +26,7 @@ public class InventoryReservationTimeoutChecker {
     @SchedulerLock(name = ShedLockNames.COMMERCE_INVENTORY_RESERVATION_TIMEOUT, lockAtMostFor = "PT5M", lockAtLeastFor = "PT5S")
     public void checkExpiredReservations() {
         LocalDateTime cutoff = LocalDateTime.now(commerceClock)
-                .minusMinutes(properties.getTimeoutMinutes());
+            .minusMinutes(properties.getTimeoutMinutes());
         expireInventoryReservationUseCase.expireTimedOutReservations(cutoff);
     }
 }

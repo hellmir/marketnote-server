@@ -37,12 +37,12 @@ public class GifticonCategoryController {
         GetGifticonCategoriesResult result = getGifticonCategoriesUseCase.getCategories();
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetGifticonCategoriesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 카테고리 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetGifticonCategoriesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 카테고리 목록 조회 성공"
+            )
         );
     }
 }

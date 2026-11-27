@@ -30,12 +30,12 @@ public class OrderPaymentCompletedProductPointConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "reward-product-point"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "reward-product-point"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,15 +51,15 @@ public class OrderPaymentCompletedProductPointConsumer {
 
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
-                    OrderPaymentCompletedEvent.class, objectMapper
+                OrderPaymentCompletedEvent.class, objectMapper
             );
 
             log.info("주문 결제 완료 이벤트 수신 (상품 구매 포인트 적립). eventId={}, orderId={}, buyerId={}, totalAccumulatedPoint={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.totalAccumulatedPoint());
+                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.totalAccumulatedPoint());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()),
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -72,20 +72,20 @@ public class OrderPaymentCompletedProductPointConsumer {
 
             if (FormatValidator.hasNoValue(payload.totalAccumulatedPoint()) || payload.totalAccumulatedPoint() <= 0) {
                 log.info("상품 적립 포인트가 없는 주문 (적립 생략). orderId={}, totalAccumulatedPoint={}",
-                        payload.orderId(), payload.totalAccumulatedPoint());
+                    payload.orderId(), payload.totalAccumulatedPoint());
                 acknowledgment.acknowledge();
                 return;
             }
 
             modifyPendingPointIdempotent(
-                    envelope.eventId(), payload.buyerId(), payload.totalAccumulatedPoint(), payload.orderId()
+                envelope.eventId(), payload.buyerId(), payload.totalAccumulatedPoint(), payload.orderId()
             );
 
             log.info("상품 구매 포인트 적립 완료. orderId={}, buyerId={}, totalAccumulatedPoint={}",
-                    payload.orderId(), payload.buyerId(), payload.totalAccumulatedPoint());
+                payload.orderId(), payload.buyerId(), payload.totalAccumulatedPoint());
         } catch (Exception e) {
             log.error("상품 구매 포인트 적립 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -95,17 +95,17 @@ public class OrderPaymentCompletedProductPointConsumer {
     private void modifyPendingPointIdempotent(String eventId, Long buyerId, Long totalAccumulatedPoint, Long orderId) {
         try {
             ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
-                    .userId(buyerId)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(totalAccumulatedPoint)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(orderId)
-                    .reason(PRODUCT_PURCHASE_REASON)
-                    .build();
+                .userId(buyerId)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(totalAccumulatedPoint)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(PRODUCT_PURCHASE_REASON)
+                .build();
             modifyPendingPointUseCase.modifyPending(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 상품 구매 포인트 적립 이벤트 (멱등 처리). eventId={}, buyerId={}, message={}",
-                    eventId, buyerId, e.getMessage());
+                eventId, buyerId, e.getMessage());
         }
     }
 }

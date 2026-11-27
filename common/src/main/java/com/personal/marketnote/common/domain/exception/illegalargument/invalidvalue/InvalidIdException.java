@@ -2,7 +2,7 @@ package com.personal.marketnote.common.domain.exception.illegalargument.invalidv
 
 public class InvalidIdException extends InvalidValueException {
     private static final String INVALID_ID_EXCEPTION_MESSAGE_PREFIX
-            = "ID는 양의 정수(1 이상의 숫자값)여야 합니다. 전송된 ID: ";
+        = "ID는 양의 정수(1 이상의 숫자값)여야 합니다. 전송된 ID: ";
 
     public InvalidIdException(String value) {
         super(INVALID_ID_EXCEPTION_MESSAGE_PREFIX + value);

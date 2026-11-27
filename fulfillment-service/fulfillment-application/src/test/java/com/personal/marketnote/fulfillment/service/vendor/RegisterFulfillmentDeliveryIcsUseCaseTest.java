@@ -33,15 +33,15 @@ class RegisterFulfillmentDeliveryIcsUseCaseTest {
     void shouldReturnRegisterDeliveryIcsResultFromPort() {
         // given
         RegisterFulfillmentDeliveryIcsItemCommand itemCommand = RegisterFulfillmentDeliveryIcsItemCommand.builder()
-                .orderDate("20260402")
-                .orderNumber("ORD001")
-                .platform("PLATFORM01")
-                .logisticsCenter("CENTER01")
-                .invoiceNumber("INV001")
-                .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
-                .build();
+            .orderDate("20260402")
+            .orderNumber("ORD001")
+            .platform("PLATFORM01")
+            .logisticsCenter("CENTER01")
+            .invoiceNumber("INV001")
+            .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
+            .build();
         RegisterFulfillmentDeliveryIcsCommand command = RegisterFulfillmentDeliveryIcsCommand.of(
-                "CUST001", "token", List.of(itemCommand)
+            "CUST001", "token", List.of(itemCommand)
         );
         RegisterFulfillmentDeliveryResult expectedResult = RegisterFulfillmentDeliveryResult.of(0, List.of());
         when(registerFulfillmentDeliveryIcsPort.registerDeliveryIcs(any())).thenReturn(expectedResult);

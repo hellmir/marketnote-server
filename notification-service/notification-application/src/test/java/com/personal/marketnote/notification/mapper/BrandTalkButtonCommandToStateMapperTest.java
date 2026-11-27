@@ -16,7 +16,7 @@ class BrandTalkButtonCommandToStateMapperTest {
     @DisplayName("WL 타입 버튼 Command는 도메인으로 매핑된다")
     void mapsWebLinkButtonCommand() {
         BrandTalkButtonCommand command = new BrandTalkButtonCommand(
-                "자세히 보기", "WL", "https://m.example.com", "https://pc.example.com", null, null
+            "자세히 보기", "WL", "https://m.example.com", "https://pc.example.com", null, null
         );
 
         BrandTalkButton button = BrandTalkButtonCommandToStateMapper.mapButton(command);
@@ -31,8 +31,8 @@ class BrandTalkButtonCommandToStateMapperTest {
     @DisplayName("버튼 Command 리스트는 도메인 리스트로 매핑된다")
     void mapsButtonCommandList() {
         List<BrandTalkButtonCommand> commands = List.of(
-                new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null),
-                new BrandTalkButtonCommand("버튼B", "AC", null, null, null, null)
+            new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null),
+            new BrandTalkButtonCommand("버튼B", "AC", null, null, null, null)
         );
 
         List<BrandTalkButton> buttons = BrandTalkButtonCommandToStateMapper.mapButtons(commands);

@@ -16,7 +16,7 @@ import java.util.UUID;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FulfillmentGoodsRegistrationPersistenceAdapter
-        implements FindFulfillmentGoodsRegistrationPort, SaveFulfillmentGoodsRegistrationPort {
+    implements FindFulfillmentGoodsRegistrationPort, SaveFulfillmentGoodsRegistrationPort {
     private final FulfillmentGoodsRegistrationJpaRepository repository;
 
     @Override
@@ -27,7 +27,7 @@ public class FulfillmentGoodsRegistrationPersistenceAdapter
     @Override
     public Optional<UUID> findProductKeyByFasstoProductCode(String fasstoProductCode) {
         return repository.findByFasstoProductCode(fasstoProductCode)
-                .map(FulfillmentGoodsRegistrationJpaEntity::getProductKey);
+            .map(FulfillmentGoodsRegistrationJpaEntity::getProductKey);
     }
 
     @Override

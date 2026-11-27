@@ -26,39 +26,39 @@ public class PaymentAllocation {
     public static PaymentAllocation from(PaymentAllocationCreateState state) {
         if (FormatValidator.hasNoValue(state.getAllocatedAmount()) || state.getAllocatedAmount() <= 0) {
             throw new InvalidSettlementAmountException(
-                    "배분 금액은 0보다 커야 합니다. allocatedAmount=" + state.getAllocatedAmount());
+                "배분 금액은 0보다 커야 합니다. allocatedAmount=" + state.getAllocatedAmount());
         }
 
         Long shippingFeeValue = FormatValidator.hasValue(state.getShippingFee()) ? state.getShippingFee() : 0L;
         if (shippingFeeValue < 0) {
             throw new InvalidSettlementAmountException(
-                    "배송비는 음수일 수 없습니다. shippingFee=" + shippingFeeValue);
+                "배송비는 음수일 수 없습니다. shippingFee=" + shippingFeeValue);
         }
 
         return PaymentAllocation.builder()
-                .orderId(state.getOrderId())
-                .sellerId(state.getSellerId())
-                .allocatedAmount(Money.of(state.getAllocatedAmount()))
-                .shippingFee(Money.of(shippingFeeValue))
-                .transactionType(state.getTransactionType())
-                .targetType(state.getTargetType())
-                .idempotencyKey(state.getIdempotencyKey())
-                .build();
+            .orderId(state.getOrderId())
+            .sellerId(state.getSellerId())
+            .allocatedAmount(Money.of(state.getAllocatedAmount()))
+            .shippingFee(Money.of(shippingFeeValue))
+            .transactionType(state.getTransactionType())
+            .targetType(state.getTargetType())
+            .idempotencyKey(state.getIdempotencyKey())
+            .build();
     }
 
     public static PaymentAllocation from(PaymentAllocationSnapshotState state) {
         return PaymentAllocation.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .sellerId(state.getSellerId())
-                .allocatedAmount(Money.of(state.getAllocatedAmount()))
-                .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
-                .settlementId(state.getSettlementId())
-                .transactionType(state.getTransactionType())
-                .targetType(state.getTargetType())
-                .idempotencyKey(state.getIdempotencyKey())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .sellerId(state.getSellerId())
+            .allocatedAmount(Money.of(state.getAllocatedAmount()))
+            .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
+            .settlementId(state.getSettlementId())
+            .transactionType(state.getTransactionType())
+            .targetType(state.getTargetType())
+            .idempotencyKey(state.getIdempotencyKey())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     private static Money resolveMoneyOrZero(Long value) {

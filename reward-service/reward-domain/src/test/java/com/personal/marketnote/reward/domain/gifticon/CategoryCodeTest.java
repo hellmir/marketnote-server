@@ -26,7 +26,7 @@ class CategoryCodeTest {
     @DisplayName("null/빈 문자열/공백으로 생성 시 CategoryCodeNoValueException이 발생한다")
     void createWithBlank(String value) {
         assertThatThrownBy(() -> CategoryCode.of(value))
-                .isInstanceOf(CategoryCodeNoValueException.class);
+            .isInstanceOf(CategoryCodeNoValueException.class);
     }
 
     @Test

@@ -23,9 +23,9 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ShippingTrackerPersistenceAdapter implements
-        SaveShippingTrackerPort,
-        FindShippingTrackerPort,
-        UpdateShippingTrackerPort {
+    SaveShippingTrackerPort,
+    FindShippingTrackerPort,
+    UpdateShippingTrackerPort {
 
     private final ShippingTrackerJpaRepository repository;
 
@@ -42,14 +42,14 @@ public class ShippingTrackerPersistenceAdapter implements
     @Override
     public List<ShippingTracker> findPollingActiveChunk(Long lastId, int limit) {
         return repository.findPollingActiveChunk(lastId, PageRequest.of(0, limit)).stream()
-                .map(ShippingTrackerJpaEntity::toDomain)
-                .toList();
+            .map(ShippingTrackerJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
     public Optional<ShippingTracker> findByOrderId(Long orderId) {
         return repository.findByOrderId(orderId)
-                .map(ShippingTrackerJpaEntity::toDomain);
+            .map(ShippingTrackerJpaEntity::toDomain);
     }
 
     @Override

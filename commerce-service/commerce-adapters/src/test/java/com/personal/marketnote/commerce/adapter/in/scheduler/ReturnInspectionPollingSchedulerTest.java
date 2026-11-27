@@ -34,10 +34,10 @@ class ReturnInspectionPollingSchedulerTest {
     @DisplayName("UseCase에서 예외가 발생해도 스케줄러는 예외를 삼킨다")
     void shouldSwallowUseCaseException() {
         doThrow(new RuntimeException("usecase failed"))
-                .when(pollReturnInspectionUseCase).pollPendingInspections();
+            .when(pollReturnInspectionUseCase).pollPendingInspections();
 
         assertThatCode(() -> scheduler.pollReturnInspections())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
         verify(pollReturnInspectionUseCase).pollPendingInspections();
     }
 }

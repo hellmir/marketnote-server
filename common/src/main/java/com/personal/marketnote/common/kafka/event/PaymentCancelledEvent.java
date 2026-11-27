@@ -7,26 +7,26 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PaymentCancelledEvent(
-        Long orderId,
-        String orderKey,
-        Long buyerId,
-        Long cancelAmount,
-        Long paymentAmount,
-        Long pointAmount,
-        boolean isFullCancel,
-        Long alreadyRefunded,
-        String cancelId,
-        List<OrderProductItem> orderProducts,
-        List<OrderProductItem> cancelProducts,
-        Long partialProductPendingDeduction
+    Long orderId,
+    String orderKey,
+    Long buyerId,
+    Long cancelAmount,
+    Long paymentAmount,
+    Long pointAmount,
+    boolean isFullCancel,
+    Long alreadyRefunded,
+    String cancelId,
+    List<OrderProductItem> orderProducts,
+    List<OrderProductItem> cancelProducts,
+    Long partialProductPendingDeduction
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record OrderProductItem(
-            Long pricePolicyId,
-            UUID sharerKey,
-            Integer quantity,
-            Long unitAmount
+        Long pricePolicyId,
+        UUID sharerKey,
+        Integer quantity,
+        Long unitAmount
     ) {
     }
 }

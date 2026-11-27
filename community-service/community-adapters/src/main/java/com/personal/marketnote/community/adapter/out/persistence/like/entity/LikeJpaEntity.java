@@ -27,15 +27,15 @@ public class LikeJpaEntity extends BaseEntity {
 
     public static LikeJpaEntity from(Like like) {
         LikeId likeId = new LikeId(
-                like.getTargetType(),
-                like.getTargetId(),
-                like.getUserId()
+            like.getTargetType(),
+            like.getTargetId(),
+            like.getUserId()
         );
 
         return LikeJpaEntity.builder()
-                .id(likeId)
-                .status(like.getStatus())
-                .build();
+            .id(likeId)
+            .status(like.getStatus())
+            .build();
     }
 
     public void updateFrom(Like like) {

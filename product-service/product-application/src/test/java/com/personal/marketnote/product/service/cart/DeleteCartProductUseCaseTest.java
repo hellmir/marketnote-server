@@ -42,7 +42,7 @@ class DeleteCartProductUseCaseTest {
         doThrow(exception).when(deleteCartProductPort).delete(2L, List.of(30L));
 
         assertThatThrownBy(() -> deleteCartProductService.deleteCartProducts(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -61,6 +61,6 @@ class DeleteCartProductUseCaseTest {
         doThrow(exception).when(deleteCartProductPort).deleteAll(20L);
 
         assertThatThrownBy(() -> deleteCartProductService.deleteAllCartProducts(20L))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 }

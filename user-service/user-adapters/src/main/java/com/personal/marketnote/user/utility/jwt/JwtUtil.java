@@ -37,26 +37,26 @@ public class JwtUtil {
     private final Map<JwtTokenType, Long> ttlsByTokenType;
 
     public JwtUtil(
-            @Value("${spring.jwt.secret}") String jwtSecret,
-            // 테스트가 쉬운 구조를 만들기 위해 TTL을 enum이 아닌 Spring properties에 정의하여 생성자로 주입
-            @Value("${spring.jwt.access-token.ttl}") Long accessTokenTtl,
-            @Value("${spring.jwt.refresh-token.ttl}") Long refreshTokenTtl
+        @Value("${spring.jwt.secret}") String jwtSecret,
+        // 테스트가 쉬운 구조를 만들기 위해 TTL을 enum이 아닌 Spring properties에 정의하여 생성자로 주입
+        @Value("${spring.jwt.access-token.ttl}") Long accessTokenTtl,
+        @Value("${spring.jwt.refresh-token.ttl}") Long refreshTokenTtl
     ) {
         secretKey = new SecretKeySpec(
-                jwtSecret.getBytes(StandardCharsets.UTF_8),
-                Jwts.SIG.HS256.key().build().getAlgorithm()
+            jwtSecret.getBytes(StandardCharsets.UTF_8),
+            Jwts.SIG.HS256.key().build().getAlgorithm()
         );
         parser = Jwts.parser().verifyWith(secretKey)
-                .json(new JacksonDeserializer<>())
-                .build();
+            .json(new JacksonDeserializer<>())
+            .build();
         ttlsByTokenType = Map.of(
-                JwtTokenType.ACCESS_TOKEN, accessTokenTtl,
-                JwtTokenType.REFRESH_TOKEN, refreshTokenTtl
+            JwtTokenType.ACCESS_TOKEN, accessTokenTtl,
+            JwtTokenType.REFRESH_TOKEN, refreshTokenTtl
         );
     }
 
     public TokenClaims parseAccessToken(String token)
-            throws JwtException, IllegalArgumentException, ClassCastException {
+        throws JwtException, IllegalArgumentException, ClassCastException {
         return parse(token, JwtTokenType.ACCESS_TOKEN);
     }
 
@@ -85,20 +85,20 @@ public class JwtUtil {
         AuthVendor authVendor = AuthVendor.valueOfIgnoreCase(authVendorKey);
 
         return TokenClaims.builder()
-                .tokenType(extractTokenType(claims, tokenType))
-                .expirationAt(claims.getExpiration()
-                        .toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime())
-                .issuedAt(claims.getIssuedAt()
-                        .toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime())
-                .id(claims.getSubject())
-                .userId(userId)
-                .roleIds((List<String>) claims.get("roleIds"))
-                .authVendor(authVendor)
-                .build();
+            .tokenType(extractTokenType(claims, tokenType))
+            .expirationAt(claims.getExpiration()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime())
+            .issuedAt(claims.getIssuedAt()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime())
+            .id(claims.getSubject())
+            .userId(userId)
+            .roleIds((List<String>) claims.get("roleIds"))
+            .authVendor(authVendor)
+            .build();
     }
 
     private String chooseVendor(String iss) {
@@ -164,34 +164,34 @@ public class JwtUtil {
     }
 
     private JwtBuilder getBuilderWithCommonClaims(
-            JwtTokenType tokenType,
-            String id,
-            Long userId,
-            List<String> roleIds,
-            AuthVendor authVendor
+        JwtTokenType tokenType,
+        String id,
+        Long userId,
+        List<String> roleIds,
+        AuthVendor authVendor
     ) {
         return Jwts.builder()
-                .claim(TOKEN_TYPE_CLAIM_KEY, tokenType)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + ttlsByTokenType.get(tokenType)))
-                .subject(id)
-                .claim(ROLE_IDS_CLAIM_KEY, roleIds)
-                .claim(USER_ID_KEY, userId)
-                .claim(AUTH_VENDOR_CLAIM_KEY, authVendor.name())
-                .signWith(secretKey);
+            .claim(TOKEN_TYPE_CLAIM_KEY, tokenType)
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + ttlsByTokenType.get(tokenType)))
+            .subject(id)
+            .claim(ROLE_IDS_CLAIM_KEY, roleIds)
+            .claim(USER_ID_KEY, userId)
+            .claim(AUTH_VENDOR_CLAIM_KEY, authVendor.name())
+            .signWith(secretKey);
     }
 
     public String revokeToken(String token) {
         JwtParser parser = Jwts.parser().verifyWith(secretKey)
-                .json(new JacksonDeserializer<>())
-                .build();
+            .json(new JacksonDeserializer<>())
+            .build();
 
         Claims tokenClaims = parser.parseSignedClaims(token).getPayload();
 
         return Jwts.builder()
-                .claims(tokenClaims)
-                .expiration(new Date(System.currentTimeMillis() - 1))
-                .signWith(secretKey)
-                .compact();
+            .claims(tokenClaims)
+            .expiration(new Date(System.currentTimeMillis() - 1))
+            .signWith(secretKey)
+            .compact();
     }
 }

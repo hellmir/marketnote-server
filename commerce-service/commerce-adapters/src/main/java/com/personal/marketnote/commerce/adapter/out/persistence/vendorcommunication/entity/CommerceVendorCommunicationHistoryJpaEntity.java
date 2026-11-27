@@ -64,35 +64,35 @@ public class CommerceVendorCommunicationHistoryJpaEntity {
     private LocalDateTime createdAt;
 
     public static CommerceVendorCommunicationHistoryJpaEntity from(
-            CommerceVendorCommunicationHistory history, JsonNode payloadJson) {
+        CommerceVendorCommunicationHistory history, JsonNode payloadJson) {
         return CommerceVendorCommunicationHistoryJpaEntity.builder()
-                .id(history.getId())
-                .targetType(history.getTargetType())
-                .targetId(history.getTargetId())
-                .vendorName(history.getVendorName())
-                .communicationType(history.getCommunicationType())
-                .sender(history.getSender())
-                .exception(history.getException())
-                .payload(history.getPayload())
-                .payloadJson(payloadJson)
-                .createdAt(history.getCreatedAt())
-                .build();
+            .id(history.getId())
+            .targetType(history.getTargetType())
+            .targetId(history.getTargetId())
+            .vendorName(history.getVendorName())
+            .communicationType(history.getCommunicationType())
+            .sender(history.getSender())
+            .exception(history.getException())
+            .payload(history.getPayload())
+            .payloadJson(payloadJson)
+            .createdAt(history.getCreatedAt())
+            .build();
     }
 
     public CommerceVendorCommunicationHistory toDomain() {
         return CommerceVendorCommunicationHistory.from(
-                CommerceVendorCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .vendorName(vendorName)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
-                        .createdAt(createdAt)
-                        .build()
+            CommerceVendorCommunicationHistorySnapshotState.builder()
+                .id(id)
+                .targetType(targetType)
+                .targetId(targetId)
+                .vendorName(vendorName)
+                .communicationType(communicationType)
+                .sender(sender)
+                .exception(exception)
+                .payload(payload)
+                .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
+                .createdAt(createdAt)
+                .build()
         );
     }
 

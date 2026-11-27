@@ -16,11 +16,7 @@ import com.personal.marketnote.user.security.token.dto.OAuth2AuthenticationInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2UserInfo;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -52,7 +48,7 @@ class RestClientGoogleTokenProcessorTest {
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder()
-                .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
+            .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
         mockServer = MockRestServiceServer.bindTo(builder).build();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
         processor = new RestClientGoogleTokenProcessor(builder, CLIENT_ID, CLIENT_SECRET, externalCallLogger);
@@ -86,22 +82,22 @@ class RestClientGoogleTokenProcessorTest {
             String idToken = "header." + idTokenPayload + ".signature";
 
             mockServer.expect(requestTo(GOOGLE_TOKEN_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(containsString("grant_type=authorization_code")))
-                    .andExpect(content().string(containsString("code=test-code")))
-                    .andExpect(content().string(containsString("redirect_uri=http%3A%2F%2Flocalhost%2Fcallback")))
-                    .andExpect(content().string(containsString("client_id=" + CLIENT_ID)))
-                    .andExpect(content().string(containsString("client_secret=" + CLIENT_SECRET)))
-                    .andRespond(withSuccess("""
-                            {"access_token":"google-access-token","refresh_token":"google-refresh-token","id_token":"%s"}
-                            """.formatted(idToken), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(containsString("grant_type=authorization_code")))
+                .andExpect(content().string(containsString("code=test-code")))
+                .andExpect(content().string(containsString("redirect_uri=http%3A%2F%2Flocalhost%2Fcallback")))
+                .andExpect(content().string(containsString("client_id=" + CLIENT_ID)))
+                .andExpect(content().string(containsString("client_secret=" + CLIENT_SECRET)))
+                .andRespond(withSuccess("""
+                    {"access_token":"google-access-token","refresh_token":"google-refresh-token","id_token":"%s"}
+                    """.formatted(idToken), MediaType.APPLICATION_JSON));
 
             mockServer.expect(requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"sub":"google-user-123"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"sub":"google-user-123"}
+                    """, MediaType.APPLICATION_JSON));
 
             GrantedTokenInfo result = processor.grantToken("test-code", "http://localhost/callback");
 
@@ -117,11 +113,11 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("유효하지 않은 인가코드로 토큰 발급 시 UnsupportedCodeException이 발생한다")
         void shouldThrowUnsupportedCodeExceptionWhenCodeIsInvalid() {
             mockServer.expect(requestTo(GOOGLE_TOKEN_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withBadRequest());
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withBadRequest());
 
             assertThatThrownBy(() -> processor.grantToken("invalid-code", "http://localhost/callback"))
-                    .isInstanceOf(UnsupportedCodeException.class);
+                .isInstanceOf(UnsupportedCodeException.class);
 
             mockServer.verify();
         }
@@ -135,11 +131,11 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("유효한 액세스 토큰으로 인증에 성공하면 OAuth2AuthenticationInfo를 반환한다")
         void shouldReturnAuthenticationInfoWhenAccessTokenIsValid() {
             mockServer.expect(requestTo(GOOGLE_ME_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andExpect(header("Authorization", "Bearer test-access-token"))
-                    .andRespond(withSuccess("""
-                            {"id":"google-user-123"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header("Authorization", "Bearer test-access-token"))
+                .andRespond(withSuccess("""
+                    {"id":"google-user-123"}
+                    """, MediaType.APPLICATION_JSON));
 
             OAuth2AuthenticationInfo result = processor.authenticate("test-access-token");
 
@@ -153,11 +149,11 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("유효하지 않은 액세스 토큰으로 인증 시 InvalidAccessTokenException이 발생한다")
         void shouldThrowInvalidAccessTokenExceptionWhenTokenIsInvalid() {
             mockServer.expect(requestTo(GOOGLE_ME_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withBadRequest());
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withBadRequest());
 
             assertThatThrownBy(() -> processor.authenticate("invalid-token"))
-                    .isInstanceOf(InvalidAccessTokenException.class);
+                .isInstanceOf(InvalidAccessTokenException.class);
 
             mockServer.verify();
         }
@@ -171,11 +167,11 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("유효한 액세스 토큰으로 사용자 정보 조회에 성공하면 OAuth2UserInfo를 반환한다")
         void shouldReturnUserInfoWhenAccessTokenIsValid() {
             mockServer.expect(requestTo(GOOGLE_USER_INFO_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andExpect(header("Authorization", "Bearer test-access-token"))
-                    .andRespond(withSuccess("""
-                            {"id":"google-user-123","name":"Test User"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header("Authorization", "Bearer test-access-token"))
+                .andRespond(withSuccess("""
+                    {"id":"google-user-123","name":"Test User"}
+                    """, MediaType.APPLICATION_JSON));
 
             OAuth2UserInfo result = processor.retrieveUserInfo("test-access-token");
 
@@ -189,11 +185,11 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("유효하지 않은 액세스 토큰으로 사용자 정보 조회 시 InvalidAccessTokenException이 발생한다")
         void shouldThrowInvalidAccessTokenExceptionWhenTokenIsInvalid() {
             mockServer.expect(requestTo(GOOGLE_USER_INFO_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withBadRequest());
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withBadRequest());
 
             assertThatThrownBy(() -> processor.retrieveUserInfo("invalid-token"))
-                    .isInstanceOf(InvalidAccessTokenException.class);
+                .isInstanceOf(InvalidAccessTokenException.class);
 
             mockServer.verify();
         }
@@ -202,13 +198,13 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("응답 JSON에 필수 필드가 없으면 OAuth2ResponseParsingException이 발생한다")
         void shouldThrowOAuth2ResponseParsingExceptionWhenRequiredFieldMissing() {
             mockServer.expect(requestTo(GOOGLE_USER_INFO_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"email":"test@example.com"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"email":"test@example.com"}
+                    """, MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> processor.retrieveUserInfo("test-access-token"))
-                    .isInstanceOf(OAuth2ResponseParsingException.class);
+                .isInstanceOf(OAuth2ResponseParsingException.class);
 
             mockServer.verify();
         }
@@ -225,21 +221,21 @@ class RestClientGoogleTokenProcessorTest {
             String idToken = "header." + idTokenPayload + ".signature";
 
             mockServer.expect(requestTo(GOOGLE_TOKEN_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(containsString("grant_type=refresh_token")))
-                    .andExpect(content().string(containsString("refresh_token=test-refresh-token")))
-                    .andExpect(content().string(containsString("client_id=" + CLIENT_ID)))
-                    .andExpect(content().string(containsString("client_secret=" + CLIENT_SECRET)))
-                    .andRespond(withSuccess("""
-                            {"access_token":"new-access-token","refresh_token":"new-refresh-token","id_token":"%s"}
-                            """.formatted(idToken), MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(containsString("grant_type=refresh_token")))
+                .andExpect(content().string(containsString("refresh_token=test-refresh-token")))
+                .andExpect(content().string(containsString("client_id=" + CLIENT_ID)))
+                .andExpect(content().string(containsString("client_secret=" + CLIENT_SECRET)))
+                .andRespond(withSuccess("""
+                    {"access_token":"new-access-token","refresh_token":"new-refresh-token","id_token":"%s"}
+                    """.formatted(idToken), MediaType.APPLICATION_JSON));
 
             mockServer.expect(requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"sub":"google-user-123"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"sub":"google-user-123"}
+                    """, MediaType.APPLICATION_JSON));
 
             GrantedTokenInfo result = processor.refreshToken("test-refresh-token");
 
@@ -255,11 +251,11 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("유효하지 않은 갱신 토큰으로 토큰 갱신 시 InvalidRefreshTokenException이 발생한다")
         void shouldThrowInvalidRefreshTokenExceptionWhenTokenIsInvalid() {
             mockServer.expect(requestTo(GOOGLE_TOKEN_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withBadRequest());
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withBadRequest());
 
             assertThatThrownBy(() -> processor.refreshToken("invalid-refresh-token"))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
 
             mockServer.verify();
         }
@@ -279,17 +275,17 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("authenticate 호출 시 DEBUG 로그에 operation과 provider 태그가 기록된다")
         void shouldLogOperationAndProviderTagOnAuthenticate() {
             mockServer.expect(requestTo(GOOGLE_ME_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"id":"google-user-123"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"id":"google-user-123"}
+                    """, MediaType.APPLICATION_JSON));
 
             processor.authenticate("test-access-token-secret");
 
             boolean hasOperation = appender.list.stream()
-                    .anyMatch(event -> event.getFormattedMessage().contains("authenticate"));
+                .anyMatch(event -> event.getFormattedMessage().contains("authenticate"));
             boolean hasProvider = appender.list.stream()
-                    .anyMatch(event -> event.getFormattedMessage().contains("google"));
+                .anyMatch(event -> event.getFormattedMessage().contains("google"));
             assertThat(hasOperation).isTrue();
             assertThat(hasProvider).isTrue();
         }
@@ -300,15 +296,15 @@ class RestClientGoogleTokenProcessorTest {
             String secretToken = "super-secret-access-token-do-not-leak";
 
             mockServer.expect(requestTo(GOOGLE_ME_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"id":"google-user-123"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"id":"google-user-123"}
+                    """, MediaType.APPLICATION_JSON));
 
             processor.authenticate(secretToken);
 
             boolean leaked = appender.list.stream()
-                    .anyMatch(event -> event.getFormattedMessage().contains(secretToken));
+                .anyMatch(event -> event.getFormattedMessage().contains(secretToken));
             assertThat(leaked).isFalse();
         }
 
@@ -316,15 +312,15 @@ class RestClientGoogleTokenProcessorTest {
         @DisplayName("authenticate 실패 시 ERROR 로그에 cause 예외 클래스명이 기록되고 동일 예외가 rethrow된다")
         void shouldLogErrorWithCauseAndRethrowOnAuthenticateFailure() {
             mockServer.expect(requestTo(GOOGLE_ME_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withBadRequest());
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withBadRequest());
 
             assertThatThrownBy(() -> processor.authenticate("invalid-token"))
-                    .isInstanceOf(InvalidAccessTokenException.class);
+                .isInstanceOf(InvalidAccessTokenException.class);
 
             boolean hasErrorLog = appender.list.stream()
-                    .anyMatch(event -> event.getLevel() == Level.ERROR
-                            && event.getFormattedMessage().contains("InvalidAccessTokenException"));
+                .anyMatch(event -> event.getLevel() == Level.ERROR
+                    && event.getFormattedMessage().contains("InvalidAccessTokenException"));
             assertThat(hasErrorLog).isTrue();
         }
 
@@ -334,15 +330,15 @@ class RestClientGoogleTokenProcessorTest {
             String secretToken = "another-secret-token-must-not-leak";
 
             mockServer.expect(requestTo(GOOGLE_USER_INFO_URL))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"id":"google-user-123","name":"Test User"}
-                            """, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"id":"google-user-123","name":"Test User"}
+                    """, MediaType.APPLICATION_JSON));
 
             processor.retrieveUserInfo(secretToken);
 
             boolean leaked = appender.list.stream()
-                    .anyMatch(event -> event.getFormattedMessage().contains(secretToken));
+                .anyMatch(event -> event.getFormattedMessage().contains(secretToken));
             assertThat(leaked).isFalse();
         }
 
@@ -352,14 +348,14 @@ class RestClientGoogleTokenProcessorTest {
             String secretRefresh = "super-secret-refresh-token-do-not-leak";
 
             mockServer.expect(requestTo(GOOGLE_TOKEN_URL))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withBadRequest());
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withBadRequest());
 
             assertThatThrownBy(() -> processor.refreshToken(secretRefresh))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
 
             boolean leaked = appender.list.stream()
-                    .anyMatch(event -> event.getFormattedMessage().contains(secretRefresh));
+                .anyMatch(event -> event.getFormattedMessage().contains(secretRefresh));
             assertThat(leaked).isFalse();
         }
     }

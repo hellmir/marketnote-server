@@ -45,39 +45,39 @@ class FulfillmentVendorCommunicationHistoryPersistenceAdapterTest {
             JsonNode payloadJson = payloadNode;
 
             FulfillmentVendorCommunicationHistory history = FulfillmentVendorCommunicationHistory.from(
-                    FulfillmentVendorCommunicationHistoryCreateState.builder()
-                            .targetType(FulfillmentVendorCommunicationTargetType.DELIVERY)
-                            .targetId("SLIP-001")
-                            .vendorName(FulfillmentVendorName.FASSTO)
-                            .communicationType(FulfillmentVendorCommunicationType.REQUEST)
-                            .sender(FulfillmentVendorCommunicationSenderType.SERVER)
-                            .exception("Timeout")
-                            .payload("raw-payload")
-                            .payloadJson(payloadJson)
-                            .build()
+                FulfillmentVendorCommunicationHistoryCreateState.builder()
+                    .targetType(FulfillmentVendorCommunicationTargetType.DELIVERY)
+                    .targetId("SLIP-001")
+                    .vendorName(FulfillmentVendorName.FASSTO)
+                    .communicationType(FulfillmentVendorCommunicationType.REQUEST)
+                    .sender(FulfillmentVendorCommunicationSenderType.SERVER)
+                    .exception("Timeout")
+                    .payload("raw-payload")
+                    .payloadJson(payloadJson)
+                    .build()
             );
 
             FulfillmentVendorCommunicationHistoryJpaEntity persistedEntity = buildEntity(
-                    10L,
-                    FulfillmentVendorCommunicationTargetType.DELIVERY,
-                    "SLIP-001",
-                    FulfillmentVendorName.FASSTO,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    "Timeout",
-                    "raw-payload",
-                    payloadJson,
-                    LocalDateTime.of(2026, 4, 15, 12, 0)
+                10L,
+                FulfillmentVendorCommunicationTargetType.DELIVERY,
+                "SLIP-001",
+                FulfillmentVendorName.FASSTO,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                "Timeout",
+                "raw-payload",
+                payloadJson,
+                LocalDateTime.of(2026, 4, 15, 12, 0)
             );
             when(repository.save(any(FulfillmentVendorCommunicationHistoryJpaEntity.class)))
-                    .thenReturn(persistedEntity);
+                .thenReturn(persistedEntity);
 
             // when
             FulfillmentVendorCommunicationHistory result = adapter.save(history);
 
             // then
             ArgumentCaptor<FulfillmentVendorCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(FulfillmentVendorCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(FulfillmentVendorCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             FulfillmentVendorCommunicationHistoryJpaEntity captured = captor.getValue();
             assertThat(captured.getTargetType()).isEqualTo(FulfillmentVendorCommunicationTargetType.DELIVERY);
@@ -108,32 +108,32 @@ class FulfillmentVendorCommunicationHistoryPersistenceAdapterTest {
         void savesResponseHistoryWithoutOptionalFields() {
             // given
             FulfillmentVendorCommunicationHistory history = FulfillmentVendorCommunicationHistory.from(
-                    FulfillmentVendorCommunicationHistoryCreateState.builder()
-                            .targetType(FulfillmentVendorCommunicationTargetType.AUTHENTICATION)
-                            .targetId(null)
-                            .vendorName(FulfillmentVendorName.FASSTO)
-                            .communicationType(FulfillmentVendorCommunicationType.RESPONSE)
-                            .sender(FulfillmentVendorCommunicationSenderType.VENDOR)
-                            .exception(null)
-                            .payload(null)
-                            .payloadJson(null)
-                            .build()
+                FulfillmentVendorCommunicationHistoryCreateState.builder()
+                    .targetType(FulfillmentVendorCommunicationTargetType.AUTHENTICATION)
+                    .targetId(null)
+                    .vendorName(FulfillmentVendorName.FASSTO)
+                    .communicationType(FulfillmentVendorCommunicationType.RESPONSE)
+                    .sender(FulfillmentVendorCommunicationSenderType.VENDOR)
+                    .exception(null)
+                    .payload(null)
+                    .payloadJson(null)
+                    .build()
             );
 
             FulfillmentVendorCommunicationHistoryJpaEntity persistedEntity = buildEntity(
-                    20L,
-                    FulfillmentVendorCommunicationTargetType.AUTHENTICATION,
-                    null,
-                    FulfillmentVendorName.FASSTO,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    null,
-                    null,
-                    null,
-                    LocalDateTime.of(2026, 4, 15, 13, 0)
+                20L,
+                FulfillmentVendorCommunicationTargetType.AUTHENTICATION,
+                null,
+                FulfillmentVendorName.FASSTO,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                null,
+                null,
+                null,
+                LocalDateTime.of(2026, 4, 15, 13, 0)
             );
             when(repository.save(any(FulfillmentVendorCommunicationHistoryJpaEntity.class)))
-                    .thenReturn(persistedEntity);
+                .thenReturn(persistedEntity);
 
             // when
             FulfillmentVendorCommunicationHistory result = adapter.save(history);
@@ -152,32 +152,32 @@ class FulfillmentVendorCommunicationHistoryPersistenceAdapterTest {
     }
 
     private FulfillmentVendorCommunicationHistoryJpaEntity buildEntity(
-            Long id,
-            FulfillmentVendorCommunicationTargetType targetType,
-            String targetId,
-            FulfillmentVendorName vendorName,
-            FulfillmentVendorCommunicationType communicationType,
-            FulfillmentVendorCommunicationSenderType sender,
-            String exception,
-            String payload,
-            JsonNode payloadJson,
-            LocalDateTime createdAt
+        Long id,
+        FulfillmentVendorCommunicationTargetType targetType,
+        String targetId,
+        FulfillmentVendorName vendorName,
+        FulfillmentVendorCommunicationType communicationType,
+        FulfillmentVendorCommunicationSenderType sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson,
+        LocalDateTime createdAt
     ) {
         FulfillmentVendorCommunicationHistoryJpaEntity entity = FulfillmentVendorCommunicationHistoryJpaEntity.from(
-                FulfillmentVendorCommunicationHistory.from(
-                        FulfillmentVendorCommunicationHistorySnapshotState.builder()
-                                .id(id)
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .vendorName(vendorName)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(payloadJson)
-                                .createdAt(createdAt)
-                                .build()
-                )
+            FulfillmentVendorCommunicationHistory.from(
+                FulfillmentVendorCommunicationHistorySnapshotState.builder()
+                    .id(id)
+                    .targetType(targetType)
+                    .targetId(targetId)
+                    .vendorName(vendorName)
+                    .communicationType(communicationType)
+                    .sender(sender)
+                    .exception(exception)
+                    .payload(payload)
+                    .payloadJson(payloadJson)
+                    .createdAt(createdAt)
+                    .build()
+            )
         );
         ReflectionTestUtils.setField(entity, "id", id);
         ReflectionTestUtils.setField(entity, "createdAt", createdAt);

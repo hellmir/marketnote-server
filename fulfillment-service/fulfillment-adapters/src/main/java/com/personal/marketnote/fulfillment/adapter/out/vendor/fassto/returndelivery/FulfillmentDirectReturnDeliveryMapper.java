@@ -17,23 +17,23 @@ public class FulfillmentDirectReturnDeliveryMapper {
     private List<FulfillmentDirectReturnDeliveryItemMapper> directReturnDeliveryRequests;
 
     public static FulfillmentDirectReturnDeliveryMapper register(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentDirectReturnDeliveryItemMapper> directReturnDeliveryRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentDirectReturnDeliveryItemMapper> directReturnDeliveryRequests
     ) {
         FulfillmentDirectReturnDeliveryMapper mapper = FulfillmentDirectReturnDeliveryMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .directReturnDeliveryRequests(directReturnDeliveryRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .directReturnDeliveryRequests(directReturnDeliveryRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public List<Map<String, Object>> toPayload() {
         return directReturnDeliveryRequests.stream()
-                .map(FulfillmentDirectReturnDeliveryItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentDirectReturnDeliveryItemMapper::toPayload)
+            .toList();
     }
 
     private void validate() {

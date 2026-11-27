@@ -11,15 +11,15 @@ public enum GifticonOrderStatus {
     SEND_FAILED;
 
     private static final Map<String, GifticonOrderStatus> PIN_STATUS_MAP = Map.ofEntries(
-            Map.entry("01", ISSUED),
-            Map.entry("06", ISSUED),
-            Map.entry("02", USED),
-            Map.entry("08", EXPIRED),
-            Map.entry("11", EXPIRED),
-            Map.entry("03", CANCELLED),
-            Map.entry("05", CANCELLED),
-            Map.entry("07", CANCELLED),
-            Map.entry("10", CANCELLED)
+        Map.entry("01", ISSUED),
+        Map.entry("06", ISSUED),
+        Map.entry("02", USED),
+        Map.entry("08", EXPIRED),
+        Map.entry("11", EXPIRED),
+        Map.entry("03", CANCELLED),
+        Map.entry("05", CANCELLED),
+        Map.entry("07", CANCELLED),
+        Map.entry("10", CANCELLED)
     );
 
     public boolean isPending() {

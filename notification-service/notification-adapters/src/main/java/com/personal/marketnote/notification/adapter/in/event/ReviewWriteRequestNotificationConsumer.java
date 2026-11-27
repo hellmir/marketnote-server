@@ -26,12 +26,12 @@ public class ReviewWriteRequestNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
-            groupId = "notification-review-write-request"
+        topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
+        groupId = "notification-review-write-request"
     )
     public void handleOrderPurchaseConfirmedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -48,11 +48,11 @@ public class ReviewWriteRequestNotificationConsumer {
         OrderPurchaseConfirmedEvent payload = envelope.getPayloadAs(OrderPurchaseConfirmedEvent.class, objectMapper);
 
         log.info("구매 확정 이벤트 수신 (리뷰 작성 요청 알림 예약). eventId={}, orderId={}, buyerId={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId());
+            envelope.eventId(), payload.orderId(), payload.buyerId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -61,19 +61,19 @@ public class ReviewWriteRequestNotificationConsumer {
             LocalDateTime scheduledAt = envelope.timestamp().plusDays(1);
 
             SendNotificationCommand command = new SendNotificationCommand(
-                    payload.buyerId(),
-                    "REVIEW_WRITE_REQUEST",
-                    Map.of("order_id", String.valueOf(payload.orderId())),
-                    "PUSH_AND_IN_APP",
-                    scheduledAt
+                payload.buyerId(),
+                "REVIEW_WRITE_REQUEST",
+                Map.of("order_id", String.valueOf(payload.orderId())),
+                "PUSH_AND_IN_APP",
+                scheduledAt
             );
             sendNotificationUseCase.sendNotification(command);
 
             log.info("리뷰 작성 요청 알림 예약 완료. orderId={}, buyerId={}, scheduledAt={}",
-                    payload.orderId(), payload.buyerId(), scheduledAt);
+                payload.orderId(), payload.buyerId(), scheduledAt);
         } catch (Exception e) {
             log.error("리뷰 작성 요청 알림 발송 실패. eventId={}, orderId={}, buyerId={}, error={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
+                envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

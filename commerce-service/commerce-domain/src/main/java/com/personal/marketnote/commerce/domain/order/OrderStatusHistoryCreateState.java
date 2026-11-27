@@ -15,14 +15,14 @@ public class OrderStatusHistoryCreateState {
     private final String reason;
 
     public static OrderStatusHistoryCreateState of(
-            Long orderId, OrderStatus orderStatus, OrderStatusReasonCategory reasonCategory, String reason
+        Long orderId, OrderStatus orderStatus, OrderStatusReasonCategory reasonCategory, String reason
     ) {
         return OrderStatusHistoryCreateState.builder()
-                .orderId(orderId)
-                .orderStatus(orderStatus)
-                .reasonCategory(reasonCategory)
-                .reason(reason)
-                .build();
+            .orderId(orderId)
+            .orderStatus(orderStatus)
+            .reasonCategory(reasonCategory)
+            .reason(reason)
+            .build();
     }
 
     public static OrderStatusHistoryCreateState forStatusOnly(Long orderId, OrderStatus orderStatus) {

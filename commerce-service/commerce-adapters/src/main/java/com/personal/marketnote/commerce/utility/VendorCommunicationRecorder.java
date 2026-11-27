@@ -17,27 +17,27 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class VendorCommunicationRecorder extends com.personal.marketnote.common.utility.audit.VendorCommunicationRecorder<
-        CommerceVendorCommunicationTargetType,
-        CommerceVendorName,
-        CommerceVendorCommunicationType,
-        CommerceVendorCommunicationSenderType
-        > {
+    CommerceVendorCommunicationTargetType,
+    CommerceVendorName,
+    CommerceVendorCommunicationType,
+    CommerceVendorCommunicationSenderType
+    > {
     public VendorCommunicationRecorder(RecordCommerceVendorCommunicationHistoryUseCase useCase) {
         super((
                 targetType, targetId, vendorName, communicationType, sender,
                 exception, payload, payloadJson, attemptCount
-        ) ->
+            ) ->
                 useCase.record(
-                        CommerceVendorCommunicationHistoryCommand.builder()
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .vendorName(vendorName)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
-                                .build()
+                    CommerceVendorCommunicationHistoryCommand.builder()
+                        .targetType(targetType)
+                        .targetId(targetId)
+                        .vendorName(vendorName)
+                        .communicationType(communicationType)
+                        .sender(sender)
+                        .exception(exception)
+                        .payload(payload)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
+                        .build()
                 )
         );
     }

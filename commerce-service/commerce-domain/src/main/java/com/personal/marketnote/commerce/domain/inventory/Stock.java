@@ -77,7 +77,7 @@ public class Stock {
     public Integer increase(int quantity) {
         if (quantity <= 0) {
             throw new InvalidQuantityException(
-                    String.format(STOCK_INVALID_EXCEPTION, quantity)
+                String.format(STOCK_INVALID_EXCEPTION, quantity)
             );
         }
         return this.stock + quantity;

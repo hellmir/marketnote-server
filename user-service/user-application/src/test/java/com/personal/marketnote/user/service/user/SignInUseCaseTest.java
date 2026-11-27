@@ -120,7 +120,7 @@ class SignInUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1"))
-                .isInstanceOf(UserNotActiveException.class);
+            .isInstanceOf(UserNotActiveException.class);
 
         verifyNoInteractions(saveLoginHistoryPort);
     }
@@ -138,7 +138,7 @@ class SignInUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.GOOGLE, oidcId, "127.0.0.1"))
-                .isInstanceOf(UserNotActiveException.class);
+            .isInstanceOf(UserNotActiveException.class);
 
         verifyNoInteractions(saveLoginHistoryPort);
     }
@@ -154,7 +154,7 @@ class SignInUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1"))
-                .isInstanceOf(LoginFailedException.class);
+            .isInstanceOf(LoginFailedException.class);
 
         verifyNoInteractions(saveLoginHistoryPort);
     }
@@ -173,7 +173,7 @@ class SignInUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1"))
-                .isInstanceOf(LoginFailedException.class);
+            .isInstanceOf(LoginFailedException.class);
 
         verifyNoInteractions(saveLoginHistoryPort);
     }
@@ -186,7 +186,7 @@ class SignInUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1"))
-                .isInstanceOf(LoginFailedException.class);
+            .isInstanceOf(LoginFailedException.class);
 
         verifyNoInteractions(getUserUseCase, saveLoginHistoryPort);
     }
@@ -227,11 +227,11 @@ class SignInUseCaseTest {
         SignInCommand command = SignInCommand.of(null, null);
 
         when(getUserUseCase.getAllStatusUser(AuthVendor.APPLE, oidcId))
-                .thenThrow(new UserNotFoundException());
+            .thenThrow(new UserNotFoundException());
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.APPLE, oidcId, "127.0.0.1"))
-                .isInstanceOf(UserNotFoundException.class);
+            .isInstanceOf(UserNotFoundException.class);
 
         verifyNoInteractions(saveLoginHistoryPort);
     }

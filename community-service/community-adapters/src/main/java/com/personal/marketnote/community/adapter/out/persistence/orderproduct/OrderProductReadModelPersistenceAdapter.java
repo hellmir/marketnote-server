@@ -19,7 +19,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class OrderProductReadModelPersistenceAdapter
-        implements FindOrderProductPort, SaveOrderProductReadModelPort {
+    implements FindOrderProductPort, SaveOrderProductReadModelPort {
 
     private final OrderProductReadModelJpaRepository orderProductReadModelJpaRepository;
 
@@ -27,15 +27,15 @@ public class OrderProductReadModelPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public Optional<Long> findUnitAmountByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId) {
         return orderProductReadModelJpaRepository
-                .findByOrderIdAndPricePolicyIdAndStatus(orderId, pricePolicyId, EntityStatus.ACTIVE)
-                .map(OrderProductReadModelJpaEntity::getUnitAmount);
+            .findByOrderIdAndPricePolicyIdAndStatus(orderId, pricePolicyId, EntityStatus.ACTIVE)
+            .map(OrderProductReadModelJpaEntity::getUnitAmount);
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(Long orderId, Long pricePolicyId, Long buyerId, Long unitAmount) {
         Optional<OrderProductReadModelJpaEntity> existing =
-                orderProductReadModelJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId);
+            orderProductReadModelJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(buyerId, unitAmount);
@@ -44,15 +44,15 @@ public class OrderProductReadModelPersistenceAdapter
 
         try {
             OrderProductReadModelJpaEntity entity =
-                    OrderProductReadModelJpaEntity.of(orderId, pricePolicyId, buyerId, unitAmount);
+                OrderProductReadModelJpaEntity.of(orderId, pricePolicyId, buyerId, unitAmount);
             orderProductReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 멱등 Upsert: 동시 INSERT race로 중복 발생 시 기존 엔티티를 조회해 update로 전환
             log.info("주문 상품 Read Model 중복 저장 (멱등 처리). orderId={}, pricePolicyId={}",
-                    orderId, pricePolicyId
+                orderId, pricePolicyId
             );
             orderProductReadModelJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
-                    .ifPresent(entity -> entity.updateFrom(buyerId, unitAmount));
+                .ifPresent(entity -> entity.updateFrom(buyerId, unitAmount));
         }
     }
 }

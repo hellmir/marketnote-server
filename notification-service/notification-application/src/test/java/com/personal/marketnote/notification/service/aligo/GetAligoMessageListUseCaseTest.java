@@ -43,9 +43,9 @@ class GetAligoMessageListUseCaseTest {
 
         AligoMessage message = createSentMessage(1L, "MID_001");
         when(findAligoMessageListPort.findMessages(startDate, endDate, 1, 10))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(findAligoMessageListPort.countMessages(startDate, endDate))
-                .thenReturn(1L);
+            .thenReturn(1L);
 
         // when
         GetAligoMessageListResult result = getAligoMessageListService.getMessageList(command);
@@ -73,9 +73,9 @@ class GetAligoMessageListUseCaseTest {
         GetAligoMessageListCommand command = new GetAligoMessageListCommand(1, 10, startDate, endDate);
 
         when(findAligoMessageListPort.findMessages(startDate, endDate, 1, 10))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
         when(findAligoMessageListPort.countMessages(startDate, endDate))
-                .thenReturn(0L);
+            .thenReturn(0L);
 
         // when
         GetAligoMessageListResult result = getAligoMessageListService.getMessageList(command);
@@ -95,13 +95,13 @@ class GetAligoMessageListUseCaseTest {
         GetAligoMessageListCommand command = new GetAligoMessageListCommand(1, 10, startDate, endDate);
 
         List<AligoMessage> messages = List.of(
-                createSentMessage(1L, "MID_001"),
-                createSentMessage(2L, "MID_002")
+            createSentMessage(1L, "MID_001"),
+            createSentMessage(2L, "MID_002")
         );
         when(findAligoMessageListPort.findMessages(startDate, endDate, 1, 10))
-                .thenReturn(messages);
+            .thenReturn(messages);
         when(findAligoMessageListPort.countMessages(startDate, endDate))
-                .thenReturn(25L);
+            .thenReturn(25L);
 
         // when
         GetAligoMessageListResult result = getAligoMessageListService.getMessageList(command);
@@ -113,22 +113,22 @@ class GetAligoMessageListUseCaseTest {
 
     private AligoMessage createSentMessage(Long id, String aligoMid) {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(id)
-                .senderKey("test-sender-key")
-                .templateCode("TPL_TEST")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트 메시지")
-                .title("테스트")
-                .messageStatus(AligoMessageStatus.SENT)
-                .aligoMid(aligoMid)
-                .successCount(1)
-                .failCount(0)
-                .requestedAt(NOW.minusHours(1))
-                .sentAt(NOW.minusMinutes(55))
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW.minusHours(1))
-                .modifiedAt(NOW.minusHours(1))
-                .build());
+            .id(id)
+            .senderKey("test-sender-key")
+            .templateCode("TPL_TEST")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트 메시지")
+            .title("테스트")
+            .messageStatus(AligoMessageStatus.SENT)
+            .aligoMid(aligoMid)
+            .successCount(1)
+            .failCount(0)
+            .requestedAt(NOW.minusHours(1))
+            .sentAt(NOW.minusMinutes(55))
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW.minusHours(1))
+            .modifiedAt(NOW.minusHours(1))
+            .build());
     }
 }

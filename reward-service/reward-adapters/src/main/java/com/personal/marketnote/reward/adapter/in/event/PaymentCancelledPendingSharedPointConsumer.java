@@ -33,12 +33,12 @@ public class PaymentCancelledPendingSharedPointConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
-            groupId = "reward-pending-shared-point"
+        topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+        groupId = "reward-pending-shared-point"
     )
     public void handlePaymentCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -54,14 +54,14 @@ public class PaymentCancelledPendingSharedPointConsumer {
 
         try {
             PaymentCancelledEvent payload = envelope.getPayloadAs(
-                    PaymentCancelledEvent.class, objectMapper
+                PaymentCancelledEvent.class, objectMapper
             );
 
             log.info("결제 취소 이벤트 수신 (공유 적립 예정 포인트 회수). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel());
+                envelope.eventId(), payload.orderId(), payload.isFullCancel());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -81,25 +81,25 @@ public class PaymentCancelledPendingSharedPointConsumer {
 
             for (UUID sharerKey : sharerKeys) {
                 UserPoint userPoint = findUserPointPort.findByUserKey(sharerKey.toString())
-                        .orElseThrow(() -> {
-                            log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", sharerKey);
-                            return new UserPointNotFoundException();
-                        });
+                    .orElseThrow(() -> {
+                        log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", sharerKey);
+                        return new UserPointNotFoundException();
+                    });
 
                 CancelPendingPointCommand command = CancelPendingPointCommand.builder()
-                        .userId(userPoint.getUserId())
-                        .sourceType(UserPointSourceType.ORDER)
-                        .sourceId(payload.orderId())
-                        .reason("결제 취소 적립 예정 포인트 회수")
-                        .build();
+                    .userId(userPoint.getUserId())
+                    .sourceType(UserPointSourceType.ORDER)
+                    .sourceId(payload.orderId())
+                    .reason("결제 취소 적립 예정 포인트 회수")
+                    .build();
                 cancelPendingPointUseCase.cancelPending(command);
             }
 
             log.info("공유 적립 예정 포인트 회수 완료. orderId={}, sharerKeys={}",
-                    payload.orderId(), sharerKeys);
+                payload.orderId(), sharerKeys);
         } catch (Exception e) {
             log.error("공유 적립 예정 포인트 회수 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -112,9 +112,9 @@ public class PaymentCancelledPendingSharedPointConsumer {
         }
 
         return orderProducts.stream()
-                .map(OrderProductItem::sharerKey)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+            .map(OrderProductItem::sharerKey)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     }
 }

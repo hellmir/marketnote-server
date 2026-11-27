@@ -27,40 +27,40 @@ public class RefundCreateState {
     private final String pgRawResponse;
 
     public static RefundCreateState withPg(
-            Long paymentId,
-            Long orderId,
-            RefundType refundType,
-            Long refundAmount,
-            String cancelReason,
-            String pgRefundKey,
-            String pgRawResponse
+        Long paymentId,
+        Long orderId,
+        RefundType refundType,
+        Long refundAmount,
+        String cancelReason,
+        String pgRefundKey,
+        String pgRawResponse
     ) {
         return RefundCreateState.builder()
-                .paymentId(paymentId)
-                .orderId(orderId)
-                .refundType(refundType)
-                .refundAmount(refundAmount)
-                .cancelReason(cancelReason)
-                .processedBy(PROCESSED_BY_SYSTEM)
-                .pgRefundKey(pgRefundKey)
-                .pgRawResponse(pgRawResponse)
-                .build();
+            .paymentId(paymentId)
+            .orderId(orderId)
+            .refundType(refundType)
+            .refundAmount(refundAmount)
+            .cancelReason(cancelReason)
+            .processedBy(PROCESSED_BY_SYSTEM)
+            .pgRefundKey(pgRefundKey)
+            .pgRawResponse(pgRawResponse)
+            .build();
     }
 
     public static RefundCreateState withoutPg(
-            Long paymentId,
-            Long orderId,
-            RefundType refundType,
-            Long refundAmount,
-            String cancelReason
+        Long paymentId,
+        Long orderId,
+        RefundType refundType,
+        Long refundAmount,
+        String cancelReason
     ) {
         return RefundCreateState.builder()
-                .paymentId(paymentId)
-                .orderId(orderId)
-                .refundType(refundType)
-                .refundAmount(refundAmount)
-                .cancelReason(cancelReason)
-                .processedBy(PROCESSED_BY_SYSTEM)
-                .build();
+            .paymentId(paymentId)
+            .orderId(orderId)
+            .refundType(refundType)
+            .refundAmount(refundAmount)
+            .cancelReason(cancelReason)
+            .processedBy(PROCESSED_BY_SYSTEM)
+            .build();
     }
 }

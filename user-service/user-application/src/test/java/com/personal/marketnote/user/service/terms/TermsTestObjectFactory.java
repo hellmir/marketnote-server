@@ -7,36 +7,36 @@ import java.time.LocalDateTime;
 
 class TermsTestObjectFactory {
     static Terms createTerms(
-            Long id,
-            String content,
-            boolean requiredYn,
-            LocalDateTime createdAt,
-            LocalDateTime modifiedAt,
-            EntityStatus status
+        Long id,
+        String content,
+        boolean requiredYn,
+        LocalDateTime createdAt,
+        LocalDateTime modifiedAt,
+        EntityStatus status
     ) {
         return Terms.from(TermsSnapshotState.builder()
-                .id(id)
-                .content(content)
-                .requiredYn(requiredYn)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .status(status)
-                .build());
+            .id(id)
+            .content(content)
+            .requiredYn(requiredYn)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .status(status)
+            .build());
     }
 
     static UserTerms createUserTerms(
-            User user,
-            Terms terms,
-            boolean agreementYn,
-            LocalDateTime createdAt,
-            LocalDateTime modifiedAt
+        User user,
+        Terms terms,
+        boolean agreementYn,
+        LocalDateTime createdAt,
+        LocalDateTime modifiedAt
     ) {
         return UserTerms.from(UserTermsSnapshotState.builder()
-                .user(user)
-                .terms(terms)
-                .agreementYn(agreementYn)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .build());
+            .user(user)
+            .terms(terms)
+            .agreementYn(agreementYn)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .build());
     }
 }

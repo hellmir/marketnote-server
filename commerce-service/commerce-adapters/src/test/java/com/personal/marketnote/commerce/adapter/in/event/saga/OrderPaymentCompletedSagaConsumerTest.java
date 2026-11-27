@@ -55,21 +55,21 @@ class OrderPaymentCompletedSagaConsumerTest {
     @BeforeEach
     void setUp() throws Exception {
         actionPayload = objectMapper.writeValueAsString(
-                java.util.Map.of(
-                        "orderId", 1L,
-                        "buyerId", 100L,
-                        "totalAmount", 60000L,
-                        "pointAmount", 10000L,
-                        "totalAccumulatedPoint", 500L,
-                        "orderProducts", List.of(
-                                java.util.Map.of(
-                                        "pricePolicyId", 10L,
-                                        "productId", 1000L,
-                                        "quantity", 2,
-                                        "unitAmount", 25000L
-                                )
-                        )
+            java.util.Map.of(
+                "orderId", 1L,
+                "buyerId", 100L,
+                "totalAmount", 60000L,
+                "pointAmount", 10000L,
+                "totalAccumulatedPoint", 500L,
+                "orderProducts", List.of(
+                    java.util.Map.of(
+                        "pricePolicyId", 10L,
+                        "productId", 1000L,
+                        "quantity", 2,
+                        "unitAmount", 25000L
+                    )
                 )
+            )
         );
     }
 
@@ -81,17 +81,17 @@ class OrderPaymentCompletedSagaConsumerTest {
         @DisplayName("디스패처 성공 시 성공 응답을 발행한다")
         void shouldPublishSuccessOnDispatch() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handlePaymentCompletedStep(record, acknowledgment);
 
             verify(actionDispatcher).dispatch(
-                    any(PaymentCompletedSagaPayload.class), anyList(),
-                    any(OrderPaymentCompletedSagaContext.class)
+                any(PaymentCompletedSagaPayload.class), anyList(),
+                any(OrderPaymentCompletedSagaContext.class)
             );
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -99,19 +99,19 @@ class OrderPaymentCompletedSagaConsumerTest {
         @DisplayName("디스패처 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnDispatchError() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("이벤트 발행 실패"))
-                    .when(actionDispatcher).dispatch(
-                            any(PaymentCompletedSagaPayload.class), anyList(),
-                            any(OrderPaymentCompletedSagaContext.class)
-                    );
+                .when(actionDispatcher).dispatch(
+                    any(PaymentCompletedSagaPayload.class), anyList(),
+                    any(OrderPaymentCompletedSagaContext.class)
+                );
 
             consumer.handlePaymentCompletedStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "결제 완료 이벤트 발행 실패");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "결제 완료 이벤트 발행 실패");
             verify(acknowledgment).acknowledge();
         }
     }
@@ -124,7 +124,7 @@ class OrderPaymentCompletedSagaConsumerTest {
         @DisplayName("보상 메시지 수신 시 경고 로그만 출력하고 처리하지 않는다")
         void shouldLogWarningOnCompensationMessage() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{}");
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handlePaymentCompletedStep(record, acknowledgment);
@@ -139,10 +139,10 @@ class OrderPaymentCompletedSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-03-27T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT.PUBLISH_PAYMENT_COMPLETED.action", "saga-orchestrator", stepMessage, clock);
+            "saga.ORDER_PAYMENT.PUBLISH_PAYMENT_COMPLETED.action", "saga-orchestrator", stepMessage, clock);
         return new ConsumerRecord<>(
-                "saga.order-payment.completed", 0, 0, SAGA_ID,
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "saga.order-payment.completed", 0, 0, SAGA_ID,
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
     }
 }

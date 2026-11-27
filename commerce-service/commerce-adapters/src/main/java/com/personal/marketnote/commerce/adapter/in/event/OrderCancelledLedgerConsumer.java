@@ -23,12 +23,12 @@ public class OrderCancelledLedgerConsumer {
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_CANCELLED,
-            groupId = "commerce-order-cancelled-ledger"
+        topics = KafkaTopicConstants.ORDER_CANCELLED,
+        groupId = "commerce-order-cancelled-ledger"
     )
     public void handleOrderCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -45,11 +45,11 @@ public class OrderCancelledLedgerConsumer {
         OrderCancelledEvent payload = envelope.getPayloadAs(OrderCancelledEvent.class, objectMapper);
 
         log.info("주문 취소 이벤트 수신 (회계 역분개). eventId={}, orderId={}, isFullCancel={}, cancelAmount={}",
-                envelope.eventId(), payload.orderId(), payload.isFullCancel(), payload.cancelAmount()
+            envelope.eventId(), payload.orderId(), payload.isFullCancel(), payload.cancelAmount()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -59,10 +59,10 @@ public class OrderCancelledLedgerConsumer {
 
         try {
             recordLedgerEntryUseCase.recordPaymentCancellation(
-                    payload.orderId(), payload.cancelAmount(), idempotencyKey
+                payload.orderId(), payload.cancelAmount(), idempotencyKey
             );
             log.info("주문 취소 역분개 완료. orderId={}, isFullCancel={}, cancelAmount={}, idempotencyKey={}",
-                    payload.orderId(), payload.isFullCancel(), payload.cancelAmount(), idempotencyKey
+                payload.orderId(), payload.isFullCancel(), payload.cancelAmount(), idempotencyKey
             );
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 주문 취소 역분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
@@ -76,6 +76,6 @@ public class OrderCancelledLedgerConsumer {
             return "ORDER_CANCELLATION:" + payload.orderId();
         }
         return "ORDER_PARTIAL_CANCELLATION:" + payload.orderId()
-                + ":" + (FormatValidator.hasValue(payload.cancelId()) ? payload.cancelId() : "unknown");
+            + ":" + (FormatValidator.hasValue(payload.cancelId()) ? payload.cancelId() : "unknown");
     }
 }

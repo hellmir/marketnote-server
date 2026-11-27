@@ -14,15 +14,15 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "outbox_event",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_outbox_event_id",
-                columnNames = {"event_id"}
-        ),
-        indexes = @Index(
-                name = "idx_outbox_status_created",
-                columnList = "status, created_at"
-        )
+    name = "outbox_event",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_outbox_event_id",
+        columnNames = {"event_id"}
+    ),
+    indexes = @Index(
+        name = "idx_outbox_status_created",
+        columnList = "status, created_at"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -79,10 +79,10 @@ public class OutboxEventJpaEntity {
     private LocalDateTime discardedAt;
 
     private OutboxEventJpaEntity(
-            String eventId, String topic, String partitionKey,
-            String eventType, String source, String payload,
-            OutboxEventStatus status, int retryCount, int maxRetries,
-            LocalDateTime createdAt
+        String eventId, String topic, String partitionKey,
+        String eventType, String source, String payload,
+        OutboxEventStatus status, int retryCount, int maxRetries,
+        LocalDateTime createdAt
     ) {
         this.eventId = eventId;
         this.topic = topic;
@@ -98,16 +98,16 @@ public class OutboxEventJpaEntity {
 
     public static OutboxEventJpaEntity from(com.personal.marketnote.common.outbox.OutboxEvent event) {
         return new OutboxEventJpaEntity(
-                event.getEventId(),
-                event.getTopic(),
-                event.getPartitionKey(),
-                event.getEventType(),
-                event.getSource(),
-                event.getPayload(),
-                event.getStatus(),
-                event.getRetryCount(),
-                event.getMaxRetries(),
-                event.getCreatedAt()
+            event.getEventId(),
+            event.getTopic(),
+            event.getPartitionKey(),
+            event.getEventType(),
+            event.getSource(),
+            event.getPayload(),
+            event.getStatus(),
+            event.getRetryCount(),
+            event.getMaxRetries(),
+            event.getCreatedAt()
         );
     }
 

@@ -68,14 +68,14 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     private final Sleeper sleeper;
 
     public FulfillmentStockClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -108,13 +108,13 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         FulfillmentStockQuery query = FasstoStockCommandToRequestMapper.mapToQuery(command);
         URI uri = buildStockListUri(query.getCustomerCode(), query.getOutOfStockYn(), query.getWhCd());
         return executeStockList(
-                uri,
-                query.getCustomerCode(),
-                query.getAccessToken(),
-                query.getOutOfStockYn(),
-                query.getWhCd(),
-                null,
-                false
+            uri,
+            query.getCustomerCode(),
+            query.getAccessToken(),
+            query.getOutOfStockYn(),
+            query.getWhCd(),
+            null,
+            false
         );
     }
 
@@ -132,24 +132,24 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         FulfillmentStockDetailQuery query = FasstoStockCommandToRequestMapper.mapToDetailQuery(command);
         URI uri = buildStockDetailUri(query.getCustomerCode(), query.getCstGodCd(), query.getOutOfStockYn());
         return executeStockList(
-                uri,
-                query.getCustomerCode(),
-                query.getAccessToken(),
-                query.getOutOfStockYn(),
-                null,
-                query.getCstGodCd(),
-                true
+            uri,
+            query.getCustomerCode(),
+            query.getAccessToken(),
+            query.getOutOfStockYn(),
+            null,
+            query.getCstGodCd(),
+            true
         );
     }
 
     private GetFulfillmentStocksResult executeStockList(
-            URI uri,
-            String customerCode,
-            String accessToken,
-            String outOfStockYn,
-            String whCd,
-            String cstGodCd,
-            boolean isDetail
+        URI uri,
+        String customerCode,
+        String accessToken,
+        String outOfStockYn,
+        String whCd,
+        String cstGodCd,
+        boolean isDetail
     ) {
         String path = properties.getStockListPath();
         Exception error = new Exception();
@@ -162,23 +162,23 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             JsonNode requestPayloadJson = buildListRequestPayloadJson(
-                    customerCode,
-                    accessToken,
-                    outOfStockYn,
-                    whCd,
-                    cstGodCd,
-                    uri,
-                    attempt
+                customerCode,
+                accessToken,
+                outOfStockYn,
+                whCd,
+                cstGodCd,
+                uri,
+                attempt
             );
             String requestPayload = requestPayloadJson.toString();
 
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(accessToken, false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(accessToken, false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -186,12 +186,12 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -222,24 +222,24 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             String productIdentifier = cstGodCd;
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    productIdentifier,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                productIdentifier,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    productIdentifier,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                productIdentifier,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -255,10 +255,10 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             }
 
             log.warn("Fulfillment stock {} request failed: attempt={}, status={}, exception={}",
-                    requestLabel,
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                requestLabel,
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -281,7 +281,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     private URI buildStockListUri(String customerCode, String outOfStockYn, String whCd) {
         validateStockListProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getStockListPath());
+            .path(properties.getStockListPath());
         if (FormatValidator.hasValue(outOfStockYn)) {
             builder.queryParam("outOfStockYn", outOfStockYn);
         }
@@ -289,21 +289,21 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             builder.queryParam("whCd", whCd);
         }
         return builder
-                .buildAndExpand(customerCode)
-                .toUri();
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildStockDetailUri(String customerCode, String cstGodCd, String outOfStockYn) {
         validateStockListProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getStockListPath())
-                .queryParam("cstGodCd", cstGodCd);
+            .path(properties.getStockListPath())
+            .queryParam("cstGodCd", cstGodCd);
         if (FormatValidator.hasValue(outOfStockYn)) {
             builder.queryParam("outOfStockYn", outOfStockYn);
         }
         return builder
-                .buildAndExpand(customerCode)
-                .toUri();
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders(String accessToken, boolean includeContentType) {
@@ -348,14 +348,14 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
     private boolean isStockListSuccess(ResponseEntity<String> response, FulfillmentStockListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveStockListException(
-            ResponseEntity<String> response,
-            FulfillmentStockListResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentStockListResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -376,13 +376,13 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     }
 
     private JsonNode buildListRequestPayloadJson(
-            String customerCode,
-            String accessToken,
-            String outOfStockYn,
-            String whCd,
-            String cstGodCd,
-            URI uri,
-            int attempt
+        String customerCode,
+        String accessToken,
+        String outOfStockYn,
+        String whCd,
+        String cstGodCd,
+        URI uri,
+        int attempt
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.GET.name());
@@ -427,34 +427,34 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
     private GetFulfillmentStocksResult mapStockListResult(FulfillmentStockListResponse response) {
         List<FulfillmentStockInfoResult> stocks = response.data().stream()
-                .map(this::mapStockInfo)
-                .toList();
+            .map(this::mapStockInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentStocksResult.of(dataCount, stocks);
     }
 
     private FulfillmentStockInfoResult mapStockInfo(FulfillmentStockItemResponse item) {
         List<Object> goodsSerialNumbers = FormatValidator.hasValue(item.goodsSerialNo())
-                ? item.goodsSerialNo()
-                : List.of();
+            ? item.goodsSerialNo()
+            : List.of();
 
         return FulfillmentStockInfoResult.builder()
-                .warehouseCode(item.whCd())
-                .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
-                .productName(item.godNm())
-                .distributionTermDate(item.distTermDt())
-                .distributionTermManagementYn(item.distTermMgtYn())
-                .productBarcode(item.godBarcd())
-                .stockQuantity(item.stockQty())
-                .defectiveStockQuantity(item.badStockQty())
-                .availableStockQuantity(item.canStockQty())
-                .customerSupplierCode(item.cstSupCd())
-                .supplierName(item.supNm())
-                .giftDivision(item.giftDiv())
-                .goodsSerialNumbers(goodsSerialNumbers)
-                .slipNumber(item.slipNo())
-                .build();
+            .warehouseCode(item.whCd())
+            .productCode(item.godCd())
+            .customerProductCode(item.cstGodCd())
+            .productName(item.godNm())
+            .distributionTermDate(item.distTermDt())
+            .distributionTermManagementYn(item.distTermMgtYn())
+            .productBarcode(item.godBarcd())
+            .stockQuantity(item.stockQty())
+            .defectiveStockQuantity(item.badStockQty())
+            .availableStockQuantity(item.canStockQty())
+            .customerSupplierCode(item.cstSupCd())
+            .supplierName(item.supNm())
+            .giftDivision(item.giftDiv())
+            .goodsSerialNumbers(goodsSerialNumbers)
+            .slipNumber(item.slipNo())
+            .build();
     }
 
     private String maskValue(String value) {
@@ -518,8 +518,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -529,8 +529,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

@@ -55,7 +55,7 @@ class GetPostKeyUseCaseTest {
         when(findPostPort.findById(postId)).thenReturn(Optional.of(post));
 
         assertThatThrownBy(() -> getPostKeyService.getPostKey(postId, otherUserId))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
         verify(findPostPort).findById(postId);
         verifyNoMoreInteractions(findPostPort);
     }
@@ -68,23 +68,23 @@ class GetPostKeyUseCaseTest {
         when(findPostPort.findById(postId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getPostKeyService.getPostKey(postId, userId))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
         verify(findPostPort).findById(postId);
         verifyNoMoreInteractions(findPostPort);
     }
 
     private Post createPost(Long postId, Long userId, UUID postKey) {
         return Post.from(PostSnapshotState.builder()
-                .id(postId)
-                .userId(userId)
-                .postKey(postKey)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("문의 제목")
-                .content("문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(postId)
+            .userId(userId)
+            .postKey(postKey)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("문의 제목")
+            .content("문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 }

@@ -7,19 +7,19 @@ import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetFileResult(
-        Long id,
-        String sort,
-        String extension,
-        String name,
-        String storageUrl,
-        List<String> resizedStorageUrls,
-        Long orderNum
+    Long id,
+    String sort,
+    String extension,
+    String name,
+    String storageUrl,
+    List<String> resizedStorageUrls,
+    Long orderNum
 ) {
     public static GetFileResult of(String imageUrl, List<String> resizedImageUrls) {
         return GetFileResult.builder()
-                .storageUrl(imageUrl)
-                .resizedStorageUrls(resizedImageUrls)
-                .orderNum(0L)
-                .build();
+            .storageUrl(imageUrl)
+            .resizedStorageUrls(resizedImageUrls)
+            .orderNum(0L)
+            .build();
     }
 }

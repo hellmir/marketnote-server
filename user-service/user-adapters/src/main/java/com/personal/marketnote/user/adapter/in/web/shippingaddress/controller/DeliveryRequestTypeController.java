@@ -27,8 +27,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/delivery-request-types")
 @Tag(
-        name = "배송 요청사항 API",
-        description = "배송 요청사항 관련 API"
+    name = "배송 요청사항 API",
+    description = "배송 요청사항 관련 API"
 )
 @RequiredArgsConstructor
 public class DeliveryRequestTypeController {
@@ -45,16 +45,16 @@ public class DeliveryRequestTypeController {
         List<GetDeliveryRequestTypesResult> results = getDeliveryRequestTypesUseCase.getDeliveryRequestTypes();
 
         List<GetDeliveryRequestTypesResponse> response = results.stream()
-                .map(GetDeliveryRequestTypesResponse::from)
-                .toList();
+            .map(GetDeliveryRequestTypesResponse::from)
+            .toList();
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        response,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "배송 요청사항 목록 조회 성공"
-                )
+            BaseResponse.of(
+                response,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "배송 요청사항 목록 조회 성공"
+            )
         );
     }
 }

@@ -56,17 +56,17 @@ class GifticonCouponAdapterTest {
         void shouldReturnSuccessResultWhenVendorRespondsSuccess() {
             // given
             GiftishowCouponSendResponse.InnerResult inner = new GiftishowCouponSendResponse.InnerResult(
-                    "ORD001",
-                    "1234-5678-9012",
-                    "http://img.test.com/coupon.jpg"
+                "ORD001",
+                "1234-5678-9012",
+                "http://img.test.com/coupon.jpg"
             );
             GiftishowCouponSendResponse vendorResult = new GiftishowCouponSendResponse(
-                    "0000", "success", inner
+                "0000", "success", inner
             );
             given(giftishowApiClient.sendCoupon(
-                    eq(TR_ID), eq(GOODS_CODE), eq(PHONE_NO), eq(USER_ID), eq(MMS_MSG), eq(MMS_TITLE), eq(null)
+                eq(TR_ID), eq(GOODS_CODE), eq(PHONE_NO), eq(USER_ID), eq(MMS_MSG), eq(MMS_TITLE), eq(null)
             ))
-                    .willReturn(new GiftishowApiResponse<>("0000", "success", vendorResult));
+                .willReturn(new GiftishowApiResponse<>("0000", "success", vendorResult));
 
             // when
             SendCouponResult result = adapter.sendCoupon(TR_ID, GOODS_CODE, USER_ID);
@@ -86,7 +86,7 @@ class GifticonCouponAdapterTest {
         void shouldReturnFailResultWhenVendorRespondsErrorCode() {
             // given
             given(giftishowApiClient.sendCoupon(any(), any(), any(), any(), any(), any(), any()))
-                    .willReturn(new GiftishowApiResponse<>("9999", "잔액 부족", null));
+                .willReturn(new GiftishowApiResponse<>("9999", "잔액 부족", null));
 
             // when
             SendCouponResult result = adapter.sendCoupon(TR_ID, GOODS_CODE, USER_ID);
@@ -104,7 +104,7 @@ class GifticonCouponAdapterTest {
         void shouldReturnCommErrorWhenVendorThrowsException() {
             // given
             given(giftishowApiClient.sendCoupon(any(), any(), any(), any(), any(), any(), any()))
-                    .willThrow(new RuntimeException("connection refused"));
+                .willThrow(new RuntimeException("connection refused"));
 
             // when
             SendCouponResult result = adapter.sendCoupon(TR_ID, GOODS_CODE, USER_ID);
@@ -125,11 +125,11 @@ class GifticonCouponAdapterTest {
         void shouldReturnSuccessResultWhenVendorRespondsSuccess() {
             // given
             GiftishowCouponDetailResponse.CouponInfo info = new GiftishowCouponDetailResponse.CouponInfo(
-                    TR_ID, "ORD001", "01", "발행", "20260503", GOODS_CODE, "테스트 상품"
+                TR_ID, "ORD001", "01", "발행", "20260503", GOODS_CODE, "테스트 상품"
             );
             GiftishowCouponDetailResponse detail = new GiftishowCouponDetailResponse(java.util.List.of(info));
             given(giftishowApiClient.getCouponDetail(TR_ID))
-                    .willReturn(new GiftishowApiResponse<>("0000", "success", java.util.List.of(detail)));
+                .willReturn(new GiftishowApiResponse<>("0000", "success", java.util.List.of(detail)));
 
             // when
             CouponStatusResult result = adapter.queryStatus(TR_ID);
@@ -147,7 +147,7 @@ class GifticonCouponAdapterTest {
         void shouldReturnFailResultWhenVendorRespondsErrorCode() {
             // given
             given(giftishowApiClient.getCouponDetail(TR_ID))
-                    .willReturn(new GiftishowApiResponse<>("8888", "조회 실패", null));
+                .willReturn(new GiftishowApiResponse<>("8888", "조회 실패", null));
 
             // when
             CouponStatusResult result = adapter.queryStatus(TR_ID);
@@ -164,7 +164,7 @@ class GifticonCouponAdapterTest {
         void shouldReturnCommErrorWhenVendorThrowsException() {
             // given
             given(giftishowApiClient.getCouponDetail(TR_ID))
-                    .willThrow(new RuntimeException("timeout"));
+                .willThrow(new RuntimeException("timeout"));
 
             // when
             CouponStatusResult result = adapter.queryStatus(TR_ID);
@@ -193,7 +193,7 @@ class GifticonCouponAdapterTest {
         void shouldSwallowExceptionWhenVendorThrows() {
             // given
             org.mockito.Mockito.doThrow(new RuntimeException("api down"))
-                    .when(giftishowApiClient).cancelSendFailedCoupon(TR_ID, USER_ID);
+                .when(giftishowApiClient).cancelSendFailedCoupon(TR_ID, USER_ID);
 
             // when & then
             assertThatCode(() -> adapter.cancelSendFailed(TR_ID, USER_ID)).doesNotThrowAnyException();

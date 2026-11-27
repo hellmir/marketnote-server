@@ -40,27 +40,27 @@ public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort,
     @Override
     public Optional<ShippingPolicy> findActiveBySellerId(Long sellerId) {
         return shippingPolicyJpaRepository.findBySellerIdAndStatus(sellerId, EntityStatus.ACTIVE)
-                .flatMap(ShippingPolicyJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(ShippingPolicyJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<ShippingPolicy> findActiveBySellerIds(List<Long> sellerIds) {
         return shippingPolicyJpaRepository.findAllBySellerIdInAndStatus(sellerIds, EntityStatus.ACTIVE)
-                .stream()
-                .map(ShippingPolicyJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .stream()
+            .map(ShippingPolicyJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
     public void update(ShippingPolicy shippingPolicy) {
         ShippingPolicyJpaEntity entity = shippingPolicyJpaRepository
-                .findById(shippingPolicy.getId())
-                .orElseThrow(() -> {
-                    log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", shippingPolicy.getSellerId());
-                    return new ShippingPolicyNotFoundException();
-                });
+            .findById(shippingPolicy.getId())
+            .orElseThrow(() -> {
+                log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", shippingPolicy.getSellerId());
+                return new ShippingPolicyNotFoundException();
+            });
 
         entity.updateFrom(shippingPolicy);
     }

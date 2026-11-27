@@ -11,14 +11,14 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
  */
 public class ExcessiveDiscountException extends InvalidValueException {
     private static final String MESSAGE =
-            "ERR_ORDER_DISCOUNT_01::할인 금액이 주문 총액 + 배송비를 초과합니다. totalAmount=%d, shippingFee=%d, couponAmount=%d, pointAmount=%d";
+        "ERR_ORDER_DISCOUNT_01::할인 금액이 주문 총액 + 배송비를 초과합니다. totalAmount=%d, shippingFee=%d, couponAmount=%d, pointAmount=%d";
 
     public ExcessiveDiscountException(Long totalAmount, Long shippingFee, Long couponAmount, Long pointAmount) {
         super(String.format(MESSAGE, totalAmount, shippingFee, couponAmount, pointAmount));
     }
 
     public ExcessiveDiscountException(
-            Long totalAmount, Long shippingFee, Long couponAmount, Long pointAmount, Throwable cause
+        Long totalAmount, Long shippingFee, Long couponAmount, Long pointAmount, Throwable cause
     ) {
         super(String.format(MESSAGE, totalAmount, shippingFee, couponAmount, pointAmount), cause);
     }

@@ -4,12 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorInfo;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentResponseHeader;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentSuppliersItemResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentSuppliersResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentSupplierDataResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentSupplierResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSuppliersFailedException;
@@ -90,20 +85,20 @@ class FulfillmentSupplierClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentSupplierClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubSupplierProperties() {
@@ -161,53 +156,53 @@ class FulfillmentSupplierClientTest {
 
     private RegisterFulfillmentSupplierCommand buildValidRegisterCommand() {
         return RegisterFulfillmentSupplierCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("valid-token")
-                .supplierName("테스트 공급사")
-                .customerSupplierCode("SUP001")
-                .useYn("Y")
-                .dealStartDate("20260101")
-                .dealEndDate("20261231")
-                .zipCode("12345")
-                .address1("서울시")
-                .address2("강남구")
-                .ceoName("홍길동")
-                .businessNumber("123-45-67890")
-                .businessCategory("도매")
-                .businessType("유통")
-                .phoneNumber("02-1234-5678")
-                .faxNumber("02-1234-5679")
-                .primaryManagerName("김철수")
-                .primaryManagerPosition("과장")
-                .primaryManagerPhoneNumber("010-1234-5678")
-                .primaryManagerEmail("test@test.com")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("valid-token")
+            .supplierName("테스트 공급사")
+            .customerSupplierCode("SUP001")
+            .useYn("Y")
+            .dealStartDate("20260101")
+            .dealEndDate("20261231")
+            .zipCode("12345")
+            .address1("서울시")
+            .address2("강남구")
+            .ceoName("홍길동")
+            .businessNumber("123-45-67890")
+            .businessCategory("도매")
+            .businessType("유통")
+            .phoneNumber("02-1234-5678")
+            .faxNumber("02-1234-5679")
+            .primaryManagerName("김철수")
+            .primaryManagerPosition("과장")
+            .primaryManagerPhoneNumber("010-1234-5678")
+            .primaryManagerEmail("test@test.com")
+            .build();
     }
 
     private UpdateFulfillmentSupplierCommand buildValidUpdateCommand() {
         return UpdateFulfillmentSupplierCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("valid-token")
-                .supplierCode("SUP001")
-                .supplierName("테스트 공급사")
-                .customerSupplierCode("SUP001")
-                .useYn("Y")
-                .dealStartDate("20260101")
-                .dealEndDate("20261231")
-                .zipCode("12345")
-                .address1("서울시")
-                .address2("강남구")
-                .ceoName("홍길동")
-                .businessNumber("123-45-67890")
-                .businessCategory("도매")
-                .businessType("유통")
-                .phoneNumber("02-1234-5678")
-                .faxNumber("02-1234-5679")
-                .primaryManagerName("김철수")
-                .primaryManagerPosition("과장")
-                .primaryManagerPhoneNumber("010-1234-5678")
-                .primaryManagerEmail("test@test.com")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("valid-token")
+            .supplierCode("SUP001")
+            .supplierName("테스트 공급사")
+            .customerSupplierCode("SUP001")
+            .useYn("Y")
+            .dealStartDate("20260101")
+            .dealEndDate("20261231")
+            .zipCode("12345")
+            .address1("서울시")
+            .address2("강남구")
+            .ceoName("홍길동")
+            .businessNumber("123-45-67890")
+            .businessCategory("도매")
+            .businessType("유통")
+            .phoneNumber("02-1234-5678")
+            .faxNumber("02-1234-5679")
+            .primaryManagerName("김철수")
+            .primaryManagerPosition("과장")
+            .primaryManagerPhoneNumber("010-1234-5678")
+            .primaryManagerEmail("test@test.com")
+            .build();
     }
 
     private String toJson(Object value) {
@@ -231,31 +226,31 @@ class FulfillmentSupplierClientTest {
             stubPatchChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .supplierName("테스트 공급사")
-                    .customerSupplierCode("SUP001")
-                    .useYn("Y")
-                    .dealStartDate("20260101")
-                    .dealEndDate("20261231")
-                    .zipCode("12345")
-                    .address1("서울시")
-                    .address2("강남구")
-                    .ceoName("홍길동")
-                    .businessNumber("123-45-67890")
-                    .businessCategory("도매")
-                    .businessType("유통")
-                    .phoneNumber("02-1234-5678")
-                    .faxNumber("02-1234-5679")
-                    .primaryManagerName("김철수")
-                    .primaryManagerPosition("과장")
-                    .primaryManagerPhoneNumber("010-1234-5678")
-                    .primaryManagerEmail("test@test.com")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .supplierName("테스트 공급사")
+                .customerSupplierCode("SUP001")
+                .useYn("Y")
+                .dealStartDate("20260101")
+                .dealEndDate("20261231")
+                .zipCode("12345")
+                .address1("서울시")
+                .address2("강남구")
+                .ceoName("홍길동")
+                .businessNumber("123-45-67890")
+                .businessCategory("도매")
+                .businessType("유통")
+                .phoneNumber("02-1234-5678")
+                .faxNumber("02-1234-5679")
+                .primaryManagerName("김철수")
+                .primaryManagerPosition("과장")
+                .primaryManagerPhoneNumber("010-1234-5678")
+                .primaryManagerEmail("test@test.com")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(command))
-                    .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
+                .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
         }
     }
 
@@ -275,7 +270,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
         }
     }
 
@@ -293,7 +288,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -308,9 +303,9 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             RegisterFulfillmentSupplierResponse payload = new RegisterFulfillmentSupplierResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    new RegisterFulfillmentSupplierDataResponse("OK", "200", "SUP001"),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                new RegisterFulfillmentSupplierDataResponse("OK", "200", "SUP001"),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
@@ -334,9 +329,9 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             RegisterFulfillmentSupplierResponse payload = new RegisterFulfillmentSupplierResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    new RegisterFulfillmentSupplierDataResponse("OK", "200", "SUP001"),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                new RegisterFulfillmentSupplierDataResponse("OK", "200", "SUP001"),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
@@ -354,15 +349,15 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.updateSupplier(buildValidUpdateCommand()))
-                    .isInstanceOf(UpdateFulfillmentSupplierFailedException.class);
+                .isInstanceOf(UpdateFulfillmentSupplierFailedException.class);
         }
     }
 
@@ -377,17 +372,17 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             FulfillmentSuppliersItemResponse item = new FulfillmentSuppliersItemResponse(
-                    "SUP001", "테스트 공급사", "SUPCUST", "CUST001", "Cust",
-                    "20260101", "20261231", "12345", "서울시", "강남구",
-                    "홍길동", "123-45-67890", "도매", "유통",
-                    "02-1234-5678", "02-1234-5679",
-                    "김철수", "과장", "010-1234-5678", "test@test.com",
-                    null, null, null, null, "Y"
+                "SUP001", "테스트 공급사", "SUPCUST", "CUST001", "Cust",
+                "20260101", "20261231", "12345", "서울시", "강남구",
+                "홍길동", "123-45-67890", "도매", "유통",
+                "02-1234-5678", "02-1234-5679",
+                "김철수", "과장", "010-1234-5678", "test@test.com",
+                null, null, null, null, "Y"
             );
             FulfillmentSuppliersResponse payload = new FulfillmentSuppliersResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(item),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(item),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -414,15 +409,15 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
+                .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
         }
 
         @Test
@@ -432,15 +427,15 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "server boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "server boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
+                .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
         }
 
         @Test
@@ -450,15 +445,15 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             RegisterFulfillmentSupplierResponse payload = new RegisterFulfillmentSupplierResponse(
-                    new FulfillmentResponseHeader("500", "vendor failure", 0),
-                    null,
-                    null
+                new FulfillmentResponseHeader("500", "vendor failure", 0),
+                null,
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
+                .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
         }
 
         @Test
@@ -468,16 +463,16 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             RegisterFulfillmentSupplierResponse payload = new RegisterFulfillmentSupplierResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    new RegisterFulfillmentSupplierDataResponse("vendor data error", "400", null),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                new RegisterFulfillmentSupplierDataResponse("vendor data error", "400", null),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentSupplierFailedException.class)
-                    .hasMessageContaining("vendor data error");
+                .isInstanceOf(RegisterFulfillmentSupplierFailedException.class)
+                .hasMessageContaining("vendor data error");
         }
 
         @Test
@@ -490,7 +485,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
+                .isInstanceOf(RegisterFulfillmentSupplierFailedException.class);
         }
     }
 
@@ -505,17 +500,17 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentSuppliersCommand command = GetFulfillmentSuppliersCommand.of("CUST001", "valid-token");
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
         }
 
         @Test
@@ -525,9 +520,9 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             FulfillmentSuppliersResponse payload = new FulfillmentSuppliersResponse(
-                    new FulfillmentResponseHeader("500", "fail", 0),
-                    List.of(),
-                    new FulfillmentErrorInfo("E_INTERNAL", "vendor outage", null)
+                new FulfillmentResponseHeader("500", "fail", 0),
+                List.of(),
+                new FulfillmentErrorInfo("E_INTERNAL", "vendor outage", null)
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -535,8 +530,8 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class)
-                    .hasMessageContaining("vendor outage");
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class)
+                .hasMessageContaining("vendor outage");
         }
 
         @Test
@@ -551,7 +546,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
         }
 
         @Test
@@ -561,9 +556,9 @@ class FulfillmentSupplierClientTest {
             stubSupplierProperties();
             stubPayloadGenerator();
             FulfillmentSuppliersResponse payload = new FulfillmentSuppliersResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -571,7 +566,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
 
         @Test
@@ -582,18 +577,18 @@ class FulfillmentSupplierClientTest {
             stubPayloadGenerator();
             String errorBody = "{\"errorInfo\":{\"errorCode\":\"E_VENDOR\",\"errorMessage\":\"vendor down\"}}";
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    errorBody.getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                errorBody.getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentSuppliersCommand command = GetFulfillmentSuppliersCommand.of("CUST001", "valid-token");
 
             // when & then
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class)
-                    .hasMessageContaining("vendor down");
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class)
+                .hasMessageContaining("vendor down");
         }
     }
 
@@ -610,7 +605,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -622,7 +617,7 @@ class FulfillmentSupplierClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -644,14 +639,14 @@ class FulfillmentSupplierClientTest {
 
             // when
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -668,14 +663,14 @@ class FulfillmentSupplierClientTest {
 
             // when
             assertThatThrownBy(() -> client.getSuppliers(command))
-                    .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
+                .isInstanceOf(GetFulfillmentSuppliersFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getSuppliers"), any(Map.class), any(Supplier.class)
             );
         }
     }

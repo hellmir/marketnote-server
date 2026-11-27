@@ -39,7 +39,7 @@ class UserFingerprintEventListenerTest {
         when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
 
         UserFingerprintSavedEvent event = new UserFingerprintSavedEvent(
-                1L, "fp-abc-123", FingerprintSource.SIGNUP
+            1L, "fp-abc-123", FingerprintSource.SIGNUP
         );
 
         // when
@@ -62,7 +62,7 @@ class UserFingerprintEventListenerTest {
     void handleEvent_fingerprintNull_saveNotCalled() {
         // given
         UserFingerprintSavedEvent event = new UserFingerprintSavedEvent(
-                1L, null, FingerprintSource.SIGNUP
+            1L, null, FingerprintSource.SIGNUP
         );
 
         // when
@@ -77,7 +77,7 @@ class UserFingerprintEventListenerTest {
     void handleEvent_fingerprintEmpty_saveNotCalled() {
         // given
         UserFingerprintSavedEvent event = new UserFingerprintSavedEvent(
-                1L, "  ", FingerprintSource.SIGNUP
+            1L, "  ", FingerprintSource.SIGNUP
         );
 
         // when
@@ -96,7 +96,7 @@ class UserFingerprintEventListenerTest {
         when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
 
         UserFingerprintSavedEvent event = new UserFingerprintSavedEvent(
-                1L, "fp-abc-123", FingerprintSource.SIGNUP
+            1L, "fp-abc-123", FingerprintSource.SIGNUP
         );
 
         doThrow(new RuntimeException("DB error")).when(saveUserFingerprintPort).save(any());

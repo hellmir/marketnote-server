@@ -65,20 +65,20 @@ public class PointController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterUserPointApiDocs
     public ResponseEntity<BaseResponse<Void>> registerUserPoint(
-            @PathVariable("userId") Long userId,
-            @RequestParam(name = "userKey") String userKey
+        @PathVariable("userId") Long userId,
+        @RequestParam(name = "userKey") String userKey
     ) {
         registerUserPointUseCase.register(
-                RegisterUserPointCommand.of(userId, userKey)
+            RegisterUserPointCommand.of(userId, userKey)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 포인트 정보 생성 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "회원 포인트 정보 생성 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -94,21 +94,21 @@ public class PointController {
     @GetMapping("/me/points")
     @GetMyPointApiDocs
     public ResponseEntity<BaseResponse<GetMyPointReponse>> getMyPoint(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetUserPointResult getUserPointResult = GetUserPointResult.from(
-                getUserPointUseCase.getUserPoint(
-                        ElementExtractor.extractUserId(principal)
-                )
+            getUserPointUseCase.getUserPoint(
+                ElementExtractor.extractUserId(principal)
+            )
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetMyPointReponse.from(getUserPointResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 포인트 정보 조회 성공"
-                )
+            BaseResponse.of(
+                GetMyPointReponse.from(getUserPointResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 포인트 정보 조회 성공"
+            )
         );
     }
 
@@ -125,19 +125,19 @@ public class PointController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUserPointByIdApiDocs
     public ResponseEntity<BaseResponse<GetUserPointByIdResponse>> getUserPointById(
-            @PathVariable("userId") Long userId
+        @PathVariable("userId") Long userId
     ) {
         GetUserPointResult result = GetUserPointResult.from(
-                getUserPointUseCase.getUserPoint(userId)
+            getUserPointUseCase.getUserPoint(userId)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetUserPointByIdResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 포인트 정보 조회 성공"
-                )
+            BaseResponse.of(
+                GetUserPointByIdResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 포인트 정보 조회 성공"
+            )
         );
     }
 
@@ -152,46 +152,46 @@ public class PointController {
     @GetUserPointHistoriesApiDocs
     @RateLimited(key = "user-point-histories", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> getUserPointHistories(
-            @PathVariable("userId") Long userId,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "filter", required = false) UserPointHistoryFilter filter,
-            @RequestParam(value = "start-date", required = false) LocalDate startDate,
-            @RequestParam(value = "end-date", required = false) LocalDate endDate,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
+        @PathVariable("userId") Long userId,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(value = "filter", required = false) UserPointHistoryFilter filter,
+        @RequestParam(value = "start-date", required = false) LocalDate startDate,
+        @RequestParam(value = "end-date", required = false) LocalDate endDate,
+        @RequestParam(value = "cursor", required = false) Long cursor,
+        @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
     ) {
         validateAuthentication(userId, principal);
         GetUserPointHistoryResult result = getUserPointHistoryUseCase.getUserPointHistories(
-                GetUserPointHistoryCommand.builder()
-                        .userId(userId)
-                        .filter(filter)
-                        .startDate(startDate)
-                        .endDate(endDate)
-                        .cursor(cursor)
-                        .pageSize(pageSize)
-                        .build()
+            GetUserPointHistoryCommand.builder()
+                .userId(userId)
+                .filter(filter)
+                .startDate(startDate)
+                .endDate(endDate)
+                .cursor(cursor)
+                .pageSize(pageSize)
+                .build()
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetUserPointHistoryResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 포인트 내역 조회 성공"
-                )
+            BaseResponse.of(
+                GetUserPointHistoryResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 포인트 내역 조회 성공"
+            )
         );
     }
 
     private void validateAuthentication(Long userId, OAuth2AuthenticatedPrincipal principal) {
         List<String> authorities = principal.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .toList();
 
         if (
-                authorities.stream()
-                        .anyMatch(Role::isAdmin)
-                        || FormatValidator.equals(ElementExtractor.extractUserId(principal), userId)
+            authorities.stream()
+                .anyMatch(Role::isAdmin)
+                || FormatValidator.equals(ElementExtractor.extractUserId(principal), userId)
         ) {
             return;
         }
@@ -206,20 +206,20 @@ public class PointController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ModifyPendingPointApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyPendingPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid ModifyPendingPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid ModifyPendingPointRequest request
     ) {
         UpdateUserPointResult result = modifyPendingPointUseCase.modifyPending(
-                PointRequestToCommandMapper.mapToModifyPendingPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToModifyPendingPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "적립 예정 포인트 수정 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "적립 예정 포인트 수정 성공"
+            )
         );
     }
 
@@ -237,20 +237,20 @@ public class PointController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ConfirmPendingPointApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> confirmPendingPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid ConfirmPendingPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid ConfirmPendingPointRequest request
     ) {
         UpdateUserPointResult result = confirmPendingPointUseCase.confirmPending(
-                PointRequestToCommandMapper.mapToConfirmPendingPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToConfirmPendingPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "적립 예정 포인트 확정 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "적립 예정 포인트 확정 성공"
+            )
         );
     }
 
@@ -268,20 +268,20 @@ public class PointController {
     @PreAuthorize(ADMIN_POINTCUT)
     @CancelPendingPointApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> cancelPendingPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid CancelPendingPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid CancelPendingPointRequest request
     ) {
         UpdateUserPointResult result = cancelPendingPointUseCase.cancelPending(
-                PointRequestToCommandMapper.mapToCancelPendingPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToCancelPendingPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "적립 예정 포인트 취소 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "적립 예정 포인트 취소 성공"
+            )
         );
     }
 
@@ -297,19 +297,19 @@ public class PointController {
     @GetMapping("/me/referral-status")
     @GetReferralStatusApiDocs
     public ResponseEntity<BaseResponse<GetReferralStatusResponse>> getReferralStatus(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetReferralStatusResult result = getReferralStatusUseCase.getReferralStatus(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetReferralStatusResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "친구 초대 현황 조회 성공"
-                )
+            BaseResponse.of(
+                GetReferralStatusResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "친구 초대 현황 조회 성공"
+            )
         );
     }
 
@@ -326,23 +326,23 @@ public class PointController {
     @PostMapping("/me/referral-bonus")
     @ClaimReferralBonusApiDocs
     public ResponseEntity<BaseResponse<ClaimReferralBonusResponse>> claimReferralBonus(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestBody @Valid ClaimReferralBonusRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestBody @Valid ClaimReferralBonusRequest request
     ) {
         ClaimReferralBonusResult result = claimReferralBonusUseCase.claim(
-                new ClaimReferralBonusCommand(
-                        ElementExtractor.extractUserId(principal),
-                        request.tier()
-                )
+            new ClaimReferralBonusCommand(
+                ElementExtractor.extractUserId(principal),
+                request.tier()
+            )
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        ClaimReferralBonusResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "보너스 클레임 성공"
-                )
+            BaseResponse.of(
+                ClaimReferralBonusResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "보너스 클레임 성공"
+            )
         );
     }
 
@@ -353,20 +353,20 @@ public class PointController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ModifyUserPointApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyUserPoint(
-            @PathVariable("userId") Long userId,
-            @RequestBody @Valid ModifyUserPointRequest request
+        @PathVariable("userId") Long userId,
+        @RequestBody @Valid ModifyUserPointRequest request
     ) {
         UpdateUserPointResult result = modifyUserPointUseCase.modify(
-                PointRequestToCommandMapper.mapToModifyUserPointCommand(userId, request)
+            PointRequestToCommandMapper.mapToModifyUserPointCommand(userId, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateUserPointResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 포인트 수정 성공"
-                )
+            BaseResponse.of(
+                UpdateUserPointResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 포인트 수정 성공"
+            )
         );
     }
 }

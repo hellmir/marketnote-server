@@ -35,39 +35,39 @@ public class OrderProduct {
 
     public static OrderProduct from(OrderProductCreateState state) {
         return OrderProduct.builder()
-                .productId(state.getProductId())
-                .productKey(state.getProductKey())
-                .sellerId(state.getSellerId())
-                .pricePolicyId(state.getPricePolicyId())
-                .orderProductKey(RandomCodeGenerator.generateOrderProductKey())
-                .sharerKey(state.getSharerKey())
-                .quantity(Quantity.of(state.getQuantity()))
-                .unitAmount(Money.of(state.getUnitAmount()))
-                .imageUrl(state.getImageUrl())
-                .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
-                .orderStatus(OrderStatus.PAYMENT_PENDING)
-                .build();
+            .productId(state.getProductId())
+            .productKey(state.getProductKey())
+            .sellerId(state.getSellerId())
+            .pricePolicyId(state.getPricePolicyId())
+            .orderProductKey(RandomCodeGenerator.generateOrderProductKey())
+            .sharerKey(state.getSharerKey())
+            .quantity(Quantity.of(state.getQuantity()))
+            .unitAmount(Money.of(state.getUnitAmount()))
+            .imageUrl(state.getImageUrl())
+            .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
+            .orderStatus(OrderStatus.PAYMENT_PENDING)
+            .build();
     }
 
     public static OrderProduct from(OrderProductSnapshotState state) {
         return OrderProduct.builder()
-                .orderId(state.getOrderId())
-                .productId(state.getProductId())
-                .productKey(state.getProductKey())
-                .sellerId(state.getSellerId())
-                .pricePolicyId(state.getPricePolicyId())
-                .orderProductKey(state.getOrderProductKey())
-                .sharerKey(state.getSharerKey())
-                .quantity(Quantity.of(state.getQuantity()))
-                .unitAmount(Money.of(state.getUnitAmount()))
-                .imageUrl(state.getImageUrl())
-                .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
-                .orderStatus(state.getOrderStatus())
-                .isReviewed(state.getIsReviewed())
-                .confirmedAt(state.getConfirmedAt())
-                .deliveredAt(state.getDeliveredAt())
-                .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
-                .build();
+            .orderId(state.getOrderId())
+            .productId(state.getProductId())
+            .productKey(state.getProductKey())
+            .sellerId(state.getSellerId())
+            .pricePolicyId(state.getPricePolicyId())
+            .orderProductKey(state.getOrderProductKey())
+            .sharerKey(state.getSharerKey())
+            .quantity(Quantity.of(state.getQuantity()))
+            .unitAmount(Money.of(state.getUnitAmount()))
+            .imageUrl(state.getImageUrl())
+            .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
+            .orderStatus(state.getOrderStatus())
+            .isReviewed(state.getIsReviewed())
+            .confirmedAt(state.getConfirmedAt())
+            .deliveredAt(state.getDeliveredAt())
+            .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
+            .build();
     }
 
     public void changeOrderStatus(OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays) {

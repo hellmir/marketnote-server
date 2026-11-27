@@ -39,7 +39,7 @@ class NotificationTemplatePersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(notificationTemplateJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<NotificationTemplate> result = adapter.findActiveById(1L);
@@ -54,7 +54,7 @@ class NotificationTemplatePersistenceAdapterTest {
             // given
             NotificationTemplateJpaEntity entity = createMockEntity(1L, "ORDER_COMPLETE");
             when(notificationTemplateJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             // when
             Optional<NotificationTemplate> result = adapter.findActiveById(1L);
@@ -74,7 +74,7 @@ class NotificationTemplatePersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(notificationTemplateJpaRepository.findByTemplateCodeAndStatus("UNKNOWN", EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<NotificationTemplate> result = adapter.findActiveByTemplateCode("UNKNOWN");
@@ -95,7 +95,7 @@ class NotificationTemplatePersistenceAdapterTest {
             NotificationTemplateJpaEntity entity1 = createMockEntity(1L, "ORDER_COMPLETE");
             NotificationTemplateJpaEntity entity2 = createMockEntity(2L, "SHIPPING_START");
             when(notificationTemplateJpaRepository.findAllByStatusOrderByCreatedAtDesc(EntityStatus.ACTIVE))
-                    .thenReturn(List.of(entity1, entity2));
+                .thenReturn(List.of(entity1, entity2));
 
             // when
             List<NotificationTemplate> result = adapter.findAllActive();
@@ -117,7 +117,7 @@ class NotificationTemplatePersistenceAdapterTest {
             NotificationTemplateJpaEntity savedEntity = mock(NotificationTemplateJpaEntity.class);
             when(savedEntity.getId()).thenReturn(1L);
             when(notificationTemplateJpaRepository.save(any(NotificationTemplateJpaEntity.class)))
-                    .thenReturn(savedEntity);
+                .thenReturn(savedEntity);
 
             // when
             Long savedId = adapter.save(template);
@@ -133,11 +133,11 @@ class NotificationTemplatePersistenceAdapterTest {
             // given
             NotificationTemplate template = createDomainTemplate("ORDER_COMPLETE");
             when(notificationTemplateJpaRepository.save(any(NotificationTemplateJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("duplicate"));
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(template))
-                    .isInstanceOf(DuplicateNotificationTemplateException.class);
+                .isInstanceOf(DuplicateNotificationTemplateException.class);
         }
     }
 
@@ -169,7 +169,7 @@ class NotificationTemplatePersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(template))
-                    .isInstanceOf(NotificationTemplateNotFoundException.class);
+                .isInstanceOf(NotificationTemplateNotFoundException.class);
         }
     }
 
@@ -188,29 +188,29 @@ class NotificationTemplatePersistenceAdapterTest {
 
     private NotificationTemplate createDomainTemplate(String templateCode) {
         return NotificationTemplate.from(
-                NotificationTemplateCreateState.builder()
-                        .templateCode(templateCode)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .notificationCategory(NotificationCategory.INFORMATIONAL)
-                        .title("테스트 제목")
-                        .bodyTemplate("테스트 본문 {name}")
-                        .urlTemplate("/orders/{orderId}")
-                        .build()
+            NotificationTemplateCreateState.builder()
+                .templateCode(templateCode)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("테스트 제목")
+                .bodyTemplate("테스트 본문 {name}")
+                .urlTemplate("/orders/{orderId}")
+                .build()
         );
     }
 
     private NotificationTemplate createDomainTemplateWithId(Long id, String templateCode) {
         return NotificationTemplate.from(
-                NotificationTemplateSnapshotState.builder()
-                        .id(id)
-                        .templateCode(templateCode)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .notificationCategory(NotificationCategory.INFORMATIONAL)
-                        .title("테스트 제목")
-                        .bodyTemplate("테스트 본문 {name}")
-                        .urlTemplate("/orders/{orderId}")
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            NotificationTemplateSnapshotState.builder()
+                .id(id)
+                .templateCode(templateCode)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("테스트 제목")
+                .bodyTemplate("테스트 본문 {name}")
+                .urlTemplate("/orders/{orderId}")
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

@@ -11,15 +11,15 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "dlt_message_resolution",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_dlt_resolution_topic_partition_offset",
-                columnNames = {"dlt_topic", "partition_number", "offset_number"}
-        ),
-        indexes = @Index(
-                name = "idx_dlt_resolution_original_topic",
-                columnList = "original_topic"
-        )
+    name = "dlt_message_resolution",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_dlt_resolution_topic_partition_offset",
+        columnNames = {"dlt_topic", "partition_number", "offset_number"}
+    ),
+    indexes = @Index(
+        name = "idx_dlt_resolution_original_topic",
+        columnList = "original_topic"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -56,11 +56,11 @@ public class DltMessageResolutionJpaEntity {
     private String reason;
 
     private DltMessageResolutionJpaEntity(
-            String originalTopic, String dltTopic,
-            int partitionNumber, long offsetNumber,
-            DltResolutionStatus resolution,
-            String resolvedBy, LocalDateTime resolvedAt,
-            String reason
+        String originalTopic, String dltTopic,
+        int partitionNumber, long offsetNumber,
+        DltResolutionStatus resolution,
+        String resolvedBy, LocalDateTime resolvedAt,
+        String reason
     ) {
         this.originalTopic = originalTopic;
         this.dltTopic = dltTopic;
@@ -73,15 +73,15 @@ public class DltMessageResolutionJpaEntity {
     }
 
     public static DltMessageResolutionJpaEntity of(
-            String originalTopic, String dltTopic,
-            int partitionNumber, long offsetNumber,
-            DltResolutionStatus resolution,
-            String resolvedBy, LocalDateTime resolvedAt,
-            String reason
+        String originalTopic, String dltTopic,
+        int partitionNumber, long offsetNumber,
+        DltResolutionStatus resolution,
+        String resolvedBy, LocalDateTime resolvedAt,
+        String reason
     ) {
         return new DltMessageResolutionJpaEntity(
-                originalTopic, dltTopic, partitionNumber, offsetNumber,
-                resolution, resolvedBy, resolvedAt, reason
+            originalTopic, dltTopic, partitionNumber, offsetNumber,
+            resolution, resolvedBy, resolvedAt, reason
         );
     }
 

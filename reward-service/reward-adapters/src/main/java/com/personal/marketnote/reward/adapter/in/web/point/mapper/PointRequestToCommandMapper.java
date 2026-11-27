@@ -11,54 +11,54 @@ import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointComma
 
 public class PointRequestToCommandMapper {
     public static ModifyUserPointCommand mapToModifyUserPointCommand(
-            Long userId,
-            ModifyUserPointRequest request
+        Long userId,
+        ModifyUserPointRequest request
     ) {
         return ModifyUserPointCommand.builder()
-                .userId(userId)
-                .changeType(request.changeType())
-                .amount(request.amount())
-                .sourceType(request.sourceType())
-                .sourceId(request.sourceId())
-                .reason(request.reason())
-                .build();
+            .userId(userId)
+            .changeType(request.changeType())
+            .amount(request.amount())
+            .sourceType(request.sourceType())
+            .sourceId(request.sourceId())
+            .reason(request.reason())
+            .build();
     }
 
     public static ModifyPendingPointCommand mapToModifyPendingPointCommand(
-            Long userId,
-            ModifyPendingPointRequest request
+        Long userId,
+        ModifyPendingPointRequest request
     ) {
         return ModifyPendingPointCommand.builder()
-                .userId(userId)
-                .changeType(request.changeType())
-                .amount(request.amount())
-                .sourceType(request.sourceType())
-                .sourceId(request.sourceId())
-                .reason(request.reason())
-                .build();
+            .userId(userId)
+            .changeType(request.changeType())
+            .amount(request.amount())
+            .sourceType(request.sourceType())
+            .sourceId(request.sourceId())
+            .reason(request.reason())
+            .build();
     }
 
     public static ConfirmPendingPointCommand mapToConfirmPendingPointCommand(
-            Long userId,
-            ConfirmPendingPointRequest request
+        Long userId,
+        ConfirmPendingPointRequest request
     ) {
         return ConfirmPendingPointCommand.builder()
-                .userId(userId)
-                .sourceType(request.sourceType())
-                .sourceId(request.sourceId())
-                .reason(request.reason())
-                .build();
+            .userId(userId)
+            .sourceType(request.sourceType())
+            .sourceId(request.sourceId())
+            .reason(request.reason())
+            .build();
     }
 
     public static CancelPendingPointCommand mapToCancelPendingPointCommand(
-            Long userId,
-            CancelPendingPointRequest request
+        Long userId,
+        CancelPendingPointRequest request
     ) {
         return CancelPendingPointCommand.builder()
-                .userId(userId)
-                .sourceType(request.sourceType())
-                .sourceId(request.sourceId())
-                .reason(request.reason())
-                .build();
+            .userId(userId)
+            .sourceType(request.sourceType())
+            .sourceId(request.sourceId())
+            .reason(request.reason())
+            .build();
     }
 }

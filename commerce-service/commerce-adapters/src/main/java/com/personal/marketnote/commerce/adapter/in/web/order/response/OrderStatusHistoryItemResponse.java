@@ -14,21 +14,21 @@ import java.time.LocalDateTime;
  * @Description 개별 주문 상태 변경 이력 항목의 응답 DTO입니다.
  */
 public record OrderStatusHistoryItemResponse(
-        Long id,
-        OrderStatus orderStatus,
-        String orderStatusDescription,
-        OrderStatusReasonCategory reasonCategory,
-        String reason,
-        LocalDateTime createdAt
+    Long id,
+    OrderStatus orderStatus,
+    String orderStatusDescription,
+    OrderStatusReasonCategory reasonCategory,
+    String reason,
+    LocalDateTime createdAt
 ) {
     public static OrderStatusHistoryItemResponse from(OrderStatusHistoryItem item) {
         return new OrderStatusHistoryItemResponse(
-                item.id(),
-                item.orderStatus(),
-                item.orderStatusDescription(),
-                item.reasonCategory(),
-                item.reason(),
-                item.createdAt()
+            item.id(),
+            item.orderStatus(),
+            item.orderStatusDescription(),
+            item.reasonCategory(),
+            item.reason(),
+            item.createdAt()
         );
     }
 }

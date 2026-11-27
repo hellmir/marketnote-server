@@ -10,23 +10,23 @@ public class SagaStepJpaEntityToDomainMapper {
 
     public static SagaStep toDomain(SagaStepJpaEntity entity) {
         return SagaStep.from(new SagaStepSnapshotState(
-                entity.getId(),
-                entity.getSagaInstanceId(),
-                entity.getStepName(),
-                entity.getStepIndex(),
-                entity.getStatus(),
-                entity.getRequest(),
-                entity.getResponse(),
-                entity.getCompensationRequest(),
-                entity.getCompensationResponse(),
-                entity.getCreatedAt(),
-                entity.getModifiedAt()
+            entity.getId(),
+            entity.getSagaInstanceId(),
+            entity.getStepName(),
+            entity.getStepIndex(),
+            entity.getStatus(),
+            entity.getRequest(),
+            entity.getResponse(),
+            entity.getCompensationRequest(),
+            entity.getCompensationResponse(),
+            entity.getCreatedAt(),
+            entity.getModifiedAt()
         ));
     }
 
     public static List<SagaStep> toDomainList(List<SagaStepJpaEntity> entities) {
         return entities.stream()
-                .map(SagaStepJpaEntityToDomainMapper::toDomain)
-                .toList();
+            .map(SagaStepJpaEntityToDomainMapper::toDomain)
+            .toList();
     }
 }

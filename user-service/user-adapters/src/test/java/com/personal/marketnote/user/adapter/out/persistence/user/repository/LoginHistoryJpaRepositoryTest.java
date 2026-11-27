@@ -57,22 +57,22 @@ class LoginHistoryJpaRepositoryTest {
         }
 
         User user = User.from(
-                UserSnapshotState.builder()
-                        .userKey(UUID.randomUUID())
-                        .nickname(Nickname.of("테스트유저"))
-                        .email("login@test.com")
-                        .password("encoded-password")
-                        .fullName("테스트")
-                        .phoneNumber("01099990001")
-                        .role(Role.getBuyer())
-                        .userAuthProviders(List.of(UserAuthProvider.of(AuthVendor.KAKAO, "oidc-login")))
-                        .userTerms(List.of())
-                        .signedUpAt(LocalDateTime.now())
-                        .lastLoggedInAt(LocalDateTime.now())
-                        .status(EntityStatus.ACTIVE)
-                        .withdrawalYn(false)
-                        .penaltyCount(0)
-                        .build()
+            UserSnapshotState.builder()
+                .userKey(UUID.randomUUID())
+                .nickname(Nickname.of("테스트유저"))
+                .email("login@test.com")
+                .password("encoded-password")
+                .fullName("테스트")
+                .phoneNumber("01099990001")
+                .role(Role.getBuyer())
+                .userAuthProviders(List.of(UserAuthProvider.of(AuthVendor.KAKAO, "oidc-login")))
+                .userTerms(List.of())
+                .signedUpAt(LocalDateTime.now())
+                .lastLoggedInAt(LocalDateTime.now())
+                .status(EntityStatus.ACTIVE)
+                .withdrawalYn(false)
+                .penaltyCount(0)
+                .build()
         );
         savedUser = userJpaRepository.save(UserJpaEntity.from(user));
         savedUser.setIdToOrderNum();
@@ -101,7 +101,7 @@ class LoginHistoryJpaRepositoryTest {
 
             // when
             Page<LoginHistoryJpaEntity> result = loginHistoryJpaRepository.findLoginHistoriesByUserId(
-                    PageRequest.of(0, 10), savedUser.getId()
+                PageRequest.of(0, 10), savedUser.getId()
             );
 
             // then
@@ -117,7 +117,7 @@ class LoginHistoryJpaRepositoryTest {
 
             // when
             Page<LoginHistoryJpaEntity> result = loginHistoryJpaRepository.findLoginHistoriesByUserId(
-                    PageRequest.of(0, 10), 999999L
+                PageRequest.of(0, 10), 999999L
             );
 
             // then
@@ -137,7 +137,7 @@ class LoginHistoryJpaRepositoryTest {
 
             // when
             Page<LoginHistoryJpaEntity> result = loginHistoryJpaRepository.findLoginHistoriesByPage(
-                    PageRequest.of(0, 10), false, true, "10.0.0"
+                PageRequest.of(0, 10), false, true, "10.0.0"
             );
 
             // then
@@ -153,7 +153,7 @@ class LoginHistoryJpaRepositoryTest {
 
             // when
             Page<LoginHistoryJpaEntity> result = loginHistoryJpaRepository.findLoginHistoriesByPage(
-                    PageRequest.of(0, 10), false, false, ""
+                PageRequest.of(0, 10), false, false, ""
             );
 
             // then
@@ -168,7 +168,7 @@ class LoginHistoryJpaRepositoryTest {
 
             // when
             Page<LoginHistoryJpaEntity> result = loginHistoryJpaRepository.findLoginHistoriesByPage(
-                    PageRequest.of(0, 10), true, false, String.valueOf(savedUser.getId())
+                PageRequest.of(0, 10), true, false, String.valueOf(savedUser.getId())
             );
 
             // then

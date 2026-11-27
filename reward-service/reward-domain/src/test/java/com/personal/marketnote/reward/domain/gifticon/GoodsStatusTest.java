@@ -45,21 +45,21 @@ class GoodsStatusTest {
     @DisplayName("미정의 문자열로 from() 호출 시 InvalidGoodsStatusException이 발생한다")
     void shouldThrowWhenUnknownValue() {
         assertThatThrownBy(() -> GoodsStatus.from("UNKNOWN"))
-                .isInstanceOf(InvalidGoodsStatusException.class);
+            .isInstanceOf(InvalidGoodsStatusException.class);
     }
 
     @Test
     @DisplayName("null 입력 시 InvalidGoodsStatusException이 발생한다")
     void shouldThrowWhenNullValue() {
         assertThatThrownBy(() -> GoodsStatus.from(null))
-                .isInstanceOf(InvalidGoodsStatusException.class);
+            .isInstanceOf(InvalidGoodsStatusException.class);
     }
 
     @Test
     @DisplayName("빈 문자열 입력 시 InvalidGoodsStatusException이 발생한다")
     void shouldThrowWhenEmptyValue() {
         assertThatThrownBy(() -> GoodsStatus.from(""))
-                .isInstanceOf(InvalidGoodsStatusException.class);
+            .isInstanceOf(InvalidGoodsStatusException.class);
     }
 
     @Test

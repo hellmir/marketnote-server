@@ -31,9 +31,9 @@ public class ApplyUserPenaltyService implements ApplyUserPenaltyUseCase {
         updateUserPort.update(user);
 
         UserPenaltyHistory savedHistory = saveUserPenaltyHistoryPort.save(
-                UserPenaltyHistory.from(
-                        UserPenaltyHistoryCommandToStateMapper.mapToCreateState(command, previousCount, user.getPenaltyCount())
-                )
+            UserPenaltyHistory.from(
+                UserPenaltyHistoryCommandToStateMapper.mapToCreateState(command, previousCount, user.getPenaltyCount())
+            )
         );
 
         return ApplyUserPenaltyResult.of(user.getId(), user.getPenaltyCount(), savedHistory.getId());

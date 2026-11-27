@@ -24,30 +24,30 @@ public class BrandTalkCarouselItem {
         List<BrandTalkButton> buttons = state.getButtons();
         validate(buttons);
         return BrandTalkCarouselItem.builder()
-                .header(state.getHeader())
-                .content(state.getContent())
-                .imageUrl(state.getImageUrl())
-                .buttons(FormatValidator.hasValue(buttons) ? buttons : List.of())
-                .coupon(state.getCoupon())
-                .build();
+            .header(state.getHeader())
+            .content(state.getContent())
+            .imageUrl(state.getImageUrl())
+            .buttons(FormatValidator.hasValue(buttons) ? buttons : List.of())
+            .coupon(state.getCoupon())
+            .build();
     }
 
     public static BrandTalkCarouselItem from(BrandTalkCarouselItemSnapshotState state) {
         List<BrandTalkButton> buttons = FormatValidator.hasValue(state.getButtons())
-                ? state.getButtons().stream()
-                .map(BrandTalkButton::from)
-                .toList()
-                : List.of();
+            ? state.getButtons().stream()
+            .map(BrandTalkButton::from)
+            .toList()
+            : List.of();
         BrandTalkCoupon coupon = FormatValidator.hasValue(state.getCoupon())
-                ? BrandTalkCoupon.from(state.getCoupon())
-                : null;
+            ? BrandTalkCoupon.from(state.getCoupon())
+            : null;
         return BrandTalkCarouselItem.builder()
-                .header(state.getHeader())
-                .content(state.getContent())
-                .imageUrl(state.getImageUrl())
-                .buttons(buttons)
-                .coupon(coupon)
-                .build();
+            .header(state.getHeader())
+            .content(state.getContent())
+            .imageUrl(state.getImageUrl())
+            .buttons(buttons)
+            .coupon(coupon)
+            .build();
     }
 
     public boolean hasButtons() {
@@ -61,12 +61,12 @@ public class BrandTalkCarouselItem {
     private static void validate(List<BrandTalkButton> buttons) {
         if (FormatValidator.hasNoValue(buttons) || buttons.size() < MIN_BUTTONS) {
             throw new InvalidBrandTalkTemplateException(
-                    "캐러셀 아이템의 버튼은 최소 " + MIN_BUTTONS + "개 필수입니다."
+                "캐러셀 아이템의 버튼은 최소 " + MIN_BUTTONS + "개 필수입니다."
             );
         }
         if (buttons.size() > MAX_BUTTONS) {
             throw new InvalidBrandTalkTemplateException(
-                    "캐러셀 아이템의 버튼은 최대 " + MAX_BUTTONS + "개까지 등록할 수 있습니다."
+                "캐러셀 아이템의 버튼은 최대 " + MAX_BUTTONS + "개까지 등록할 수 있습니다."
             );
         }
     }

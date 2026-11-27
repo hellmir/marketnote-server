@@ -18,18 +18,18 @@ class ProductReviewAggregateTest {
         LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
         LocalDateTime modifiedAt = LocalDateTime.of(2026, 4, 1, 12, 0);
         ProductReviewAggregateSnapshotState state = ProductReviewAggregateSnapshotState.builder()
-                .productId(1L)
-                .totalCount(10)
-                .fivePointCount(5)
-                .fourPointCount(2)
-                .threePointCount(1)
-                .twoPointCount(1)
-                .onePointCount(1)
-                .totalRating(40L)
-                .averageRating(new BigDecimal("4.00"))
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .build();
+            .productId(1L)
+            .totalCount(10)
+            .fivePointCount(5)
+            .fourPointCount(2)
+            .threePointCount(1)
+            .twoPointCount(1)
+            .onePointCount(1)
+            .totalRating(40L)
+            .averageRating(new BigDecimal("4.00"))
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .build();
 
         ProductReviewAggregate aggregate = ProductReviewAggregate.from(state);
 
@@ -130,11 +130,11 @@ class ProductReviewAggregateTest {
     @DisplayName("Rating.of에 유효하지 않은 점수를 전달하면 InvalidRatingPointException이 발생한다")
     void shouldThrowExceptionWhenCreatingInvalidRating() {
         assertThatThrownBy(() -> Rating.of(0.0f))
-                .isInstanceOf(InvalidRatingPointException.class);
+            .isInstanceOf(InvalidRatingPointException.class);
         assertThatThrownBy(() -> Rating.of(6.0f))
-                .isInstanceOf(InvalidRatingPointException.class);
+            .isInstanceOf(InvalidRatingPointException.class);
         assertThatThrownBy(() -> Rating.of(-1.0f))
-                .isInstanceOf(InvalidRatingPointException.class);
+            .isInstanceOf(InvalidRatingPointException.class);
     }
 
     @Test
@@ -200,16 +200,16 @@ class ProductReviewAggregateTest {
     @DisplayName("마지막 리뷰 삭제로 totalCount가 0이 되면 totalRating과 averageRating을 0으로 초기화한다")
     void shouldResetRatingsWhenLastReviewDeleted() {
         ProductReviewAggregate aggregate = ProductReviewAggregate.from(ProductReviewAggregateSnapshotState.builder()
-                .productId(1L)
-                .totalCount(1)
-                .fivePointCount(1)
-                .fourPointCount(0)
-                .threePointCount(0)
-                .twoPointCount(0)
-                .onePointCount(0)
-                .totalRating(5L)
-                .averageRating(new BigDecimal("5.00"))
-                .build());
+            .productId(1L)
+            .totalCount(1)
+            .fivePointCount(1)
+            .fourPointCount(0)
+            .threePointCount(0)
+            .twoPointCount(0)
+            .onePointCount(0)
+            .totalRating(5L)
+            .averageRating(new BigDecimal("5.00"))
+            .build());
 
         aggregate.removeReview(Rating.of(5.0f));
 
@@ -295,46 +295,46 @@ class ProductReviewAggregateTest {
 
     private ProductReviewAggregate createEmptyAggregate() {
         return ProductReviewAggregate.from(ProductReviewAggregateSnapshotState.builder()
-                .productId(1L)
-                .totalCount(0)
-                .fivePointCount(0)
-                .fourPointCount(0)
-                .threePointCount(0)
-                .twoPointCount(0)
-                .onePointCount(0)
-                .totalRating(0L)
-                .averageRating(BigDecimal.ZERO)
-                .build());
+            .productId(1L)
+            .totalCount(0)
+            .fivePointCount(0)
+            .fourPointCount(0)
+            .threePointCount(0)
+            .twoPointCount(0)
+            .onePointCount(0)
+            .totalRating(0L)
+            .averageRating(BigDecimal.ZERO)
+            .build());
     }
 
     private ProductReviewAggregate createAggregateWithAllPoints() {
         return ProductReviewAggregate.from(ProductReviewAggregateSnapshotState.builder()
-                .productId(1L)
-                .totalCount(5)
-                .fivePointCount(1)
-                .fourPointCount(1)
-                .threePointCount(1)
-                .twoPointCount(1)
-                .onePointCount(1)
-                .totalRating(15L)
-                .averageRating(new BigDecimal("3.00"))
-                .build());
+            .productId(1L)
+            .totalCount(5)
+            .fivePointCount(1)
+            .fourPointCount(1)
+            .threePointCount(1)
+            .twoPointCount(1)
+            .onePointCount(1)
+            .totalRating(15L)
+            .averageRating(new BigDecimal("3.00"))
+            .build());
     }
 
     private Review createReviewWithRating(Float rating, Long productId) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(1L)
-                .reviewerId(100L)
-                .orderId(200L)
-                .productId(productId)
-                .reviewerName("홍길동")
-                .maskedReviewerName("홍**")
-                .rating(Rating.of(rating))
-                .content("테스트 리뷰")
-                .isPhoto(false)
-                .isEdited(false)
-                .likeCount(0)
-                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .reviewerId(100L)
+            .orderId(200L)
+            .productId(productId)
+            .reviewerName("홍길동")
+            .maskedReviewerName("홍**")
+            .rating(Rating.of(rating))
+            .content("테스트 리뷰")
+            .isPhoto(false)
+            .isEdited(false)
+            .likeCount(0)
+            .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+            .build());
     }
 }

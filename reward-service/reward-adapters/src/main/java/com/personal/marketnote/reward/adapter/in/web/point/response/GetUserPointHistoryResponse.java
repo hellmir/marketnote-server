@@ -8,16 +8,16 @@ import java.util.List;
 public record GetUserPointHistoryResponse(CursorResponse<UserPointHistoryByDateResponse> histories) {
     public static GetUserPointHistoryResponse from(GetUserPointHistoryResult result) {
         List<UserPointHistoryByDateResponse> items = result.histories().stream()
-                .map(UserPointHistoryByDateResponse::from)
-                .toList();
+            .map(UserPointHistoryByDateResponse::from)
+            .toList();
 
         return new GetUserPointHistoryResponse(
-                new CursorResponse<>(
-                        result.totalElements(),
-                        result.hasNext(),
-                        result.nextCursor(),
-                        items
-                )
+            new CursorResponse<>(
+                result.totalElements(),
+                result.hasNext(),
+                result.nextCursor(),
+                items
+            )
         );
     }
 }

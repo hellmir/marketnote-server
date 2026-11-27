@@ -82,8 +82,8 @@ class ElementExtractorTest {
         void shouldReturnBuyerWhenNoRolePrefixedAuthority() {
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             Collection<GrantedAuthority> authorities = List.of(
-                    new SimpleGrantedAuthority("SCOPE_read"),
-                    new SimpleGrantedAuthority("SCOPE_write")
+                new SimpleGrantedAuthority("SCOPE_read"),
+                new SimpleGrantedAuthority("SCOPE_write")
             );
             doReturn(authorities).when(principal).getAuthorities();
 
@@ -97,8 +97,8 @@ class ElementExtractorTest {
         void shouldReturnFirstRoleWhenMultipleRolesExist() {
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             Collection<GrantedAuthority> authorities = List.of(
-                    new SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new SimpleGrantedAuthority("ROLE_SELLER")
+                new SimpleGrantedAuthority("ROLE_ADMIN"),
+                new SimpleGrantedAuthority("ROLE_SELLER")
             );
             doReturn(authorities).when(principal).getAuthorities();
 

@@ -38,7 +38,7 @@ class MarkAllNotificationAsReadUseCaseTest {
         // then
         verify(updateNotificationPort).markAllAsReadByUserId(userId);
         verify(publishSseEventPort).publish(
-                userId, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
+            userId, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
         );
     }
 

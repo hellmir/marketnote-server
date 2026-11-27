@@ -22,12 +22,12 @@ public class ReviewRegisteredCommerceConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.REVIEW_REGISTERED,
-            groupId = "commerce-service"
+        topics = KafkaTopicConstants.REVIEW_REGISTERED,
+        groupId = "commerce-service"
     )
     public void handleReviewRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -45,30 +45,30 @@ public class ReviewRegisteredCommerceConsumer {
             ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
 
             log.info("리뷰 등록 이벤트 수신. eventId={}, orderId={}, pricePolicyId={}",
-                    envelope.eventId(), payload.orderId(), payload.pricePolicyId()
+                envelope.eventId(), payload.orderId(), payload.pricePolicyId()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()),
-                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
+                envelope.eventId(),
+                EventPayloadValidator.id("orderId", payload.orderId()),
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
             )) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             UpdateOrderProductReviewStatusCommand command = UpdateOrderProductReviewStatusCommand.of(
-                    payload.orderId(), payload.pricePolicyId(), true
+                payload.orderId(), payload.pricePolicyId(), true
             );
             updateOrderProductUseCase.updateReviewStatus(command);
 
             log.info("Kafka 이벤트로 주문상품 리뷰 상태 업데이트 완료. orderId={}, pricePolicyId={}",
-                    payload.orderId(), payload.pricePolicyId()
+                payload.orderId(), payload.pricePolicyId()
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("주문상품 리뷰 상태 업데이트 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }

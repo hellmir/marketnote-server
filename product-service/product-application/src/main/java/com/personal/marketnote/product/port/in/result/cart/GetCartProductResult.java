@@ -10,31 +10,31 @@ import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetCartProductResult(
-        CartProductItemResult product,
-        GetProductPricePolicyResult pricePolicy,
-        Integer stock,
-        Short quantity,
-        UUID sharerKey
+    CartProductItemResult product,
+    GetProductPricePolicyResult pricePolicy,
+    Integer stock,
+    Short quantity,
+    UUID sharerKey
 ) {
     public static GetCartProductResult from(CartProduct cartProduct, Integer stock) {
         return GetCartProductResult.builder()
-                .pricePolicy(GetProductPricePolicyResult.fromCart(cartProduct.getPricePolicy()))
-                .product(CartProductItemResult.from(cartProduct.getPricePolicy().getProduct(), cartProduct.getImageUrl()))
-                .stock(stock)
-                .quantity((short) cartProduct.getQuantity().getValue())
-                .sharerKey(cartProduct.getSharerKey())
-                .build();
+            .pricePolicy(GetProductPricePolicyResult.fromCart(cartProduct.getPricePolicy()))
+            .product(CartProductItemResult.from(cartProduct.getPricePolicy().getProduct(), cartProduct.getImageUrl()))
+            .stock(stock)
+            .quantity((short) cartProduct.getQuantity().getValue())
+            .sharerKey(cartProduct.getSharerKey())
+            .build();
     }
 
     public static GetCartProductResult of(
-            PricePolicy pricePolicy, String imageUrl, Short quantity, Integer stock, UUID sharerKey
+        PricePolicy pricePolicy, String imageUrl, Short quantity, Integer stock, UUID sharerKey
     ) {
         return GetCartProductResult.builder()
-                .pricePolicy(GetProductPricePolicyResult.fromCart(pricePolicy))
-                .product(CartProductItemResult.from(pricePolicy.getProduct(), imageUrl))
-                .quantity(quantity)
-                .stock(stock)
-                .sharerKey(sharerKey)
-                .build();
+            .pricePolicy(GetProductPricePolicyResult.fromCart(pricePolicy))
+            .product(CartProductItemResult.from(pricePolicy.getProduct(), imageUrl))
+            .quantity(quantity)
+            .stock(stock)
+            .sharerKey(sharerKey)
+            .build();
     }
 }

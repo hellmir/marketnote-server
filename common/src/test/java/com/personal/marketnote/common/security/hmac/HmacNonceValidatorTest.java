@@ -40,10 +40,10 @@ class HmacNonceValidatorTest {
     void shouldPassForNewNonce() {
         when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(NONCE_KEY, "1", Duration.ofSeconds(TIMESTAMP_TOLERANCE_SECONDS)))
-                .thenReturn(true);
+            .thenReturn(true);
 
         assertThatCode(() -> hmacNonceValidator.validateAndStore(NONCE))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(valueOperations).setIfAbsent(NONCE_KEY, "1", Duration.ofSeconds(TIMESTAMP_TOLERANCE_SECONDS));
     }
@@ -53,10 +53,10 @@ class HmacNonceValidatorTest {
     void shouldThrowForDuplicateNonce() {
         when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(NONCE_KEY, "1", Duration.ofSeconds(TIMESTAMP_TOLERANCE_SECONDS)))
-                .thenReturn(false);
+            .thenReturn(false);
 
         assertThatThrownBy(() -> hmacNonceValidator.validateAndStore(NONCE))
-                .isInstanceOf(HmacNonceReplayedException.class);
+            .isInstanceOf(HmacNonceReplayedException.class);
     }
 
     @Test
@@ -66,7 +66,7 @@ class HmacNonceValidatorTest {
         when(stringRedisTemplate.opsForValue()).thenThrow(redisException);
 
         assertThatThrownBy(() -> hmacNonceValidator.validateAndStore(NONCE))
-                .isInstanceOf(HmacNonceValidationUnavailableException.class)
-                .hasCauseReference(redisException);
+            .isInstanceOf(HmacNonceValidationUnavailableException.class)
+            .hasCauseReference(redisException);
     }
 }

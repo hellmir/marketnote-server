@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class UpdateFulfillmentSupplierFailedException extends ExternalOperationFailedException {
     private static final String UPDATE_FULFILLMENT_SUPPLIER_FAILED_EXCEPTION_MESSAGE =
-            "Fulfillment supplier update request failed.";
+        "Fulfillment supplier update request failed.";
 
     public UpdateFulfillmentSupplierFailedException(IOException cause) {
         super(UPDATE_FULFILLMENT_SUPPLIER_FAILED_EXCEPTION_MESSAGE, cause);

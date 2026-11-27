@@ -16,60 +16,60 @@ public class FasstoReturnDeliveryCommandToRequestMapper {
 
     public static FulfillmentReturnGodDetailQuery mapToReturnGodDetailQuery(GetFulfillmentReturnGodDetailCommand command) {
         return FulfillmentReturnGodDetailQuery.of(
-                command.customerCode(),
-                command.accessToken(),
-                command.startDate(),
-                command.endDate(),
-                command.returnSlipNumbers(),
-                command.warehouseCode()
+            command.customerCode(),
+            command.accessToken(),
+            command.startDate(),
+            command.endDate(),
+            command.returnSlipNumbers(),
+            command.warehouseCode()
         );
     }
 
     public static FulfillmentReturnDeliveryMapper mapToRegisterRequest(RegisterFulfillmentReturnDeliveryCommand command) {
         List<FulfillmentReturnDeliveryItemMapper> returnDeliveryRequests = command.returnDeliveryRequests().stream()
-                .map(FasstoReturnDeliveryCommandToRequestMapper::mapItem)
-                .toList();
+            .map(FasstoReturnDeliveryCommandToRequestMapper::mapItem)
+            .toList();
 
         return FulfillmentReturnDeliveryMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                returnDeliveryRequests
+            command.customerCode(),
+            command.accessToken(),
+            returnDeliveryRequests
         );
     }
 
     private static FulfillmentReturnDeliveryItemMapper mapItem(RegisterFulfillmentReturnDeliveryItemCommand item) {
         List<FulfillmentDeliveryGoodsMapper> goods = FormatValidator.hasValue(item.products())
-                ? item.products().stream()
-                .map(FasstoReturnDeliveryCommandToRequestMapper::mapGoods)
-                .toList()
-                : List.of();
+            ? item.products().stream()
+            .map(FasstoReturnDeliveryCommandToRequestMapper::mapGoods)
+            .toList()
+            : List.of();
 
         return FulfillmentReturnDeliveryItemMapper.of(
-                item.orderDate(),
-                item.orderNumber(),
-                item.courierCode(),
-                item.invoiceNumber(),
-                item.recipientName(),
-                item.recipientPhoneNumber(),
-                item.recipientAddress(),
-                item.returnReceiverName(),
-                item.returnReceiverPhoneNumber(),
-                item.returnZipCode(),
-                item.returnAddress1(),
-                item.returnAddress2(),
-                item.returnType(),
-                item.returnReason(),
-                item.returnDetailReason(),
-                item.returnShippingRequest(),
-                goods
+            item.orderDate(),
+            item.orderNumber(),
+            item.courierCode(),
+            item.invoiceNumber(),
+            item.recipientName(),
+            item.recipientPhoneNumber(),
+            item.recipientAddress(),
+            item.returnReceiverName(),
+            item.returnReceiverPhoneNumber(),
+            item.returnZipCode(),
+            item.returnAddress1(),
+            item.returnAddress2(),
+            item.returnType(),
+            item.returnReason(),
+            item.returnDetailReason(),
+            item.returnShippingRequest(),
+            goods
         );
     }
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
         return FulfillmentDeliveryGoodsMapper.of(
-                item.fasstoProductCode(),
-                item.expirationDate(),
-                item.orderQuantity()
+            item.fasstoProductCode(),
+            item.expirationDate(),
+            item.orderQuantity()
         );
     }
 }

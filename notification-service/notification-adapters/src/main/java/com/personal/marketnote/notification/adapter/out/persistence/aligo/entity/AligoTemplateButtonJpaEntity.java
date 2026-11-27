@@ -47,8 +47,8 @@ public class AligoTemplateButtonJpaEntity {
     }
 
     public static AligoTemplateButtonJpaEntity create(
-            int ordering, String name, AligoTemplateButtonLinkType linkType,
-            String linkMo, String linkPc, String linkIos, String linkAnd
+        int ordering, String name, AligoTemplateButtonLinkType linkType,
+        String linkMo, String linkPc, String linkIos, String linkAnd
     ) {
         AligoTemplateButtonJpaEntity entity = new AligoTemplateButtonJpaEntity();
         entity.ordering = ordering;

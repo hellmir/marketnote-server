@@ -17,23 +17,23 @@ public class FulfillmentDeliveryIcsCompletionMapper {
     private List<FulfillmentDeliveryIcsCompletionItemMapper> completionRequests;
 
     public static FulfillmentDeliveryIcsCompletionMapper of(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentDeliveryIcsCompletionItemMapper> completionRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentDeliveryIcsCompletionItemMapper> completionRequests
     ) {
         FulfillmentDeliveryIcsCompletionMapper mapper = FulfillmentDeliveryIcsCompletionMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .completionRequests(completionRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .completionRequests(completionRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public List<Map<String, Object>> toPayload() {
         return completionRequests.stream()
-                .map(FulfillmentDeliveryIcsCompletionItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentDeliveryIcsCompletionItemMapper::toPayload)
+            .toList();
     }
 
     private void validate() {

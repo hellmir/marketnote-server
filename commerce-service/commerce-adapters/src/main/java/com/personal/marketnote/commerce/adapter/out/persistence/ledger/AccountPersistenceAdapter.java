@@ -17,23 +17,23 @@ public class AccountPersistenceAdapter implements FindAccountPort {
 
     @Override
     @Cacheable(
-            value = "account:detail",
-            key = "#id",
-            unless = "#result == null || T(java.util.Optional).empty().equals(#result)"
+        value = "account:detail",
+        key = "#id",
+        unless = "#result == null || T(java.util.Optional).empty().equals(#result)"
     )
     public Optional<Account> findById(Long id) {
         return accountJpaRepository.findById(id)
-                .map(AccountEntityToDomainMapper::toDomain);
+            .map(AccountEntityToDomainMapper::toDomain);
     }
 
     @Override
     @Cacheable(
-            value = "account:name",
-            key = "#name",
-            unless = "#result == null || T(java.util.Optional).empty().equals(#result)"
+        value = "account:name",
+        key = "#name",
+        unless = "#result == null || T(java.util.Optional).empty().equals(#result)"
     )
     public Optional<Account> findByName(String name) {
         return accountJpaRepository.findByName(name)
-                .map(AccountEntityToDomainMapper::toDomain);
+            .map(AccountEntityToDomainMapper::toDomain);
     }
 }

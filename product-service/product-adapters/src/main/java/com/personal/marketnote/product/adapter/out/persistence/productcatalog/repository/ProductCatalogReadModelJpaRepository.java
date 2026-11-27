@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductCatalogReadModelJpaRepository
-        extends JpaRepository<ProductCatalogReadModelJpaEntity, Long>,
-        ProductCatalogReadModelQueryRepository {
+    extends JpaRepository<ProductCatalogReadModelJpaEntity, Long>,
+    ProductCatalogReadModelQueryRepository {
 
     Optional<ProductCatalogReadModelJpaEntity> findByPricePolicyId(Long pricePolicyId);
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class GetFulfillmentShopsFailedException extends ExternalOperationFailedException {
     private static final String GET_FULFILLMENT_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE =
-            "Fulfillment shop list request failed.";
+        "Fulfillment shop list request failed.";
 
     public GetFulfillmentShopsFailedException(IOException cause) {
         super(GET_FULFILLMENT_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE, cause);

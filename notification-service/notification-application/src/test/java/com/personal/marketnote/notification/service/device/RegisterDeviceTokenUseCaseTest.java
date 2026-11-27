@@ -31,7 +31,7 @@ class RegisterDeviceTokenUseCaseTest {
 
     private static final LocalDateTime FIXED_NOW = LocalDateTime.of(2026, 4, 9, 10, 0);
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            FIXED_NOW.atZone(ZoneId.of("Asia/Seoul")).toInstant(), ZoneId.of("Asia/Seoul"));
+        FIXED_NOW.atZone(ZoneId.of("Asia/Seoul")).toInstant(), ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
     private RegisterDeviceTokenService registerDeviceTokenService;
@@ -56,16 +56,16 @@ class RegisterDeviceTokenUseCaseTest {
     void shouldRegisterNewDeviceToken() {
         // given
         RegisterDeviceTokenCommand command = new RegisterDeviceTokenCommand(
-                100L,
-                "new-fcm-token",
-                "ANDROID",
-                "device-uuid-001"
+            100L,
+            "new-fcm-token",
+            "ANDROID",
+            "device-uuid-001"
         );
 
         when(findDeviceTokenPort.findActiveByDeviceId("device-uuid-001"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(saveDeviceTokenPort.save(any(DeviceToken.class)))
-                .thenReturn(1L);
+            .thenReturn(1L);
         when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
         when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
 
@@ -85,24 +85,24 @@ class RegisterDeviceTokenUseCaseTest {
     void shouldUpdateExistingDeviceTokenWhenSameOwner() {
         // given
         RegisterDeviceTokenCommand command = new RegisterDeviceTokenCommand(
-                100L,
-                "updated-fcm-token",
-                "IOS",
-                "device-uuid-001"
+            100L,
+            "updated-fcm-token",
+            "IOS",
+            "device-uuid-001"
         );
 
         DeviceToken existing = DeviceToken.from(DeviceTokenCreateState.builder()
-                .userId(100L)
-                .token("old-fcm-token")
-                .platform(Platform.ANDROID)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(FIXED_NOW.minusDays(1))
-                .build());
+            .userId(100L)
+            .token("old-fcm-token")
+            .platform(Platform.ANDROID)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(FIXED_NOW.minusDays(1))
+            .build());
 
         when(findDeviceTokenPort.findActiveByDeviceId("device-uuid-001"))
-                .thenReturn(Optional.of(existing));
+            .thenReturn(Optional.of(existing));
         when(updateDeviceTokenPort.update(any(DeviceToken.class)))
-                .thenReturn(10L);
+            .thenReturn(10L);
         when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
         when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
 
@@ -126,28 +126,28 @@ class RegisterDeviceTokenUseCaseTest {
     void shouldDeleteExistingAndCreateNewWhenDifferentOwner() {
         // given
         RegisterDeviceTokenCommand command = new RegisterDeviceTokenCommand(
-                200L,
-                "new-user-fcm-token",
-                "IOS",
-                "device-uuid-001"
+            200L,
+            "new-user-fcm-token",
+            "IOS",
+            "device-uuid-001"
         );
 
         DeviceToken existing = DeviceToken.from(DeviceTokenSnapshotState.builder()
-                .id(10L)
-                .userId(100L)
-                .token("old-fcm-token")
-                .platform(Platform.ANDROID)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(FIXED_NOW.minusDays(1))
-                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                .createdAt(FIXED_NOW.minusDays(1))
-                .modifiedAt(FIXED_NOW.minusDays(1))
-                .build());
+            .id(10L)
+            .userId(100L)
+            .token("old-fcm-token")
+            .platform(Platform.ANDROID)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(FIXED_NOW.minusDays(1))
+            .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+            .createdAt(FIXED_NOW.minusDays(1))
+            .modifiedAt(FIXED_NOW.minusDays(1))
+            .build());
 
         when(findDeviceTokenPort.findActiveByDeviceId("device-uuid-001"))
-                .thenReturn(Optional.of(existing));
+            .thenReturn(Optional.of(existing));
         when(saveDeviceTokenPort.save(any(DeviceToken.class)))
-                .thenReturn(11L);
+            .thenReturn(11L);
         when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
         when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
 

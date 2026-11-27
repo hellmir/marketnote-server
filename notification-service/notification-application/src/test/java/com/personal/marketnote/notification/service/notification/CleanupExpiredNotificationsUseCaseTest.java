@@ -31,8 +31,8 @@ class CleanupExpiredNotificationsUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-09-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-03T05:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     @Test
@@ -40,7 +40,7 @@ class CleanupExpiredNotificationsUseCaseTest {
     void shouldCallDeactivateWithCorrectThreshold() {
         // given
         when(deleteNotificationPort.deactivateExpiredNotifications(any(LocalDateTime.class)))
-                .thenReturn(10);
+            .thenReturn(10);
 
         // when
         int result = cleanupExpiredNotificationsService.cleanupExpiredNotifications();
@@ -60,7 +60,7 @@ class CleanupExpiredNotificationsUseCaseTest {
     void shouldReturnZeroWhenNoExpiredNotifications() {
         // given
         when(deleteNotificationPort.deactivateExpiredNotifications(any(LocalDateTime.class)))
-                .thenReturn(0);
+            .thenReturn(0);
 
         // when
         int result = cleanupExpiredNotificationsService.cleanupExpiredNotifications();

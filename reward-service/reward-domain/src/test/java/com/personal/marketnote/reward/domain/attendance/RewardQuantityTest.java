@@ -29,7 +29,7 @@ class RewardQuantityTest {
     @DisplayName("음수로 생성 시 InvalidRewardQuantityException이 발생한다")
     void shouldThrowWhenNegativeValue() {
         assertThatThrownBy(() -> RewardQuantity.of(-1L))
-                .isInstanceOf(InvalidRewardQuantityException.class);
+            .isInstanceOf(InvalidRewardQuantityException.class);
     }
 
     @Test

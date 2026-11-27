@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record AccountInfoResult(
-        List<AccountResult> accounts
+    List<AccountResult> accounts
 ) {
     public static AccountInfoResult from(List<UserAuthProvider> userAuthProviders) {
         return new AccountInfoResult(
-                userAuthProviders.stream()
-                        .map(AccountResult::from)
-                        .collect(Collectors.toList())
+            userAuthProviders.stream()
+                .map(AccountResult::from)
+                .collect(Collectors.toList())
         );
     }
 }

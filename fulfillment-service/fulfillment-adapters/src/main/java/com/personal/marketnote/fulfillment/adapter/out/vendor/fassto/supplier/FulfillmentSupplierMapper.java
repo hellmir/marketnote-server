@@ -41,113 +41,113 @@ public class FulfillmentSupplierMapper {
     private String empEmail2;
 
     public static FulfillmentSupplierMapper register(
-            String customerCode,
-            String accessToken,
-            String supNm,
-            String cstSupCd,
-            String useYn,
-            String dealStrDt,
-            String dealEndDt,
-            String zipNo,
-            String addr1,
-            String addr2,
-            String ceoNm,
-            String busNo,
-            String busSp,
-            String busTp,
-            String telNo,
-            String faxNo,
-            String empNm1,
-            String empPosit1,
-            String empTelNo1,
-            String empEmail1,
-            String empNm2,
-            String empPosit2,
-            String empTelNo2,
-            String empEmail2
+        String customerCode,
+        String accessToken,
+        String supNm,
+        String cstSupCd,
+        String useYn,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String busSp,
+        String busTp,
+        String telNo,
+        String faxNo,
+        String empNm1,
+        String empPosit1,
+        String empTelNo1,
+        String empEmail1,
+        String empNm2,
+        String empPosit2,
+        String empTelNo2,
+        String empEmail2
     ) {
         return create(
-                customerCode,
-                accessToken,
-                REGISTRATION_SUPPLIER_CODE,
-                supNm,
-                cstSupCd,
-                useYn,
-                dealStrDt,
-                dealEndDt,
-                zipNo,
-                addr1,
-                addr2,
-                ceoNm,
-                busNo,
-                busSp,
-                busTp,
-                telNo,
-                faxNo,
-                empNm1,
-                empPosit1,
-                empTelNo1,
-                empEmail1,
-                empNm2,
-                empPosit2,
-                empTelNo2,
-                empEmail2
+            customerCode,
+            accessToken,
+            REGISTRATION_SUPPLIER_CODE,
+            supNm,
+            cstSupCd,
+            useYn,
+            dealStrDt,
+            dealEndDt,
+            zipNo,
+            addr1,
+            addr2,
+            ceoNm,
+            busNo,
+            busSp,
+            busTp,
+            telNo,
+            faxNo,
+            empNm1,
+            empPosit1,
+            empTelNo1,
+            empEmail1,
+            empNm2,
+            empPosit2,
+            empTelNo2,
+            empEmail2
         );
     }
 
     public static FulfillmentSupplierMapper update(
-            String customerCode,
-            String accessToken,
-            String supCd,
-            String supNm,
-            String cstSupCd,
-            String useYn,
-            String dealStrDt,
-            String dealEndDt,
-            String zipNo,
-            String addr1,
-            String addr2,
-            String ceoNm,
-            String busNo,
-            String busSp,
-            String busTp,
-            String telNo,
-            String faxNo,
-            String empNm1,
-            String empPosit1,
-            String empTelNo1,
-            String empEmail1,
-            String empNm2,
-            String empPosit2,
-            String empTelNo2,
-            String empEmail2
+        String customerCode,
+        String accessToken,
+        String supCd,
+        String supNm,
+        String cstSupCd,
+        String useYn,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String busSp,
+        String busTp,
+        String telNo,
+        String faxNo,
+        String empNm1,
+        String empPosit1,
+        String empTelNo1,
+        String empEmail1,
+        String empNm2,
+        String empPosit2,
+        String empTelNo2,
+        String empEmail2
     ) {
         return create(
-                customerCode,
-                accessToken,
-                supCd,
-                supNm,
-                cstSupCd,
-                useYn,
-                dealStrDt,
-                dealEndDt,
-                zipNo,
-                addr1,
-                addr2,
-                ceoNm,
-                busNo,
-                busSp,
-                busTp,
-                telNo,
-                faxNo,
-                empNm1,
-                empPosit1,
-                empTelNo1,
-                empEmail1,
-                empNm2,
-                empPosit2,
-                empTelNo2,
-                empEmail2
+            customerCode,
+            accessToken,
+            supCd,
+            supNm,
+            cstSupCd,
+            useYn,
+            dealStrDt,
+            dealEndDt,
+            zipNo,
+            addr1,
+            addr2,
+            ceoNm,
+            busNo,
+            busSp,
+            busTp,
+            telNo,
+            faxNo,
+            empNm1,
+            empPosit1,
+            empTelNo1,
+            empEmail1,
+            empNm2,
+            empPosit2,
+            empTelNo2,
+            empEmail2
         );
     }
 
@@ -203,59 +203,59 @@ public class FulfillmentSupplierMapper {
     }
 
     private static FulfillmentSupplierMapper create(
-            String customerCode,
-            String accessToken,
-            String supCd,
-            String supNm,
-            String cstSupCd,
-            String useYn,
-            String dealStrDt,
-            String dealEndDt,
-            String zipNo,
-            String addr1,
-            String addr2,
-            String ceoNm,
-            String busNo,
-            String busSp,
-            String busTp,
-            String telNo,
-            String faxNo,
-            String empNm1,
-            String empPosit1,
-            String empTelNo1,
-            String empEmail1,
-            String empNm2,
-            String empPosit2,
-            String empTelNo2,
-            String empEmail2
+        String customerCode,
+        String accessToken,
+        String supCd,
+        String supNm,
+        String cstSupCd,
+        String useYn,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String busSp,
+        String busTp,
+        String telNo,
+        String faxNo,
+        String empNm1,
+        String empPosit1,
+        String empTelNo1,
+        String empEmail1,
+        String empNm2,
+        String empPosit2,
+        String empTelNo2,
+        String empEmail2
     ) {
         FulfillmentSupplierMapper mapper = FulfillmentSupplierMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .supCd(supCd)
-                .supNm(supNm)
-                .cstSupCd(cstSupCd)
-                .useYn(useYn)
-                .dealStrDt(dealStrDt)
-                .dealEndDt(dealEndDt)
-                .zipNo(zipNo)
-                .addr1(addr1)
-                .addr2(addr2)
-                .ceoNm(ceoNm)
-                .busNo(busNo)
-                .busSp(busSp)
-                .busTp(busTp)
-                .telNo(telNo)
-                .faxNo(faxNo)
-                .empNm1(empNm1)
-                .empPosit1(empPosit1)
-                .empTelNo1(empTelNo1)
-                .empEmail1(empEmail1)
-                .empNm2(empNm2)
-                .empPosit2(empPosit2)
-                .empTelNo2(empTelNo2)
-                .empEmail2(empEmail2)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .supCd(supCd)
+            .supNm(supNm)
+            .cstSupCd(cstSupCd)
+            .useYn(useYn)
+            .dealStrDt(dealStrDt)
+            .dealEndDt(dealEndDt)
+            .zipNo(zipNo)
+            .addr1(addr1)
+            .addr2(addr2)
+            .ceoNm(ceoNm)
+            .busNo(busNo)
+            .busSp(busSp)
+            .busTp(busTp)
+            .telNo(telNo)
+            .faxNo(faxNo)
+            .empNm1(empNm1)
+            .empPosit1(empPosit1)
+            .empTelNo1(empTelNo1)
+            .empEmail1(empEmail1)
+            .empNm2(empNm2)
+            .empPosit2(empPosit2)
+            .empTelNo2(empTelNo2)
+            .empEmail2(empEmail2)
+            .build();
         mapper.validate();
         return mapper;
     }

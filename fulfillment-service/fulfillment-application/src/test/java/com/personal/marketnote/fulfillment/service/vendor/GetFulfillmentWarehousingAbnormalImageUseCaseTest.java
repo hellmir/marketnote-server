@@ -28,13 +28,13 @@ class GetFulfillmentWarehousingAbnormalImageUseCaseTest {
     void shouldDelegateToPort() {
         // given
         GetFulfillmentWarehousingAbnormalImageCommand command = GetFulfillmentWarehousingAbnormalImageCommand.builder()
-                .accessToken("token")
-                .slipNumber("SLIP001")
-                .productCode("GOD001")
-                .goodsSerialNo("SN001")
-                .fileSeq("1")
-                .imageNumber("CUST001")
-                .build();
+            .accessToken("token")
+            .slipNumber("SLIP001")
+            .productCode("GOD001")
+            .goodsSerialNo("SN001")
+            .fileSeq("1")
+            .imageNumber("CUST001")
+            .build();
         GetFulfillmentWarehousingAbnormalImageResult expectedResult = GetFulfillmentWarehousingAbnormalImageResult.of(0, null);
         when(getFulfillmentWarehousingAbnormalImagePort.getWarehousingAbnormalImage(any())).thenReturn(expectedResult);
         // when

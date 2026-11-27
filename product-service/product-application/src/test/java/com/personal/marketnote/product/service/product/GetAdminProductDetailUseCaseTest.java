@@ -49,12 +49,12 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, selectedOptionIds)).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(1, List.of(goodsInfo)));
+            .thenReturn(GetFulfillmentVendorGoodsResult.of(1, List.of(goodsInfo)));
         when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenReturn(Optional.of(elementInfo));
+            .thenReturn(Optional.of(elementInfo));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(
-                id, selectedOptionIds
+            id, selectedOptionIds
         );
 
         assertThat(result.product()).isSameAs(productInfo);
@@ -73,9 +73,9 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(eq(id), anyList())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
+            .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
         when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, null);
 
@@ -97,9 +97,9 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(2, Arrays.asList(null, invalidGoods, validGoods)));
+            .thenReturn(GetFulfillmentVendorGoodsResult.of(2, Arrays.asList(null, invalidGoods, validGoods)));
         when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenReturn(Optional.of(elementInfo));
+            .thenReturn(Optional.of(elementInfo));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
@@ -118,9 +118,9 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(2, List.of(firstGoods, secondGoods)));
+            .thenReturn(GetFulfillmentVendorGoodsResult.of(2, List.of(firstGoods, secondGoods)));
         when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenReturn(Optional.of(elementInfo));
+            .thenReturn(Optional.of(elementInfo));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
@@ -135,9 +135,9 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
+            .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
         when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
@@ -153,7 +153,7 @@ class GetAdminProductDetailUseCaseTest {
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenThrow(exception);
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(getFulfillmentVendorGoodsPort, getFulfillmentVendorGoodsElementPort);
     }
@@ -168,10 +168,10 @@ class GetAdminProductDetailUseCaseTest {
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id))).thenThrow(exception);
         lenient().when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -183,12 +183,12 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
+            .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
         when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
-                .thenThrow(exception);
+            .thenThrow(exception);
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private FulfillmentVendorGoodsInfoResult goodsInfoWithCstGodCd(String cstGodCd) {

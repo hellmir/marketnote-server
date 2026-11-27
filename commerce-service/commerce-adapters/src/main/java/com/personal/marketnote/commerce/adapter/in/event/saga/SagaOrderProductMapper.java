@@ -13,16 +13,16 @@ public final class SagaOrderProductMapper {
 
     public static List<OrderProduct> toOrderProducts(List<SagaOrderProductItem> items) {
         return items.stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .productId(item.productId())
-                                .quantity(item.quantity())
-                                .unitAmount(item.unitAmount())
-                                .sharerKey(item.sharerKey())
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .toList();
+            .map(item -> OrderProduct.from(
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(item.pricePolicyId())
+                    .productId(item.productId())
+                    .quantity(item.quantity())
+                    .unitAmount(item.unitAmount())
+                    .sharerKey(item.sharerKey())
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .toList();
     }
 }

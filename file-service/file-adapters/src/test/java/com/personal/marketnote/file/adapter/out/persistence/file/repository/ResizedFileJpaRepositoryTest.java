@@ -64,8 +64,8 @@ class ResizedFileJpaRepositoryTest {
 
             // then
             assertThat(result)
-                    .extracting(ResizedFileJpaEntity::getId)
-                    .containsExactly(third.getId(), second.getId(), first.getId());
+                .extracting(ResizedFileJpaEntity::getId)
+                .containsExactly(third.getId(), second.getId(), first.getId());
         }
 
         @Test
@@ -81,12 +81,12 @@ class ResizedFileJpaRepositoryTest {
 
             // when
             List<ResizedFileJpaEntity> result = resizedFileJpaRepository
-                    .findAllByFile_IdIn(List.of(fileA.getId(), fileB.getId()));
+                .findAllByFile_IdIn(List.of(fileA.getId(), fileB.getId()));
 
             // then
             assertThat(result)
-                    .extracting(ResizedFileJpaEntity::getId)
-                    .containsExactlyInAnyOrder(resizedA.getId(), resizedB.getId());
+                .extracting(ResizedFileJpaEntity::getId)
+                .containsExactlyInAnyOrder(resizedA.getId(), resizedB.getId());
         }
 
         @Test
@@ -102,12 +102,12 @@ class ResizedFileJpaRepositoryTest {
 
             // when
             List<ResizedFileJpaEntity> result = resizedFileJpaRepository
-                    .findAllByFile_IdIn(List.of(fileA.getId()));
+                .findAllByFile_IdIn(List.of(fileA.getId()));
 
             // then
             assertThat(result)
-                    .extracting(ResizedFileJpaEntity::getId)
-                    .containsExactly(resizedA.getId());
+                .extracting(ResizedFileJpaEntity::getId)
+                .containsExactly(resizedA.getId());
         }
 
         @Test
@@ -125,8 +125,8 @@ class ResizedFileJpaRepositoryTest {
 
             // then
             assertThat(result)
-                    .extracting(ResizedFileJpaEntity::getId)
-                    .containsExactly(active.getId());
+                .extracting(ResizedFileJpaEntity::getId)
+                .containsExactly(active.getId());
         }
 
         @Test
@@ -146,36 +146,36 @@ class ResizedFileJpaRepositoryTest {
 
     private FileJpaEntity persistFile() {
         FileDomain domain = FileDomain.from(FileDomainSnapshotState.builder()
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(1L)
-                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("jpg")
-                .name("test-image.jpg")
-                .storageUrl("https://bucket.s3.amazonaws.com/product/1/test.jpg")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(null)
-                .userId(100L)
-                .ownerKey("owner-key")
-                .build());
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(1L)
+            .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("jpg")
+            .name("test-image.jpg")
+            .storageUrl("https://bucket.s3.amazonaws.com/product/1/test.jpg")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(null)
+            .userId(100L)
+            .ownerKey("owner-key")
+            .build());
         FileJpaEntity entity = FileJpaEntity.from(domain, domain.getStorageUrl());
         return fileJpaRepository.saveAndFlush(entity);
     }
 
     private ResizedFileJpaEntity persistResizedFile(FileJpaEntity file, String size) {
         ResizedFileJpaEntity entity = ResizedFileJpaEntity.of(
-                file,
-                size,
-                "https://bucket.s3.amazonaws.com/resized/" + file.getId() + "/" + size + ".jpg"
+            file,
+            size,
+            "https://bucket.s3.amazonaws.com/resized/" + file.getId() + "/" + size + ".jpg"
         );
         return resizedFileJpaRepository.saveAndFlush(entity);
     }
 
     private void markResizedFileStatus(Long id, EntityStatus status) {
         entityManager.createNativeQuery("UPDATE resized_file SET status = :status WHERE id = :id")
-                .setParameter("status", status.name())
-                .setParameter("id", id)
-                .executeUpdate();
+            .setParameter("status", status.name())
+            .setParameter("id", id)
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
     }

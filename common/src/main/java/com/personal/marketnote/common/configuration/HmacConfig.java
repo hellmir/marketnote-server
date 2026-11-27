@@ -11,8 +11,8 @@ import java.time.Clock;
 public class HmacConfig {
     @Bean
     public HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder(
-            @Value("${spring.hmac.secret-key}") String hmacSecretKey,
-            Clock clock
+        @Value("${spring.hmac.secret-key}") String hmacSecretKey,
+        Clock clock
     ) {
         return new HmacServiceAuthHeaderBuilder(hmacSecretKey, clock);
     }

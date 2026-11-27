@@ -25,25 +25,25 @@ public class ReturnTracker {
             throw new ReturnTrackerOrderIdNoValueException();
         }
         return ReturnTracker.builder()
-                .orderId(state.getOrderId())
-                .returnSlipNumber(state.getReturnSlipNumber())
-                .inspectionStatus(ReturnInspectionStatus.PENDING)
-                .refundStatus(ReturnRefundStatus.PENDING)
-                .build();
+            .orderId(state.getOrderId())
+            .returnSlipNumber(state.getReturnSlipNumber())
+            .inspectionStatus(ReturnInspectionStatus.PENDING)
+            .refundStatus(ReturnRefundStatus.PENDING)
+            .build();
     }
 
     public static ReturnTracker from(ReturnTrackerSnapshotState state) {
         return ReturnTracker.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .returnSlipNumber(state.getReturnSlipNumber())
-                .inspectionStatus(state.getInspectionStatus())
-                .refundStatus(state.getRefundStatus())
-                .inspectedAt(state.getInspectedAt())
-                .refundedAt(state.getRefundedAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .returnSlipNumber(state.getReturnSlipNumber())
+            .inspectionStatus(state.getInspectionStatus())
+            .refundStatus(state.getRefundStatus())
+            .inspectedAt(state.getInspectedAt())
+            .refundedAt(state.getRefundedAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public boolean isInspectionPending() {
@@ -93,7 +93,7 @@ public class ReturnTracker {
     public void holdInspection() {
         if (!inspectionStatus.canTransitionTo(ReturnInspectionStatus.ON_HOLD)) {
             throw new InvalidReturnInspectionStatusTransitionException(
-                    inspectionStatus, ReturnInspectionStatus.ON_HOLD
+                inspectionStatus, ReturnInspectionStatus.ON_HOLD
             );
         }
         this.inspectionStatus = ReturnInspectionStatus.ON_HOLD;

@@ -18,7 +18,7 @@ public class GetFulfillmentDeliveryGoodDetailService implements GetFulfillmentDe
 
     @Override
     public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(
-            GetFulfillmentDeliveryGoodDetailCommand command
+        GetFulfillmentDeliveryGoodDetailCommand command
     ) {
         return getFulfillmentDeliveryGoodDetailPort.getDeliveryGoodDetail(command);
     }

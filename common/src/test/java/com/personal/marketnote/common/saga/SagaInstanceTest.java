@@ -19,12 +19,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SagaInstanceTest {
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-16T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-16T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     private SagaInstance createStartedInstance() {
         SagaInstanceCreateState state = new SagaInstanceCreateState(
-                "saga-id-1", "OrderPayment", "{\"orderId\":1}"
+            "saga-id-1", "OrderPayment", "{\"orderId\":1}"
         );
         return SagaInstance.from(state, FIXED_CLOCK);
     }
@@ -95,7 +95,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(() -> SagaInstance.from(state, FIXED_CLOCK))
-                    .isInstanceOf(SagaIdNoValueException.class);
+                .isInstanceOf(SagaIdNoValueException.class);
         }
 
         @Test
@@ -106,7 +106,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(() -> SagaInstance.from(state, FIXED_CLOCK))
-                    .isInstanceOf(SagaTypeNoValueException.class);
+                .isInstanceOf(SagaTypeNoValueException.class);
         }
     }
 
@@ -120,8 +120,8 @@ class SagaInstanceTest {
             // given
             LocalDateTime now = LocalDateTime.now(FIXED_CLOCK);
             SagaInstanceSnapshotState state = new SagaInstanceSnapshotState(
-                    1L, "saga-id-1", "OrderPayment", SagaStatus.PROCESSING,
-                    2, "{\"orderId\":1}", now, now, null
+                1L, "saga-id-1", "OrderPayment", SagaStatus.PROCESSING,
+                2, "{\"orderId\":1}", now, now, null
             );
 
             // when
@@ -165,7 +165,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(instance::process)
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 
@@ -194,7 +194,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(instance::advanceStep)
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 
@@ -224,7 +224,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(() -> instance.complete(FIXED_CLOCK))
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 
@@ -253,7 +253,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(instance::fail)
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 
@@ -282,7 +282,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(instance::rollback)
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 
@@ -312,7 +312,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(() -> instance.compensate(FIXED_CLOCK))
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 
@@ -341,7 +341,7 @@ class SagaInstanceTest {
 
             // when & then
             assertThatThrownBy(instance::failCompensation)
-                    .isInstanceOf(InvalidSagaStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStatusTransitionException.class);
         }
     }
 

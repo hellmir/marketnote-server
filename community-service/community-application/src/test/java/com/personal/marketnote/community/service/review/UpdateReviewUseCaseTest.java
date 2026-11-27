@@ -48,16 +48,16 @@ class UpdateReviewUseCaseTest {
         Long reviewId = 1L;
         Long reviewerId = 10L;
         UpdateReviewCommand command = UpdateReviewCommand.builder()
-                .id(reviewId)
-                .reviewerId(reviewerId)
-                .rating(4.0f)
-                .content("욕설포함내용")
-                .isPhoto(false)
-                .build();
+            .id(reviewId)
+            .reviewerId(reviewerId)
+            .rating(4.0f)
+            .content("욕설포함내용")
+            .isPhoto(false)
+            .build();
         when(findProfanityWordPort.containsProfanity("욕설포함내용")).thenReturn(true);
 
         assertThatThrownBy(() -> updateReviewService.updateReview(command))
-                .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
+            .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
 
         verifyNoInteractions(getReviewUseCase);
         verifyNoInteractions(updateReviewPort);
@@ -72,14 +72,14 @@ class UpdateReviewUseCaseTest {
         Review review = buildReview(reviewId, reviewerId, productId, 5.0f);
         when(getReviewUseCase.getReview(reviewId)).thenReturn(review);
         when(getReviewUseCase.getProductReviewAggregate(productId))
-                .thenReturn(buildProductReviewAggregate(productId));
+            .thenReturn(buildProductReviewAggregate(productId));
         UpdateReviewCommand command = UpdateReviewCommand.builder()
-                .id(reviewId)
-                .reviewerId(reviewerId)
-                .rating(4.0f)
-                .content("좋은 상품입니다")
-                .isPhoto(false)
-                .build();
+            .id(reviewId)
+            .reviewerId(reviewerId)
+            .rating(4.0f)
+            .content("좋은 상품입니다")
+            .isPhoto(false)
+            .build();
         when(findProfanityWordPort.containsProfanity("좋은 상품입니다")).thenReturn(false);
 
         updateReviewService.updateReview(command);
@@ -98,14 +98,14 @@ class UpdateReviewUseCaseTest {
         Review review = buildReviewWithKey(reviewId, reviewerId, productId, 5.0f, expectedReviewKey);
         when(getReviewUseCase.getReview(reviewId)).thenReturn(review);
         when(getReviewUseCase.getProductReviewAggregate(productId))
-                .thenReturn(buildProductReviewAggregate(productId));
+            .thenReturn(buildProductReviewAggregate(productId));
         UpdateReviewCommand command = UpdateReviewCommand.builder()
-                .id(reviewId)
-                .reviewerId(reviewerId)
-                .rating(4.0f)
-                .content("좋은 상품입니다")
-                .isPhoto(false)
-                .build();
+            .id(reviewId)
+            .reviewerId(reviewerId)
+            .rating(4.0f)
+            .content("좋은 상품입니다")
+            .isPhoto(false)
+            .build();
         when(findProfanityWordPort.containsProfanity("좋은 상품입니다")).thenReturn(false);
 
         UpdateReviewResult result = updateReviewService.updateReview(command);
@@ -115,28 +115,28 @@ class UpdateReviewUseCaseTest {
 
     private Review buildReviewWithKey(Long id, Long reviewerId, Long productId, Float rating, UUID reviewKey) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewKey(reviewKey)
-                        .reviewerId(reviewerId)
-                        .orderId(100L)
-                        .productId(productId)
-                        .pricePolicyId(30L)
-                        .productImageUrl("https://example.com/image.jpg")
-                        .selectedOptions("30개입, 5박스")
-                        .quantity(2)
-                        .reviewerName("테스트유저")
-                        .maskedReviewerName("테스트***")
-                        .rating(Rating.of(rating))
-                        .content("기존 리뷰 내용")
-                        .isPhoto(false)
-                        .isEdited(false)
-                        .likeCount(0)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewKey(reviewKey)
+                .reviewerId(reviewerId)
+                .orderId(100L)
+                .productId(productId)
+                .pricePolicyId(30L)
+                .productImageUrl("https://example.com/image.jpg")
+                .selectedOptions("30개입, 5박스")
+                .quantity(2)
+                .reviewerName("테스트유저")
+                .maskedReviewerName("테스트***")
+                .rating(Rating.of(rating))
+                .content("기존 리뷰 내용")
+                .isPhoto(false)
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 
@@ -146,35 +146,35 @@ class UpdateReviewUseCaseTest {
 
     private Review buildReview(Long id, Long reviewerId, Long productId, Float rating) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(100L)
-                        .productId(productId)
-                        .pricePolicyId(30L)
-                        .productImageUrl("https://example.com/image.jpg")
-                        .selectedOptions("30개입, 5박스")
-                        .quantity(2)
-                        .reviewerName("테스트유저")
-                        .maskedReviewerName("테스트***")
-                        .rating(Rating.of(rating))
-                        .content("기존 리뷰 내용")
-                        .isPhoto(false)
-                        .isEdited(false)
-                        .likeCount(0)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(100L)
+                .productId(productId)
+                .pricePolicyId(30L)
+                .productImageUrl("https://example.com/image.jpg")
+                .selectedOptions("30개입, 5박스")
+                .quantity(2)
+                .reviewerName("테스트유저")
+                .maskedReviewerName("테스트***")
+                .rating(Rating.of(rating))
+                .content("기존 리뷰 내용")
+                .isPhoto(false)
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 
     private com.personal.marketnote.community.domain.review.ProductReviewAggregate buildProductReviewAggregate(
-            Long productId
+        Long productId
     ) {
         return com.personal.marketnote.community.domain.review.ProductReviewAggregate.from(
-                buildReview(1L, 10L, productId, 5.0f)
+            buildReview(1L, 10L, productId, 5.0f)
         );
     }
 }

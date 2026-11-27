@@ -24,12 +24,12 @@ public class UserSignupCompletedRewardConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.USER_SIGNUP_COMPLETED,
-            groupId = "reward-service"
+        topics = KafkaTopicConstants.USER_SIGNUP_COMPLETED,
+        groupId = "reward-service"
     )
     public void handleUserSignupCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,30 +47,30 @@ public class UserSignupCompletedRewardConsumer {
             UserSignupCompletedEvent payload = envelope.getPayloadAs(UserSignupCompletedEvent.class, objectMapper);
 
             log.info("회원가입 완료 이벤트 수신. eventId={}, userId={}, userKey={}",
-                    envelope.eventId(), payload.userId(), payload.userKey());
+                envelope.eventId(), payload.userId(), payload.userKey());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("userId", payload.userId()))) {
+                EventPayloadValidator.id("userId", payload.userId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.userKey())) {
                 log.error("유효하지 않은 이벤트 페이로드. eventId={}, userKey=null",
-                        envelope.eventId());
+                    envelope.eventId());
                 acknowledgment.acknowledge();
                 return;
             }
 
             RegisterUserPointCommand command = RegisterUserPointCommand.of(
-                    payload.userId(), payload.userKey()
+                payload.userId(), payload.userKey()
             );
             registerUserPointUseCase.register(command);
 
             log.info("Kafka 이벤트로 포인트 초기화 완료. userId={}", payload.userId());
         } catch (DuplicateUserPointException e) {
             log.info("포인트가 이미 존재합니다 (멱등 처리). eventId={}, key={}",
-                    envelope.eventId(), record.key());
+                envelope.eventId(), record.key());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 

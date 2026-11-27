@@ -30,17 +30,17 @@ class RewardCommandToStateMapperTest {
         @DisplayName("DEDUCTION 입력 시 amount는 양수로 저장되고 changeType은 DEDUCTION으로 설정된다")
         void shouldKeepPositiveAmountAndSetDeductionChangeType() {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(USER_ID)
-                    .userKey("key")
-                    .changeType(UserPointChangeType.DEDUCTION)
-                    .amount(500L)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(SOURCE_ID)
-                    .reason("주문 사용")
-                    .build();
+                .userId(USER_ID)
+                .userKey("key")
+                .changeType(UserPointChangeType.DEDUCTION)
+                .amount(500L)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(SOURCE_ID)
+                .reason("주문 사용")
+                .build();
 
             UserPointHistoryCreateState state = RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
-                    command, USER_ID, ACCUMULATED_AT
+                command, USER_ID, ACCUMULATED_AT
             );
 
             assertThat(state.getAmount()).isEqualTo(PointAmount.of(500L));
@@ -52,17 +52,17 @@ class RewardCommandToStateMapperTest {
         @DisplayName("ACCRUAL 입력 시 amount는 양수로 저장되고 changeType은 ACCRUAL로 설정된다")
         void shouldKeepPositiveAmountAndSetAccrualChangeType() {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(USER_ID)
-                    .userKey("key")
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(1000L)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(SOURCE_ID)
-                    .reason("주문 적립")
-                    .build();
+                .userId(USER_ID)
+                .userKey("key")
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(1000L)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(SOURCE_ID)
+                .reason("주문 적립")
+                .build();
 
             UserPointHistoryCreateState state = RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
-                    command, USER_ID, ACCUMULATED_AT
+                command, USER_ID, ACCUMULATED_AT
             );
 
             assertThat(state.getAmount()).isEqualTo(PointAmount.of(1000L));
@@ -78,16 +78,16 @@ class RewardCommandToStateMapperTest {
         @DisplayName("DEDUCTION 입력 시 amount는 양수로 저장되고 changeType은 DEDUCTION으로 설정된다")
         void shouldKeepPositiveAmountAndSetDeductionChangeType() {
             ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
-                    .userId(USER_ID)
-                    .changeType(UserPointChangeType.DEDUCTION)
-                    .amount(300L)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(SOURCE_ID)
-                    .reason("결제 부분 취소 차감")
-                    .build();
+                .userId(USER_ID)
+                .changeType(UserPointChangeType.DEDUCTION)
+                .amount(300L)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(SOURCE_ID)
+                .reason("결제 부분 취소 차감")
+                .build();
 
             UserPointHistoryCreateState state = RewardCommandToStateMapper.mapToPendingPointHistoryCreateState(
-                    command, USER_ID, ACCUMULATED_AT
+                command, USER_ID, ACCUMULATED_AT
             );
 
             assertThat(state.getAmount()).isEqualTo(PointAmount.of(300L));
@@ -99,16 +99,16 @@ class RewardCommandToStateMapperTest {
         @DisplayName("ACCRUAL 입력 시 amount는 양수로 저장되고 changeType은 ACCRUAL로 설정된다")
         void shouldKeepPositiveAmountAndSetAccrualChangeType() {
             ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
-                    .userId(USER_ID)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(700L)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(SOURCE_ID)
-                    .reason("결제 적립 예정")
-                    .build();
+                .userId(USER_ID)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(700L)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(SOURCE_ID)
+                .reason("결제 적립 예정")
+                .build();
 
             UserPointHistoryCreateState state = RewardCommandToStateMapper.mapToPendingPointHistoryCreateState(
-                    command, USER_ID, ACCUMULATED_AT
+                command, USER_ID, ACCUMULATED_AT
             );
 
             assertThat(state.getAmount()).isEqualTo(PointAmount.of(700L));
@@ -124,14 +124,14 @@ class RewardCommandToStateMapperTest {
         @DisplayName("확정 이력은 항상 ACCRUAL changeType으로 저장된다")
         void shouldAlwaysSetAccrualChangeType() {
             ConfirmPendingPointCommand command = ConfirmPendingPointCommand.builder()
-                    .userId(USER_ID)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(SOURCE_ID)
-                    .reason("구매 확정")
-                    .build();
+                .userId(USER_ID)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(SOURCE_ID)
+                .reason("구매 확정")
+                .build();
 
             UserPointHistoryCreateState state = RewardCommandToStateMapper.mapToConfirmedPointHistoryCreateState(
-                    command, 500L, USER_ID, ACCUMULATED_AT
+                command, 500L, USER_ID, ACCUMULATED_AT
             );
 
             assertThat(state.getAmount()).isEqualTo(PointAmount.of(500L));
@@ -150,7 +150,7 @@ class RewardCommandToStateMapperTest {
             RegisterUserPointCommand command = RegisterUserPointCommand.of(USER_ID, "user-key");
 
             UserPointHistoryCreateState state = RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
-                    command, ACCUMULATED_AT
+                command, ACCUMULATED_AT
             );
 
             assertThat(state.getAmount()).isEqualTo(PointAmount.zero());

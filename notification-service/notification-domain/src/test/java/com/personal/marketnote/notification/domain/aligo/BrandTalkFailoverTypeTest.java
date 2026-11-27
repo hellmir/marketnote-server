@@ -12,9 +12,9 @@ class BrandTalkFailoverTypeTest {
 
     @ParameterizedTest
     @CsvSource({
-            "SMS, SMS",
-            "LMS, LMS",
-            "MMS, MMS"
+        "SMS, SMS",
+        "LMS, LMS",
+        "MMS, MMS"
     })
     @DisplayName("BrandTalkFailoverType.from — 유효 코드(SMS/LMS/MMS)를 Enum으로 변환한다")
     void shouldConvertValidCodes(String code, String expectedDescription) {
@@ -30,15 +30,15 @@ class BrandTalkFailoverTypeTest {
     @DisplayName("BrandTalkFailoverType.from — 무효 코드 시 InvalidBrandTalkFailoverException이 발생한다")
     void shouldThrowExceptionForInvalidCode() {
         assertThatThrownBy(() -> BrandTalkFailoverType.from("XMS"))
-                .isInstanceOf(InvalidBrandTalkFailoverException.class)
-                .hasMessageContaining("알 수 없는 대체 발송 유형");
+            .isInstanceOf(InvalidBrandTalkFailoverException.class)
+            .hasMessageContaining("알 수 없는 대체 발송 유형");
     }
 
     @Test
     @DisplayName("BrandTalkFailoverType.from — null 코드 시 InvalidBrandTalkFailoverException이 발생한다")
     void shouldThrowExceptionForNullCode() {
         assertThatThrownBy(() -> BrandTalkFailoverType.from(null))
-                .isInstanceOf(InvalidBrandTalkFailoverException.class);
+            .isInstanceOf(InvalidBrandTalkFailoverException.class);
     }
 
     @Test

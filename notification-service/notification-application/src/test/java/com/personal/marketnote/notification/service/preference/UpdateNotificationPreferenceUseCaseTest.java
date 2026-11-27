@@ -49,20 +49,20 @@ class UpdateNotificationPreferenceUseCaseTest {
         // given
         Long userId = 100L;
         NotificationPreference preference = NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(1L)
-                        .userId(userId)
-                        .notificationType(NotificationType.EVENT)
-                        .enabled(false)
-                        .consentedAt(null)
-                        .status(ACTIVE)
-                        .createdAt(LocalDateTime.of(2026, 4, 1, 0, 0))
-                        .modifiedAt(LocalDateTime.of(2026, 4, 1, 0, 0))
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(1L)
+                .userId(userId)
+                .notificationType(NotificationType.EVENT)
+                .enabled(false)
+                .consentedAt(null)
+                .status(ACTIVE)
+                .createdAt(LocalDateTime.of(2026, 4, 1, 0, 0))
+                .modifiedAt(LocalDateTime.of(2026, 4, 1, 0, 0))
+                .build()
         );
 
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(userId, NotificationType.EVENT))
-                .thenReturn(Optional.of(preference));
+            .thenReturn(Optional.of(preference));
 
         UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(userId, "EVENT", true);
 
@@ -85,20 +85,20 @@ class UpdateNotificationPreferenceUseCaseTest {
         Long userId = 100L;
         LocalDateTime consentedAt = LocalDateTime.of(2026, 4, 1, 0, 0);
         NotificationPreference preference = NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(1L)
-                        .userId(userId)
-                        .notificationType(NotificationType.EVENT)
-                        .enabled(true)
-                        .consentedAt(consentedAt)
-                        .status(ACTIVE)
-                        .createdAt(consentedAt)
-                        .modifiedAt(consentedAt)
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(1L)
+                .userId(userId)
+                .notificationType(NotificationType.EVENT)
+                .enabled(true)
+                .consentedAt(consentedAt)
+                .status(ACTIVE)
+                .createdAt(consentedAt)
+                .modifiedAt(consentedAt)
+                .build()
         );
 
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(userId, NotificationType.EVENT))
-                .thenReturn(Optional.of(preference));
+            .thenReturn(Optional.of(preference));
 
         UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(userId, "EVENT", false);
 
@@ -119,20 +119,20 @@ class UpdateNotificationPreferenceUseCaseTest {
         // given
         Long userId = 100L;
         NotificationPreference preference = NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(1L)
-                        .userId(userId)
-                        .notificationType(NotificationType.MARKETING)
-                        .enabled(false)
-                        .consentedAt(null)
-                        .status(ACTIVE)
-                        .createdAt(LocalDateTime.of(2026, 4, 1, 0, 0))
-                        .modifiedAt(LocalDateTime.of(2026, 4, 1, 0, 0))
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(1L)
+                .userId(userId)
+                .notificationType(NotificationType.MARKETING)
+                .enabled(false)
+                .consentedAt(null)
+                .status(ACTIVE)
+                .createdAt(LocalDateTime.of(2026, 4, 1, 0, 0))
+                .modifiedAt(LocalDateTime.of(2026, 4, 1, 0, 0))
+                .build()
         );
 
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(userId, NotificationType.MARKETING))
-                .thenReturn(Optional.of(preference));
+            .thenReturn(Optional.of(preference));
 
         UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(userId, "MARKETING", true);
 
@@ -155,15 +155,15 @@ class UpdateNotificationPreferenceUseCaseTest {
         Long userId = 200L;
 
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(
-                userId, NotificationType.ORDER_PAYMENT_COMPLETED
+            userId, NotificationType.ORDER_PAYMENT_COMPLETED
         )).thenReturn(Optional.empty());
 
         UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(
-                userId, "ORDER_PAYMENT_COMPLETED", true
+            userId, "ORDER_PAYMENT_COMPLETED", true
         );
 
         // when & then
         assertThatThrownBy(() -> updateNotificationPreferenceService.updateNotificationPreference(command))
-                .isInstanceOf(NotificationPreferenceNotFoundException.class);
+            .isInstanceOf(NotificationPreferenceNotFoundException.class);
     }
 }

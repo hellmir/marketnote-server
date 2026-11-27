@@ -121,12 +121,12 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "01012345678, 010-****-5678",
-                "01112345678, 011-****-5678",
-                "01612345678, 016-****-5678",
-                "01712345678, 017-****-5678",
-                "01812345678, 018-****-5678",
-                "01912345678, 019-****-5678"
+            "01012345678, 010-****-5678",
+            "01112345678, 011-****-5678",
+            "01612345678, 016-****-5678",
+            "01712345678, 017-****-5678",
+            "01812345678, 018-****-5678",
+            "01912345678, 019-****-5678"
         })
         @DisplayName("11자리 이통사 prefix(010/011/016/017/018/019)는 중간 4자리가 마스킹된다")
         void masksElevenDigitPhoneByCarrierPrefix(String raw, String expected) {
@@ -135,12 +135,12 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "0101234567, 010-****-4567",
-                "0111234567, 011-****-4567",
-                "0161234567, 016-****-4567",
-                "0171234567, 017-****-4567",
-                "0181234567, 018-****-4567",
-                "0191234567, 019-****-4567"
+            "0101234567, 010-****-4567",
+            "0111234567, 011-****-4567",
+            "0161234567, 016-****-4567",
+            "0171234567, 017-****-4567",
+            "0181234567, 018-****-4567",
+            "0191234567, 019-****-4567"
         })
         @DisplayName("10자리 이통사 prefix(010/011/016/017/018/019)는 중간 3자리가 마스킹된다")
         void masksTenDigitPhoneByCarrierPrefix(String raw, String expected) {
@@ -149,9 +149,9 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "010-123-4567, 010-****-4567",
-                "02-1234-5678, 02-****-5678",
-                "031-123-4567, 031-****-4567"
+            "010-123-4567, 010-****-4567",
+            "02-1234-5678, 02-****-5678",
+            "031-123-4567, 031-****-4567"
         })
         @DisplayName("하이픈 포함 10자리 포맷(이통사 3-3-4 / 서울 2-4-4 / 지역 3-3-4)은 중간 자릿수가 마스킹된다")
         void masksHyphenatedTenDigitPhoneByFormat(String raw, String expected) {
@@ -173,8 +173,8 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "021234567, 02-****-4567",
-                "027654321, 02-****-4321"
+            "021234567, 02-****-4567",
+            "027654321, 02-****-4321"
         })
         @DisplayName("하이픈 없는 9자리 서울 유선(02 + 7자리)은 02-****-{뒷4자리}로 마스킹된다")
         void masksNineDigitSeoulLandline(String raw, String expected) {
@@ -190,8 +190,8 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "0212345678, 02-****-5678",
-                "0298765432, 02-****-5432"
+            "0212345678, 02-****-5678",
+            "0298765432, 02-****-5432"
         })
         @DisplayName("하이픈 없는 10자리 서울 유선(02 + 8자리)은 02-****-{뒷4자리}로 마스킹된다")
         void masksTenDigitSeoulLandline(String raw, String expected) {
@@ -207,8 +207,8 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "07012345678, 070-****-5678",
-                "07087654321, 070-****-4321"
+            "07012345678, 070-****-5678",
+            "07087654321, 070-****-4321"
         })
         @DisplayName("11자리 070 인터넷전화는 기존대로 070-****-{뒷4자리}로 마스킹된다 (회귀 보호)")
         void masksElevenDigitInternetPhone(String raw, String expected) {
@@ -217,8 +217,8 @@ class PiiMaskingConverterTest {
 
         @ParameterizedTest(name = "{0} → {1}")
         @CsvSource({
-                "0701234567, 070-****-4567",
-                "0317654321, 031-****-4321"
+            "0701234567, 070-****-4567",
+            "0317654321, 031-****-4321"
         })
         @DisplayName("하이픈 없는 10자리 070/031 등 3자리 prefix 지역번호는 기존 매칭으로 정상 마스킹된다 (회귀 보호)")
         void masksTenDigitNonSeoulRegionalPhone(String raw, String expected) {
@@ -260,7 +260,7 @@ class PiiMaskingConverterTest {
         @DisplayName("email/userId/phone이 혼재한 메시지는 PII만 동시에 마스킹한다")
         void masksMultipleTokensAtOnce() {
             String masked = PiiMaskingConverter.mask(
-                    "email=foo@bar.com, userId=123, phone=010-1234-5678"
+                "email=foo@bar.com, userId=123, phone=010-1234-5678"
             );
             assertThat(masked).isEqualTo("email=f***@bar.com, userId=123, phone=010-****-5678");
         }
@@ -293,48 +293,48 @@ class PiiMaskingConverterTest {
         @DisplayName("email 키는 maskEmail 결과를 반환한다")
         void maskByKeyEmail() {
             assertThat(PiiMaskingConverter.maskByKey("email", "test@example.com"))
-                    .isEqualTo("t***@example.com");
+                .isEqualTo("t***@example.com");
         }
 
         @Test
         @DisplayName("phone 키는 maskPhone 결과를 반환한다")
         void maskByKeyPhone() {
             assertThat(PiiMaskingConverter.maskByKey("phone", "010-1234-5678"))
-                    .isEqualTo("010-****-5678");
+                .isEqualTo("010-****-5678");
         }
 
         @Test
         @DisplayName("nickname 키는 maskNickname 결과를 반환한다")
         void maskByKeyNickname() {
             assertThat(PiiMaskingConverter.maskByKey("nickname", "홍길동"))
-                    .isEqualTo("홍**");
+                .isEqualTo("홍**");
         }
 
         @Test
         @DisplayName("name 키는 maskName 결과를 반환한다")
         void maskByKeyName() {
             assertThat(PiiMaskingConverter.maskByKey("name", "홍길동"))
-                    .isEqualTo("홍**");
+                .isEqualTo("홍**");
         }
 
         @Test
         @DisplayName("화이트리스트 외 키(traceId/userId 등)는 원본을 그대로 반환한다")
         void maskByKeyPassesThroughNonPii() {
             assertThat(PiiMaskingConverter.maskByKey("traceId", "abc-123"))
-                    .isEqualTo("abc-123");
+                .isEqualTo("abc-123");
             assertThat(PiiMaskingConverter.maskByKey("userId", "42"))
-                    .isEqualTo("42");
+                .isEqualTo("42");
         }
 
         @Test
         @DisplayName("허용 키 변형(userEmail/NAME/phoneNumber)은 마스킹하지 않고 원본을 반환한다")
         void maskByKeyDoesNotMatchKeyVariants() {
             assertThat(PiiMaskingConverter.maskByKey("userEmail", "test@example.com"))
-                    .isEqualTo("test@example.com");
+                .isEqualTo("test@example.com");
             assertThat(PiiMaskingConverter.maskByKey("NAME", "홍길동"))
-                    .isEqualTo("홍길동");
+                .isEqualTo("홍길동");
             assertThat(PiiMaskingConverter.maskByKey("phoneNumber", "010-1234-5678"))
-                    .isEqualTo("010-1234-5678");
+                .isEqualTo("010-1234-5678");
         }
 
         @Test

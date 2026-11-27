@@ -45,16 +45,16 @@ class FulfillmentSettlementControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentSettlementDailyCostsUseCase.getDailyCosts(any(GetFulfillmentSettlementDailyCostsCommand.class)))
-                    .thenReturn(GetFulfillmentSettlementDailyCostsResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentSettlementDailyCostsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentSettlementDailyCostsResponse>> response =
-                    controller.getDailyCosts("202604", "WH01", CUSTOMER_CODE, ACCESS_TOKEN);
+                controller.getDailyCosts("202604", "WH01", CUSTOMER_CODE, ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetFulfillmentSettlementDailyCostsCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentSettlementDailyCostsCommand.class);
+                ArgumentCaptor.forClass(GetFulfillmentSettlementDailyCostsCommand.class);
             verify(getFulfillmentSettlementDailyCostsUseCase).getDailyCosts(captor.capture());
             assertThat(captor.getValue().customerCode()).isEqualTo(CUSTOMER_CODE);
             assertThat(captor.getValue().accessToken()).isEqualTo(ACCESS_TOKEN);

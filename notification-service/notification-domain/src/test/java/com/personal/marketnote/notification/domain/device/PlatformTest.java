@@ -36,21 +36,21 @@ class PlatformTest {
     @DisplayName("알 수 없는 Platform 문자열이면 예외를 던진다")
     void shouldThrowExceptionWhenUnknownPlatform() {
         assertThatThrownBy(() -> Platform.from("WEB"))
-                .isInstanceOf(InvalidPlatformException.class);
+            .isInstanceOf(InvalidPlatformException.class);
     }
 
     @Test
     @DisplayName("null 문자열이면 예외를 던진다")
     void shouldThrowExceptionWhenNull() {
         assertThatThrownBy(() -> Platform.from(null))
-                .isInstanceOf(InvalidPlatformException.class);
+            .isInstanceOf(InvalidPlatformException.class);
     }
 
     @Test
     @DisplayName("빈 문자열이면 예외를 던진다")
     void shouldThrowExceptionWhenEmpty() {
         assertThatThrownBy(() -> Platform.from(""))
-                .isInstanceOf(InvalidPlatformException.class);
+            .isInstanceOf(InvalidPlatformException.class);
     }
 
     @Test

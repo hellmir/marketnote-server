@@ -43,28 +43,28 @@ class NicknameTest {
         @DisplayName("null로 생성 시 NicknameNoValueException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> Nickname.of(null))
-                    .isInstanceOf(NicknameNoValueException.class);
+                .isInstanceOf(NicknameNoValueException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 NicknameNoValueException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> Nickname.of(""))
-                    .isInstanceOf(NicknameNoValueException.class);
+                .isInstanceOf(NicknameNoValueException.class);
         }
 
         @Test
         @DisplayName("공백만 있는 문자열로 생성 시 NicknameNoValueException을 던진다")
         void shouldThrowWhenBlank() {
             assertThatThrownBy(() -> Nickname.of("   "))
-                    .isInstanceOf(NicknameNoValueException.class);
+                .isInstanceOf(NicknameNoValueException.class);
         }
 
         @Test
         @DisplayName("2자 미만 닉네임으로 생성 시 InvalidNicknameException을 던진다")
         void shouldThrowWhenTooShort() {
             assertThatThrownBy(() -> Nickname.of("a"))
-                    .isInstanceOf(InvalidNicknameException.class);
+                .isInstanceOf(InvalidNicknameException.class);
         }
 
         @Test
@@ -73,21 +73,21 @@ class NicknameTest {
             String tooLong = "a".repeat(11);
 
             assertThatThrownBy(() -> Nickname.of(tooLong))
-                    .isInstanceOf(InvalidNicknameException.class);
+                .isInstanceOf(InvalidNicknameException.class);
         }
 
         @Test
         @DisplayName("특수문자가 포함된 닉네임으로 생성 시 InvalidNicknameException을 던진다")
         void shouldThrowWhenContainsSpecialCharacter() {
             assertThatThrownBy(() -> Nickname.of("hello!"))
-                    .isInstanceOf(InvalidNicknameException.class);
+                .isInstanceOf(InvalidNicknameException.class);
         }
 
         @Test
         @DisplayName("공백이 포함된 닉네임으로 생성 시 InvalidNicknameException을 던진다")
         void shouldThrowWhenContainsSpace() {
             assertThatThrownBy(() -> Nickname.of("hello world"))
-                    .isInstanceOf(InvalidNicknameException.class);
+                .isInstanceOf(InvalidNicknameException.class);
         }
     }
 

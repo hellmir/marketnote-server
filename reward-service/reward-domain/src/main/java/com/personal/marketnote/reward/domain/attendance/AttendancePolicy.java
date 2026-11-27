@@ -30,15 +30,15 @@ public class AttendancePolicy {
 
     public AttendancePolicy withStatus(EntityStatus status) {
         return AttendancePolicy.builder()
-                .id(id)
-                .continuousPeriod(continuousPeriod)
-                .rewardType(rewardType)
-                .rewardQuantity(rewardQuantity)
-                .attendenceDate(attendenceDate)
-                .status(status)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .build();
+            .id(id)
+            .continuousPeriod(continuousPeriod)
+            .rewardType(rewardType)
+            .rewardQuantity(rewardQuantity)
+            .attendenceDate(attendenceDate)
+            .status(status)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .build();
     }
 
     public boolean isActive() {
@@ -55,23 +55,23 @@ public class AttendancePolicy {
 
     public static AttendancePolicy from(AttendancePolicyCreateState state) {
         return AttendancePolicy.builder()
-                .continuousPeriod(state.getContinuousPeriod())
-                .rewardType(state.getRewardType())
-                .rewardQuantity(state.getRewardQuantity())
-                .attendenceDate(state.getAttendenceDate())
-                .build();
+            .continuousPeriod(state.getContinuousPeriod())
+            .rewardType(state.getRewardType())
+            .rewardQuantity(state.getRewardQuantity())
+            .attendenceDate(state.getAttendenceDate())
+            .build();
     }
 
     public static AttendancePolicy from(AttendancePolicySnapshotState state) {
         return AttendancePolicy.builder()
-                .id(state.getId())
-                .continuousPeriod(state.getContinuousPeriod())
-                .rewardType(state.getRewardType())
-                .rewardQuantity(state.getRewardQuantity())
-                .attendenceDate(state.getAttendenceDate())
-                .status(state.getStatus())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .continuousPeriod(state.getContinuousPeriod())
+            .rewardType(state.getRewardType())
+            .rewardQuantity(state.getRewardQuantity())
+            .attendenceDate(state.getAttendenceDate())
+            .status(state.getStatus())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 }

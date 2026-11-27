@@ -23,7 +23,7 @@ public class ReportPersistenceAdapter implements SaveReportPort, FindReportPort 
 
     @Override
     public boolean existsByTargetTypeAndTargetIdAndReporterId(
-            ReportTargetType targetType, Long targetId, Long reporterId
+        ReportTargetType targetType, Long targetId, Long reporterId
     ) {
         return reportJpaRepository.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId);
     }
@@ -31,11 +31,11 @@ public class ReportPersistenceAdapter implements SaveReportPort, FindReportPort 
     @Override
     public List<Report> findByTargetTypeAndTargetId(ReportTargetType targetType, Long targetId) {
         return reportJpaRepository.findByTargetTypeAndTargetId(targetType, targetId)
-                .stream()
-                .map(
-                        reportJpaEntity -> ReportJpaEntityToDomainMapper.mapToDomain(reportJpaEntity)
-                                .orElse(null)
-                )
-                .toList();
+            .stream()
+            .map(
+                reportJpaEntity -> ReportJpaEntityToDomainMapper.mapToDomain(reportJpaEntity)
+                    .orElse(null)
+            )
+            .toList();
     }
 }

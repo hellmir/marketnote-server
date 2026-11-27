@@ -42,12 +42,12 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
 
     private Message buildMessage(SendPushNotificationCommand command) {
         Message.Builder builder = Message.builder()
-                .setToken(command.deviceToken())
-                .setNotification(Notification.builder()
-                        .setTitle(command.title())
-                        .setBody(command.body())
-                        .build())
-                .putData("url", command.url());
+            .setToken(command.deviceToken())
+            .setNotification(Notification.builder()
+                .setTitle(command.title())
+                .setBody(command.body())
+                .build())
+            .putData("url", command.url());
 
         applyPlatformConfig(builder, command.platform());
 
@@ -57,21 +57,21 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
     private void applyPlatformConfig(Message.Builder builder, Platform platform) {
         if (platform.isAndroid()) {
             builder.setAndroidConfig(AndroidConfig.builder()
-                    .setNotification(AndroidNotification.builder()
-                            .setChannelId("default")
-                            .setSound("default")
-                            .build())
-                    .build());
+                .setNotification(AndroidNotification.builder()
+                    .setChannelId("default")
+                    .setSound("default")
+                    .build())
+                .build());
             return;
         }
 
         builder.setApnsConfig(ApnsConfig.builder()
-                .setAps(Aps.builder()
-                        .setSound("default")
-                        .setBadge(1)
-                        .setContentAvailable(true)
-                        .build())
-                .build());
+            .setAps(Aps.builder()
+                .setSound("default")
+                .setBadge(1)
+                .setContentAvailable(true)
+                .build())
+            .build());
     }
 
     private SendPushNotificationResult handleFirebaseMessagingException(FirebaseMessagingException fme) {
@@ -89,7 +89,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
 
     private boolean isTokenInvalid(MessagingErrorCode errorCode) {
         return errorCode == MessagingErrorCode.UNREGISTERED
-                || errorCode == MessagingErrorCode.INVALID_ARGUMENT;
+            || errorCode == MessagingErrorCode.INVALID_ARGUMENT;
     }
 
     @Override
@@ -103,15 +103,15 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
             List<SendPushNotificationCommand> chunk = commands.subList(i, end);
 
             List<Message> messages = chunk.stream()
-                    .map(this::buildMessage)
-                    .toList();
+                .map(this::buildMessage)
+                .toList();
 
             BatchResponse response = sendWithRetry(messages);
             if (FormatValidator.hasNoValue(response)) {
                 totalFailure += chunk.size();
                 for (SendPushNotificationCommand cmd : chunk) {
                     allFailedTokens.add(new SendBatchPushNotificationResult.FailedToken(
-                            cmd.deviceToken(), "BATCH_SEND_FAILED", false));
+                        cmd.deviceToken(), "BATCH_SEND_FAILED", false));
                 }
                 continue;
             }
@@ -129,7 +129,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
                 MessagingErrorCode errorCode = FormatValidator.hasValue(exception) ? exception.getMessagingErrorCode() : null;
                 String errorCodeName = FormatValidator.hasValue(errorCode) ? errorCode.name() : "UNKNOWN";
                 allFailedTokens.add(new SendBatchPushNotificationResult.FailedToken(
-                        chunk.get(j).deviceToken(), errorCodeName, isTokenInvalid(errorCode)));
+                    chunk.get(j).deviceToken(), errorCodeName, isTokenInvalid(errorCode)));
             }
         }
 

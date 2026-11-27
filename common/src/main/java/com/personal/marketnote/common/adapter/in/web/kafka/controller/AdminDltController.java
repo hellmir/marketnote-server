@@ -49,20 +49,20 @@ public class AdminDltController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ReprocessDltApiDocs
     public ResponseEntity<BaseResponse<ReprocessDltResponse>> reprocessDlt(
-            @Valid @RequestBody ReprocessDltRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody ReprocessDltRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         String operatorInfo = resolveOperatorInfo(principal);
         DltReprocessResult result = dltReprocessService.reprocess(request.originalTopic(), operatorInfo);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ReprocessDltResponse.from(request.originalTopic(), result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "DLT 메시지 재처리 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ReprocessDltResponse.from(request.originalTopic(), result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "DLT 메시지 재처리 완료"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -70,24 +70,24 @@ public class AdminDltController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ResolveDltApiDocs
     public ResponseEntity<BaseResponse<ResolveDltResponse>> resolveDlt(
-            @Valid @RequestBody ResolveDltRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody ResolveDltRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         String operatorInfo = resolveOperatorInfo(principal);
         DltResolveCommand command = new DltResolveCommand(
-                request.originalTopic(), request.partition(), request.offset(),
-                request.action(), request.reason()
+            request.originalTopic(), request.partition(), request.offset(),
+            request.action(), request.reason()
         );
         DltResolveResult result = dltResolveService.resolve(command, operatorInfo);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ResolveDltResponse.from(command, result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "DLT 메시지 해결 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ResolveDltResponse.from(command, result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "DLT 메시지 해결 완료"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -95,21 +95,21 @@ public class AdminDltController {
     @PreAuthorize(ADMIN_POINTCUT)
     @QueryDltMessagesApiDocs
     public ResponseEntity<BaseResponse<List<DltMessageResponse>>> queryDltMessages(
-            @RequestParam("original-topic") @NotBlank(message = "토픽명은 필수입니다") String topic,
-            @RequestParam(value = "limit", defaultValue = "100") @Min(1) @Max(500) int limit,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @RequestParam("original-topic") @NotBlank(message = "토픽명은 필수입니다") String topic,
+        @RequestParam(value = "limit", defaultValue = "100") @Min(1) @Max(500) int limit,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         dltAuditLogger.logQuery(topic, limit, resolveOperatorInfo(principal));
         List<DltMessageResponse> messages = dltQueryService.queryDltMessages(topic, limit);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        messages,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "DLT 메시지 조회 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                messages,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "DLT 메시지 조회 완료"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -117,19 +117,19 @@ public class AdminDltController {
     @PreAuthorize(ADMIN_POINTCUT)
     @QueryDltTopicSummariesApiDocs
     public ResponseEntity<BaseResponse<List<DltTopicSummaryResponse>>> queryDltTopicSummaries(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         dltAuditLogger.logSummaryQuery(resolveOperatorInfo(principal));
         List<DltTopicSummaryResponse> summaries = dltQueryService.queryAllDltTopicSummaries();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        summaries,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "DLT 토픽 요약 조회 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                summaries,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "DLT 토픽 요약 조회 완료"
+            ),
+            HttpStatus.OK
         );
     }
 

@@ -23,49 +23,49 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
 
     @Override
     public List<Long> findIdsByBuyerIdWithFilters(
-            Long buyerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            List<String> statuses,
-            int statusSize
+        Long buyerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        List<String> statuses,
+        int statusSize
     ) {
         return queryFactory
-                .select(order.id)
-                .distinct()
-                .from(order)
-                .where(
-                        order.buyerId.eq(buyerId),
-                        order.orderStatus.notIn(OrderStatus.PAYMENT_PENDING, OrderStatus.FAILED),
-                        createdAtOnOrAfter(startDate),
-                        createdAtBefore(endDate),
-                        statusesIn(statuses, statusSize)
-                )
-                .orderBy(order.id.desc())
-                .fetch();
+            .select(order.id)
+            .distinct()
+            .from(order)
+            .where(
+                order.buyerId.eq(buyerId),
+                order.orderStatus.notIn(OrderStatus.PAYMENT_PENDING, OrderStatus.FAILED),
+                createdAtOnOrAfter(startDate),
+                createdAtBefore(endDate),
+                statusesIn(statuses, statusSize)
+            )
+            .orderBy(order.id.desc())
+            .fetch();
     }
 
     @Override
     public List<Long> findIdsByAdminFilters(
-            Long sellerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            String orderStatus
+        Long sellerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String orderStatus
     ) {
         return queryFactory
-                .select(order.id)
-                .distinct()
-                .from(order)
-                .leftJoin(order.orderProductJpaEntities, orderProduct)
-                .where(
-                        order.orderStatus.ne(OrderStatus.PAYMENT_PENDING),
-                        sellerIdEq(sellerId),
-                        createdAtOnOrAfter(startDate),
-                        createdAtBefore(endDate),
-                        orderStatusEq(orderStatus)
-                )
-                .orderBy(order.id.desc())
-                .limit(ADMIN_QUERY_LIMIT)
-                .fetch();
+            .select(order.id)
+            .distinct()
+            .from(order)
+            .leftJoin(order.orderProductJpaEntities, orderProduct)
+            .where(
+                order.orderStatus.ne(OrderStatus.PAYMENT_PENDING),
+                sellerIdEq(sellerId),
+                createdAtOnOrAfter(startDate),
+                createdAtBefore(endDate),
+                orderStatusEq(orderStatus)
+            )
+            .orderBy(order.id.desc())
+            .limit(ADMIN_QUERY_LIMIT)
+            .fetch();
     }
 
     @Override
@@ -74,30 +74,30 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
             return List.of();
         }
         return queryFactory
-                .selectFrom(order)
-                .distinct()
-                .leftJoin(order.orderProductJpaEntities, orderProduct).fetchJoin()
-                .where(order.id.in(ids))
-                .fetch();
+            .selectFrom(order)
+            .distinct()
+            .leftJoin(order.orderProductJpaEntities, orderProduct).fetchJoin()
+            .where(order.id.in(ids))
+            .fetch();
     }
 
     @Override
     public List<Long> findOrderIdsScheduledForAutoConfirm(LocalDateTime now, Long lastId, int limit) {
         return queryFactory
-                .select(order.id)
-                .distinct()
-                .from(order)
-                .innerJoin(order.orderProductJpaEntities, orderProduct)
-                .where(
-                        order.orderStatus.eq(OrderStatus.DELIVERED),
-                        orderProduct.orderStatus.eq(OrderStatus.DELIVERED),
-                        orderProduct.scheduledAutoConfirmAt.isNotNull(),
-                        orderProduct.scheduledAutoConfirmAt.loe(now),
-                        order.id.gt(lastId)
-                )
-                .orderBy(order.id.asc())
-                .limit(limit)
-                .fetch();
+            .select(order.id)
+            .distinct()
+            .from(order)
+            .innerJoin(order.orderProductJpaEntities, orderProduct)
+            .where(
+                order.orderStatus.eq(OrderStatus.DELIVERED),
+                orderProduct.orderStatus.eq(OrderStatus.DELIVERED),
+                orderProduct.scheduledAutoConfirmAt.isNotNull(),
+                orderProduct.scheduledAutoConfirmAt.loe(now),
+                order.id.gt(lastId)
+            )
+            .orderBy(order.id.asc())
+            .limit(limit)
+            .fetch();
     }
 
     private BooleanExpression createdAtOnOrAfter(LocalDateTime startDate) {
@@ -122,8 +122,8 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
             return null;
         }
         List<OrderStatus> statusEnums = statuses.stream()
-                .map(OrderStatus::valueOf)
-                .toList();
+            .map(OrderStatus::valueOf)
+            .toList();
         return order.orderStatus.in(statusEnums);
     }
 

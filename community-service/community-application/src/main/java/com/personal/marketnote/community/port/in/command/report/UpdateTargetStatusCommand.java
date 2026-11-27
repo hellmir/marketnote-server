@@ -5,14 +5,14 @@ import lombok.Builder;
 
 @Builder
 public record UpdateTargetStatusCommand(
+    ReportTargetType targetType,
+    Long targetId,
+    boolean isVisible
+) {
+    public static UpdateTargetStatusCommand of(
         ReportTargetType targetType,
         Long targetId,
         boolean isVisible
-) {
-    public static UpdateTargetStatusCommand of(
-            ReportTargetType targetType,
-            Long targetId,
-            boolean isVisible
     ) {
         return new UpdateTargetStatusCommand(targetType, targetId, isVisible);
     }

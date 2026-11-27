@@ -34,7 +34,7 @@ public class UserFingerprintEventListener {
 
         try {
             UserFingerprint userFingerprint = UserFingerprint.from(
-                    UserFingerprintEventToStateMapper.mapToCreateState(event, LocalDateTime.now(clock))
+                UserFingerprintEventToStateMapper.mapToCreateState(event, LocalDateTime.now(clock))
             );
 
             saveUserFingerprintPort.save(userFingerprint);

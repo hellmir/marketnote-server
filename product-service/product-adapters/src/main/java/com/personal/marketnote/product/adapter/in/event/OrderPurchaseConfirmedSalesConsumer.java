@@ -26,11 +26,11 @@ public class OrderPurchaseConfirmedSalesConsumer {
 
     @KafkaListener(topics = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, groupId = CONSUMER_GROUP_ID)
     public void handleOrderPurchaseConfirmed(
-            ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack
+        ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack
     ) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
-                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED)) {
+            || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED)) {
             ack.acknowledge();
             return;
         }
@@ -42,7 +42,7 @@ public class OrderPurchaseConfirmedSalesConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()))) {
             ack.acknowledge();
             return;
         }

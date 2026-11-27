@@ -5,12 +5,12 @@ import com.personal.marketnote.commerce.port.in.result.order.GetAdminOrdersResul
 import java.util.List;
 
 public record GetAdminOrdersResponse(
-        List<GetOrderResponse> orders
+    List<GetOrderResponse> orders
 ) {
     public static GetAdminOrdersResponse from(GetAdminOrdersResult result) {
         List<GetOrderResponse> responses = result.orders().stream()
-                .map(GetOrderResponse::from)
-                .toList();
+            .map(GetOrderResponse::from)
+            .toList();
         return new GetAdminOrdersResponse(responses);
     }
 }

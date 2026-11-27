@@ -15,13 +15,13 @@ class AccountBalanceTest {
 
     private Account createAccount(AccountType accountType) {
         return Account.from(AccountSnapshotState.builder()
-                .id(1L)
-                .name("테스트 계정")
-                .accountType(accountType)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .build());
+            .id(1L)
+            .name("테스트 계정")
+            .accountType(accountType)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .build());
     }
 
     @Nested
@@ -108,13 +108,13 @@ class AccountBalanceTest {
         void shouldMapAccountInfoCorrectly() {
             // given
             Account account = Account.from(AccountSnapshotState.builder()
-                    .id(42L)
-                    .name("매출채권")
-                    .accountType(AccountType.ASSET)
-                    .status(EntityStatus.ACTIVE)
-                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                    .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                    .build());
+                .id(42L)
+                .name("매출채권")
+                .accountType(AccountType.ASSET)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .build());
 
             // when
             AccountBalance balance = AccountBalance.of(account, 200000L, 50000L);

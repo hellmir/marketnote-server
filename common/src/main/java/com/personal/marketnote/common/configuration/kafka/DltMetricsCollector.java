@@ -22,9 +22,9 @@ public class DltMetricsCollector {
             return;
         }
         counterRegistryHelper.increment(
-                "kafka.dlt.messages.total",
-                "DLT에 적재된 메시지 총 건수",
-                "original_topic", originalTopic
+            "kafka.dlt.messages.total",
+            "DLT에 적재된 메시지 총 건수",
+            "original_topic", originalTopic
         );
     }
 
@@ -33,10 +33,10 @@ public class DltMetricsCollector {
             return;
         }
         counterRegistryHelper.increment(
-                "kafka.dlt.reprocess.total",
-                "DLT 메시지 재처리 건수",
-                "original_topic", originalTopic,
-                "outcome", outcome
+            "kafka.dlt.reprocess.total",
+            "DLT 메시지 재처리 건수",
+            "original_topic", originalTopic,
+            "outcome", outcome
         );
     }
 
@@ -45,10 +45,10 @@ public class DltMetricsCollector {
             return;
         }
         counterRegistryHelper.increment(
-                "kafka.dlt.resolve.total",
-                "DLT 메시지 해결 건수",
-                "original_topic", originalTopic,
-                "action", action
+            "kafka.dlt.resolve.total",
+            "DLT 메시지 해결 건수",
+            "original_topic", originalTopic,
+            "action", action
         );
     }
 }

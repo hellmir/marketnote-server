@@ -29,9 +29,9 @@ public class VerifyCodeService implements VerifyCodeUseCase {
         String email = verifyCodeCommand.getEmail();
 
         if (
-                !verifyCodePort.verify(
-                        email, verifyCodeCommand.getVerificationCode()
-                )
+            !verifyCodePort.verify(
+                email, verifyCodeCommand.getVerificationCode()
+            )
         ) {
             log.warn("이메일 인증 코드가 유효하지 않거나 만료되었습니다. email={}", email);
             throw new InvalidVerificationCodeException();

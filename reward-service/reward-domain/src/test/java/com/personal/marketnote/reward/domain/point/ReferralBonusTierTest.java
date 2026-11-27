@@ -98,7 +98,7 @@ class ReferralBonusTierTest {
     void findAllAchievedTiersReturnsAllWhenCount20() {
         List<ReferralBonusTier> tiers = ReferralBonusTier.findAllAchievedTiers(20);
         assertThat(tiers).containsExactly(
-                ReferralBonusTier.TIER_1, ReferralBonusTier.TIER_2, ReferralBonusTier.TIER_3
+            ReferralBonusTier.TIER_1, ReferralBonusTier.TIER_2, ReferralBonusTier.TIER_3
         );
     }
 

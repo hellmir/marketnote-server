@@ -21,11 +21,11 @@ class ReviewVersionHistoryTest {
         @DisplayName("CreateState로 생성하면 id와 createdAt은 null이고 나머지 필드가 매핑된다")
         void shouldMapFieldsFromCreateState() {
             ReviewVersionHistoryCreateState state = ReviewVersionHistoryCreateState.builder()
-                    .reviewId(100L)
-                    .rating(Rating.of(5f))
-                    .content("신규 버전 리뷰 내용")
-                    .isPhoto(true)
-                    .build();
+                .reviewId(100L)
+                .rating(Rating.of(5f))
+                .content("신규 버전 리뷰 내용")
+                .isPhoto(true)
+                .build();
 
             ReviewVersionHistory history = ReviewVersionHistory.from(state);
 
@@ -41,11 +41,11 @@ class ReviewVersionHistoryTest {
         @DisplayName("isPhoto가 false로 설정되면 false로 매핑된다")
         void shouldMapIsPhotoFalse() {
             ReviewVersionHistoryCreateState state = ReviewVersionHistoryCreateState.builder()
-                    .reviewId(200L)
-                    .rating(Rating.of(3f))
-                    .content("텍스트 전용 리뷰")
-                    .isPhoto(false)
-                    .build();
+                .reviewId(200L)
+                .rating(Rating.of(3f))
+                .content("텍스트 전용 리뷰")
+                .isPhoto(false)
+                .build();
 
             ReviewVersionHistory history = ReviewVersionHistory.from(state);
 
@@ -61,13 +61,13 @@ class ReviewVersionHistoryTest {
         @DisplayName("SnapshotState로 복원하면 id와 createdAt까지 모든 필드가 매핑된다")
         void shouldRestoreAllFields() {
             ReviewVersionHistorySnapshotState state = ReviewVersionHistorySnapshotState.builder()
-                    .id(999L)
-                    .reviewId(200L)
-                    .rating(Rating.of(1f))
-                    .content("복원된 리뷰")
-                    .isPhoto(false)
-                    .createdAt(CREATED_AT)
-                    .build();
+                .id(999L)
+                .reviewId(200L)
+                .rating(Rating.of(1f))
+                .content("복원된 리뷰")
+                .isPhoto(false)
+                .createdAt(CREATED_AT)
+                .build();
 
             ReviewVersionHistory history = ReviewVersionHistory.from(state);
 

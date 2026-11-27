@@ -34,8 +34,8 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ProductOptionPersistenceAdapter
-        implements SaveProductOptionsPort, DeleteProductOptionCategoryPort, FindProductOptionCategoryPort,
-        FindProductOptionPort, UpdateOptionPricePolicyPort {
+    implements SaveProductOptionsPort, DeleteProductOptionCategoryPort, FindProductOptionCategoryPort,
+    FindProductOptionPort, UpdateOptionPricePolicyPort {
     private final ProductJpaRepository productJpaRepository;
     private final ProductOptionCategoryJpaRepository productOptionCategoryJpaRepository;
     private final ProductOptionJpaRepository productOptionJpaRepository;
@@ -47,13 +47,13 @@ public class ProductOptionPersistenceAdapter
     public ProductOptionCategory save(ProductOptionCategory productOptionCategory) {
         Long productId = productOptionCategory.getProduct().getId();
         ProductJpaEntity product = productJpaRepository.findById(productId)
-                .orElseThrow(() -> {
-                    log.warn("상품을 찾을 수 없습니다. productId={}", productId);
-                    return new ProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("상품을 찾을 수 없습니다. productId={}", productId);
+                return new ProductNotFoundException();
+            });
 
         ProductOptionCategoryJpaEntity savedCategory = productOptionCategoryJpaRepository.save(
-                ProductOptionCategoryJpaEntity.from(productOptionCategory, product));
+            ProductOptionCategoryJpaEntity.from(productOptionCategory, product));
         savedCategory.addOrderNum();
 
         // 생성된 각 옵션 및 기존 옵션과의 조합에 대해 기본 가격 정책 등록
@@ -61,20 +61,20 @@ public class ProductOptionPersistenceAdapter
 
         // 상품의 모든 활성 카테고리와 옵션 가져오기
         List<ProductOptionCategoryJpaEntity> allCategories = productOptionCategoryJpaRepository
-                .findActiveWithOptionsByProductId(productId);
+            .findActiveWithOptionsByProductId(productId);
         List<PricePolicyJpaEntity> newPolicies = new ArrayList<>();
         List<ProductOptionPricePolicyJpaEntity> newOptionPolicies = new ArrayList<>();
         registerPricePoliciesToOptionCombinations(allCategories, savedCategory, newPolicies, newOptionPolicies, product);
 
         // 기존 가격 정책 비활성화 및 옵션-가격 정책 매핑 삭제 (장바구니 참조 보호)
         List<PricePolicyJpaEntity> existingPolicies
-                = pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(productId);
+            = pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(productId);
         if (FormatValidator.hasNoValue(existingPolicies)) {
             existingPolicies = List.of();
         }
         List<Long> existingPolicyIds = existingPolicies.stream()
-                .map(PricePolicyJpaEntity::getId)
-                .toList();
+            .map(PricePolicyJpaEntity::getId)
+            .toList();
         if (FormatValidator.hasValue(existingPolicyIds)) {
             productOptionPricePolicyJpaRepository.deleteByPricePolicyIds(existingPolicyIds);
         }
@@ -90,11 +90,11 @@ public class ProductOptionPersistenceAdapter
     }
 
     private void registerPricePoliciesToOptionCombinations(
-            List<ProductOptionCategoryJpaEntity> allCategories,
-            ProductOptionCategoryJpaEntity category,
-            List<PricePolicyJpaEntity> newPolicies,
-            List<ProductOptionPricePolicyJpaEntity> newOptionPolicies,
-            ProductJpaEntity product
+        List<ProductOptionCategoryJpaEntity> allCategories,
+        ProductOptionCategoryJpaEntity category,
+        List<PricePolicyJpaEntity> newPolicies,
+        List<ProductOptionPricePolicyJpaEntity> newOptionPolicies,
+        ProductJpaEntity product
     ) {
         PricePolicyJpaEntity defaultPricePolicy = product.getDefaultPricePolicy();
 
@@ -109,11 +109,11 @@ public class ProductOptionPersistenceAdapter
 
         if (allCategories.size() == 1) {
             category.getProductOptionJpaEntities()
-                    .forEach(newOption -> {
-                        PricePolicyJpaEntity pricePolicy = createPricePolicyFromDefault(product, product.getDefaultPricePolicy());
-                        newPolicies.add(pricePolicy);
-                        newOptionPolicies.add(ProductOptionPricePolicyJpaEntity.of(newOption, pricePolicy));
-                    });
+                .forEach(newOption -> {
+                    PricePolicyJpaEntity pricePolicy = createPricePolicyFromDefault(product, product.getDefaultPricePolicy());
+                    newPolicies.add(pricePolicy);
+                    newOptionPolicies.add(ProductOptionPricePolicyJpaEntity.of(newOption, pricePolicy));
+                });
             return;
         }
 
@@ -124,8 +124,8 @@ public class ProductOptionPersistenceAdapter
 
         // 옵션 카테고리별로 옵션 목록 정렬
         List<List<ProductOptionJpaEntity>> optionGroups = allCategories.stream()
-                .map(ProductOptionCategoryJpaEntity::getProductOptionJpaEntities)
-                .toList();
+            .map(ProductOptionCategoryJpaEntity::getProductOptionJpaEntities)
+            .toList();
 
         // 각 옵션 조합 목록 생성
         List<List<ProductOptionJpaEntity>> productOptionCombinations = cartesianProduct(optionGroups);
@@ -136,9 +136,9 @@ public class ProductOptionPersistenceAdapter
 
             // 옵션 조합과 가격 정책 연결
             productOptionCombination.forEach(
-                    option -> newOptionPolicies.add(
-                            ProductOptionPricePolicyJpaEntity.of(option, pricePolicy)
-                    )
+                option -> newOptionPolicies.add(
+                    ProductOptionPricePolicyJpaEntity.of(option, pricePolicy)
+                )
             );
         });
 
@@ -146,7 +146,7 @@ public class ProductOptionPersistenceAdapter
     }
 
     private List<List<ProductOptionJpaEntity>> cartesianProduct(
-            List<List<ProductOptionJpaEntity>> optionGroups
+        List<List<ProductOptionJpaEntity>> optionGroups
     ) {
         List<List<ProductOptionJpaEntity>> result = new ArrayList<>();
         if (FormatValidator.hasNoValue(optionGroups)) {
@@ -158,10 +158,10 @@ public class ProductOptionPersistenceAdapter
     }
 
     private void backtrackCartesian(
-            List<List<ProductOptionJpaEntity>> optionGroups,
-            int depth,
-            List<ProductOptionJpaEntity> path,
-            List<List<ProductOptionJpaEntity>> result
+        List<List<ProductOptionJpaEntity>> optionGroups,
+        int depth,
+        List<ProductOptionJpaEntity> path,
+        List<List<ProductOptionJpaEntity>> result
     ) {
         if (depth == optionGroups.size()) {
             result.add(new ArrayList<>(path));
@@ -176,17 +176,17 @@ public class ProductOptionPersistenceAdapter
     }
 
     private PricePolicyJpaEntity createPricePolicyFromDefault(
-            ProductJpaEntity product,
-            PricePolicyJpaEntity defaultPricePolicy
+        ProductJpaEntity product,
+        PricePolicyJpaEntity defaultPricePolicy
     ) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(defaultPricePolicy.getPrice())
-                        .discountPrice(defaultPricePolicy.getDiscountPrice())
-                        .discountRate(Rate.of(defaultPricePolicy.getDiscountRate()))
-                        .accumulatedPoint(defaultPricePolicy.getAccumulatedPoint())
-                        .accumulationRate(Rate.of(defaultPricePolicy.getAccumulationRate()))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(defaultPricePolicy.getPrice())
+                .discountPrice(defaultPricePolicy.getDiscountPrice())
+                .discountRate(Rate.of(defaultPricePolicy.getDiscountRate()))
+                .accumulatedPoint(defaultPricePolicy.getAccumulatedPoint())
+                .accumulationRate(Rate.of(defaultPricePolicy.getAccumulationRate()))
+                .build()
         );
 
         return PricePolicyJpaEntity.from(product, pricePolicy);
@@ -212,11 +212,11 @@ public class ProductOptionPersistenceAdapter
     @Override
     public List<ProductOptionCategory> findActiveWithOptionsByProductId(Long productId) {
         return productOptionCategoryJpaRepository.findActiveWithOptionsByProductId(productId)
-                .stream()
-                .map(ProductJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .stream()
+            .map(ProductJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
@@ -249,8 +249,8 @@ public class ProductOptionPersistenceAdapter
             return List.of();
         }
         return productOptionJpaRepository.findByProductIdAndIds(productId, ids).stream()
-                .map(ProductJpaEntityToDomainMapper::mapToDomain)
-                .flatMap(Optional::stream)
-                .toList();
+            .map(ProductJpaEntityToDomainMapper::mapToDomain)
+            .flatMap(Optional::stream)
+            .toList();
     }
 }

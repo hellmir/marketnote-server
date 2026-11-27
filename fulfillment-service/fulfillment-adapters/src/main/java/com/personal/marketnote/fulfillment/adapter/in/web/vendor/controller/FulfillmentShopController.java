@@ -57,22 +57,22 @@ public class FulfillmentShopController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterFulfillmentShopApiDocs
     public ResponseEntity<BaseResponse<RegisterFulfillmentShopResponse>> registerShop(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody RegisterFulfillmentShopRequest request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody RegisterFulfillmentShopRequest request
     ) {
         RegisterFulfillmentShopResult result = registerFulfillmentShopUseCase.registerShop(
-                FulfillmentShopRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
+            FulfillmentShopRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterFulfillmentShopResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 출고처 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterFulfillmentShopResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 출고처 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -89,21 +89,21 @@ public class FulfillmentShopController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentShopsApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentShopsResponse>> getShops(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentShopsResult result = getFulfillmentShopsUseCase.getShops(
-                FulfillmentShopRequestToCommandMapper.mapToShopsCommand(customerCode, accessToken)
+            FulfillmentShopRequestToCommandMapper.mapToShopsCommand(customerCode, accessToken)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentShopsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 출고처 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentShopsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 출고처 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -121,22 +121,22 @@ public class FulfillmentShopController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateFulfillmentShopApiDocs
     public ResponseEntity<BaseResponse<UpdateFulfillmentShopResponse>> updateShop(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody UpdateFulfillmentShopRequest request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody UpdateFulfillmentShopRequest request
     ) {
         UpdateFulfillmentShopResult result = updateFulfillmentShopUseCase.updateShop(
-                FulfillmentShopRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
+            FulfillmentShopRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateFulfillmentShopResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 출고처 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateFulfillmentShopResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 출고처 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

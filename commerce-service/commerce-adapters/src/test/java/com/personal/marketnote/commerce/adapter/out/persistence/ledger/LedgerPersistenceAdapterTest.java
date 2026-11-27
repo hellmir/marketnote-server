@@ -51,23 +51,23 @@ class LedgerPersistenceAdapterTest {
 
     private LedgerTransaction buildTransaction(String idempotencyKey) {
         return LedgerTransaction.from(
-                LedgerTransactionCreateState.builder()
-                        .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                        .targetType("ORDER")
-                        .targetId(1L)
-                        .description("결제 승인")
-                        .idempotencyKey(IdempotencyKey.of(idempotencyKey))
-                        .build()
+            LedgerTransactionCreateState.builder()
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("결제 승인")
+                .idempotencyKey(IdempotencyKey.of(idempotencyKey))
+                .build()
         );
     }
 
     private LedgerEntry buildEntry(Long accountId, Long amount, TransactionType type) {
         return LedgerEntry.from(
-                LedgerEntryCreateState.builder()
-                        .accountId(accountId)
-                        .amount(amount)
-                        .transactionType(type)
-                        .build()
+            LedgerEntryCreateState.builder()
+                .accountId(accountId)
+                .amount(amount)
+                .transactionType(type)
+                .build()
         );
     }
 
@@ -101,7 +101,7 @@ class LedgerPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.save(buildTransaction("PAYMENT_APPROVAL:1")))
-                    .isInstanceOf(DuplicateLedgerTransactionException.class);
+                .isInstanceOf(DuplicateLedgerTransactionException.class);
         }
     }
 
@@ -145,8 +145,8 @@ class LedgerPersistenceAdapterTest {
             // given
             LedgerTransaction saved = adapter.save(buildTransaction("PAYMENT_APPROVAL:5"));
             List<LedgerEntry> entries = List.of(
-                    buildEntry(1L, 10000L, TransactionType.DEBIT),
-                    buildEntry(2L, 10000L, TransactionType.CREDIT)
+                buildEntry(1L, 10000L, TransactionType.DEBIT),
+                buildEntry(2L, 10000L, TransactionType.CREDIT)
             );
             entries.forEach(entry -> entry.assignTransaction(saved.getId()));
 

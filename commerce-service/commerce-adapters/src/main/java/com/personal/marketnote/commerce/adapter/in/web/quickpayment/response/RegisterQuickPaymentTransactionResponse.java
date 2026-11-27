@@ -6,17 +6,17 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record RegisterQuickPaymentTransactionResponse(
-        String transactionId,
-        String approvalKey,
-        String payUrl,
-        String traceNo
+    String transactionId,
+    String approvalKey,
+    String payUrl,
+    String traceNo
 ) {
     public static RegisterQuickPaymentTransactionResponse from(RegisterQuickPaymentTransactionResult result) {
         return RegisterQuickPaymentTransactionResponse.builder()
-                .transactionId(result.transactionId())
-                .approvalKey(result.approvalKey())
-                .payUrl(result.payUrl())
-                .traceNo(result.traceNo())
-                .build();
+            .transactionId(result.transactionId())
+            .approvalKey(result.approvalKey())
+            .payUrl(result.payUrl())
+            .traceNo(result.traceNo())
+            .build();
     }
 }

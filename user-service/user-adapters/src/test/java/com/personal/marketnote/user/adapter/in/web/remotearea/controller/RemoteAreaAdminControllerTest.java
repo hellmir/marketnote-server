@@ -63,7 +63,7 @@ class RemoteAreaAdminControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterRemoteAreaCommand> captor =
-                    ArgumentCaptor.forClass(RegisterRemoteAreaCommand.class);
+                ArgumentCaptor.forClass(RegisterRemoteAreaCommand.class);
             verify(registerRemoteAreaUseCase).registerRemoteArea(captor.capture());
             RegisterRemoteAreaCommand captured = captor.getValue();
             assertThat(captured.province()).isEqualTo("제주특별자치도");
@@ -83,7 +83,7 @@ class RemoteAreaAdminControllerTest {
         void returnsRemoteAreaList() {
             // given
             GetRemoteAreaResult result = new GetRemoteAreaResult(List.of(
-                    new GetRemoteAreaItemResult(1L, "제주특별자치도", "서귀포시", "대정읍", "마라도")
+                new GetRemoteAreaItemResult(1L, "제주특별자치도", "서귀포시", "대정읍", "마라도")
             ));
             when(getRemoteAreaUseCase.getRemoteAreas()).thenReturn(result);
 

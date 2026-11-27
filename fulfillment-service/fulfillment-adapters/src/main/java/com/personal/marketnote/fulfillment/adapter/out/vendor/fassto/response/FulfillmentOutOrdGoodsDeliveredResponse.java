@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentOutOrdGoodsDeliveredResponse(
-        String cstGodCd,
-        String godNm,
-        Integer packQty
+    String cstGodCd,
+    String godNm,
+    Integer packQty
 ) {
 }

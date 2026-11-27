@@ -33,25 +33,25 @@ public class GetPaymentService implements GetPaymentUseCase {
     public GetPaymentResult getPayment(Long buyerId, String orderKey) {
         UUID orderKeyUuid = UUID.fromString(orderKey);
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                return new PaymentNotFoundException();
+            });
 
         verifyOrderOwnership(payment.getOrderId(), buyerId);
 
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(orderKey)
-                .orElse(null);
+            .orElse(null);
 
         return GetPaymentResult.of(payment, event);
     }
 
     private void verifyOrderOwnership(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> {
-                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
-                    return new OrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                return new OrderNotFoundException();
+            });
 
         if (!order.isBuyer(buyerId)) {
             log.warn("결제 조회 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);

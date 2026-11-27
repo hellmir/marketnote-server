@@ -125,8 +125,8 @@ class SlowRequestLoggingFilterTest {
 
         // when / then
         assertThatThrownBy(() -> filter.doFilter(request, response, throwingChain))
-                .isInstanceOf(ServletException.class)
-                .hasMessageContaining("downstream failure");
+            .isInstanceOf(ServletException.class)
+            .hasMessageContaining("downstream failure");
         assertThat(appender.list).hasSize(1);
         ILoggingEvent event = appender.list.get(0);
         assertThat(event.getLevel()).isEqualTo(Level.WARN);

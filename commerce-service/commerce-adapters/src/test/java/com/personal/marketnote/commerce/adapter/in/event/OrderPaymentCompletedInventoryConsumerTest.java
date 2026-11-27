@@ -42,22 +42,22 @@ class OrderPaymentCompletedInventoryConsumerTest {
                                                                  Long totalAmount, Long pointAmount,
                                                                  List<OrderProductItem> orderProducts) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount,
-                null, null, null, null, null, null,
-                orderProducts, null
+            orderId, buyerId, totalAmount, pointAmount,
+            null, null, null, null, null, null,
+            orderProducts, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L,
-                String.valueOf(orderId), envelope);
+            String.valueOf(orderId), envelope);
     }
 
     private List<OrderProductItem> createOrderProductItems() {
         return List.of(
-                new OrderProductItem(100L, null, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
-                new OrderProductItem(101L, null, null, null, 1, 20000L)
+            new OrderProductItem(100L, null, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
+            new OrderProductItem(101L, null, null, null, 1, 20000L)
         );
     }
 
@@ -74,7 +74,7 @@ class OrderPaymentCompletedInventoryConsumerTest {
 
         // then
         verify(reduceProductInventoryUseCase).reduce(
-                anyList(), eq(1L), eq("Kafka 결제 완료 재고 차감")
+            anyList(), eq(1L), eq("Kafka 결제 완료 재고 차감")
         );
         verify(acknowledgment).acknowledge();
     }
@@ -93,7 +93,7 @@ class OrderPaymentCompletedInventoryConsumerTest {
         // then
         @SuppressWarnings("unchecked")
         org.mockito.ArgumentCaptor<List<OrderProduct>> captor =
-                org.mockito.ArgumentCaptor.forClass(List.class);
+            org.mockito.ArgumentCaptor.forClass(List.class);
         verify(reduceProductInventoryUseCase).reduce(captor.capture(), eq(1L), anyString());
 
         List<OrderProduct> orderProducts = captor.getValue();
@@ -159,7 +159,7 @@ class OrderPaymentCompletedInventoryConsumerTest {
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
         doThrow(new DuplicateInventoryDeductionException(1L))
-                .when(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
+            .when(reduceProductInventoryUseCase).reduce(anyList(), eq(1L), anyString());
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
@@ -173,7 +173,7 @@ class OrderPaymentCompletedInventoryConsumerTest {
     void handleOrderPaymentCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", null
+            "commerce.order.payment-completed", 0, 0L, "1", null
         );
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
@@ -191,16 +191,16 @@ class OrderPaymentCompletedInventoryConsumerTest {
         // given
         List<OrderProductItem> items = createOrderProductItems();
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 50L, 80000L, 5000L,
-                null, null, null, null, null, null,
-                items, null
+            1L, 50L, 80000L, 5000L,
+            null, null, null, null, null, null,
+            items, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", envelope
+            "commerce.order.payment-completed", 0, 0L, "1", envelope
         );
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
@@ -249,19 +249,19 @@ class OrderPaymentCompletedInventoryConsumerTest {
     void handleOrderPaymentCompletedEvent_unexpectedException_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 3, 5, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 3, 5, 10, 0), "invalid-payload"
         );
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.order.payment-completed", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
         Acknowledgment acknowledgment = mock(Acknowledgment.class);
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

@@ -38,27 +38,27 @@ class GifticonGoodsJpaRepositoryTest {
     private EntityManager em;
 
     private GifticonGoodsJpaEntity persistGoods(
-            String goodsCode, String brandCode, String categoryCode,
-            GoodsStatus status, boolean exposed, boolean popular, Integer orderNum
+        String goodsCode, String brandCode, String categoryCode,
+        GoodsStatus status, boolean exposed, boolean popular, Integer orderNum
     ) {
         GifticonGoods domain = GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .goodsCode(goodsCode)
-                .goodsName("상품 " + goodsCode)
-                .brandCode(brandCode)
-                .brandName("브랜드 " + brandCode)
-                .brandImageUrl("http://img.test.com/brand.jpg")
-                .categoryCode(categoryCode)
-                .realPrice(12_000L)
-                .salePrice(10_000L)
-                .cashPrice(10_000L)
-                .imageUrl("http://img.test.com/goods.jpg")
-                .description("설명")
-                .validDays(30)
-                .goodsStatus(status)
-                .exposed(exposed)
-                .popular(popular)
-                .orderNum(orderNum)
-                .build());
+            .goodsCode(goodsCode)
+            .goodsName("상품 " + goodsCode)
+            .brandCode(brandCode)
+            .brandName("브랜드 " + brandCode)
+            .brandImageUrl("http://img.test.com/brand.jpg")
+            .categoryCode(categoryCode)
+            .realPrice(12_000L)
+            .salePrice(10_000L)
+            .cashPrice(10_000L)
+            .imageUrl("http://img.test.com/goods.jpg")
+            .description("설명")
+            .validDays(30)
+            .goodsStatus(status)
+            .exposed(exposed)
+            .popular(popular)
+            .orderNum(orderNum)
+            .build());
         GifticonGoodsJpaEntity entity = GifticonGoodsJpaEntity.from(domain);
         em.persist(entity);
         em.flush();
@@ -116,16 +116,16 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> all = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(all).hasSize(3);
         assertThat(all).extracting(GifticonGoodsJpaEntity::getOrderNum).containsExactly(1, 2, 3);
 
         List<GifticonGoodsJpaEntity> byCategory = repository.findExposedByAnchor(
-                "C001", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "C001", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(byCategory).hasSize(2);
 
         List<GifticonGoodsJpaEntity> byBrand = repository.findExposedByAnchor(
-                "", "B001", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "", "B001", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(byBrand).hasSize(2);
     }
 
@@ -139,7 +139,7 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(result).hasSize(4);
         assertThat(result.get(0).getGoodsCode()).isEqualTo("G-N-1");
         assertThat(result.get(1).getGoodsCode()).isEqualTo("G-N-2");
@@ -155,9 +155,9 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(result).extracting(GifticonGoodsJpaEntity::getId)
-                .containsExactly(a.getId(), b.getId());
+            .containsExactly(a.getId(), b.getId());
     }
 
     @Test
@@ -168,7 +168,7 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getGoodsCode()).isEqualTo("G-X-2");
     }
@@ -181,7 +181,7 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, null, PageRequest.of(0, 10));
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getGoodsCode()).isEqualTo("G-ST-1");
     }
@@ -195,9 +195,9 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, 1, g1.getId(), PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, 1, g1.getId(), PageRequest.of(0, 10));
         assertThat(result).extracting(GifticonGoodsJpaEntity::getId)
-                .containsExactly(g2.getId(), g3.getId());
+            .containsExactly(g2.getId(), g3.getId());
     }
 
     @Test
@@ -209,9 +209,9 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, 5, a.getId(), PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, 5, a.getId(), PageRequest.of(0, 10));
         assertThat(result).extracting(GifticonGoodsJpaEntity::getId)
-                .containsExactly(b.getId(), c.getId());
+            .containsExactly(b.getId(), c.getId());
     }
 
     @Test
@@ -223,9 +223,9 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, 10, g1.getId(), PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, 10, g1.getId(), PageRequest.of(0, 10));
         assertThat(result).extracting(GifticonGoodsJpaEntity::getId)
-                .containsExactly(g2.getId(), g3.getId());
+            .containsExactly(g2.getId(), g3.getId());
     }
 
     @Test
@@ -237,9 +237,9 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, n1.getId(), PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, n1.getId(), PageRequest.of(0, 10));
         assertThat(result).extracting(GifticonGoodsJpaEntity::getId)
-                .containsExactly(n2.getId());
+            .containsExactly(n2.getId());
     }
 
     @Test
@@ -251,9 +251,9 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findExposedByAnchor(
-                "", "", GoodsStatus.SALE, null, n1.getId() - 1, PageRequest.of(0, 10));
+            "", "", GoodsStatus.SALE, null, n1.getId() - 1, PageRequest.of(0, 10));
         assertThat(result).extracting(GifticonGoodsJpaEntity::getId)
-                .containsExactly(n1.getId());
+            .containsExactly(n1.getId());
     }
 
     @Test
@@ -278,7 +278,7 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         Page<GifticonGoodsJpaEntity> result = repository.findAllForAdmin(
-                GoodsStatus.SALE, null, "", PageRequest.of(0, 10));
+            GoodsStatus.SALE, null, "", PageRequest.of(0, 10));
         assertThat(result.getContent()).hasSize(1);
     }
 
@@ -290,7 +290,7 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         Page<GifticonGoodsJpaEntity> result = repository.findAllForAdmin(
-                null, true, "", PageRequest.of(0, 10));
+            null, true, "", PageRequest.of(0, 10));
         assertThat(result.getTotalElements()).isEqualTo(2L);
     }
 
@@ -303,7 +303,7 @@ class GifticonGoodsJpaRepositoryTest {
         em.clear();
 
         List<GifticonGoodsJpaEntity> result = repository.findAllPopularAndExposed(
-                GoodsStatus.SALE, PageRequest.of(0, 10));
+            GoodsStatus.SALE, PageRequest.of(0, 10));
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getGoodsCode()).isEqualTo("G-P-1");
     }

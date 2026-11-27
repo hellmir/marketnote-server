@@ -19,21 +19,21 @@ public class LedgerEntry {
 
     public static LedgerEntry from(LedgerEntryCreateState state) {
         return LedgerEntry.builder()
-                .accountId(state.getAccountId())
-                .amount(Money.of(state.getAmount()))
-                .transactionType(state.getTransactionType())
-                .build();
+            .accountId(state.getAccountId())
+            .amount(Money.of(state.getAmount()))
+            .transactionType(state.getTransactionType())
+            .build();
     }
 
     public static LedgerEntry from(LedgerEntrySnapshotState state) {
         return LedgerEntry.builder()
-                .id(state.getId())
-                .accountId(state.getAccountId())
-                .transactionId(state.getTransactionId())
-                .amount(Money.of(state.getAmount()))
-                .transactionType(state.getTransactionType())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .accountId(state.getAccountId())
+            .transactionId(state.getTransactionId())
+            .amount(Money.of(state.getAmount()))
+            .transactionType(state.getTransactionType())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     public void assignTransaction(Long transactionId) {

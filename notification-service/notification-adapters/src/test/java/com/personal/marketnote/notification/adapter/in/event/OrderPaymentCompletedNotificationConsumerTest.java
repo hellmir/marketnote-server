@@ -40,13 +40,13 @@ class OrderPaymentCompletedNotificationConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, 0L,
-                null, null, null, null, null, null,
-                List.of(), 0L
+            orderId, buyerId, 50000L, 0L,
+            null, null, null, null, null, null,
+            List.of(), 0L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L, "key-1", envelope);
     }
@@ -79,7 +79,7 @@ class OrderPaymentCompletedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", null
+            "commerce.order.payment-completed", 0, 0L, "1", null
         );
 
         // when
@@ -95,16 +95,16 @@ class OrderPaymentCompletedNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                100L, 1L, 50000L, 0L,
-                null, null, null, null, null, null,
-                List.of(), 0L
+            100L, 1L, 50000L, 0L,
+            null, null, null, null, null, null,
+            List.of(), 0L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "key-1", envelope
+            "commerce.order.payment-completed", 0, 0L, "key-1", envelope
         );
 
         // when

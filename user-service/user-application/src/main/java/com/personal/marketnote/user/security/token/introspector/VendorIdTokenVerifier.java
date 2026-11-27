@@ -41,43 +41,43 @@ public class VendorIdTokenVerifier {
 
     public Map<AuthVendor, List<String>> getVendorIssuerMap() {
         return vendorConfigMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().issuers()));
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().issuers()));
     }
 
     private JwtDecoder buildDecoder(VendorJwtConfig config) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(config.jwksUri())
-                .jwsAlgorithms(algorithms -> {
-                    algorithms.add(SignatureAlgorithm.RS256);
-                    algorithms.add(SignatureAlgorithm.ES256);
-                })
-                .build();
+            .jwsAlgorithms(algorithms -> {
+                algorithms.add(SignatureAlgorithm.RS256);
+                algorithms.add(SignatureAlgorithm.ES256);
+            })
+            .build();
 
         OAuth2TokenValidator<Jwt> issuerValidator = new JwtClaimValidator<>(
-                JwtClaimNames.ISS,
-                issuer -> config.issuers().contains(String.valueOf(issuer))
+            JwtClaimNames.ISS,
+            issuer -> config.issuers().contains(String.valueOf(issuer))
         );
 
         Set<String> allowedAudiences = config.allowedAudiences();
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<>(
-                JwtClaimNames.AUD,
-                audience -> {
-                    if (FormatValidator.hasNoValue(audience)) {
-                        return false;
-                    }
-                    if (audience instanceof List<?> audList) {
-                        return audList.stream()
-                                .filter(element -> element instanceof String)
-                                .map(element -> (String) element)
-                                .anyMatch(allowedAudiences::contains);
-                    }
-                    return allowedAudiences.contains(String.valueOf(audience));
+            JwtClaimNames.AUD,
+            audience -> {
+                if (FormatValidator.hasNoValue(audience)) {
+                    return false;
                 }
+                if (audience instanceof List<?> audList) {
+                    return audList.stream()
+                        .filter(element -> element instanceof String)
+                        .map(element -> (String) element)
+                        .anyMatch(allowedAudiences::contains);
+                }
+                return allowedAudiences.contains(String.valueOf(audience));
+            }
         );
 
         OAuth2TokenValidator<Jwt> expirationValidator = new JwtTimestampValidator();
 
         DelegatingOAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
-                issuerValidator, audienceValidator, expirationValidator
+            issuerValidator, audienceValidator, expirationValidator
         );
         decoder.setJwtValidator(validator);
 

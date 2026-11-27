@@ -17,12 +17,12 @@ class UserPointExpireExpectedAmountTest {
     @DisplayName("CreateState에서 expireExpectedAmount를 PointAmount로 설정하면 동일 값이 유지된다")
     void shouldPreserveExpireExpectedAmountFromCreateState() {
         UserPointCreateState state = UserPointCreateState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.of(500L))
-                .expireExpectedAmount(PointAmount.of(300L))
-                .build();
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.of(500L))
+            .expireExpectedAmount(PointAmount.of(300L))
+            .build();
 
         UserPoint userPoint = UserPoint.from(state);
 
@@ -34,14 +34,14 @@ class UserPointExpireExpectedAmountTest {
     @DisplayName("SnapshotState에서 expireExpectedAmount를 PointAmount로 복원한다")
     void shouldRestoreExpireExpectedAmountFromSnapshotState() {
         UserPointSnapshotState state = UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(2000L))
-                .addExpectedAmount(PointAmount.of(100L))
-                .expireExpectedAmount(PointAmount.of(700L))
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build();
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(2000L))
+            .addExpectedAmount(PointAmount.of(100L))
+            .expireExpectedAmount(PointAmount.of(700L))
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build();
 
         UserPoint userPoint = UserPoint.from(state);
 
@@ -53,12 +53,12 @@ class UserPointExpireExpectedAmountTest {
     @DisplayName("CreateState의 expireExpectedAmount가 null이면 PointAmount.zero()로 초기화된다")
     void shouldInitializeToZeroWhenNull() {
         UserPointCreateState state = UserPointCreateState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.of(500L))
-                .expireExpectedAmount(null)
-                .build();
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.of(500L))
+            .expireExpectedAmount(null)
+            .build();
 
         UserPoint userPoint = UserPoint.from(state);
 
@@ -70,14 +70,14 @@ class UserPointExpireExpectedAmountTest {
     @DisplayName("withAmount 호출 시 expireExpectedAmount는 변경되지 않는다")
     void shouldKeepExpireExpectedAmountWhenWithAmount() {
         UserPoint original = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.of(200L))
-                .expireExpectedAmount(PointAmount.of(450L))
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.of(200L))
+            .expireExpectedAmount(PointAmount.of(450L))
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
 
         UserPoint changed = original.withAmount(5000L);

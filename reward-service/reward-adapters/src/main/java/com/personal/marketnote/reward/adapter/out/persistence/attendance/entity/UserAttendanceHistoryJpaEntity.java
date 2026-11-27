@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "user_attendance_history",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_user_attendance_history_attendance_date",
-                columnNames = {"user_attendance_id", "attended_date"}
-        )
+    name = "user_attendance_history",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_user_attendance_history_attendance_date",
+        columnNames = {"user_attendance_id", "attended_date"}
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -57,33 +57,33 @@ public class UserAttendanceHistoryJpaEntity extends BaseEntity {
         }
 
         return UserAttendanceHistoryJpaEntity.builder()
-                .id(history.getId())
-                .userAttendanceId(history.getUserAttendanceId())
-                .attendancePolicyId(history.getAttendancePolicyId())
-                .rewardType(history.getRewardType())
-                .rewardQuantity(history.getRewardQuantityValue())
-                .continuousPeriod(history.getContinuousPeriodValue())
-                .rewardYn(history.getRewardYn())
-                .attendedDate(history.getAttendedDate())
-                .attendedAt(history.getAttendedAt())
-                .build();
+            .id(history.getId())
+            .userAttendanceId(history.getUserAttendanceId())
+            .attendancePolicyId(history.getAttendancePolicyId())
+            .rewardType(history.getRewardType())
+            .rewardQuantity(history.getRewardQuantityValue())
+            .continuousPeriod(history.getContinuousPeriodValue())
+            .rewardYn(history.getRewardYn())
+            .attendedDate(history.getAttendedDate())
+            .attendedAt(history.getAttendedAt())
+            .build();
     }
 
     public UserAttendanceHistory toDomain() {
         return UserAttendanceHistory.from(
-                UserAttendanceHistorySnapshotState.builder()
-                        .id(id)
-                        .userAttendanceId(userAttendanceId)
-                        .attendancePolicyId(attendancePolicyId)
-                        .rewardType(rewardType)
-                        .rewardQuantity(RewardQuantity.of(rewardQuantity))
-                        .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                        .rewardYn(rewardYn)
-                        .attendedDate(attendedDate)
-                        .attendedAt(attendedAt)
-                        .createdAt(getCreatedAt())
-                        .modifiedAt(getModifiedAt())
-                        .build()
+            UserAttendanceHistorySnapshotState.builder()
+                .id(id)
+                .userAttendanceId(userAttendanceId)
+                .attendancePolicyId(attendancePolicyId)
+                .rewardType(rewardType)
+                .rewardQuantity(RewardQuantity.of(rewardQuantity))
+                .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+                .rewardYn(rewardYn)
+                .attendedDate(attendedDate)
+                .attendedAt(attendedAt)
+                .createdAt(getCreatedAt())
+                .modifiedAt(getModifiedAt())
+                .build()
         );
     }
 }

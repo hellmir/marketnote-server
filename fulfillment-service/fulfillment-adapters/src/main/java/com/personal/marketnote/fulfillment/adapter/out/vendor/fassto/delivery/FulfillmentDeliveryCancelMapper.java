@@ -17,23 +17,23 @@ public class FulfillmentDeliveryCancelMapper {
     private List<FulfillmentDeliveryCancelItemMapper> cancelRequests;
 
     public static FulfillmentDeliveryCancelMapper of(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentDeliveryCancelItemMapper> cancelRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentDeliveryCancelItemMapper> cancelRequests
     ) {
         FulfillmentDeliveryCancelMapper mapper = FulfillmentDeliveryCancelMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .cancelRequests(cancelRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .cancelRequests(cancelRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public List<Map<String, Object>> toPayload() {
         return cancelRequests.stream()
-                .map(FulfillmentDeliveryCancelItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentDeliveryCancelItemMapper::toPayload)
+            .toList();
     }
 
     private void validate() {

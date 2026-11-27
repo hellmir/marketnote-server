@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentDeliveryIcsCompletionItemResponse(
-        String code,
-        String msg,
-        String ordNo
+    String code,
+    String msg,
+    String ordNo
 ) {
     private static final String SUCCESS_CODE = "200";
 

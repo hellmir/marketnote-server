@@ -28,26 +28,26 @@ public class GifticonGoodsFetchAdapter implements FetchGifticonGoodsPort {
 
         GiftishowProductListResponse result = response.result();
         List<FetchedGifticonGoodsItem> items = result.goodsList().stream()
-                .map(this::mapToFetchedItem)
-                .toList();
+            .map(this::mapToFetchedItem)
+            .toList();
 
         return new FetchGifticonGoodsResult(result.listNum(), items);
     }
 
     private FetchedGifticonGoodsItem mapToFetchedItem(GiftishowProductItem item) {
         return new FetchedGifticonGoodsItem(
-                item.goodsCode(),
-                item.goodsName(),
-                item.goodsImgB(),
-                item.brandCode(),
-                item.brandName(),
-                item.brandIconImg(),
-                item.category1Seq(),
-                item.salePrice(),
-                item.realPrice(),
-                item.limitDay(),
-                item.content(),
-                item.goodsStateCd()
+            item.goodsCode(),
+            item.goodsName(),
+            item.goodsImgB(),
+            item.brandCode(),
+            item.brandName(),
+            item.brandIconImg(),
+            item.category1Seq(),
+            item.salePrice(),
+            item.realPrice(),
+            item.limitDay(),
+            item.content(),
+            item.goodsStateCd()
         );
     }
 }

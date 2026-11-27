@@ -73,14 +73,14 @@ class ResolveUnknownPaymentUseCaseTest {
             Payment payment = createPayment();
             LocalDateTime parsedAppTime = LocalDateTime.of(2026, 4, 2, 15, 0, 0);
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .resolvedStatus("COMPLETE")
-                    .resultCode("0000")
-                    .resultMessage("승인 성공")
-                    .pgPaymentKey("tno_123")
-                    .approvalNumber("12345678")
-                    .appTime("20260402150000")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .resolvedStatus("COMPLETE")
+                .resultCode("0000")
+                .resultMessage("승인 성공")
+                .pgPaymentKey("tno_123")
+                .approvalNumber("12345678")
+                .appTime("20260402150000")
+                .build();
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
@@ -109,20 +109,20 @@ class ResolveUnknownPaymentUseCaseTest {
             Payment payment = createPayment();
             LocalDateTime parsedAppTime = LocalDateTime.of(2026, 4, 2, 15, 0, 0);
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .resolvedStatus("COMPLETE")
-                    .resultCode("0000")
-                    .resultMessage("승인 성공")
-                    .pgPaymentKey("tno_123")
-                    .approvalNumber("12345678")
-                    .appTime("20260402150000")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .resolvedStatus("COMPLETE")
+                .resultCode("0000")
+                .resultMessage("승인 성공")
+                .pgPaymentKey("tno_123")
+                .approvalNumber("12345678")
+                .appTime("20260402150000")
+                .build();
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(appTimeParser.parse("20260402150000")).thenReturn(parsedAppTime);
             doThrow(new RuntimeException("분개 실패"))
-                    .when(recordLedgerEntryUseCase).recordPaymentApproval(ORDER_ID, 50000L);
+                .when(recordLedgerEntryUseCase).recordPaymentApproval(ORDER_ID, 50000L);
 
             // when
             ResolveUnknownPaymentResult result = resolveUnknownPaymentService.resolve(command);
@@ -147,11 +147,11 @@ class ResolveUnknownPaymentUseCaseTest {
             PspPaymentEvent event = createUnknownEvent();
             Payment payment = createPayment();
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .resolvedStatus("FAILED")
-                    .resultCode("9999")
-                    .resultMessage("결제 실패")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .resolvedStatus("FAILED")
+                .resultCode("9999")
+                .resultMessage("결제 실패")
+                .build();
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
@@ -180,18 +180,18 @@ class ResolveUnknownPaymentUseCaseTest {
         void shouldThrowWhenPaymentEventNotFound() {
             // given
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .resolvedStatus("COMPLETE")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .resolvedStatus("COMPLETE")
+                .build();
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> resolveUnknownPaymentService.resolve(command))
-                    .isInstanceOf(PaymentEventNotFoundException.class);
+                .isInstanceOf(PaymentEventNotFoundException.class);
 
             verifyNoInteractions(findPaymentPort, updatePspPaymentEventPort, updatePaymentPort,
-                    changeOrderStatusUseCase, recordLedgerEntryUseCase);
+                changeOrderStatusUseCase, recordLedgerEntryUseCase);
         }
 
         @Test
@@ -200,19 +200,19 @@ class ResolveUnknownPaymentUseCaseTest {
             // given
             PspPaymentEvent event = createUnknownEvent();
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .resolvedStatus("COMPLETE")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .resolvedStatus("COMPLETE")
+                .build();
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> resolveUnknownPaymentService.resolve(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verifyNoInteractions(updatePspPaymentEventPort, updatePaymentPort,
-                    changeOrderStatusUseCase, recordLedgerEntryUseCase);
+                changeOrderStatusUseCase, recordLedgerEntryUseCase);
         }
 
         @Test
@@ -222,43 +222,43 @@ class ResolveUnknownPaymentUseCaseTest {
             PspPaymentEvent event = createUnknownEvent();
             Payment payment = createPayment();
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .resolvedStatus("INVALID")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .resolvedStatus("INVALID")
+                .build();
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
 
             // when & then
             assertThatThrownBy(() -> resolveUnknownPaymentService.resolve(command))
-                    .isInstanceOf(InvalidPaymentEventResolveStatusException.class);
+                .isInstanceOf(InvalidPaymentEventResolveStatusException.class);
 
             verifyNoInteractions(updatePspPaymentEventPort, updatePaymentPort,
-                    changeOrderStatusUseCase, recordLedgerEntryUseCase);
+                changeOrderStatusUseCase, recordLedgerEntryUseCase);
         }
     }
 
     private PspPaymentEvent createUnknownEvent() {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY)
-                .poStatus(PaymentEventStatus.UNKNOWN)
-                .method("CARD")
-                .amount(50000L)
-                .resultCode("9999")
-                .resultMessage("결제 상태 미확인")
-                .createdAt(LocalDateTime.of(2026, 4, 2, 10, 0, 0))
-                .build();
+            .id(1L)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY)
+            .poStatus(PaymentEventStatus.UNKNOWN)
+            .method("CARD")
+            .amount(50000L)
+            .resultCode("9999")
+            .resultMessage("결제 상태 미확인")
+            .createdAt(LocalDateTime.of(2026, 4, 2, 10, 0, 0))
+            .build();
         return PspPaymentEvent.from(state);
     }
 
     private Payment createPayment() {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(ORDER_ID)
-                .orderKey(UUID.fromString(ORDER_KEY))
-                .paymentAmount(50000L)
-                .build();
+            .orderId(ORDER_ID)
+            .orderKey(UUID.fromString(ORDER_KEY))
+            .paymentAmount(50000L)
+            .build();
         return Payment.from(state);
     }
 }

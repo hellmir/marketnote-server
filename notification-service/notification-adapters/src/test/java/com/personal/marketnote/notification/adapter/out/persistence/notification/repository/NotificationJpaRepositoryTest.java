@@ -60,7 +60,7 @@ class NotificationJpaRepositoryTest {
 
         // when
         List<NotificationJpaEntity> result = repository.findByUserIdWithCursor(
-                100L, EntityStatus.ACTIVE, -1L, PageRequest.of(0, 10)
+            100L, EntityStatus.ACTIVE, -1L, PageRequest.of(0, 10)
         );
 
         // then
@@ -105,17 +105,17 @@ class NotificationJpaRepositoryTest {
 
         // when
         List<NotificationJpaEntity> result = repository.findByUserIdWithCursorAndTypes(
-                100L, EntityStatus.ACTIVE, -1L,
-                NotificationDisplayCategory.ORDER_SHIPPING.types(),
-                PageRequest.of(0, 10)
+            100L, EntityStatus.ACTIVE, -1L,
+            NotificationDisplayCategory.ORDER_SHIPPING.types(),
+            PageRequest.of(0, 10)
         );
 
         // then
         assertThat(result).hasSize(2);
         assertThat(result).extracting(NotificationJpaEntity::getNotificationType)
-                .containsExactlyInAnyOrder(
-                        NotificationType.SHIPPING_STARTED, NotificationType.ORDER_PAYMENT_COMPLETED
-                );
+            .containsExactlyInAnyOrder(
+                NotificationType.SHIPPING_STARTED, NotificationType.ORDER_PAYMENT_COMPLETED
+            );
     }
 
     @Test
@@ -128,7 +128,7 @@ class NotificationJpaRepositoryTest {
 
         // when
         long count = repository.countByUserIdAndStatusAndTypes(
-                100L, EntityStatus.ACTIVE, NotificationDisplayCategory.NOTICE_EVENT.types()
+            100L, EntityStatus.ACTIVE, NotificationDisplayCategory.NOTICE_EVENT.types()
         );
 
         // then
@@ -143,7 +143,7 @@ class NotificationJpaRepositoryTest {
 
         // when
         List<NotificationJpaEntity> result = repository.findScheduledNotificationsDue(
-                SendStatus.SCHEDULED, LocalDateTime.of(2026, 4, 15, 0, 0), EntityStatus.ACTIVE
+            SendStatus.SCHEDULED, LocalDateTime.of(2026, 4, 15, 0, 0), EntityStatus.ACTIVE
         );
 
         // then
@@ -195,8 +195,8 @@ class NotificationJpaRepositoryTest {
         NotificationJpaEntity entity1 = persistNotification(100L, SendStatus.SENT);
         persistNotification(100L, SendStatus.SENT);
         entityManager.createNativeQuery("UPDATE notification SET is_read = true WHERE id = :id")
-                .setParameter("id", entity1.getId())
-                .executeUpdate();
+            .setParameter("id", entity1.getId())
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
@@ -225,14 +225,14 @@ class NotificationJpaRepositoryTest {
         // given
         persistNotification(100L, SendStatus.SENT);
         entityManager.createNativeQuery("UPDATE notification SET created_at = :oldDate WHERE user_id = 100")
-                .setParameter("oldDate", LocalDateTime.of(2025, 1, 1, 0, 0))
-                .executeUpdate();
+            .setParameter("oldDate", LocalDateTime.of(2025, 1, 1, 0, 0))
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
         // when
         int deactivated = repository.deactivateExpiredNotifications(
-                LocalDateTime.of(2026, 1, 1, 0, 0), EntityStatus.ACTIVE, EntityStatus.INACTIVE
+            LocalDateTime.of(2026, 1, 1, 0, 0), EntityStatus.ACTIVE, EntityStatus.INACTIVE
         );
 
         // then
@@ -241,13 +241,13 @@ class NotificationJpaRepositoryTest {
 
     private NotificationJpaEntity persistNotification(Long userId, SendStatus sendStatus) {
         Notification domain = Notification.from(
-                NotificationCreateState.builder()
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("테스트 알림")
-                        .body("테스트 알림 본문")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .build()
+            NotificationCreateState.builder()
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("테스트 알림")
+                .body("테스트 알림 본문")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .build()
         );
         NotificationJpaEntity entity = NotificationJpaEntity.from(domain);
         NotificationJpaEntity saved = repository.saveAndFlush(entity);
@@ -257,13 +257,13 @@ class NotificationJpaRepositoryTest {
 
     private NotificationJpaEntity persistNotificationWithType(Long userId, NotificationType type) {
         Notification domain = Notification.from(
-                NotificationCreateState.builder()
-                        .userId(userId)
-                        .notificationType(type)
-                        .title("테스트 알림 " + type.name())
-                        .body("테스트 본문")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .build()
+            NotificationCreateState.builder()
+                .userId(userId)
+                .notificationType(type)
+                .title("테스트 알림 " + type.name())
+                .body("테스트 본문")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .build()
         );
         NotificationJpaEntity entity = NotificationJpaEntity.from(domain);
         NotificationJpaEntity saved = repository.saveAndFlush(entity);
@@ -273,14 +273,14 @@ class NotificationJpaRepositoryTest {
 
     private NotificationJpaEntity persistScheduledNotification(Long userId, LocalDateTime scheduledAt) {
         Notification domain = Notification.from(
-                NotificationCreateState.builder()
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("예약 알림")
-                        .body("예약 알림 본문")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .scheduledAt(scheduledAt)
-                        .build()
+            NotificationCreateState.builder()
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("예약 알림")
+                .body("예약 알림 본문")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .scheduledAt(scheduledAt)
+                .build()
         );
         NotificationJpaEntity entity = NotificationJpaEntity.from(domain);
         NotificationJpaEntity saved = repository.saveAndFlush(entity);

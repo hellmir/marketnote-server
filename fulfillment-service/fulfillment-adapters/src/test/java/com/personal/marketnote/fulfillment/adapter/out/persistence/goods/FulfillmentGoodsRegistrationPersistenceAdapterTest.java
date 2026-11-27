@@ -38,25 +38,25 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
 
     private FulfillmentGoodsRegistration buildRegistration(Long id, UUID productKey) {
         return FulfillmentGoodsRegistration.from(
-                FulfillmentGoodsRegistrationSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .fasstoProductCode(VALID_FASSTO_CODE)
-                        .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
-                        .build()
+            FulfillmentGoodsRegistrationSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .fasstoProductCode(VALID_FASSTO_CODE)
+                .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
+                .build()
         );
     }
 
     private FulfillmentGoodsRegistrationJpaEntity buildEntity(UUID productKey, String fasstoProductCode) {
         return FulfillmentGoodsRegistrationJpaEntity.from(
-                FulfillmentGoodsRegistration.from(
-                        FulfillmentGoodsRegistrationSnapshotState.builder()
-                                .id(1L)
-                                .productKey(productKey)
-                                .fasstoProductCode(fasstoProductCode)
-                                .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
-                                .build()
-                )
+            FulfillmentGoodsRegistration.from(
+                FulfillmentGoodsRegistrationSnapshotState.builder()
+                    .id(1L)
+                    .productKey(productKey)
+                    .fasstoProductCode(fasstoProductCode)
+                    .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
+                    .build()
+            )
         );
     }
 
@@ -170,11 +170,11 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
             // given
             FulfillmentGoodsRegistration registration = buildRegistration(null, UUID.randomUUID());
             when(repository.saveAndFlush(any(FulfillmentGoodsRegistrationJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
+                .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(registration))
-                    .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class);
+                .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class);
         }
     }
 }

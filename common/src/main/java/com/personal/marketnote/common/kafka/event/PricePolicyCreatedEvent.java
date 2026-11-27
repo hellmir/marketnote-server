@@ -7,32 +7,32 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PricePolicyCreatedEvent(
-        Long productId,
-        UUID productKey,
-        Long pricePolicyId,
-        Long sellerId,
-        String productName,
-        String brandName,
-        Long price,
-        Long discountPrice,
-        Long accumulatedPoint,
-        Long sales,
-        List<ProductTagSnapshot> productTags,
-        List<ProductOptionSnapshot> selectedOptions
+    Long productId,
+    UUID productKey,
+    Long pricePolicyId,
+    Long sellerId,
+    String productName,
+    String brandName,
+    Long price,
+    Long discountPrice,
+    Long accumulatedPoint,
+    Long sales,
+    List<ProductTagSnapshot> productTags,
+    List<ProductOptionSnapshot> selectedOptions
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductTagSnapshot(
-            Long id,
-            String name,
-            Long orderNum
+        Long id,
+        String name,
+        Long orderNum
     ) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductOptionSnapshot(
-            Long id,
-            String content
+        Long id,
+        String content
     ) {
     }
 }

@@ -26,7 +26,7 @@ class HttpCookieUtilsTest {
         // given
         HttpCookieObject expected = () -> "cookie-value";
         when(httpCookieObjectFactory.create(HttpCookieName.ACCESS_TOKEN, null, "token-value", 3600L, true))
-                .thenReturn(expected);
+            .thenReturn(expected);
 
         // when
         HttpCookieObject result = httpCookieUtils.generateHttpOnlyCookie(HttpCookieName.ACCESS_TOKEN, "token-value", 3600L);
@@ -42,7 +42,7 @@ class HttpCookieUtilsTest {
         // given
         HttpCookieObject expected = () -> "cookie-value";
         when(httpCookieObjectFactory.create(HttpCookieName.USER_NAME, null, "홍길동", 7200L, false))
-                .thenReturn(expected);
+            .thenReturn(expected);
 
         // when
         HttpCookieObject result = httpCookieUtils.generateJsAccessibleCookie(HttpCookieName.USER_NAME, "홍길동", 7200L);
@@ -58,7 +58,7 @@ class HttpCookieUtilsTest {
         // given
         HttpCookieObject expected = () -> "invalidated";
         when(httpCookieObjectFactory.create(HttpCookieName.REFRESH_TOKEN, null, "", 0L, true))
-                .thenReturn(expected);
+            .thenReturn(expected);
 
         // when
         HttpCookieObject result = httpCookieUtils.invalidateCookie(HttpCookieName.REFRESH_TOKEN, true);
@@ -74,7 +74,7 @@ class HttpCookieUtilsTest {
         // given
         HttpCookieObject expected = () -> "invalidated";
         when(httpCookieObjectFactory.create(HttpCookieName.USER_ID, null, "", 0L, false))
-                .thenReturn(expected);
+            .thenReturn(expected);
 
         // when
         HttpCookieObject result = httpCookieUtils.invalidateCookie(HttpCookieName.USER_ID, false);

@@ -1,10 +1,10 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsQuery;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,60 +20,60 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FasstoGoodsCommandToRequestMapperTest {
 
     private static RegisterFulfillmentGoodsItemCommand buildRegisterItem(
-            UUID productKey, String productCode, String fasstoProductCode
+        UUID productKey, String productCode, String fasstoProductCode
     ) {
         return RegisterFulfillmentGoodsItemCommand.builder()
-                .productKey(productKey)
-                .productCode(productCode)
-                .fasstoProductCode(fasstoProductCode)
-                .productName("상품명")
-                .productType("TYPE01")
-                .giftDivision("N")
-                .productOptionCode1("OPT1")
-                .productOptionCode2("OPT2")
-                .inventoryProductNameUseYn("Y")
-                .inventoryProductName("재고명")
-                .supplierCode("SUP001")
-                .categoryCode("CAT01")
-                .seasonCode("SE01")
-                .genderCode("G01")
-                .manufactureYear("2026")
-                .productPrice("10000")
-                .inboundPrice("8000")
-                .salePrice("9000")
-                .dealTemperature("상온")
-                .pickFactor("1")
-                .productBarcode("BAR001")
-                .boxWeight("1.0")
-                .origin("KR")
-                .expirationManagementYn("N")
-                .shelfLifeDays("365")
-                .outboundCancelDays("30")
-                .inboundCancelDays("30")
-                .boxDivision("BOX01")
-                .bufferProductYn("N")
-                .loadingDirection("UP")
-                .subMaterial("NONE")
-                .useYn("Y")
-                .safetyStock("10")
-                .feeYn("Y")
-                .saleUnitQuantity("1")
-                .customerProductImageUrl("http://example.com/img1.jpg")
-                .externalProductImageUrl("http://example.com/img2.jpg")
-                .build();
+            .productKey(productKey)
+            .productCode(productCode)
+            .fasstoProductCode(fasstoProductCode)
+            .productName("상품명")
+            .productType("TYPE01")
+            .giftDivision("N")
+            .productOptionCode1("OPT1")
+            .productOptionCode2("OPT2")
+            .inventoryProductNameUseYn("Y")
+            .inventoryProductName("재고명")
+            .supplierCode("SUP001")
+            .categoryCode("CAT01")
+            .seasonCode("SE01")
+            .genderCode("G01")
+            .manufactureYear("2026")
+            .productPrice("10000")
+            .inboundPrice("8000")
+            .salePrice("9000")
+            .dealTemperature("상온")
+            .pickFactor("1")
+            .productBarcode("BAR001")
+            .boxWeight("1.0")
+            .origin("KR")
+            .expirationManagementYn("N")
+            .shelfLifeDays("365")
+            .outboundCancelDays("30")
+            .inboundCancelDays("30")
+            .boxDivision("BOX01")
+            .bufferProductYn("N")
+            .loadingDirection("UP")
+            .subMaterial("NONE")
+            .useYn("Y")
+            .safetyStock("10")
+            .feeYn("Y")
+            .saleUnitQuantity("1")
+            .customerProductImageUrl("http://example.com/img1.jpg")
+            .externalProductImageUrl("http://example.com/img2.jpg")
+            .build();
     }
 
     private static UpdateFulfillmentGoodsItemCommand buildUpdateItem(
-            UUID productKey, String productCode, String fasstoProductCode
+        UUID productKey, String productCode, String fasstoProductCode
     ) {
         return UpdateFulfillmentGoodsItemCommand.builder()
-                .productKey(productKey)
-                .productCode(productCode)
-                .fasstoProductCode(fasstoProductCode)
-                .productName("상품명")
-                .productType("TYPE01")
-                .giftDivision("N")
-                .build();
+            .productKey(productKey)
+            .productCode(productCode)
+            .fasstoProductCode(fasstoProductCode)
+            .productName("상품명")
+            .productType("TYPE01")
+            .giftDivision("N")
+            .build();
     }
 
     @Nested
@@ -88,7 +88,7 @@ class FasstoGoodsCommandToRequestMapperTest {
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(productKey, "GOD001", encoded);
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -110,7 +110,7 @@ class FasstoGoodsCommandToRequestMapperTest {
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(productKey, null, encoded);
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -119,41 +119,41 @@ class FasstoGoodsCommandToRequestMapperTest {
             // then
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload)
-                    .containsEntry("cstGodCd", encoded)
-                    .containsEntry("godNm", "상품명")
-                    .containsEntry("godType", "TYPE01")
-                    .containsEntry("giftDiv", "N")
-                    .containsEntry("godOptCd1", "OPT1")
-                    .containsEntry("godOptCd2", "OPT2")
-                    .containsEntry("invGodNmUseYn", "Y")
-                    .containsEntry("invGodNm", "재고명")
-                    .containsEntry("supCd", "SUP001")
-                    .containsEntry("cateCd", "CAT01")
-                    .containsEntry("seasonCd", "SE01")
-                    .containsEntry("genderCd", "G01")
-                    .containsEntry("makeYr", "2026")
-                    .containsEntry("godPr", "10000")
-                    .containsEntry("inPr", "8000")
-                    .containsEntry("salPr", "9000")
-                    .containsEntry("dealTemp", "상온")
-                    .containsEntry("pickFac", "1")
-                    .containsEntry("godBarcd", "BAR001")
-                    .containsEntry("boxWeight", "1.0")
-                    .containsEntry("origin", "KR")
-                    .containsEntry("distTermMgtYn", "N")
-                    .containsEntry("useTermDay", "365")
-                    .containsEntry("outCanDay", "30")
-                    .containsEntry("inCanDay", "30")
-                    .containsEntry("boxDiv", "BOX01")
-                    .containsEntry("bufGodYn", "N")
-                    .containsEntry("loadingDirection", "UP")
-                    .containsEntry("subMate", "NONE")
-                    .containsEntry("useYn", "Y")
-                    .containsEntry("safetyStock", "10")
-                    .containsEntry("feeYn", "Y")
-                    .containsEntry("saleUnitQty", "1")
-                    .containsEntry("cstGodImgUrl", "http://example.com/img1.jpg")
-                    .containsEntry("externalGodImgUrl", "http://example.com/img2.jpg");
+                .containsEntry("cstGodCd", encoded)
+                .containsEntry("godNm", "상품명")
+                .containsEntry("godType", "TYPE01")
+                .containsEntry("giftDiv", "N")
+                .containsEntry("godOptCd1", "OPT1")
+                .containsEntry("godOptCd2", "OPT2")
+                .containsEntry("invGodNmUseYn", "Y")
+                .containsEntry("invGodNm", "재고명")
+                .containsEntry("supCd", "SUP001")
+                .containsEntry("cateCd", "CAT01")
+                .containsEntry("seasonCd", "SE01")
+                .containsEntry("genderCd", "G01")
+                .containsEntry("makeYr", "2026")
+                .containsEntry("godPr", "10000")
+                .containsEntry("inPr", "8000")
+                .containsEntry("salPr", "9000")
+                .containsEntry("dealTemp", "상온")
+                .containsEntry("pickFac", "1")
+                .containsEntry("godBarcd", "BAR001")
+                .containsEntry("boxWeight", "1.0")
+                .containsEntry("origin", "KR")
+                .containsEntry("distTermMgtYn", "N")
+                .containsEntry("useTermDay", "365")
+                .containsEntry("outCanDay", "30")
+                .containsEntry("inCanDay", "30")
+                .containsEntry("boxDiv", "BOX01")
+                .containsEntry("bufGodYn", "N")
+                .containsEntry("loadingDirection", "UP")
+                .containsEntry("subMate", "NONE")
+                .containsEntry("useYn", "Y")
+                .containsEntry("safetyStock", "10")
+                .containsEntry("feeYn", "Y")
+                .containsEntry("saleUnitQty", "1")
+                .containsEntry("cstGodImgUrl", "http://example.com/img1.jpg")
+                .containsEntry("externalGodImgUrl", "http://example.com/img2.jpg");
         }
 
         @Test
@@ -167,7 +167,7 @@ class FasstoGoodsCommandToRequestMapperTest {
             RegisterFulfillmentGoodsItemCommand item1 = buildRegisterItem(productKey1, null, encoded1);
             RegisterFulfillmentGoodsItemCommand item2 = buildRegisterItem(productKey2, null, encoded2);
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item1, item2)
+                "CUST001", "token", List.of(item1, item2)
             );
 
             // when
@@ -190,7 +190,7 @@ class FasstoGoodsCommandToRequestMapperTest {
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             UpdateFulfillmentGoodsItemCommand item = buildUpdateItem(productKey, "GOD001", encoded);
             UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -232,7 +232,7 @@ class FasstoGoodsCommandToRequestMapperTest {
         void shouldMapProductName() {
             // given
             GetFulfillmentGoodsDetailCommand command = GetFulfillmentGoodsDetailCommand.of(
-                    "CUST001", "token", "상품명"
+                "CUST001", "token", "상품명"
             );
 
             // when

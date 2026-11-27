@@ -34,11 +34,11 @@ public class UpdateGifticonCategoryRequest {
 
     public UpdateGifticonCategoryCommand toCommand(Long categoryId) {
         return new UpdateGifticonCategoryCommand(
-                categoryId,
-                displayName,
-                displayNameProvided,
-                iconUrl,
-                iconUrlProvided
+            categoryId,
+            displayName,
+            displayNameProvided,
+            iconUrl,
+            iconUrlProvided
         );
     }
 }

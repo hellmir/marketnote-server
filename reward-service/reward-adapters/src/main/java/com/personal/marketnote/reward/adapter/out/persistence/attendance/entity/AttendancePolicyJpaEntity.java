@@ -44,26 +44,26 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
 
     public static AttendancePolicyJpaEntity from(AttendancePolicy policy) {
         return AttendancePolicyJpaEntity.builder()
-                .continuousPeriod(policy.getContinuousPeriodValue())
-                .rewardType(policy.getRewardType())
-                .rewardQuantity(policy.getRewardQuantityValue())
-                .attendenceDate(policy.getAttendenceDate())
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .continuousPeriod(policy.getContinuousPeriodValue())
+            .rewardType(policy.getRewardType())
+            .rewardQuantity(policy.getRewardQuantityValue())
+            .attendenceDate(policy.getAttendenceDate())
+            .status(EntityStatus.ACTIVE)
+            .build();
     }
 
     public AttendancePolicy toDomain() {
         return AttendancePolicy.from(
-                AttendancePolicySnapshotState.builder()
-                        .id(id)
-                        .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                        .rewardType(rewardType)
-                        .rewardQuantity(RewardQuantity.of(rewardQuantity))
-                        .attendenceDate(attendenceDate)
-                        .status(status)
-                        .createdAt(getCreatedAt())
-                        .modifiedAt(getModifiedAt())
-                        .build()
+            AttendancePolicySnapshotState.builder()
+                .id(id)
+                .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+                .rewardType(rewardType)
+                .rewardQuantity(RewardQuantity.of(rewardQuantity))
+                .attendenceDate(attendenceDate)
+                .status(status)
+                .createdAt(getCreatedAt())
+                .modifiedAt(getModifiedAt())
+                .build()
         );
     }
 

@@ -38,10 +38,10 @@ class InternalReviewControllerTest {
             // given
             List<Long> productIds = List.of(1L, 2L);
             GetProductReviewAggregatesResult result = GetProductReviewAggregatesResult.from(
-                    List.of(
-                            new ProductReviewAggregateSummaryResult(1L, 10, new BigDecimal("4.50")),
-                            new ProductReviewAggregateSummaryResult(2L, 5, new BigDecimal("3.00"))
-                    )
+                List.of(
+                    new ProductReviewAggregateSummaryResult(1L, 10, new BigDecimal("4.50")),
+                    new ProductReviewAggregateSummaryResult(2L, 5, new BigDecimal("3.00"))
+                )
             );
             when(getReviewUseCase.getProductReviewAggregates(productIds)).thenReturn(result);
 

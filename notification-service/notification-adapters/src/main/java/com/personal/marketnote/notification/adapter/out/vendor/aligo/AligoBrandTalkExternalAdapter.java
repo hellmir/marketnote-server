@@ -26,7 +26,7 @@ public class AligoBrandTalkExternalAdapter implements SendBrandTalkExternalPort 
 
     @Override
     public BrandTalkSendResponse send(
-            AligoBrandTalkMessage message, List<byte[]> failoverImages, List<String> failoverImageFileNames
+        AligoBrandTalkMessage message, List<byte[]> failoverImages, List<String> failoverImageFileNames
     ) {
         MultiValueMap<String, Object> params = buildSendParams(message);
 
@@ -35,17 +35,17 @@ public class AligoBrandTalkExternalAdapter implements SendBrandTalkExternalPort 
         }
 
         AligoBrandTalkSendApiResponse response = aligoHttpClient.postMultipart(
-                SEND_BRAND_TALK_OPERATION, aligoProperties.getApi().getBrandTalkSendPath(),
-                params, AligoBrandTalkSendApiResponse.class
+            SEND_BRAND_TALK_OPERATION, aligoProperties.getApi().getBrandTalkSendPath(),
+            params, AligoBrandTalkSendApiResponse.class
         );
 
         return new BrandTalkSendResponse(
-                response.info().mid(),
-                response.info().scnt(),
-                response.info().fcnt(),
-                response.info().type(),
-                response.info().unitCost(),
-                response.info().totalCost()
+            response.info().mid(),
+            response.info().scnt(),
+            response.info().fcnt(),
+            response.info().type(),
+            response.info().unitCost(),
+            response.info().totalCost()
         );
     }
 
@@ -69,8 +69,8 @@ public class AligoBrandTalkExternalAdapter implements SendBrandTalkExternalPort 
     }
 
     private void addFailoverParams(
-            MultiValueMap<String, Object> params, AligoBrandTalkMessage message,
-            List<byte[]> failoverImages, List<String> failoverImageFileNames
+        MultiValueMap<String, Object> params, AligoBrandTalkMessage message,
+        List<byte[]> failoverImages, List<String> failoverImageFileNames
     ) {
         params.add("failover", "Y");
 
@@ -88,8 +88,8 @@ public class AligoBrandTalkExternalAdapter implements SendBrandTalkExternalPort 
     }
 
     private void addFailoverMmsImages(
-            MultiValueMap<String, Object> params,
-            List<byte[]> failoverImages, List<String> failoverImageFileNames
+        MultiValueMap<String, Object> params,
+        List<byte[]> failoverImages, List<String> failoverImageFileNames
     ) {
         if (FormatValidator.hasNoValue(failoverImages) || failoverImages.isEmpty()) {
             return;

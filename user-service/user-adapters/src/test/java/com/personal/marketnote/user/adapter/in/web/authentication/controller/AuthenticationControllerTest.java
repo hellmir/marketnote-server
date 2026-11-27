@@ -75,11 +75,11 @@ class AuthenticationControllerTest {
             // given
             String refreshToken = "invalid-token";
             doThrow(new InvalidRefreshTokenException("유효하지 않은 리프레시 토큰"))
-                    .when(refreshAccessTokenUseCase).validateRefreshToken(refreshToken);
+                .when(refreshAccessTokenUseCase).validateRefreshToken(refreshToken);
 
             // expect
             assertThatThrownBy(() -> authenticationController.refreshAccessToken(refreshToken))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
 
             verifyNoInteractions(authServiceAdapter);
         }

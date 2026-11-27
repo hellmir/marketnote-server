@@ -36,13 +36,13 @@ class GifticonCategoryJpaRepositoryTest {
 
     private void persistCategory(String code, boolean exposed, Integer orderNum) {
         GifticonCategory domain = GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .categoryCode(code)
-                .categoryName("카테고리 " + code)
-                .displayName("표시 " + code)
-                .iconUrl("http://img.test.com/icon.png")
-                .exposed(exposed)
-                .orderNum(orderNum)
-                .build());
+            .categoryCode(code)
+            .categoryName("카테고리 " + code)
+            .displayName("표시 " + code)
+            .iconUrl("http://img.test.com/icon.png")
+            .exposed(exposed)
+            .orderNum(orderNum)
+            .build());
         em.persist(GifticonCategoryJpaEntity.from(domain));
         em.flush();
     }

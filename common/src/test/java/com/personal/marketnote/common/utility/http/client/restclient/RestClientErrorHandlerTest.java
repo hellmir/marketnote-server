@@ -60,8 +60,8 @@ class RestClientErrorHandlerTest {
     void shouldBeApplicableToRestClientBuilder() {
         // when & then
         assertThatCode(() -> RestClient.builder()
-                .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler())
-                .build()
+            .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler())
+            .build()
         ).doesNotThrowAnyException();
     }
 }

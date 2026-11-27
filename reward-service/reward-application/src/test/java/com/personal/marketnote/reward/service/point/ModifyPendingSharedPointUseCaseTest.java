@@ -41,26 +41,26 @@ class ModifyPendingSharedPointUseCaseTest {
 
     private UserPoint createUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(RESOLVED_USER_ID)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build()
+            .userId(RESOLVED_USER_ID)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .build()
         );
     }
 
     private ModifyPendingSharedPointCommand createCommand(Long buyerId, UserPointChangeType changeType, Long amount) {
         return ModifyPendingSharedPointCommand.builder()
-                .buyerId(buyerId)
-                .sharerKey(SHARER_KEY)
-                .changeType(changeType)
-                .amount(amount)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L)
-                .reason("링크 공유 회원 상품 구매")
-                .build();
+            .buyerId(buyerId)
+            .sharerKey(SHARER_KEY)
+            .changeType(changeType)
+            .amount(amount)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L)
+            .reason("링크 공유 회원 상품 구매")
+            .build();
     }
 
     @Test
@@ -103,7 +103,7 @@ class ModifyPendingSharedPointUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> modifyPendingSharedPointService.modifyPending(command))
-                .isInstanceOf(UserPointNotFoundException.class);
+            .isInstanceOf(UserPointNotFoundException.class);
 
         verify(modifyPendingPointUseCase, never()).modifyPending(any());
     }

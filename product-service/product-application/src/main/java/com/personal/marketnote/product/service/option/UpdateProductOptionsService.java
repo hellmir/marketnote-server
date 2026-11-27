@@ -36,7 +36,7 @@ public class UpdateProductOptionsService implements UpdateProductOptionsUseCase 
 
     @Override
     public UpdateProductOptionsResult updateProductOptions(
-            Long userId, boolean isAdmin, UpdateProductOptionsCommand command
+        Long userId, boolean isAdmin, UpdateProductOptionsCommand command
     ) {
         Long productId = command.productId();
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
@@ -55,14 +55,14 @@ public class UpdateProductOptionsService implements UpdateProductOptionsUseCase 
 
         // 새 카테고리/옵션 저장
         ProductOptionCategory savedCategory = saveProductOptionsPort.save(
-                ProductOptionCategory.from(ProductCommandToStateMapper.mapToState(
-                        product,
-                        RegisterProductOptionsCommand.of(
-                                productId,
-                                command.categoryName(),
-                                optionItems
-                        )
-                ))
+            ProductOptionCategory.from(ProductCommandToStateMapper.mapToState(
+                product,
+                RegisterProductOptionsCommand.of(
+                    productId,
+                    command.categoryName(),
+                    optionItems
+                )
+            ))
         );
 
         return UpdateProductOptionsResult.from(savedCategory);

@@ -13,11 +13,11 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "inventory_deduction_history",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_inventory_deduction_order_policy",
-                columnNames = {"order_id", "price_policy_id"}
-        )
+    name = "inventory_deduction_history",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_inventory_deduction_order_policy",
+        columnNames = {"order_id", "price_policy_id"}
+    )
 )
 @DynamicInsert
 @DynamicUpdate
@@ -45,11 +45,11 @@ public class InventoryDeductionHistoryJpaEntity extends BaseEntity {
     private String reason;
 
     private InventoryDeductionHistoryJpaEntity(
-            Long productId,
-            Long pricePolicyId,
-            Long orderId,
-            Integer stock,
-            String reason
+        Long productId,
+        Long pricePolicyId,
+        Long orderId,
+        Integer stock,
+        String reason
     ) {
         this.productId = productId;
         this.pricePolicyId = pricePolicyId;
@@ -60,11 +60,11 @@ public class InventoryDeductionHistoryJpaEntity extends BaseEntity {
 
     public static InventoryDeductionHistoryJpaEntity from(InventoryDeductionHistory inventoryDeductionHistory) {
         return new InventoryDeductionHistoryJpaEntity(
-                inventoryDeductionHistory.getProductId(),
-                inventoryDeductionHistory.getPricePolicyId(),
-                inventoryDeductionHistory.getOrderId(),
-                inventoryDeductionHistory.getStockValue(),
-                inventoryDeductionHistory.getReason()
+            inventoryDeductionHistory.getProductId(),
+            inventoryDeductionHistory.getPricePolicyId(),
+            inventoryDeductionHistory.getOrderId(),
+            inventoryDeductionHistory.getStockValue(),
+            inventoryDeductionHistory.getReason()
         );
     }
 }

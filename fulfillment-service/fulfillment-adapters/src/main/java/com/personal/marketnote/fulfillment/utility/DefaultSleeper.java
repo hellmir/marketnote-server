@@ -11,7 +11,7 @@ public class DefaultSleeper implements Sleeper {
     public void sleepWithJitter(long maxMillis) {
         try {
             long jitteredSleepMillis = ThreadLocalRandom.current()
-                    .nextLong(Math.max(1L, maxMillis) + 1);
+                .nextLong(Math.max(1L, maxMillis) + 1);
             Thread.sleep(jitteredSleepMillis);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();

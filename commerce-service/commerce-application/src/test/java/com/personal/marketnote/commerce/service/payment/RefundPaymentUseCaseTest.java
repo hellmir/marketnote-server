@@ -60,7 +60,7 @@ class RefundPaymentUseCaseTest {
     @BeforeEach
     void setUp() {
         lenient().when(transactionManager.getTransaction(any(TransactionDefinition.class)))
-                .thenReturn(mock(TransactionStatus.class));
+            .thenReturn(mock(TransactionStatus.class));
     }
 
     // ==================================================================================
@@ -79,15 +79,15 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createSuccessVendorResult());
+                .thenReturn(createSuccessVendorResult());
 
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             ArgumentCaptor<PaymentCancelVendorCommand> vendorCaptor = ArgumentCaptor.forClass(
-                    PaymentCancelVendorCommand.class
+                PaymentCancelVendorCommand.class
             );
             verify(paymentVendorPort).cancelPayment(vendorCaptor.capture());
             PaymentCancelVendorCommand vendorCommand = vendorCaptor.getValue();
@@ -118,7 +118,7 @@ class RefundPaymentUseCaseTest {
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatThrownBy(() -> refundPaymentService.refund(command))
-                    .isInstanceOf(PaymentAlreadyRefundedException.class);
+                .isInstanceOf(PaymentAlreadyRefundedException.class);
 
             verifyNoInteractions(paymentVendorPort);
             verifyNoInteractions(updatePaymentPort);
@@ -135,7 +135,7 @@ class RefundPaymentUseCaseTest {
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatThrownBy(() -> refundPaymentService.refund(command))
-                    .isInstanceOf(PaymentAlreadyRefundedException.class);
+                .isInstanceOf(PaymentAlreadyRefundedException.class);
 
             verifyNoInteractions(paymentVendorPort);
         }
@@ -157,7 +157,7 @@ class RefundPaymentUseCaseTest {
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatThrownBy(() -> refundPaymentService.refund(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
         }
 
         @Test
@@ -170,7 +170,7 @@ class RefundPaymentUseCaseTest {
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatThrownBy(() -> refundPaymentService.refund(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
         }
     }
 
@@ -190,12 +190,12 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createFailureVendorResult());
+                .thenReturn(createFailureVendorResult());
 
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatThrownBy(() -> refundPaymentService.refund(command))
-                    .isInstanceOf(PaymentCancelException.class);
+                .isInstanceOf(PaymentCancelException.class);
 
             verifyNoInteractions(updatePaymentPort);
             verifyNoInteractions(saveRefundPort);
@@ -218,16 +218,16 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createSuccessVendorResult());
+                .thenReturn(createSuccessVendorResult());
 
             Long cancelAmount = 20000L;
             RefundPaymentCommand command = createCommand(false, cancelAmount, 0L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             ArgumentCaptor<PaymentCancelVendorCommand> vendorCaptor = ArgumentCaptor.forClass(
-                    PaymentCancelVendorCommand.class
+                PaymentCancelVendorCommand.class
             );
             verify(paymentVendorPort).cancelPayment(vendorCaptor.capture());
             PaymentCancelVendorCommand vendorCommand = vendorCaptor.getValue();
@@ -257,13 +257,13 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createSuccessVendorResult());
+                .thenReturn(createSuccessVendorResult());
             doThrow(new RuntimeException("DB 장애")).when(saveRefundPort).save(any(Refund.class));
 
             RefundPaymentCommand command = createCommand(true, PAYMENT_AMOUNT, 0L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verify(updatePaymentPort).update(payment);
             verify(updatePspPaymentEventPort).update(event);
@@ -286,15 +286,15 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createSuccessVendorResult());
+                .thenReturn(createSuccessVendorResult());
 
             RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 30000L, 0L, null);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(
-                    PaymentCancelVendorCommand.class
+                PaymentCancelVendorCommand.class
             );
             verify(paymentVendorPort).cancelPayment(captor.capture());
             assertThat(captor.getValue().cancelAmount()).isEqualTo(30000L);
@@ -308,15 +308,15 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createSuccessVendorResult());
+                .thenReturn(createSuccessVendorResult());
 
             RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 30000L, 0L, 0L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(
-                    PaymentCancelVendorCommand.class
+                PaymentCancelVendorCommand.class
             );
             verify(paymentVendorPort).cancelPayment(captor.capture());
             assertThat(captor.getValue().cancelAmount()).isEqualTo(30000L);
@@ -330,15 +330,15 @@ class RefundPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
-                    .thenReturn(createSuccessVendorResult());
+                .thenReturn(createSuccessVendorResult());
 
             RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 30000L, 0L, 6000L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(
-                    PaymentCancelVendorCommand.class
+                PaymentCancelVendorCommand.class
             );
             verify(paymentVendorPort).cancelPayment(captor.capture());
             assertThat(captor.getValue().cancelAmount()).isEqualTo(24000L);
@@ -356,7 +356,7 @@ class RefundPaymentUseCaseTest {
             RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 6000L, 0L, 6000L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verifyNoInteractions(paymentVendorPort);
             verify(updatePaymentPort).update(payment);
@@ -375,7 +375,7 @@ class RefundPaymentUseCaseTest {
             RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 3000L, 0L, 6000L);
 
             assertThatCode(() -> refundPaymentService.refund(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verifyNoInteractions(paymentVendorPort);
             verify(updatePaymentPort).update(payment);
@@ -390,73 +390,73 @@ class RefundPaymentUseCaseTest {
 
     private RefundPaymentCommand createCommand(boolean isFullCancel, Long cancelAmount, Long alreadyRefunded) {
         return RefundPaymentCommand.builder()
-                .orderKey(ORDER_KEY)
-                .orderId(ORDER_ID)
-                .cancelAmount(cancelAmount)
-                .paymentAmount(PAYMENT_AMOUNT)
-                .isFullCancel(isFullCancel)
-                .alreadyRefunded(alreadyRefunded)
-                .build();
+            .orderKey(ORDER_KEY)
+            .orderId(ORDER_ID)
+            .cancelAmount(cancelAmount)
+            .paymentAmount(PAYMENT_AMOUNT)
+            .isFullCancel(isFullCancel)
+            .alreadyRefunded(alreadyRefunded)
+            .build();
     }
 
     private RefundPaymentCommand createCommandWithReturnShippingFee(
-            boolean isFullCancel, Long cancelAmount, Long alreadyRefunded, Long returnShippingFee
+        boolean isFullCancel, Long cancelAmount, Long alreadyRefunded, Long returnShippingFee
     ) {
         return RefundPaymentCommand.builder()
-                .orderKey(ORDER_KEY)
-                .orderId(ORDER_ID)
-                .cancelAmount(cancelAmount)
-                .paymentAmount(PAYMENT_AMOUNT)
-                .isFullCancel(isFullCancel)
-                .alreadyRefunded(alreadyRefunded)
-                .returnShippingFee(returnShippingFee)
-                .build();
+            .orderKey(ORDER_KEY)
+            .orderId(ORDER_ID)
+            .cancelAmount(cancelAmount)
+            .paymentAmount(PAYMENT_AMOUNT)
+            .isFullCancel(isFullCancel)
+            .alreadyRefunded(alreadyRefunded)
+            .returnShippingFee(returnShippingFee)
+            .build();
     }
 
     private Payment createPayment(boolean refundedYn, Long refundAmount) {
         return Payment.from(PaymentSnapshotState.builder()
-                .id(10L)
-                .orderId(ORDER_ID)
-                .orderKey(UUID.fromString(ORDER_KEY))
-                .pgPaymentKey("TID-001")
-                .paymentAmount(PAYMENT_AMOUNT)
-                .successYn(true)
-                .refundedYn(refundedYn)
-                .refundAmount(refundAmount)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(10L)
+            .orderId(ORDER_ID)
+            .orderKey(UUID.fromString(ORDER_KEY))
+            .pgPaymentKey("TID-001")
+            .paymentAmount(PAYMENT_AMOUNT)
+            .successYn(true)
+            .refundedYn(refundedYn)
+            .refundAmount(refundAmount)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private PspPaymentEvent createPspPaymentEvent(PaymentEventStatus status) {
         return PspPaymentEvent.from(PspPaymentEventSnapshotState.builder()
-                .id(20L)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY)
-                .pgPaymentKey("TID-001")
-                .poStatus(status)
-                .amount(PAYMENT_AMOUNT)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(20L)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY)
+            .pgPaymentKey("TID-001")
+            .poStatus(status)
+            .amount(PAYMENT_AMOUNT)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
         return PaymentCancelVendorResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("성공")
-                .rawResponse("{}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("성공")
+            .rawResponse("{}")
+            .build();
     }
 
     private PaymentCancelVendorResult createFailureVendorResult() {
         return PaymentCancelVendorResult.builder()
-                .success(false)
-                .resultCode("9999")
-                .resultMessage("PG 통신 오류")
-                .rawResponse("{}")
-                .build();
+            .success(false)
+            .resultCode("9999")
+            .resultMessage("PG 통신 오류")
+            .rawResponse("{}")
+            .build();
     }
 
     private static org.assertj.core.api.AbstractObjectAssert<?, ?> assertThat(Object actual) {

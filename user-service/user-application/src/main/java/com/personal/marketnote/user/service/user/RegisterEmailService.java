@@ -29,10 +29,10 @@ public class RegisterEmailService implements RegisterEmailUseCase {
     @Override
     public void registerEmail(Long id, AuthVendor authVendor, String email) {
         User user = findUserPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                return new UserNotFoundException();
+            });
 
         Email newEmail = Email.of(email);
 

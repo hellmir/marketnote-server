@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record RegisterSettlementPolicyCommand(
-        Long sellerId,
-        Integer pgFeeRate,
-        Integer platformFeeRate,
-        String settlementCycle,
-        Long minPayoutAmount
+    Long sellerId,
+    Integer pgFeeRate,
+    Integer platformFeeRate,
+    String settlementCycle,
+    Long minPayoutAmount
 ) {
 }

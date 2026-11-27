@@ -10,10 +10,10 @@ package com.personal.marketnote.notification.port.in.event;
  * 커넥션 풀 고갈을 유발할 수 있다. AFTER_COMMIT 단계로 분리하여 트랜잭션 지연을 제거한다.
  */
 public record PushNotificationRequestedEvent(
-        Long notificationId,
-        Long userId,
-        String title,
-        String body,
-        String landingUrl
+    Long notificationId,
+    Long userId,
+    String title,
+    String body,
+    String landingUrl
 ) {
 }

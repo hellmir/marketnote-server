@@ -64,29 +64,29 @@ class OrderPaymentCompletedOutboundConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts
+        Long orderId, Long buyerId, List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, 1000L,
-                null, null, null, null, null, null,
-                orderProducts, 500L
+            orderId, buyerId, 50000L, 1000L,
+            null, null, null, null, null, null,
+            orderProducts, 500L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-                "commerce-service",
-                LocalDateTime.of(2026, 4, 14, 10, 0),
-                event
+            "test-event-id",
+            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+            "commerce-service",
+            LocalDateTime.of(2026, 4, 14, 10, 0),
+            event
         );
         return new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope
+            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope
         );
     }
 
     private List<OrderPaymentCompletedEvent.OrderProductItem> buildOrderProducts() {
         return List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(1L, null, UUID.randomUUID(), UUID.randomUUID(), 2, 10000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(2L, null, UUID.randomUUID(), UUID.randomUUID(), 1, 30000L)
+            new OrderPaymentCompletedEvent.OrderProductItem(1L, null, UUID.randomUUID(), UUID.randomUUID(), 2, 10000L),
+            new OrderPaymentCompletedEvent.OrderProductItem(2L, null, UUID.randomUUID(), UUID.randomUUID(), 1, 30000L)
         );
     }
 
@@ -134,7 +134,7 @@ class OrderPaymentCompletedOutboundConsumerTest {
         void shouldAcknowledgeWhenEnvelopeIsNull() {
             // given
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", null
+                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", null
             );
 
             // when
@@ -150,16 +150,16 @@ class OrderPaymentCompletedOutboundConsumerTest {
         void shouldAcknowledgeWhenEventTypeMismatch() {
             // given
             OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                    1L, 1L, 50000L, 1000L,
-                    null, null, null, null, null, null,
-                    buildOrderProducts(), 500L
+                1L, 1L, 50000L, 1000L,
+                null, null, null, null, null, null,
+                buildOrderProducts(), 500L
             );
             EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                    "test-event-id", "wrong.event.type", "commerce-service",
-                    LocalDateTime.of(2026, 4, 14, 10, 0), event
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 4, 14, 10, 0), event
             );
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope
+                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope
             );
 
             // when
@@ -207,7 +207,7 @@ class OrderPaymentCompletedOutboundConsumerTest {
 
             ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 1L, buildOrderProducts());
             doThrow(new ShippingTrackerAlreadyExistsException())
-                    .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
+                .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
 
             // when
             consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
@@ -226,12 +226,12 @@ class OrderPaymentCompletedOutboundConsumerTest {
 
             ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 1L, buildOrderProducts());
             doThrow(new RuntimeException("네트워크 오류"))
-                    .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
+                .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
 
             // when & then
             assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("네트워크 오류");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("네트워크 오류");
 
             verify(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
             verify(acknowledgment, never()).acknowledge();

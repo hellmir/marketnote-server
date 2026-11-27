@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetOrderResponse(
-        GetOrderResult orderInfo
+    GetOrderResult orderInfo
 ) {
     public static GetOrderResponse from(GetOrderResult getOrderResult) {
         return new GetOrderResponse(getOrderResult);

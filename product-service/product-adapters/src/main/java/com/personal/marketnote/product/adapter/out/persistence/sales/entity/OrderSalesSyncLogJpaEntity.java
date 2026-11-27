@@ -9,11 +9,11 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "order_sales_sync_log",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_order_sales_sync_log_order_id",
-                columnNames = "order_id"
-        )
+    name = "order_sales_sync_log",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_order_sales_sync_log_order_id",
+        columnNames = "order_id"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -26,7 +26,7 @@ public class OrderSalesSyncLogJpaEntity extends BaseGeneralEntity {
 
     public static OrderSalesSyncLogJpaEntity of(Long orderId) {
         return OrderSalesSyncLogJpaEntity.builder()
-                .orderId(orderId)
-                .build();
+            .orderId(orderId)
+            .build();
     }
 }

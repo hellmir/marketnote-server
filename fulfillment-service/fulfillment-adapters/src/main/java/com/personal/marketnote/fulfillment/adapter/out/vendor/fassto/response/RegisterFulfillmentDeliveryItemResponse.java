@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RegisterFulfillmentDeliveryItemResponse(
-        String fmsSlipNo,
-        String orderNo,
-        String msg,
-        String code,
-        Object outOfStockGoodsDetail
+    String fmsSlipNo,
+    String orderNo,
+    String msg,
+    String code,
+    Object outOfStockGoodsDetail
 ) {
     private static final String SUCCESS_CODE = "200";
 

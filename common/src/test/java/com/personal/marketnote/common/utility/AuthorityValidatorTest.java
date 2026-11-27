@@ -53,7 +53,7 @@ class AuthorityValidatorTest {
         @DisplayName("여러 권한 중 ROLE_ADMIN이 포함되면 true를 반환한다")
         void returnsTrueWhenAdminAmongMultipleAuthorities() {
             OAuth2AuthenticatedPrincipal principal = principalWithAuthorities(
-                    Role.ROLE_BUYER.name(), Role.ROLE_ADMIN.name()
+                Role.ROLE_BUYER.name(), Role.ROLE_ADMIN.name()
             );
 
             assertThat(AuthorityValidator.hasAdminRole(principal)).isTrue();
@@ -98,7 +98,7 @@ class AuthorityValidatorTest {
         @DisplayName("여러 권한 중 ROLE_SELLER가 포함되면 true를 반환한다")
         void returnsTrueWhenSellerAmongMultipleAuthorities() {
             OAuth2AuthenticatedPrincipal principal = principalWithAuthorities(
-                    Role.ROLE_BUYER.name(), Role.ROLE_SELLER.name()
+                Role.ROLE_BUYER.name(), Role.ROLE_SELLER.name()
             );
 
             assertThat(AuthorityValidator.hasSellerRole(principal)).isTrue();
@@ -107,13 +107,13 @@ class AuthorityValidatorTest {
 
     private OAuth2AuthenticatedPrincipal principalWithAuthorities(String... authorities) {
         List<GrantedAuthority> grantedAuthorities = List.of(authorities)
-                .stream()
-                .map(authority -> (GrantedAuthority) new SimpleGrantedAuthority(authority))
-                .toList();
+            .stream()
+            .map(authority -> (GrantedAuthority) new SimpleGrantedAuthority(authority))
+            .toList();
         return new DefaultOAuth2AuthenticatedPrincipal(
-                "test-user",
-                Map.of("sub", "test-user"),
-                grantedAuthorities
+            "test-user",
+            Map.of("sub", "test-user"),
+            grantedAuthorities
         );
     }
 }

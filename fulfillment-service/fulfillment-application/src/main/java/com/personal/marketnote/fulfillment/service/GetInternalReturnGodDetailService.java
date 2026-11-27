@@ -37,13 +37,13 @@ public class GetInternalReturnGodDetailService implements GetInternalReturnGodDe
             GetFulfillmentReturnGodDetailResult fasstoResult;
             try {
                 fasstoResult = getFulfillmentReturnGodDetailPort.getReturnGodDetail(
-                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                    buildFasstoCommand(customerCode, accessToken.getValue(), command)
                 );
             } catch (FulfillmentInvalidAccessException firstFailure) {
                 requestFulfillmentAuthUseCase.invalidateCache();
                 accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
                 fasstoResult = getFulfillmentReturnGodDetailPort.getReturnGodDetail(
-                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                    buildFasstoCommand(customerCode, accessToken.getValue(), command)
                 );
             }
 
@@ -54,12 +54,12 @@ public class GetInternalReturnGodDetailService implements GetInternalReturnGodDe
     }
 
     private GetFulfillmentReturnGodDetailCommand buildFasstoCommand(
-            String customerCode,
-            String accessToken,
-            GetInternalReturnGodDetailCommand command
+        String customerCode,
+        String accessToken,
+        GetInternalReturnGodDetailCommand command
     ) {
         return GetFulfillmentReturnGodDetailCommand.forReturnSlipNumbers(
-                customerCode, accessToken, command.returnSlipNumbers()
+            customerCode, accessToken, command.returnSlipNumbers()
         );
     }
 
@@ -69,8 +69,8 @@ public class GetInternalReturnGodDetailService implements GetInternalReturnGodDe
         }
 
         List<InternalReturnGodDetailInfoResult> infos = fasstoResult.returnGodInfos().stream()
-                .map(this::mapToInfoResult)
-                .toList();
+            .map(this::mapToInfoResult)
+            .toList();
 
         return GetInternalReturnGodDetailResult.of(fasstoResult.dataCount(), infos);
     }
@@ -81,18 +81,18 @@ public class GetInternalReturnGodDetailService implements GetInternalReturnGodDe
         }
 
         List<InternalReturnGodDetailGoodsResult> goods = info.products().stream()
-                .map(this::mapToGoodsResult)
-                .toList();
+            .map(this::mapToGoodsResult)
+            .toList();
 
         return InternalReturnGodDetailInfoResult.of(info.orderNumber(), info.inboundOrderSlipNumber(), goods);
     }
 
     private InternalReturnGodDetailGoodsResult mapToGoodsResult(FulfillmentReturnGodDetailGoodsResult goods) {
         return InternalReturnGodDetailGoodsResult.of(
-                goods.customerProductCode(),
-                goods.productName(),
-                goods.returnProductCheckStatus(),
-                goods.returnProductCheckStatusName()
+            goods.customerProductCode(),
+            goods.productName(),
+            goods.returnProductCheckStatus(),
+            goods.returnProductCheckStatusName()
         );
     }
 }

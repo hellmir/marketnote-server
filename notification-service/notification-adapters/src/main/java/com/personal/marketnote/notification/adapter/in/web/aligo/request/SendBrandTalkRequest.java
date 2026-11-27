@@ -9,25 +9,25 @@ import java.util.List;
 import java.util.Map;
 
 public record SendBrandTalkRequest(
-        @NotBlank String senderKey,
-        @NotBlank String sender,
-        @NotBlank String templateCode,
-        @NotBlank String kakaoTarget,
-        boolean advertYn,
-        @NotNull @Size(min = 1, max = 500) @Valid List<RecipientRequest> recipients,
-        FailoverRequest failover
+    @NotBlank String senderKey,
+    @NotBlank String sender,
+    @NotBlank String templateCode,
+    @NotBlank String kakaoTarget,
+    boolean advertYn,
+    @NotNull @Size(min = 1, max = 500) @Valid List<RecipientRequest> recipients,
+    FailoverRequest failover
 ) {
 
     public record RecipientRequest(
-            @NotBlank String receiver,
-            Map<String, String> variables
+        @NotBlank String receiver,
+        Map<String, String> variables
     ) {
     }
 
     public record FailoverRequest(
-            boolean enabled,
-            String subject,
-            String failoverType
+        boolean enabled,
+        String subject,
+        String failoverType
     ) {
     }
 }

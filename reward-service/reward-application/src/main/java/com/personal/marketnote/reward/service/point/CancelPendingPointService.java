@@ -31,7 +31,7 @@ public class CancelPendingPointService implements CancelPendingPointUseCase {
     @Override
     public UpdateUserPointResult cancelPending(CancelPendingPointCommand command) {
         List<UserPointHistory> pendingHistories = findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                command.userId(), command.sourceType(), command.sourceId()
+            command.userId(), command.sourceType(), command.sourceId()
         );
 
         // 이미 취소 처리된 경우 현재 포인트를 그대로 반환 (멱등성 보장 - 결제 취소 재시도 대응)
@@ -50,7 +50,7 @@ public class CancelPendingPointService implements CancelPendingPointUseCase {
         UserPoint updatedPoint = updateUserPointPort.update(userPoint);
 
         int updatedCount = updateUserPointHistoryPort.markAsReflected(
-                command.userId(), command.sourceType(), command.sourceId()
+            command.userId(), command.sourceType(), command.sourceId()
         );
         validateReflectionCount(pendingHistories.size(), updatedCount);
 

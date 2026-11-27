@@ -11,28 +11,28 @@ import java.util.List;
 
 public interface ProductOptionPricePolicyJpaRepository extends JpaRepository<ProductOptionPricePolicyJpaEntity, ProductOptionPricePolicyId> {
     @Query("""
-            select popp.id.pricePolicyId
-            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.id.pricePolicyId in (
-                select popp2.id.pricePolicyId
-                from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp2
-                where popp2.id.productOptionId in :optionIds
-                group by popp2.id.pricePolicyId
-                having count(distinct popp2.id.productOptionId) = :size
-            )
-            group by popp.id.pricePolicyId
-            having count(popp.id.productOptionId) = :size
-            """)
+        select popp.id.pricePolicyId
+        from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+        where popp.id.pricePolicyId in (
+            select popp2.id.pricePolicyId
+            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp2
+            where popp2.id.productOptionId in :optionIds
+            group by popp2.id.pricePolicyId
+            having count(distinct popp2.id.productOptionId) = :size
+        )
+        group by popp.id.pricePolicyId
+        having count(popp.id.productOptionId) = :size
+        """)
     List<Long> findExactMatchingPricePolicyIds(@Param("optionIds") List<Long> optionIds, @Param("size") long size);
 
     long countByPricePolicyJpaEntity_Id(Long pricePolicyId);
 
     @Query("""
-            select popp.id.pricePolicyId as pricePolicyId, popp.id.productOptionId as productOptionId
-            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.id.pricePolicyId in :pricePolicyIds
-            order by popp.id.pricePolicyId, popp.id.productOptionId
-            """)
+        select popp.id.pricePolicyId as pricePolicyId, popp.id.productOptionId as productOptionId
+        from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+        where popp.id.pricePolicyId in :pricePolicyIds
+        order by popp.id.pricePolicyId, popp.id.productOptionId
+        """)
     List<PricePolicyOptionMapping> findAllOptionIdsByPricePolicyIds(@Param("pricePolicyIds") List<Long> pricePolicyIds);
 
     interface PricePolicyOptionMapping {
@@ -43,33 +43,33 @@ public interface ProductOptionPricePolicyJpaRepository extends JpaRepository<Pro
 
     @Modifying
     @Query("""
-            delete
-            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.productOptionJpaEntity.id in :optionIds
-            """)
+        delete
+        from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+        where popp.productOptionJpaEntity.id in :optionIds
+        """)
     void deleteByOptionIds(@Param("optionIds") List<Long> optionIds);
 
     @Query("""
-            select popp.id.productOptionId
-            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.id.pricePolicyId = :pricePolicyId
-            """)
+        select popp.id.productOptionId
+        from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+        where popp.id.pricePolicyId = :pricePolicyId
+        """)
     List<Long> findOptionIdsByPricePolicyId(@Param("pricePolicyId") Long pricePolicyId);
 
     @Modifying
     @Query("""
-            delete
-            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.id.pricePolicyId = :pricePolicyId
-            """)
+        delete
+        from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+        where popp.id.pricePolicyId = :pricePolicyId
+        """)
     void deleteByPricePolicyId(@Param("pricePolicyId") Long pricePolicyId);
 
     @Modifying
     @Query("""
-            delete
-            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.id.pricePolicyId in :pricePolicyIds
-            """)
+        delete
+        from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+        where popp.id.pricePolicyId in :pricePolicyIds
+        """)
     void deleteByPricePolicyIds(@Param("pricePolicyIds") List<Long> pricePolicyIds);
 }
 

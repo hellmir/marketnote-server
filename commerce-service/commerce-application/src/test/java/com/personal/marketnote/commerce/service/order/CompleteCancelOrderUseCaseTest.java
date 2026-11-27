@@ -44,7 +44,7 @@ class CompleteCancelOrderUseCaseTest {
     private PublishOrderEventPort publishOrderEventPort;
 
     @Spy
-    private Clock clock = Clock.fixed(Instant.parse("2026-04-26T10:00:00Z"), ZoneId.of("Asia/Seoul"));
+    private Clock clock = Clock.fixed(Instant.parse("2026-11-21T10:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @Nested
     @DisplayName("주문 취소 완료 처리 성공")
@@ -59,28 +59,28 @@ class CompleteCancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(1L)
-                    .orderKey("ORD-001")
-                    .buyerId(100L)
-                    .cancelAmount(50000L)
-                    .paymentAmount(50000L)
-                    .pointAmount(0L)
-                    .shippingFee(3000L)
-                    .isFullCancel(true)
-                    .alreadyRefunded(0L)
-                    .reasonCategory("CANCEL_ORDER")
-                    .reason("구매 의사 취소")
-                    .build();
+                .orderId(1L)
+                .orderKey("ORD-001")
+                .buyerId(100L)
+                .cancelAmount(50000L)
+                .paymentAmount(50000L)
+                .pointAmount(0L)
+                .shippingFee(3000L)
+                .isFullCancel(true)
+                .alreadyRefunded(0L)
+                .reasonCategory("CANCEL_ORDER")
+                .reason("구매 의사 취소")
+                .build();
 
             service.completeCancellation(command);
 
             verify(order).changeAllProductsStatus(eq(OrderStatus.CANCELLED), any(), eq(0L));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             verify(publishOrderEventPort).publishOrderCancelledEvent(
-                    eq(1L), eq("ORD-001"), eq(100L),
-                    eq(50000L), eq(50000L), eq(0L), eq(3000L),
-                    eq(true), eq(0L),
-                    any(), any(), isNull());
+                eq(1L), eq("ORD-001"), eq(100L),
+                eq(50000L), eq(50000L), eq(0L), eq(3000L),
+                eq(true), eq(0L),
+                any(), any(), isNull());
         }
 
         @Test
@@ -92,18 +92,18 @@ class CompleteCancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(1L)
-                    .orderKey("ORD-001")
-                    .buyerId(100L)
-                    .cancelAmount(50000L)
-                    .paymentAmount(50000L)
-                    .pointAmount(0L)
-                    .shippingFee(3000L)
-                    .isFullCancel(true)
-                    .alreadyRefunded(0L)
-                    .reasonCategory(null)
-                    .reason(null)
-                    .build();
+                .orderId(1L)
+                .orderKey("ORD-001")
+                .buyerId(100L)
+                .cancelAmount(50000L)
+                .paymentAmount(50000L)
+                .pointAmount(0L)
+                .shippingFee(3000L)
+                .isFullCancel(true)
+                .alreadyRefunded(0L)
+                .reasonCategory(null)
+                .reason(null)
+                .build();
 
             service.completeCancellation(command);
 
@@ -131,17 +131,17 @@ class CompleteCancelOrderUseCaseTest {
             CancelProductItemCommand item2 = new CancelProductItemCommand(20L, sharerKey2, 1, 15000L);
 
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(1L)
-                    .orderKey("ORD-001")
-                    .buyerId(100L)
-                    .cancelAmount(65000L)
-                    .paymentAmount(65000L)
-                    .pointAmount(0L)
-                    .shippingFee(3000L)
-                    .isFullCancel(true)
-                    .alreadyRefunded(0L)
-                    .cancelProducts(List.of(item1, item2))
-                    .build();
+                .orderId(1L)
+                .orderKey("ORD-001")
+                .buyerId(100L)
+                .cancelAmount(65000L)
+                .paymentAmount(65000L)
+                .pointAmount(0L)
+                .shippingFee(3000L)
+                .isFullCancel(true)
+                .alreadyRefunded(0L)
+                .cancelProducts(List.of(item1, item2))
+                .build();
 
             // when
             service.completeCancellation(command);
@@ -149,16 +149,16 @@ class CompleteCancelOrderUseCaseTest {
             // then
             ArgumentCaptor<List<OrderProduct>> cancelProductsCaptor = ArgumentCaptor.forClass(List.class);
             verify(publishOrderEventPort).publishOrderCancelledEvent(
-                    eq(1L), eq("ORD-001"), eq(100L),
-                    eq(65000L), eq(65000L), eq(0L), eq(3000L),
-                    eq(true), eq(0L),
-                    any(), cancelProductsCaptor.capture(), isNull()
+                eq(1L), eq("ORD-001"), eq(100L),
+                eq(65000L), eq(65000L), eq(0L), eq(3000L),
+                eq(true), eq(0L),
+                any(), cancelProductsCaptor.capture(), isNull()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();
             assertThat(capturedProducts).hasSize(2);
             assertThat(capturedProducts).extracting(OrderProduct::getPricePolicyId)
-                    .containsExactlyInAnyOrder(10L, 20L);
+                .containsExactlyInAnyOrder(10L, 20L);
         }
 
         @Test
@@ -177,17 +177,17 @@ class CompleteCancelOrderUseCaseTest {
             CancelProductItemCommand cancelItem = new CancelProductItemCommand(10L, sharerKey, 2, 25000L);
 
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(1L)
-                    .orderKey("ORD-001")
-                    .buyerId(100L)
-                    .cancelAmount(50000L)
-                    .paymentAmount(65000L)
-                    .pointAmount(0L)
-                    .shippingFee(3000L)
-                    .isFullCancel(false)
-                    .alreadyRefunded(0L)
-                    .cancelProducts(List.of(cancelItem))
-                    .build();
+                .orderId(1L)
+                .orderKey("ORD-001")
+                .buyerId(100L)
+                .cancelAmount(50000L)
+                .paymentAmount(65000L)
+                .pointAmount(0L)
+                .shippingFee(3000L)
+                .isFullCancel(false)
+                .alreadyRefunded(0L)
+                .cancelProducts(List.of(cancelItem))
+                .build();
 
             // when
             service.completeCancellation(command);
@@ -195,10 +195,10 @@ class CompleteCancelOrderUseCaseTest {
             // then
             ArgumentCaptor<List<OrderProduct>> cancelProductsCaptor = ArgumentCaptor.forClass(List.class);
             verify(publishOrderEventPort).publishOrderCancelledEvent(
-                    eq(1L), eq("ORD-001"), eq(100L),
-                    eq(50000L), eq(65000L), eq(0L), eq(3000L),
-                    eq(false), eq(0L),
-                    any(), cancelProductsCaptor.capture(), isNull()
+                eq(1L), eq("ORD-001"), eq(100L),
+                eq(50000L), eq(65000L), eq(0L), eq(3000L),
+                eq(false), eq(0L),
+                any(), cancelProductsCaptor.capture(), isNull()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();
@@ -219,17 +219,17 @@ class CompleteCancelOrderUseCaseTest {
             CancelProductItemCommand cancelItem = new CancelProductItemCommand(30L, sharerKey, 3, 20000L);
 
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(1L)
-                    .orderKey("ORD-001")
-                    .buyerId(100L)
-                    .cancelAmount(60000L)
-                    .paymentAmount(60000L)
-                    .pointAmount(0L)
-                    .shippingFee(3000L)
-                    .isFullCancel(true)
-                    .alreadyRefunded(0L)
-                    .cancelProducts(List.of(cancelItem))
-                    .build();
+                .orderId(1L)
+                .orderKey("ORD-001")
+                .buyerId(100L)
+                .cancelAmount(60000L)
+                .paymentAmount(60000L)
+                .pointAmount(0L)
+                .shippingFee(3000L)
+                .isFullCancel(true)
+                .alreadyRefunded(0L)
+                .cancelProducts(List.of(cancelItem))
+                .build();
 
             // when
             service.completeCancellation(command);
@@ -237,9 +237,9 @@ class CompleteCancelOrderUseCaseTest {
             // then
             ArgumentCaptor<List<OrderProduct>> cancelProductsCaptor = ArgumentCaptor.forClass(List.class);
             verify(publishOrderEventPort).publishOrderCancelledEvent(
-                    any(), any(), any(), any(), any(), any(), any(),
-                    anyBoolean(), any(),
-                    any(), cancelProductsCaptor.capture(), any()
+                any(), any(), any(), any(), any(), any(), any(),
+                anyBoolean(), any(),
+                any(), cancelProductsCaptor.capture(), any()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();
@@ -264,19 +264,19 @@ class CompleteCancelOrderUseCaseTest {
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
-                    .orderId(1L)
-                    .orderKey("ORD-001")
-                    .buyerId(100L)
-                    .cancelAmount(50000L)
-                    .paymentAmount(50000L)
-                    .pointAmount(0L)
-                    .shippingFee(3000L)
-                    .isFullCancel(true)
-                    .alreadyRefunded(0L)
-                    .build();
+                .orderId(1L)
+                .orderKey("ORD-001")
+                .buyerId(100L)
+                .cancelAmount(50000L)
+                .paymentAmount(50000L)
+                .pointAmount(0L)
+                .shippingFee(3000L)
+                .isFullCancel(true)
+                .alreadyRefunded(0L)
+                .build();
 
             assertThatThrownBy(() -> service.completeCancellation(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);

@@ -39,21 +39,21 @@ public class AligoMessageController {
     @PreAuthorize(ADMIN_POINTCUT)
     @Operation(summary = "메시지 목록 조회", description = "알리고 알림톡 전송 메시지 목록을 조회한다.")
     public ResponseEntity<BaseResponse<GetAligoMessageListResponse>> getMessageList(
-            @RequestParam(defaultValue = "1") @jakarta.validation.constraints.Min(1) int page,
-            @RequestParam(defaultValue = "20") @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(100) int limit,
-            @RequestParam(name = "start-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(name = "end-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+        @RequestParam(defaultValue = "1") @jakarta.validation.constraints.Min(1) int page,
+        @RequestParam(defaultValue = "20") @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(100) int limit,
+        @RequestParam(name = "start-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam(name = "end-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {
         GetAligoMessageListResult result = getAligoMessageListUseCase.getMessageList(
-                new GetAligoMessageListCommand(page, limit, startDate, endDate)
+            new GetAligoMessageListCommand(page, limit, startDate, endDate)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoMessageListResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "메시지 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoMessageListResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "메시지 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -61,17 +61,17 @@ public class AligoMessageController {
     @PreAuthorize(ADMIN_POINTCUT)
     @Operation(summary = "메시지 수신자 목록 조회", description = "특정 알림톡 메시지의 수신자별 상세 결과를 조회한다.")
     public ResponseEntity<BaseResponse<GetAligoMessageRecipientListResponse>> getRecipientList(
-            @PathVariable Long messageId
+        @PathVariable Long messageId
     ) {
         GetAligoMessageRecipientListResult result =
-                getAligoMessageRecipientListUseCase.getRecipientList(messageId);
+            getAligoMessageRecipientListUseCase.getRecipientList(messageId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoMessageRecipientListResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "수신자 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoMessageRecipientListResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "수신자 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -82,8 +82,8 @@ public class AligoMessageController {
         cancelAligoMessageUseCase.cancelMessage(messageId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "예약 발송 취소 성공"),
-                HttpStatus.OK
+            BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "예약 발송 취소 성공"),
+            HttpStatus.OK
         );
     }
 }

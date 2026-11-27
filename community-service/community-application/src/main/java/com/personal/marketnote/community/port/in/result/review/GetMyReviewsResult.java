@@ -7,37 +7,37 @@ import java.util.List;
 import java.util.Map;
 
 public record GetMyReviewsResult(
-        Long totalElements,
-        Long nextCursor,
-        boolean hasNext,
-        List<MyReviewItemResult> reviews
+    Long totalElements,
+    Long nextCursor,
+    boolean hasNext,
+    List<MyReviewItemResult> reviews
 ) {
     public static GetMyReviewsResult from(
-            boolean hasNext,
-            Long nextCursor,
-            Long totalElements,
-            List<Review> reviews,
-            Map<Long, List<GetFileResult>> reviewImagesByReviewId,
-            Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId
+        boolean hasNext,
+        Long nextCursor,
+        Long totalElements,
+        List<Review> reviews,
+        Map<Long, List<GetFileResult>> reviewImagesByReviewId,
+        Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId
     ) {
         return new GetMyReviewsResult(
-                totalElements,
-                nextCursor,
-                hasNext,
-                reviews.stream()
-                        .map(review -> {
-                            ReviewProductInfoResult productInfo =
-                                    ReviewProductInfoResult.resolveForReview(
-                                            review, productInfoByPricePolicyId
-                                    );
+            totalElements,
+            nextCursor,
+            hasNext,
+            reviews.stream()
+                .map(review -> {
+                    ReviewProductInfoResult productInfo =
+                        ReviewProductInfoResult.resolveForReview(
+                            review, productInfoByPricePolicyId
+                        );
 
-                            return MyReviewItemResult.from(
-                                    review,
-                                    reviewImagesByReviewId.get(review.getId()),
-                                    productInfo
-                            );
-                        })
-                        .toList()
+                    return MyReviewItemResult.from(
+                        review,
+                        reviewImagesByReviewId.get(review.getId()),
+                        productInfo
+                    );
+                })
+                .toList()
         );
     }
 }

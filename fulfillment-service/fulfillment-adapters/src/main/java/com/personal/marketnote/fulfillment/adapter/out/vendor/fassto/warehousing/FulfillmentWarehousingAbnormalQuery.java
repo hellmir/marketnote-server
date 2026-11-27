@@ -15,17 +15,17 @@ public class FulfillmentWarehousingAbnormalQuery {
     private String slipNo;
 
     public static FulfillmentWarehousingAbnormalQuery of(
-            String customerCode,
-            String accessToken,
-            String whCd,
-            String slipNo
+        String customerCode,
+        String accessToken,
+        String whCd,
+        String slipNo
     ) {
         FulfillmentWarehousingAbnormalQuery query = FulfillmentWarehousingAbnormalQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .whCd(whCd)
-                .slipNo(slipNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .whCd(whCd)
+            .slipNo(slipNo)
+            .build();
         query.validate();
         return query;
     }

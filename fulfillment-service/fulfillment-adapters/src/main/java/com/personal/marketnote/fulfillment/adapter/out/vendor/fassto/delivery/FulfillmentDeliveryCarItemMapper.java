@@ -22,45 +22,45 @@ public class FulfillmentDeliveryCarItemMapper {
     private String remark;
 
     public static FulfillmentDeliveryCarItemMapper of(
-            String ordDt,
-            String ordNo,
-            String slipNo,
-            String outWay,
-            String cstShopCd,
-            List<FulfillmentDeliveryGoodsMapper> godCds,
-            String remark
+        String ordDt,
+        String ordNo,
+        String slipNo,
+        String outWay,
+        String cstShopCd,
+        List<FulfillmentDeliveryGoodsMapper> godCds,
+        String remark
     ) {
         FulfillmentDeliveryCarItemMapper mapper = FulfillmentDeliveryCarItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .slipNo(slipNo)
-                .outWay(outWay)
-                .cstShopCd(cstShopCd)
-                .godCds(godCds)
-                .remark(remark)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .slipNo(slipNo)
+            .outWay(outWay)
+            .cstShopCd(cstShopCd)
+            .godCds(godCds)
+            .remark(remark)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public static FulfillmentDeliveryCarItemMapper update(
-            String ordDt,
-            String ordNo,
-            String slipNo,
-            String outWay,
-            String cstShopCd,
-            List<FulfillmentDeliveryGoodsMapper> godCds,
-            String remark
+        String ordDt,
+        String ordNo,
+        String slipNo,
+        String outWay,
+        String cstShopCd,
+        List<FulfillmentDeliveryGoodsMapper> godCds,
+        String remark
     ) {
         FulfillmentDeliveryCarItemMapper mapper = FulfillmentDeliveryCarItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .slipNo(slipNo)
-                .outWay(outWay)
-                .cstShopCd(cstShopCd)
-                .godCds(godCds)
-                .remark(remark)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .slipNo(slipNo)
+            .outWay(outWay)
+            .cstShopCd(cstShopCd)
+            .godCds(godCds)
+            .remark(remark)
+            .build();
         mapper.validateForUpdate();
         return mapper;
     }
@@ -74,8 +74,8 @@ public class FulfillmentDeliveryCarItemMapper {
         putIfHasValue(payload, "cstShopCd", cstShopCd);
         if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
-                    .map(FulfillmentDeliveryGoodsMapper::toPayload)
-                    .toList());
+                .map(FulfillmentDeliveryGoodsMapper::toPayload)
+                .toList());
         }
         putIfHasValue(payload, "remark", remark);
         return payload;

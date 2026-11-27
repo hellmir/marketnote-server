@@ -37,9 +37,9 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
     private final ExternalCallLogger externalCallLogger;
 
     public Oauth2AccountClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${oauth2.kakao.admin-key}") String kakaoAdminKey,
-            ExternalCallLogger externalCallLogger
+        RestClient.Builder restClientBuilder,
+        @Value("${oauth2.kakao.admin-key}") String kakaoAdminKey,
+        ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.kakaoAdminKey = kakaoAdminKey;
@@ -67,28 +67,28 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
         form.add("target_id", oidcId);
 
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_KAKAO,
-                TAG_OIDC_ID, ValueMasker.mask(oidcId)
+            TAG_PROVIDER, PROVIDER_KAKAO,
+            TAG_OIDC_ID, ValueMasker.mask(oidcId)
         );
 
         try {
             externalCallLogger.recordVoid(
-                    ExternalSystem.KAKAO_OAUTH, OPERATION_UNLINK_ACCOUNT, tags,
-                    () -> {
-                        ResponseEntity<String> response = restClient.post()
-                                .uri(KAKAO_UNLINK_URL)
-                                .header(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoAdminKey)
-                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                                .body(form)
-                                .retrieve()
-                                .toEntity(String.class);
+                ExternalSystem.KAKAO_OAUTH, OPERATION_UNLINK_ACCOUNT, tags,
+                () -> {
+                    ResponseEntity<String> response = restClient.post()
+                        .uri(KAKAO_UNLINK_URL)
+                        .header(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoAdminKey)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .body(form)
+                        .retrieve()
+                        .toEntity(String.class);
 
-                        if (!response.getStatusCode().is2xxSuccessful()) {
-                            throw new UnlinkOauth2AccountFailedRuntimeException(
-                                    String.format(UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE, AuthVendor.KAKAO.name())
-                            );
-                        }
+                    if (!response.getStatusCode().is2xxSuccessful()) {
+                        throw new UnlinkOauth2AccountFailedRuntimeException(
+                            String.format(UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE, AuthVendor.KAKAO.name())
+                        );
                     }
+                }
             );
         } catch (UnlinkOauth2AccountFailedRuntimeException e) {
             throw new UnlinkOauth2AccountFailedException(e.getMessage(), e);
@@ -100,27 +100,27 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
         form.add("token", accessToken);
 
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_GOOGLE,
-                TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
+            TAG_PROVIDER, PROVIDER_GOOGLE,
+            TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
         );
 
         try {
             externalCallLogger.recordVoid(
-                    ExternalSystem.GOOGLE_OAUTH, OPERATION_UNLINK_ACCOUNT, tags,
-                    () -> {
-                        ResponseEntity<String> response = restClient.post()
-                                .uri(GOOGLE_REVOKE_URL)
-                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                                .body(form)
-                                .retrieve()
-                                .toEntity(String.class);
+                ExternalSystem.GOOGLE_OAUTH, OPERATION_UNLINK_ACCOUNT, tags,
+                () -> {
+                    ResponseEntity<String> response = restClient.post()
+                        .uri(GOOGLE_REVOKE_URL)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .body(form)
+                        .retrieve()
+                        .toEntity(String.class);
 
-                        if (!response.getStatusCode().is2xxSuccessful()) {
-                            throw new UnlinkOauth2AccountFailedRuntimeException(
-                                    String.format(UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE, AuthVendor.GOOGLE.name())
-                            );
-                        }
+                    if (!response.getStatusCode().is2xxSuccessful()) {
+                        throw new UnlinkOauth2AccountFailedRuntimeException(
+                            String.format(UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE, AuthVendor.GOOGLE.name())
+                        );
                     }
+                }
             );
         } catch (UnlinkOauth2AccountFailedRuntimeException e) {
             throw new UnlinkOauth2AccountFailedException(e.getMessage(), e);

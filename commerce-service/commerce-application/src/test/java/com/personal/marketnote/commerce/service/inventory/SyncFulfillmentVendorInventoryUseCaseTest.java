@@ -64,8 +64,8 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         @DisplayName("null 커맨드 입력 시 IllegalArgumentException을 던진다")
         void syncInventories_nullCommand_throwsIllegalArgumentException() {
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(null))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Sync fulfillment vendor inventory command is required.");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Sync fulfillment vendor inventory command is required.");
         }
 
         @Test
@@ -74,15 +74,15 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             SyncFulfillmentVendorInventoryCommand command = SyncFulfillmentVendorInventoryCommand.of(null);
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Sync fulfillment vendor inventory command is required.");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Sync fulfillment vendor inventory command is required.");
         }
 
         @Test
         @DisplayName("null 커맨드 입력 시 어떤 Port도 호출하지 않는다")
         void syncInventories_nullCommand_doesNotCallAnyPort() {
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(null))
-                    .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
             verifyNoInteractions(findInventoryPort);
             verifyNoInteractions(updateInventoryPort);
@@ -94,11 +94,11 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         @DisplayName("항목 중 productKey가 null이면 InvalidFulfillmentSyncCommandException을 던진다")
         void syncInventories_nullProductKey_throwsInvalidFulfillmentSyncCommandException() {
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(null, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(null, 50)
             );
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException.class);
+                .isInstanceOf(com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException.class);
 
             verifyNoInteractions(findInventoryPort);
             verifyNoInteractions(inventoryLockPort);
@@ -114,7 +114,7 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             SyncFulfillmentVendorInventoryCommand command = SyncFulfillmentVendorInventoryCommand.of(items);
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException.class);
+                .isInstanceOf(com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException.class);
 
             verifyNoInteractions(findInventoryPort);
             verifyNoInteractions(updateInventoryPort);
@@ -132,14 +132,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_singleProduct_updatesWithNewStockValue() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 5L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 5L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -161,17 +161,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -182,16 +182,16 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
 
             assertThat(updated).hasSize(2);
             assertThat(updated).extracting(Inventory::getProductId)
-                    .containsExactlyInAnyOrder(1L, 2L);
+                .containsExactlyInAnyOrder(1L, 2L);
 
             Inventory updated1 = updated.stream()
-                    .filter(inv -> inv.getProductId().equals(1L))
-                    .findFirst().orElseThrow();
+                .filter(inv -> inv.getProductId().equals(1L))
+                .findFirst().orElseThrow();
             assertThat(updated1.getStockValue()).isEqualTo(50);
 
             Inventory updated2 = updated.stream()
-                    .filter(inv -> inv.getProductId().equals(2L))
-                    .findFirst().orElseThrow();
+                .filter(inv -> inv.getProductId().equals(2L))
+                .findFirst().orElseThrow();
             assertThat(updated2.getStockValue()).isEqualTo(30);
         }
 
@@ -201,14 +201,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_zeroStock_updatesWithZero() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 0)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 0)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -229,17 +229,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -260,15 +260,15 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L)
             ));
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(InventoryProductNotFoundException.class);
+                .isInstanceOf(InventoryProductNotFoundException.class);
         }
 
         @Test
@@ -276,12 +276,12 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_allProductKeysMissing_throwsInventoryProductNotFoundException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(InventoryProductNotFoundException.class);
+                .isInstanceOf(InventoryProductNotFoundException.class);
         }
 
         @Test
@@ -289,12 +289,12 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_productMissing_doesNotCallLockAndSubsequentPorts() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(InventoryProductNotFoundException.class);
+                .isInstanceOf(InventoryProductNotFoundException.class);
 
             verifyNoInteractions(inventoryLockPort);
             verifyNoInteractions(updateInventoryPort);
@@ -312,17 +312,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -337,10 +337,10 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_lockNotExecuted_doesNotCallInternalPorts() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -356,16 +356,16 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_lockAcquisitionFails_throwsInventoryLockAcquisitionException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             InventoryLockAcquisitionException exception = new InventoryLockAcquisitionException(100L);
             doThrow(exception).when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -373,16 +373,16 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_lockAcquisitionFails_doesNotCallInternalPorts() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             doThrow(new InventoryLockAcquisitionException(100L))
-                    .when(inventoryLockPort).executeWithLock(any(), any());
+                .when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(InventoryLockAcquisitionException.class);
+                .isInstanceOf(InventoryLockAcquisitionException.class);
 
             verify(findInventoryPort, never()).findByPricePolicyIds(any());
             verifyNoInteractions(updateInventoryPort);
@@ -394,17 +394,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_lockInterrupted_throwsInventoryLockInterruptedException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             InventoryLockInterruptedException exception =
-                    new InventoryLockInterruptedException(new InterruptedException());
+                new InventoryLockInterruptedException(new InterruptedException());
             doThrow(exception).when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         // ==================================================================================
@@ -417,14 +417,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_success_callsPortsInCorrectOrder() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -448,17 +448,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -474,15 +474,15 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_nonTargetProductInLockedInventories_filteredOutFromUpdate() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L),
-                    buildInventoryWithProductKey(3L, UUID.randomUUID(), 100L, 15, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L),
+                buildInventoryWithProductKey(3L, UUID.randomUUID(), 100L, 15, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -505,14 +505,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_success_updatedInventoryHasCorrectProductAndPricePolicyIds() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 5L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 5L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -531,14 +531,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_success_updatedInventoryHasCommandStockValue() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 77)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 77)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -554,14 +554,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_success_updatedInventoryPreservesLockedVersion() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 42L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 42L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -581,14 +581,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_success_savesUpdatedInventoriesToCache() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -609,14 +609,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_success_sameInventorySetPassedToUpdateAndCache() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -638,13 +638,13 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_findByProductKeysFails_propagatesException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             RuntimeException exception = new RuntimeException("find by product keys fail");
             when(findInventoryPort.findByProductKeys(any())).thenThrow(exception);
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -652,12 +652,12 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_findByProductKeysFails_doesNotCallSubsequentPorts() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenThrow(new RuntimeException("fail"));
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(inventoryLockPort);
             verifyNoInteractions(updateInventoryPort);
@@ -669,17 +669,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_findByPricePolicyIdsFails_propagatesException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             RuntimeException exception = new RuntimeException("find by price policy ids fail");
             when(findInventoryPort.findByPricePolicyIds(any())).thenThrow(exception);
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -687,16 +687,16 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_findByPricePolicyIdsFails_doesNotCallSubsequentPorts() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenThrow(new RuntimeException("fail"));
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(updateInventoryPort);
             verifyNoInteractions(saveCacheStockPort);
@@ -707,20 +707,20 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_updateFails_propagatesException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
             RuntimeException exception = new RuntimeException("update fail");
             doThrow(exception).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -728,19 +728,19 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_updateFails_doesNotSaveCache() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
             doThrow(new RuntimeException("update fail")).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(saveCacheStockPort);
         }
@@ -751,20 +751,20 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_saveCacheFails_propagatesException() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
             RuntimeException exception = new RuntimeException("cache save fail");
             doThrow(exception).when(saveCacheStockPort).save(any(Set.class));
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -773,20 +773,20 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_saveCacheFails_updateAlreadyCalled() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
             doThrow(new RuntimeException("cache save fail"))
-                    .when(saveCacheStockPort).save(any(Set.class));
+                .when(saveCacheStockPort).save(any(Set.class));
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(findInventoryPort).findByProductKeys(any());
             verify(findInventoryPort).findByPricePolicyIds(any());
@@ -804,17 +804,17 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
-                    buildInventoryWithProductKey(2L, productKey2, 100L, 20, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
+                buildInventoryWithProductKey(2L, productKey2, 100L, 20, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
-                    buildInventoryWithProductKey(2L, productKey2, 100L, 20, 1L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                buildInventoryWithProductKey(2L, productKey2, 100L, 20, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -830,15 +830,15 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_duplicateProductKey_lastStockValueWins() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 99)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 99)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -854,14 +854,14 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_largeStockValue_updatesCorrectly() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 999999)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 999999)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -885,22 +885,22 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
     }
 
     private SyncFulfillmentVendorInventoryCommand buildCommand(
-            SyncFulfillmentVendorInventoryItemCommand... items
+        SyncFulfillmentVendorInventoryItemCommand... items
     ) {
         return SyncFulfillmentVendorInventoryCommand.of(List.of(items));
     }
 
     private Inventory buildInventoryWithProductKey(
-            Long productId, UUID productKey, Long pricePolicyId, int stock, Long version
+        Long productId, UUID productKey, Long pricePolicyId, int stock, Long version
     ) {
         return Inventory.from(InventorySnapshotState.builder()
-                .productId(productId)
-                .productKey(productKey)
-                .pricePolicyId(pricePolicyId)
-                .stock(stock)
-                .version(version)
-                .reserved(0)
-                .build());
+            .productId(productId)
+            .productKey(productKey)
+            .pricePolicyId(pricePolicyId)
+            .stock(stock)
+            .version(version)
+            .reserved(0)
+            .build());
     }
 
     // ==================================================================================
@@ -916,20 +916,20 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_singleProduct_publishesUpdatedEventWithSyncedStock() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 1L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 50, InventoryChangeAction.UPDATED
+                100L, 1L, 50, InventoryChangeAction.UPDATED
             );
         }
 
@@ -939,26 +939,26 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey1, 50),
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey2, 30)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 0L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 0L)
             ));
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
-                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+                buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 50, InventoryChangeAction.UPDATED
+                100L, 1L, 50, InventoryChangeAction.UPDATED
             );
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    200L, 2L, 30, InventoryChangeAction.UPDATED
+                200L, 2L, 30, InventoryChangeAction.UPDATED
             );
         }
 
@@ -967,10 +967,10 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_lockNotExecuted_doesNotPublishEvent() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
-                    buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
+                buildInventoryWithProductKey(1L, productKey, 100L, 10, 0L)
             ));
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
@@ -983,12 +983,12 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         void syncInventories_productMissing_doesNotPublishEvent() {
             UUID productKey = UUID.randomUUID();
             SyncFulfillmentVendorInventoryCommand command = buildCommand(
-                    SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
+                SyncFulfillmentVendorInventoryItemCommand.of(productKey, 50)
             );
             when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of());
 
             assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
-                    .isInstanceOf(InventoryProductNotFoundException.class);
+                .isInstanceOf(InventoryProductNotFoundException.class);
 
             verifyNoInteractions(publishInventoryEventPort);
         }

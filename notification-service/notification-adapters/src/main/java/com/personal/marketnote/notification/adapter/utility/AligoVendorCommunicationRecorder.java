@@ -21,41 +21,41 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AligoVendorCommunicationRecorder
-        extends com.personal.marketnote.common.utility.audit.VendorCommunicationRecorder<
-        NotificationVendorCommunicationTargetType,
-        NotificationVendorName,
-        NotificationVendorCommunicationType,
-        NotificationVendorCommunicationSenderType
-        > {
+    extends com.personal.marketnote.common.utility.audit.VendorCommunicationRecorder<
+    NotificationVendorCommunicationTargetType,
+    NotificationVendorName,
+    NotificationVendorCommunicationType,
+    NotificationVendorCommunicationSenderType
+    > {
     @Autowired
     public AligoVendorCommunicationRecorder(NotificationRecordVendorCommunicationHistoryUseCase useCase) {
         super((
                 targetType, targetId, vendorName, communicationType, sender,
                 exception, payload, payloadJson, attemptCount
-        ) ->
+            ) ->
                 useCase.record(
-                        NotificationVendorCommunicationHistoryCommand.builder()
-                                .targetType(targetType)
-                                .targetId(targetId)
-                                .vendorName(vendorName)
-                                .communicationType(communicationType)
-                                .sender(sender)
-                                .exception(exception)
-                                .payload(payload)
-                                .payloadJson(payloadJson)
-                                .attemptCount(attemptCount)
-                                .build()
+                    NotificationVendorCommunicationHistoryCommand.builder()
+                        .targetType(targetType)
+                        .targetId(targetId)
+                        .vendorName(vendorName)
+                        .communicationType(communicationType)
+                        .sender(sender)
+                        .exception(exception)
+                        .payload(payload)
+                        .payloadJson(payloadJson)
+                        .attemptCount(attemptCount)
+                        .build()
                 )
         );
     }
 
     public AligoVendorCommunicationRecorder(
-            VendorCommunicationHistoryDispatcher<
-                    NotificationVendorCommunicationTargetType,
-                    NotificationVendorName,
-                    NotificationVendorCommunicationType,
-                    NotificationVendorCommunicationSenderType
-                    > dispatcher
+        VendorCommunicationHistoryDispatcher<
+            NotificationVendorCommunicationTargetType,
+            NotificationVendorName,
+            NotificationVendorCommunicationType,
+            NotificationVendorCommunicationSenderType
+            > dispatcher
     ) {
         super(dispatcher);
     }

@@ -39,31 +39,31 @@ public class AligoAlimTalkController {
     @PostMapping("/send")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<SendAligoAlimTalkResponse>> sendAlimTalk(
-            @Valid @RequestBody SendAligoAlimTalkRequest request
+        @Valid @RequestBody SendAligoAlimTalkRequest request
     ) {
         SendAligoAlimTalkResult result = sendAligoAlimTalkUseCase.sendAlimTalk(
-                new SendAligoAlimTalkCommand(
-                        request.templateCode(),
-                        request.sender(),
-                        FormatValidator.hasValue(request.variables()) ? request.variables() : Map.of(),
-                        mapRecipients(request.recipients()),
-                        mapFailover(request.failover())
-                )
+            new SendAligoAlimTalkCommand(
+                request.templateCode(),
+                request.sender(),
+                FormatValidator.hasValue(request.variables()) ? request.variables() : Map.of(),
+                mapRecipients(request.recipients()),
+                mapFailover(request.failover())
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        SendAligoAlimTalkResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "알림톡 발송 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                SendAligoAlimTalkResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "알림톡 발송 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
     private List<AligoAlimTalkRecipientCommand> mapRecipients(List<SendAligoAlimTalkRequest.RecipientRequest> recipients) {
         return recipients.stream()
-                .map(r -> new AligoAlimTalkRecipientCommand(r.receiver(), r.recvName()))
-                .toList();
+            .map(r -> new AligoAlimTalkRecipientCommand(r.receiver(), r.recvName()))
+            .toList();
     }
 
     private AligoFailoverCommand mapFailover(SendAligoAlimTalkRequest.FailoverRequest failover) {

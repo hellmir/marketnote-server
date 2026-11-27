@@ -33,22 +33,22 @@ public class UpdateSettlementPolicyService implements UpdateSettlementPolicyUseC
     @Transactional(isolation = READ_COMMITTED)
     public GetSettlementPolicyResult updatePolicy(UpdateSettlementPolicyCommand command) {
         SettlementPolicy policy = findSettlementPolicyPort.findById(command.id())
-                .orElseThrow(() -> {
-                    log.warn("정산 정책을 찾을 수 없습니다. settlementPolicyId={}", command.id());
-                    return new SettlementPolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산 정책을 찾을 수 없습니다. settlementPolicyId={}", command.id());
+                return new SettlementPolicyNotFoundException();
+            });
 
         policy.update(
-                FeeRate.of(command.pgFeeRate()),
-                FeeRate.of(command.platformFeeRate()),
-                SettlementCycle.valueOf(command.settlementCycle()),
-                command.minPayoutAmount()
+            FeeRate.of(command.pgFeeRate()),
+            FeeRate.of(command.platformFeeRate()),
+            SettlementCycle.valueOf(command.settlementCycle()),
+            command.minPayoutAmount()
         );
 
         SettlementPolicy updated = updateSettlementPolicyPort.update(policy);
 
         log.info("정산 정책 수정 완료 - id: {}, sellerId: {}, pgFeeRate: {}, platformFeeRate: {}",
-                command.id(), policy.getSellerId(), command.pgFeeRate(), command.platformFeeRate()
+            command.id(), policy.getSellerId(), command.pgFeeRate(), command.platformFeeRate()
         );
 
         return GetSettlementPolicyResult.from(updated);

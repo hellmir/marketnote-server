@@ -7,15 +7,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record OrderHistoryByDateResponse(
-        LocalDate orderDate,
-        Integer count,
-        List<GetOrderResult> orders
+    LocalDate orderDate,
+    Integer count,
+    List<GetOrderResult> orders
 ) {
     public static OrderHistoryByDateResponse from(OrderHistoryByDateResult result) {
         return new OrderHistoryByDateResponse(
-                result.orderDate(),
-                result.count(),
-                result.orders()
+            result.orderDate(),
+            result.count(),
+            result.orders()
         );
     }
 }

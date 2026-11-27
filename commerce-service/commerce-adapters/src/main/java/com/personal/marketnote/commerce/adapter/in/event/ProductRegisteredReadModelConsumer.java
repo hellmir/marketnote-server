@@ -22,12 +22,12 @@ public class ProductRegisteredReadModelConsumer {
     private final SaveProductReadModelPort saveProductReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_REGISTERED,
-            groupId = "commerce-product-read-model"
+        topics = KafkaTopicConstants.PRODUCT_REGISTERED,
+        groupId = "commerce-product-read-model"
     )
     public void handleProductRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -44,23 +44,23 @@ public class ProductRegisteredReadModelConsumer {
         ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
 
         log.info("상품 등록 이벤트 수신 (Read Model). eventId={}, productId={}, pricePolicyId={}",
-                envelope.eventId(), payload.productId(), payload.pricePolicyId()
+            envelope.eventId(), payload.productId(), payload.pricePolicyId()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()),
-                EventPayloadValidator.id("sellerId", payload.sellerId())
+            envelope.eventId(),
+            EventPayloadValidator.id("productId", payload.productId()),
+            EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()),
+            EventPayloadValidator.id("sellerId", payload.sellerId())
         )) {
             acknowledgment.acknowledge();
             return;
         }
 
         saveProductReadModelPort.upsert(
-                payload.pricePolicyId(), payload.productId(), payload.productKey(), payload.sellerId(),
-                payload.productName(), payload.brandName(),
-                payload.price(), payload.discountPrice(), payload.accumulatedPoint()
+            payload.pricePolicyId(), payload.productId(), payload.productKey(), payload.sellerId(),
+            payload.productName(), payload.brandName(),
+            payload.price(), payload.discountPrice(), payload.accumulatedPoint()
         );
 
         log.info("상품 Read Model 저장 완료. pricePolicyId={}, productId={}", payload.pricePolicyId(), payload.productId());

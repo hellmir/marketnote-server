@@ -12,11 +12,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productcategory.r
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSearchTarget;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.domain.product.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;
@@ -60,11 +56,11 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity policy3 = savePricePolicyBasic(product3);
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                .containsExactly(policy1.getId(), policy2.getId(), policy3.getId());
+            .containsExactly(policy1.getId(), policy2.getId(), policy3.getId());
     }
 
     @Test
@@ -78,11 +74,11 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity policy3 = savePricePolicyBasic(product3);
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, false, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 0, 10, false, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
+            .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
     }
 
     @Test
@@ -94,11 +90,11 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity policyHigh = savePricePolicyWithPopularity(product2, 100L);
 
         List<PricePolicyJpaEntity> asc = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.POPULARITY, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.POPULARITY, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(asc).extracting(PricePolicyJpaEntity::getId)
-                .containsExactly(policyLow.getId(), policyHigh.getId());
+            .containsExactly(policyLow.getId(), policyHigh.getId());
     }
 
     @Test
@@ -110,11 +106,11 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity expensive = savePricePolicyWithDiscountPrice(product2, 9000L);
 
         List<PricePolicyJpaEntity> asc = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.DISCOUNT_PRICE, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.DISCOUNT_PRICE, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(asc).extracting(PricePolicyJpaEntity::getId)
-                .containsExactly(cheap.getId(), expensive.getId());
+            .containsExactly(cheap.getId(), expensive.getId());
     }
 
     @Test
@@ -128,11 +124,11 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity policy3 = savePricePolicyWithAccumulatedPoint(product3, 500L);
 
         List<PricePolicyJpaEntity> asc = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ACCUMULATED_POINT, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.ACCUMULATED_POINT, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(asc).extracting(PricePolicyJpaEntity::getId)
-                .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
+            .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
     }
 
     @Test
@@ -146,11 +142,11 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity policy3 = savePricePolicyWithAccumulationRate(product3, BigDecimal.valueOf(1.0));
 
         List<PricePolicyJpaEntity> asc = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ACCUMULATED_POINT_RATE, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.ACCUMULATED_POINT_RATE, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(asc).extracting(PricePolicyJpaEntity::getId)
-                .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
+            .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
     }
 
     @Test
@@ -162,7 +158,7 @@ class PricePolicySearchQueryRepositoryImplTest {
         savePricePolicyBasic(product2);
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                List.of(policy1.getId()), 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            List.of(policy1.getId()), 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(results).hasSize(1);
@@ -178,7 +174,7 @@ class PricePolicySearchQueryRepositoryImplTest {
         savePricePolicyBasic(product2);
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(results).hasSize(2);
@@ -196,7 +192,7 @@ class PricePolicySearchQueryRepositoryImplTest {
         entityManager.flush();
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, categoryId
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, categoryId
         );
 
         assertThat(results).hasSize(1);
@@ -212,7 +208,7 @@ class PricePolicySearchQueryRepositoryImplTest {
         savePricePolicyBasic(product2);
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, "노트북", null
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, "노트북", null
         );
 
         assertThat(results).hasSize(1);
@@ -228,7 +224,7 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity policy2 = savePricePolicyBasic(product2);
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.BRAND_NAME, "LG", null
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.BRAND_NAME, "LG", null
         );
 
         assertThat(results).hasSize(1);
@@ -244,13 +240,13 @@ class PricePolicySearchQueryRepositoryImplTest {
         }
 
         List<PricePolicyJpaEntity> firstPage = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 2, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 0, 2, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
         List<PricePolicyJpaEntity> secondPage = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 1, 2, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 1, 2, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
         List<PricePolicyJpaEntity> thirdPage = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 2, 2, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 2, 2, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(firstPage).hasSize(2);
@@ -270,7 +266,7 @@ class PricePolicySearchQueryRepositoryImplTest {
         entityManager.flush();
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(results).hasSize(1);
@@ -285,13 +281,13 @@ class PricePolicySearchQueryRepositoryImplTest {
         PricePolicyJpaEntity activePolicy = savePricePolicyBasic(activeProduct);
         savePricePolicyBasic(inactiveProduct);
         entityManager.createNativeQuery("UPDATE product SET status = 'INACTIVE' WHERE id = :id")
-                .setParameter("id", inactiveProduct.getId())
-                .executeUpdate();
+            .setParameter("id", inactiveProduct.getId())
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
         List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, 0, 10, true, ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         );
 
         assertThat(results).hasSize(1);
@@ -301,17 +297,17 @@ class PricePolicySearchQueryRepositoryImplTest {
     private ProductJpaEntity saveProduct(String name, String brandName) {
         UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName(brandName)
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName(brandName)
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);
         ProductJpaEntity saved = productJpaRepository.save(entity);
@@ -338,28 +334,28 @@ class PricePolicySearchQueryRepositoryImplTest {
     private PricePolicyJpaEntity savePricePolicyWithPopularity(ProductJpaEntity productEntity, Long popularity) {
         PricePolicyJpaEntity saved = savePricePolicyInternal(productEntity, 9000L, 100L, BigDecimal.valueOf(1.0));
         entityManager.createNativeQuery("UPDATE price_policy SET popularity = :pop WHERE id = :id")
-                .setParameter("pop", popularity)
-                .setParameter("id", saved.getId())
-                .executeUpdate();
+            .setParameter("pop", popularity)
+            .setParameter("id", saved.getId())
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
         return pricePolicyJpaRepository.findById(saved.getId()).orElseThrow();
     }
 
     private PricePolicyJpaEntity savePricePolicyInternal(
-            ProductJpaEntity productEntity,
-            Long discountPrice,
-            Long accumulatedPoint,
-            BigDecimal accumulationRate
+        ProductJpaEntity productEntity,
+        Long discountPrice,
+        Long accumulatedPoint,
+        BigDecimal accumulationRate
     ) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(10000L)
-                        .discountPrice(discountPrice)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
-                        .accumulatedPoint(accumulatedPoint)
-                        .accumulationRate(Rate.of(accumulationRate))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(10000L)
+                .discountPrice(discountPrice)
+                .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
+                .accumulatedPoint(accumulatedPoint)
+                .accumulationRate(Rate.of(accumulationRate))
+                .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
         PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);

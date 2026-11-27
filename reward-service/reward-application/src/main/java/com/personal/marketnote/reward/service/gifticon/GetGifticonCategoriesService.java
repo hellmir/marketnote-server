@@ -25,13 +25,13 @@ public class GetGifticonCategoriesService implements GetGifticonCategoriesUseCas
         List<GifticonCategory> categories = findGifticonCategoryPort.findAllExposed();
 
         List<GifticonCategoryItem> items = categories.stream()
-                .map(category -> new GifticonCategoryItem(
-                        category.getCategoryCode().getValue(),
-                        category.getEffectiveDisplayName(),
-                        category.getIconUrl(),
-                        category.getOrderNum()
-                ))
-                .toList();
+            .map(category -> new GifticonCategoryItem(
+                category.getCategoryCode().getValue(),
+                category.getEffectiveDisplayName(),
+                category.getIconUrl(),
+                category.getOrderNum()
+            ))
+            .toList();
 
         return new GetGifticonCategoriesResult(items);
     }

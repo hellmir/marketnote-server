@@ -25,22 +25,22 @@ public class AligoBrandTalkMessageRecipient {
             throw new InvalidBrandTalkMessageException("수신자 메시지 JSON은 필수입니다.");
         }
         return AligoBrandTalkMessageRecipient.builder()
-                .receiver(state.getReceiver())
-                .receiverMessage(state.getReceiverMessage())
-                .recipientStatus(AligoMessageRecipientStatus.PENDING)
-                .build();
+            .receiver(state.getReceiver())
+            .receiverMessage(state.getReceiverMessage())
+            .recipientStatus(AligoMessageRecipientStatus.PENDING)
+            .build();
     }
 
     public static AligoBrandTalkMessageRecipient from(AligoBrandTalkMessageRecipientSnapshotState state) {
         return AligoBrandTalkMessageRecipient.builder()
-                .id(state.getId())
-                .receiver(state.getReceiver())
-                .receiverMessage(state.getReceiverMessage())
-                .msgId(state.getMsgId())
-                .recipientStatus(state.getRecipientStatus())
-                .rslt(state.getRslt())
-                .rsltMessage(state.getRsltMessage())
-                .build();
+            .id(state.getId())
+            .receiver(state.getReceiver())
+            .receiverMessage(state.getReceiverMessage())
+            .msgId(state.getMsgId())
+            .recipientStatus(state.getRecipientStatus())
+            .rslt(state.getRslt())
+            .rsltMessage(state.getRsltMessage())
+            .build();
     }
 
     public boolean isPending() {

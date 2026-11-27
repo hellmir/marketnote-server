@@ -8,13 +8,13 @@ public interface GetAligoMessageDetailExternalPort {
     List<AligoRecipientDetailResult> getMessageDetail(String mid);
 
     record AligoRecipientDetailResult(
-            String msgId,
-            String receiver,
-            String rslt,
-            String rsltMessage,
-            LocalDateTime sentAt,
-            LocalDateTime resultAt,
-            LocalDateTime reportAt
+        String msgId,
+        String receiver,
+        String rslt,
+        String rsltMessage,
+        LocalDateTime sentAt,
+        LocalDateTime resultAt,
+        LocalDateTime reportAt
     ) {
     }
 }

@@ -56,17 +56,17 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             FulfillmentGoodsSyncedEvent event = new FulfillmentGoodsSyncedEvent(
-                    "CGC001", "GC001", "테스트 상품", "1", "일반", "Y",
-                    null, null, "CUST001", "테스트 고객사",
-                    "SUP001", "테스트 공급사", null, null, null, null,
-                    "10000", "8000", "12000", null, null, null, null,
-                    null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null,
-                    List.of()
+                "CGC001", "GC001", "테스트 상품", "1", "일반", "Y",
+                null, null, "CUST001", "테스트 고객사",
+                "SUP001", "테스트 공급사", null, null, null, null,
+                "10000", "8000", "12000", null, null, null, null,
+                null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null,
+                List.of()
             );
             ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
             when(objectMapper.writeValueAsString(envelopeCaptor.capture())).thenReturn("{\"eventType\":\"fulfillment.goods.synced\"}");
@@ -107,25 +107,25 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             FulfillmentGoodsSyncedEvent event = new FulfillmentGoodsSyncedEvent(
-                    "CGC001", "GC001", "테스트 상품", "1", "일반", "Y",
-                    null, null, "CUST001", "테스트 고객사",
-                    "SUP001", "테스트 공급사", null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null,
-                    List.of()
+                "CGC001", "GC001", "테스트 상품", "1", "일반", "Y",
+                null, null, "CUST001", "테스트 고객사",
+                "SUP001", "테스트 공급사", null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null,
+                List.of()
             );
             when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
-                    .thenThrow(new JsonProcessingException("직렬화 실패") {
-                    });
+                .thenThrow(new JsonProcessingException("직렬화 실패") {
+                });
 
             // when & then
             assertThatThrownBy(() -> adapter.publish(event))
-                    .isInstanceOf(FulfillmentGoodsSyncedEventSerializationException.class);
+                .isInstanceOf(FulfillmentGoodsSyncedEventSerializationException.class);
             verifyNoInteractions(saveOutboxEventPort);
         }
     }

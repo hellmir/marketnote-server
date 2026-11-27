@@ -59,19 +59,19 @@ public class InventoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterInventoryApiDocs
     public ResponseEntity<BaseResponse<Void>> registerInventory(
-            @Valid @RequestBody RegisterInventoryRequest request
+        @Valid @RequestBody RegisterInventoryRequest request
     ) {
         registerInventoryUseCase.registerInventory(
-                InventoryRequestToCommandMapper.mapToCommand(request)
+            InventoryRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "재고 도메인 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "재고 도메인 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -88,21 +88,21 @@ public class InventoryController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @GetInventoriesApiDocs
     public ResponseEntity<BaseResponse<GetInventoriesResponse>> getInventories(
-            @Valid @RequestParam List<Long> pricePolicyIds,
-            @RequestParam(required = false) List<Long> productIds
+        @Valid @RequestParam List<Long> pricePolicyIds,
+        @RequestParam(required = false) List<Long> productIds
     ) {
         Set<Inventory> inventories = resolveInventories(pricePolicyIds, productIds);
 
         GetInventoriesResult getInventoriesResult = GetInventoriesResult.from(inventories);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetInventoriesResponse.from(getInventoriesResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 재고 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetInventoriesResponse.from(getInventoriesResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 재고 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -118,20 +118,20 @@ public class InventoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @SyncFulfillmentVendorInventoryApiDocs
     public ResponseEntity<BaseResponse<Void>> syncFulfillmentVendorInventories(
-            @Valid @RequestBody SyncFulfillmentVendorInventoryRequest request
+        @Valid @RequestBody SyncFulfillmentVendorInventoryRequest request
     ) {
         syncFulfillmentVendorInventoryUseCase.syncInventories(
-                InventoryRequestToCommandMapper.mapToCommand(request)
+            InventoryRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "풀필먼트 벤더 재고 동기화 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "풀필먼트 벤더 재고 동기화 성공"
+            ),
+            HttpStatus.OK
         );
     }
 

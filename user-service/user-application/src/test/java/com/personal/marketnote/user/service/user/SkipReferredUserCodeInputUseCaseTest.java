@@ -38,7 +38,7 @@ class SkipReferredUserCodeInputUseCaseTest {
         // given
         Long requestUserId = 1L;
         User requestUser = UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         );
         LocalDateTime before = LocalDateTime.now();
 
@@ -61,7 +61,7 @@ class SkipReferredUserCodeInputUseCaseTest {
         // given
         Long requestUserId = 1L;
         User requestUser = UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         );
         requestUser.registerReferredUserCode(ReferenceCode.of("EXIST1"));
 
@@ -69,7 +69,7 @@ class SkipReferredUserCodeInputUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> skipReferredUserCodeInputService.skipReferredUserCodeInput(requestUserId))
-                .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
+            .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
 
         verify(getUserUseCase).getUser(requestUserId);
         verifyNoInteractions(updateUserPort);
@@ -82,7 +82,7 @@ class SkipReferredUserCodeInputUseCaseTest {
         // given
         Long requestUserId = 1L;
         User requestUser = UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         );
         requestUser.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
 
@@ -90,7 +90,7 @@ class SkipReferredUserCodeInputUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> skipReferredUserCodeInputService.skipReferredUserCodeInput(requestUserId))
-                .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+            .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
 
         verify(getUserUseCase).getUser(requestUserId);
         verifyNoInteractions(updateUserPort);
@@ -108,7 +108,7 @@ class SkipReferredUserCodeInputUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> skipReferredUserCodeInputService.skipReferredUserCodeInput(requestUserId))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getUserUseCase).getUser(requestUserId);
         verifyNoInteractions(updateUserPort);

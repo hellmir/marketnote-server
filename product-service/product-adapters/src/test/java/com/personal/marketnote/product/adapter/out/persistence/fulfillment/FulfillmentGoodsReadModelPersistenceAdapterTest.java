@@ -43,45 +43,45 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
 
     private FulfillmentGoodsSyncedEvent createEvent(String customerGoodsCode, String goodsName) {
         return new FulfillmentGoodsSyncedEvent(
-                customerGoodsCode, "GD001", goodsName, "SINGLE", "단품",
-                "Y", null, null, "CUST001", "테스트 고객",
-                "SUP001", "테스트 공급사", null, null, null,
-                null, "10000", "8000", "12000", null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, "8801234567890", null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, "Y", null, null, "Y",
-                null, List.of()
+            customerGoodsCode, "GD001", goodsName, "SINGLE", "단품",
+            "Y", null, null, "CUST001", "테스트 고객",
+            "SUP001", "테스트 공급사", null, null, null,
+            null, "10000", "8000", "12000", null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, "8801234567890", null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, "Y", null, null, "Y",
+            null, List.of()
         );
     }
 
     private FulfillmentGoodsSyncedEvent createEventWithElements(String customerGoodsCode) {
         return new FulfillmentGoodsSyncedEvent(
-                customerGoodsCode, "GD001", "테스트 상품", "SET", "세트",
-                "Y", null, null, "CUST001", "테스트 고객",
-                null, null, null, null, null,
-                null, "10000", "8000", "12000", null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, "Y", null, null, "Y",
-                null, List.of(
-                new FulfillmentGoodsSyncedEvent.GoodsElementItem(
-                        "ELEM001", customerGoodsCode, "8801111111111",
-                        "구성품A", "SINGLE", "단품", 2
-                ),
-                new FulfillmentGoodsSyncedEvent.GoodsElementItem(
-                        "ELEM002", customerGoodsCode, "8802222222222",
-                        "구성품B", "SINGLE", "단품", 1
-                )
+            customerGoodsCode, "GD001", "테스트 상품", "SET", "세트",
+            "Y", null, null, "CUST001", "테스트 고객",
+            null, null, null, null, null,
+            null, "10000", "8000", "12000", null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, "Y", null, null, "Y",
+            null, List.of(
+            new FulfillmentGoodsSyncedEvent.GoodsElementItem(
+                "ELEM001", customerGoodsCode, "8801111111111",
+                "구성품A", "SINGLE", "단품", 2
+            ),
+            new FulfillmentGoodsSyncedEvent.GoodsElementItem(
+                "ELEM002", customerGoodsCode, "8802222222222",
+                "구성품B", "SINGLE", "단품", 1
+            )
         )
         );
     }
@@ -166,7 +166,7 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
 
             // when
             Optional<FulfillmentVendorGoodsElementInfoResult> result =
-                    adapter.getFulfillmentVendorGoodsElement("CGC001");
+                adapter.getFulfillmentVendorGoodsElement("CGC001");
 
             // then
             assertThat(result).isPresent();
@@ -179,7 +179,7 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // when
             Optional<FulfillmentVendorGoodsElementInfoResult> result =
-                    adapter.getFulfillmentVendorGoodsElement("NON_EXISTENT");
+                adapter.getFulfillmentVendorGoodsElement("NON_EXISTENT");
 
             // then
             assertThat(result).isEmpty();
@@ -194,7 +194,7 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
 
             // when
             Optional<FulfillmentVendorGoodsElementInfoResult> result =
-                    adapter.getFulfillmentVendorGoodsElement("CGC002");
+                adapter.getFulfillmentVendorGoodsElement("CGC002");
 
             // then
             assertThat(result).isPresent();
@@ -207,18 +207,18 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
             // given
             adapter.upsert(createEventWithElements("CGC001"));
             em.getEntityManager()
-                    .createNativeQuery(
-                            "UPDATE fulfillment_goods_read_models SET status = 'INACTIVE' "
-                                    + "WHERE customer_goods_code = :code"
-                    )
-                    .setParameter("code", "CGC001")
-                    .executeUpdate();
+                .createNativeQuery(
+                    "UPDATE fulfillment_goods_read_models SET status = 'INACTIVE' "
+                        + "WHERE customer_goods_code = :code"
+                )
+                .setParameter("code", "CGC001")
+                .executeUpdate();
             em.flush();
             em.clear();
 
             // when
             Optional<FulfillmentVendorGoodsElementInfoResult> result =
-                    adapter.getFulfillmentVendorGoodsElement("CGC001");
+                adapter.getFulfillmentVendorGoodsElement("CGC001");
 
             // then
             assertThat(result).isEmpty();

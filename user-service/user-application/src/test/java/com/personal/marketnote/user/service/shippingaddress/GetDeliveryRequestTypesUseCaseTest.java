@@ -50,7 +50,7 @@ class GetDeliveryRequestTypesUseCaseTest {
 
         // then
         results.forEach(result ->
-                assertThat(result.description()).isNotNull().isNotBlank()
+            assertThat(result.description()).isNotNull().isNotBlank()
         );
     }
 
@@ -62,9 +62,9 @@ class GetDeliveryRequestTypesUseCaseTest {
 
         // then
         GetDeliveryRequestTypesResult noneResult = results.stream()
-                .filter(result -> result.type() == DeliveryRequestType.NONE)
-                .findFirst()
-                .orElseThrow();
+            .filter(result -> result.type() == DeliveryRequestType.NONE)
+            .findFirst()
+            .orElseThrow();
         assertThat(noneResult.description()).isEqualTo("선택 안 함");
     }
 
@@ -76,9 +76,9 @@ class GetDeliveryRequestTypesUseCaseTest {
 
         // then
         GetDeliveryRequestTypesResult customResult = results.stream()
-                .filter(result -> result.type() == DeliveryRequestType.CUSTOM)
-                .findFirst()
-                .orElseThrow();
+            .filter(result -> result.type() == DeliveryRequestType.CUSTOM)
+            .findFirst()
+            .orElseThrow();
         assertThat(customResult.description()).isEqualTo("직접 입력");
     }
 
@@ -90,9 +90,9 @@ class GetDeliveryRequestTypesUseCaseTest {
 
         // then
         GetDeliveryRequestTypesResult result = results.stream()
-                .filter(r -> r.type() == DeliveryRequestType.RECEIVE_OR_LEAVE_AT_DOOR)
-                .findFirst()
-                .orElseThrow();
+            .filter(r -> r.type() == DeliveryRequestType.RECEIVE_OR_LEAVE_AT_DOOR)
+            .findFirst()
+            .orElseThrow();
         assertThat(result.description()).isEqualTo("직접 받고 부재시 문 앞에 놓아 주세요");
     }
 }

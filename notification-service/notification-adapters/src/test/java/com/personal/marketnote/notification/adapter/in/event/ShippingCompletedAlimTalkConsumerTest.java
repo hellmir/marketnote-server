@@ -49,20 +49,20 @@ class ShippingCompletedAlimTalkConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, String shippingStatus,
-            String buyerPhoneNumber, String buyerName
+        Long orderId, Long buyerId, String shippingStatus,
+        String buyerPhoneNumber, String buyerName
     ) {
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                orderId, buyerId, shippingStatus, "1234567890", "CJ",
-                LocalDateTime.of(2026, 4, 16, 10, 0),
-                buyerPhoneNumber, buyerName
+            orderId, buyerId, shippingStatus, "1234567890", "CJ",
+            LocalDateTime.of(2026, 4, 16, 10, 0),
+            buyerPhoneNumber, buyerName
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         return new ConsumerRecord<>("fulfillment.shipping.status-changed", 0, 0L,
-                String.valueOf(orderId), envelope);
+            String.valueOf(orderId), envelope);
     }
 
     @Test
@@ -70,7 +70,7 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSendAlimTalkAndAcknowledge() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, 1L, "DELIVERED", "01012345678", "홍길동"
+            100L, 1L, "DELIVERED", "01012345678", "홍길동"
         );
 
         // when
@@ -96,7 +96,7 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "fulfillment.shipping.status-changed", 0, 0L, "1", null
+            "fulfillment.shipping.status-changed", 0, 0L, "1", null
         );
 
         // when
@@ -112,15 +112,15 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                100L, 1L, "DELIVERED", "1234567890", "CJ",
-                LocalDateTime.of(2026, 4, 16, 10, 0), "01012345678", "홍길동"
+            100L, 1L, "DELIVERED", "1234567890", "CJ",
+            LocalDateTime.of(2026, 4, 16, 10, 0), "01012345678", "홍길동"
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "wrong.event.type", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "fulfillment.shipping.status-changed", 0, 0L, "100", envelope
+            "fulfillment.shipping.status-changed", 0, 0L, "100", envelope
         );
 
         // when
@@ -136,7 +136,7 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSkipWhenStatusIsNotDelivered() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, 1L, "SHIPPING", "01012345678", "홍길동"
+            100L, 1L, "SHIPPING", "01012345678", "홍길동"
         );
 
         // when
@@ -152,7 +152,7 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSkipWhenOrderIdIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                null, 1L, "DELIVERED", "01012345678", "홍길동"
+            null, 1L, "DELIVERED", "01012345678", "홍길동"
         );
 
         // when
@@ -168,7 +168,7 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSkipWhenBuyerIdIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, null, "DELIVERED", "01012345678", "홍길동"
+            100L, null, "DELIVERED", "01012345678", "홍길동"
         );
 
         // when
@@ -184,7 +184,7 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldSkipWhenBuyerPhoneNumberIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, 1L, "DELIVERED", null, "홍길동"
+            100L, 1L, "DELIVERED", null, "홍길동"
         );
 
         // when
@@ -200,10 +200,10 @@ class ShippingCompletedAlimTalkConsumerTest {
     void shouldLogAndAcknowledgeWhenAlimTalkFails() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, 1L, "DELIVERED", "01012345678", "홍길동"
+            100L, 1L, "DELIVERED", "01012345678", "홍길동"
         );
         org.mockito.Mockito.doThrow(new RuntimeException("알리고 API 호출 실패"))
-                .when(sendAligoAlimTalkUseCase).sendAlimTalk(org.mockito.ArgumentMatchers.any());
+            .when(sendAligoAlimTalkUseCase).sendAlimTalk(org.mockito.ArgumentMatchers.any());
 
         // when
         consumer.handleShippingStatusChangedEvent(record, acknowledgment);

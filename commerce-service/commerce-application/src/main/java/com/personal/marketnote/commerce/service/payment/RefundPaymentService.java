@@ -55,7 +55,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         Long adjustedCancelAmount = cancelAmount;
         if (!command.isFullCancel()) {
             adjustedCancelAmount = deductReturnShippingFee(
-                    cancelAmount, command.returnShippingFee(), command.orderId()
+                cancelAmount, command.returnShippingFee(), command.orderId()
             );
         }
 
@@ -69,7 +69,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         String cancelType = command.isFullCancel() ? PSP_FULL_CANCEL_TYPE_CODE : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
         PaymentCancelVendorResult vendorResult = requestPgCancellation(
-                event, cancelType, adjustedCancelAmount, remainAmount
+            event, cancelType, adjustedCancelAmount, remainAmount
         );
 
         persistRefundResult(command, payment, event, vendorResult, adjustedCancelAmount);
@@ -78,10 +78,10 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     private Payment findPayment(String orderKey) {
         UUID orderKeyUuid = UUID.fromString(orderKey);
         return findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                return new PaymentNotFoundException();
+            });
     }
 
     private void validateNotAlreadyRefunded(Payment payment, String orderKey) {
@@ -92,10 +92,10 @@ public class RefundPaymentService implements RefundPaymentUseCase {
 
     private PspPaymentEvent findPspPaymentEvent(String orderKey) {
         return findPspPaymentEventPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                return new PaymentNotFoundException();
+            });
     }
 
     private void validateRefundable(PspPaymentEvent event, String orderKey) {
@@ -122,13 +122,13 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         }
 
         log.info("반품 배송비 차감 - orderId: {}, 원래 환불액: {}, 반품 배송비: {}, 조정 환불액: {}",
-                orderId, cancelAmount, returnShippingFee, adjusted
+            orderId, cancelAmount, returnShippingFee, adjusted
         );
         return adjusted;
     }
 
     private void persistRefundResultWithoutPg(
-            RefundPaymentCommand command, Payment payment, PspPaymentEvent event
+        RefundPaymentCommand command, Payment payment, PspPaymentEvent event
     ) {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
@@ -144,11 +144,11 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         try {
             String cancelReason = "반품 환불 (반품 배송비 " + returnShippingFee + "원 차감, PG 환불 생략)";
             RefundCreateState createState = RefundCreateState.withoutPg(
-                    payment.getId(),
-                    payment.getOrderId(),
-                    RefundType.PARTIAL_REFUND,
-                    cancelAmount,
-                    cancelReason
+                payment.getId(),
+                payment.getOrderId(),
+                RefundType.PARTIAL_REFUND,
+                cancelAmount,
+                cancelReason
             );
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
@@ -159,18 +159,18 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     }
 
     private PaymentCancelVendorResult requestPgCancellation(
-            PspPaymentEvent event, String cancelType, Long cancelAmount, Long remainAmount
+        PspPaymentEvent event, String cancelType, Long cancelAmount, Long remainAmount
     ) {
         PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.from(
-                event,
-                PaymentCancelVendorCommand.CancelDirective.of(cancelType, cancelAmount, remainAmount, "주문 취소")
+            event,
+            PaymentCancelVendorCommand.CancelDirective.of(cancelType, cancelAmount, remainAmount, "주문 취소")
         );
 
         PaymentCancelVendorResult vendorResult = paymentVendorPort.cancelPayment(vendorCommand);
 
         if (!vendorResult.success()) {
             log.error("PG 결제 환불 실패 - transactionNumber: {}, resultCode: {}, resultMessage: {}",
-                    event.getPgPaymentKey(), vendorResult.resultCode(), vendorResult.resultMessage()
+                event.getPgPaymentKey(), vendorResult.resultCode(), vendorResult.resultMessage()
             );
             throw new PaymentCancelException("결제 환불에 실패했습니다.");
         }
@@ -179,8 +179,8 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     }
 
     private void persistRefundResult(
-            RefundPaymentCommand command, Payment payment, PspPaymentEvent event,
-            PaymentCancelVendorResult vendorResult, Long cancelAmount
+        RefundPaymentCommand command, Payment payment, PspPaymentEvent event,
+        PaymentCancelVendorResult vendorResult, Long cancelAmount
     ) {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
@@ -193,8 +193,8 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     }
 
     private void updateDomain(
-            boolean isFullCancel, Payment payment, PspPaymentEvent event,
-            PaymentCancelVendorResult vendorResult, Long cancelAmount
+        boolean isFullCancel, Payment payment, PspPaymentEvent event,
+        PaymentCancelVendorResult vendorResult, Long cancelAmount
     ) {
         String rawResponse = FormatValidator.hasValue(vendorResult) ? vendorResult.rawResponse() : null;
 
@@ -209,19 +209,19 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     }
 
     private void saveRefundRecord(
-            Payment payment, boolean isFullCancel, Long cancelAmount,
-            PaymentCancelVendorResult vendorResult
+        Payment payment, boolean isFullCancel, Long cancelAmount,
+        PaymentCancelVendorResult vendorResult
     ) {
         try {
             RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
             RefundCreateState createState = RefundCreateState.withPg(
-                    payment.getId(),
-                    payment.getOrderId(),
-                    refundType,
-                    cancelAmount,
-                    "주문 취소",
-                    payment.getPgPaymentKey(),
-                    vendorResult.rawResponse()
+                payment.getId(),
+                payment.getOrderId(),
+                refundType,
+                cancelAmount,
+                "주문 취소",
+                payment.getPgPaymentKey(),
+                vendorResult.rawResponse()
             );
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);

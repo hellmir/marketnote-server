@@ -28,13 +28,13 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
 
     @Override
     public void publishReviewRegisteredEvent(
-            Long orderId, Long pricePolicyId, Long productId,
-            Integer totalCount, BigDecimal averageRating,
-            Long reviewerId, Long reviewId
+        Long orderId, Long pricePolicyId, Long productId,
+        Integer totalCount, BigDecimal averageRating,
+        Long reviewerId, Long reviewId
     ) {
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
-                orderId, pricePolicyId, productId, totalCount, averageRating,
-                reviewerId, reviewId
+            orderId, pricePolicyId, productId, totalCount, averageRating,
+            reviewerId, reviewId
         );
         String topic = KafkaTopicConstants.REVIEW_REGISTERED;
         EventEnvelope<ReviewRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -90,8 +90,8 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     private <T> void saveOutboxEvent(String topic, String partitionKey, EventEnvelope<T> envelope) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

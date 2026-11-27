@@ -47,20 +47,20 @@ public class GifticonOrderController {
     @PostMapping
     @PurchaseGifticonApiDocs
     public ResponseEntity<BaseResponse<PurchaseGifticonResponse>> purchaseGifticon(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @Valid @RequestBody PurchaseGifticonRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @Valid @RequestBody PurchaseGifticonRequest request
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         PurchaseGifticonResult result = purchaseGifticonUseCase.purchase(
-                new PurchaseGifticonCommand(userId, request.goodsCode())
+            new PurchaseGifticonCommand(userId, request.goodsCode())
         );
 
         PurchaseGifticonResponse response = PurchaseGifticonResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "기프티콘 구매 성공"),
-                HttpStatus.OK
+            BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "기프티콘 구매 성공"),
+            HttpStatus.OK
         );
     }
 
@@ -68,43 +68,43 @@ public class GifticonOrderController {
     @GetMyGifticonOrdersApiDocs
     @RateLimited(key = "gifticon-orders-me", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetMyGifticonOrdersResponse>> getMyGifticonOrders(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(name = "status", defaultValue = "AVAILABLE") String status,
-            @RequestParam(name = "sort", defaultValue = "PURCHASE_LATEST") String sort,
-            @RequestParam(name = "cursor", defaultValue = "-1") Long cursor,
-            @RequestParam(name = "page-size", defaultValue = "10") @Min(1) @Max(100) int pageSize
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(name = "status", defaultValue = "AVAILABLE") String status,
+        @RequestParam(name = "sort", defaultValue = "PURCHASE_LATEST") String sort,
+        @RequestParam(name = "cursor", defaultValue = "-1") Long cursor,
+        @RequestParam(name = "page-size", defaultValue = "10") @Min(1) @Max(100) int pageSize
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         GetMyGifticonOrdersResult result = getMyGifticonOrdersUseCase.getMyGifticonOrders(
-                new GetMyGifticonOrdersCommand(userId, status, sort, cursor, pageSize)
+            new GetMyGifticonOrdersCommand(userId, status, sort, cursor, pageSize)
         );
 
         GetMyGifticonOrdersResponse response = GetMyGifticonOrdersResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "내 기프티콘 목록 조회 성공"),
-                HttpStatus.OK
+            BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "내 기프티콘 목록 조회 성공"),
+            HttpStatus.OK
         );
     }
 
     @GetMapping("/me/{orderId}")
     @GetMyGifticonOrderDetailApiDocs
     public ResponseEntity<BaseResponse<GetMyGifticonOrderDetailResponse>> getMyGifticonOrderDetail(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @PathVariable Long orderId
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @PathVariable Long orderId
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         GetMyGifticonOrderDetailResult result = getMyGifticonOrderDetailUseCase.getMyGifticonOrderDetail(
-                new GetMyGifticonOrderDetailCommand(userId, orderId)
+            new GetMyGifticonOrderDetailCommand(userId, orderId)
         );
 
         GetMyGifticonOrderDetailResponse response = GetMyGifticonOrderDetailResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "내 기프티콘 상세 조회 성공"),
-                HttpStatus.OK
+            BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "내 기프티콘 상세 조회 성공"),
+            HttpStatus.OK
         );
     }
 }

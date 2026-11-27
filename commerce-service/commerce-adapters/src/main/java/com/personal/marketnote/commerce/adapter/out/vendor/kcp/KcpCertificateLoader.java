@@ -47,9 +47,9 @@ public class KcpCertificateLoader {
         try {
             String keyContent = readContent(privateKeyPath);
             String keyBase64 = keyContent
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s+", "");
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
 
             byte[] keyBytes = Base64.getDecoder().decode(keyBase64);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);

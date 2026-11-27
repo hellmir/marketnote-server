@@ -44,19 +44,19 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
 
     @Override
     public Posts findPublicPosts(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetGroupId,
-            Long cursor,
-            Pageable pageable,
-            boolean isDesc,
-            PostSortProperty sortProperty,
-            Long userId,
-            PostFilterCategory filterCategory,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Board board,
+        String category,
+        PostTargetGroupType targetGroupType,
+        Long targetGroupId,
+        Long cursor,
+        Pageable pageable,
+        boolean isDesc,
+        PostSortProperty sortProperty,
+        Long userId,
+        PostFilterCategory filterCategory,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     ) {
         boolean isPublicOnly = false;
         Long userIdFilter = null;
@@ -73,65 +73,65 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
         }
 
         return mapToPostsWithReplies(
-                postJpaRepository.findByBoardAndFilters(
-                        board,
-                        category,
-                        targetGroupType,
-                        targetGroupId,
-                        cursor,
-                        isDesc,
-                        isPublicOnly,
-                        userIdFilter,
-                        isAnsweredOnly,
-                        searchInTitle,
-                        searchInContent,
-                        searchKeywordPattern,
-                        EntityStatus.ACTIVE,
-                        pageable,
-                        sortProperty
-                )
+            postJpaRepository.findByBoardAndFilters(
+                board,
+                category,
+                targetGroupType,
+                targetGroupId,
+                cursor,
+                isDesc,
+                isPublicOnly,
+                userIdFilter,
+                isAnsweredOnly,
+                searchInTitle,
+                searchInContent,
+                searchKeywordPattern,
+                EntityStatus.ACTIVE,
+                pageable,
+                sortProperty
+            )
         );
     }
 
     @Override
     public Posts findUserPosts(
-            Long userId,
-            Board board,
-            Long cursor,
-            Pageable pageable,
-            boolean isDesc,
-            PostSortProperty sortProperty,
-            PostFilterCategory filterCategory,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Long userId,
+        Board board,
+        Long cursor,
+        Pageable pageable,
+        boolean isDesc,
+        PostSortProperty sortProperty,
+        PostFilterCategory filterCategory,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     ) {
         boolean searchInTitle = shouldSearchIn(searchTarget, PostSearchTarget.TITLE);
         boolean searchInContent = shouldSearchIn(searchTarget, PostSearchTarget.CONTENT);
         String searchKeywordPattern = buildSearchPattern(searchKeyword);
         boolean isAnsweredOnly = FormatValidator.hasValue(filterCategory)
-                && FormatValidator.hasValue(filterValue)
-                && filterCategory.isAnsweredOnly(filterValue);
+            && FormatValidator.hasValue(filterValue)
+            && filterCategory.isAnsweredOnly(filterValue);
 
         return mapToPostsWithReplies(
-                postJpaRepository.findByUserIdAndBoard(
-                        userId, board, cursor, isDesc, isAnsweredOnly, searchInTitle, searchInContent,
-                        searchKeywordPattern, EntityStatus.ACTIVE, pageable, sortProperty
-                )
+            postJpaRepository.findByUserIdAndBoard(
+                userId, board, cursor, isDesc, isAnsweredOnly, searchInTitle, searchInContent,
+                searchKeywordPattern, EntityStatus.ACTIVE, pageable, sortProperty
+            )
         );
     }
 
     @Override
     public long countPublicPosts(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetGroupId,
-            Long userId,
-            PostFilterCategory filterCategory,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Board board,
+        String category,
+        PostTargetGroupType targetGroupType,
+        Long targetGroupId,
+        Long userId,
+        PostFilterCategory filterCategory,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     ) {
         boolean isPublicOnly = false;
         Long userIdFilter = null;
@@ -148,85 +148,85 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
         }
 
         return postJpaRepository.countByBoardAndFilters(
-                board,
-                category,
-                targetGroupType,
-                targetGroupId,
-                isPublicOnly,
-                userIdFilter,
-                isAnsweredOnly,
-                searchInTitle,
-                searchInContent,
-                searchKeywordPattern,
-                EntityStatus.ACTIVE
+            board,
+            category,
+            targetGroupType,
+            targetGroupId,
+            isPublicOnly,
+            userIdFilter,
+            isAnsweredOnly,
+            searchInTitle,
+            searchInContent,
+            searchKeywordPattern,
+            EntityStatus.ACTIVE
         );
     }
 
     @Override
     public long countUserPosts(
-            Long userId,
-            Board board,
-            PostFilterCategory filterCategory,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
+        Long userId,
+        Board board,
+        PostFilterCategory filterCategory,
+        PostFilterValue filterValue,
+        PostSearchTarget searchTarget,
+        String searchKeyword
     ) {
         boolean searchInTitle = shouldSearchIn(searchTarget, PostSearchTarget.TITLE);
         boolean searchInContent = shouldSearchIn(searchTarget, PostSearchTarget.CONTENT);
         String searchKeywordPattern = buildSearchPattern(searchKeyword);
         boolean isAnsweredOnly = FormatValidator.hasValue(filterCategory)
-                && FormatValidator.hasValue(filterValue)
-                && filterCategory.isAnsweredOnly(filterValue);
+            && FormatValidator.hasValue(filterValue)
+            && filterCategory.isAnsweredOnly(filterValue);
 
         return postJpaRepository.countByUserIdAndBoard(
-                userId, board, isAnsweredOnly, searchInTitle, searchInContent, searchKeywordPattern, EntityStatus.ACTIVE
+            userId, board, isAnsweredOnly, searchInTitle, searchInContent, searchKeywordPattern, EntityStatus.ACTIVE
         );
     }
 
     @Override
     public Posts findUserPostsByOffset(
-            Long userId,
-            Board board,
-            int page,
-            int pageSize,
-            boolean isDesc,
-            PostSortProperty sortProperty
+        Long userId,
+        Board board,
+        int page,
+        int pageSize,
+        boolean isDesc,
+        PostSortProperty sortProperty
     ) {
         String sortField = sortProperty.getSortField();
         Sort sort = isDesc ? Sort.by(Sort.Direction.DESC, sortField) : Sort.by(Sort.Direction.ASC, sortField);
         Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
 
         return mapToPostsWithReplies(
-                postJpaRepository.findByUserIdAndBoardByOffset(
-                        userId, board, EntityStatus.ACTIVE, pageable
-                )
+            postJpaRepository.findByUserIdAndBoardByOffset(
+                userId, board, EntityStatus.ACTIVE, pageable
+            )
         );
     }
 
     @Override
     public Optional<Post> findByIdWithReplies(Long id) {
         return findById(id)
-                .map(post -> {
-                    List<Post> replies = postJpaRepository.findRepliesByParentIds(
-                                    List.of(post.getId()), EntityStatus.ACTIVE
-                            )
-                            .stream()
-                            .map(PostJpaEntityToDomainMapper::mapToDomain)
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .toList();
-                    post.addReplies(replies);
+            .map(post -> {
+                List<Post> replies = postJpaRepository.findRepliesByParentIds(
+                        List.of(post.getId()), EntityStatus.ACTIVE
+                    )
+                    .stream()
+                    .map(PostJpaEntityToDomainMapper::mapToDomain)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+                post.addReplies(replies);
 
-                    return post;
-                });
+                return post;
+            });
     }
 
     @Override
     public Optional<Post> findById(Long id) {
         return postJpaRepository.findById(id)
-                .map(PostJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get);
+            .map(PostJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get);
     }
 
     @Override
@@ -236,30 +236,30 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
 
     private Posts mapToPostsWithReplies(List<PostJpaEntity> parentEntities) {
         List<Post> parents = parentEntities.stream()
-                .map(PostJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(PostJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
 
         if (FormatValidator.hasNoValue(parents)) {
             return Posts.from(parents);
         }
 
         List<Long> parentIds = parents.stream()
-                .map(Post::getId)
-                .toList();
+            .map(Post::getId)
+            .toList();
 
         Map<Long, List<Post>> repliesByParentId = postJpaRepository.findRepliesByParentIds(
-                        parentIds, EntityStatus.ACTIVE
-                )
-                .stream()
-                .map(PostJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.groupingBy(Post::getParentId));
+                parentIds, EntityStatus.ACTIVE
+            )
+            .stream()
+            .map(PostJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.groupingBy(Post::getParentId));
 
         parents.forEach(parent ->
-                parent.updateReplies(repliesByParentId.getOrDefault(parent.getId(), Collections.emptyList()))
+            parent.updateReplies(repliesByParentId.getOrDefault(parent.getId(), Collections.emptyList()))
         );
 
         return Posts.from(parents);
@@ -284,9 +284,9 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
 
     private PostJpaEntity findEntityById(Long id) throws PostNotFoundException {
         return postJpaRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("게시글을 찾을 수 없습니다. postId={}", id);
-                    return new PostNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("게시글을 찾을 수 없습니다. postId={}", id);
+                return new PostNotFoundException();
+            });
     }
 }

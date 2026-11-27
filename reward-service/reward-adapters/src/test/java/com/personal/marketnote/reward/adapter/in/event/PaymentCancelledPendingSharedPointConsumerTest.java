@@ -54,12 +54,12 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullCancel,
                                                                  List<OrderProductItem> orderProducts) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                orderId, "order-key-1", 100L, 50000L, 80000L, 1000L,
-                isFullCancel, 0L, null, orderProducts, null, null
+            orderId, "order-key-1", 100L, 50000L, 80000L, 1000L,
+            isFullCancel, 0L, null, orderProducts, null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 6, 10, 0), event
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 6, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.payment.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -69,18 +69,18 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_fullCancelWithSharers_cancelsPendingPointsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
-                new OrderProductItem(2L, SHARER_KEY_2, 1, 20000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+            new OrderProductItem(2L, SHARER_KEY_2, 1, 20000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts);
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
@@ -90,17 +90,17 @@ class PaymentCancelledPendingSharedPointConsumerTest {
 
         // then
         CancelPendingPointCommand expectedCommand200 = CancelPendingPointCommand.builder()
-                .userId(200L)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(1L)
-                .reason("결제 취소 적립 예정 포인트 회수")
-                .build();
+            .userId(200L)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(1L)
+            .reason("결제 취소 적립 예정 포인트 회수")
+            .build();
         CancelPendingPointCommand expectedCommand300 = CancelPendingPointCommand.builder()
-                .userId(300L)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(1L)
-                .reason("결제 취소 적립 예정 포인트 회수")
-                .build();
+            .userId(300L)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(1L)
+            .reason("결제 취소 적립 예정 포인트 회수")
+            .build();
         verify(cancelPendingPointUseCase).cancelPending(expectedCommand200);
         verify(cancelPendingPointUseCase).cancelPending(expectedCommand300);
         verify(acknowledgment).acknowledge();
@@ -111,7 +111,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_partialCancel_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, orderProducts);
 
@@ -128,7 +128,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_nullOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, true, orderProducts);
 
@@ -145,8 +145,8 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_noSharers_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, null, 2, 10000L),
-                new OrderProductItem(2L, null, 1, 20000L)
+            new OrderProductItem(1L, null, 2, 10000L),
+            new OrderProductItem(2L, null, 1, 20000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts);
 
@@ -177,18 +177,18 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                1L, "order-key-1", 100L, 50000L, 80000L, 1000L,
-                true, 0L, null, orderProducts, null, null
+            1L, "order-key-1", 100L, 50000L, 80000L, 1000L,
+            true, 0L, null, orderProducts, null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 6, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 6, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", envelope
+            "commerce.payment.cancelled", 0, 0L, "1", envelope
         );
 
         // when
@@ -204,7 +204,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_zeroOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, true, orderProducts);
 
@@ -221,7 +221,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_negativeOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, true, orderProducts);
 
@@ -238,7 +238,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", null
+            "commerce.payment.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -254,19 +254,19 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_duplicateSharers_deduplicatesAndCancelsPendingPoints() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
-                new OrderProductItem(2L, SHARER_KEY_1, 1, 20000L),
-                new OrderProductItem(3L, SHARER_KEY_2, 1, 15000L)
+            new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+            new OrderProductItem(2L, SHARER_KEY_1, 1, 20000L),
+            new OrderProductItem(3L, SHARER_KEY_2, 1, 15000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts);
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
@@ -285,17 +285,17 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_unexpectedException_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 6, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 6, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.payment.cancelled", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

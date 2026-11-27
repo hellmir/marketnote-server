@@ -35,8 +35,8 @@ class SyncFulfillmentVendorInventoryRequestValidationTest {
         Set<ConstraintViolation<SyncFulfillmentVendorInventoryRequest>> violations = validator.validate(request);
 
         assertThat(violations).noneMatch(v ->
-                v.getPropertyPath().toString().equals("inventories")
-                        && v.getMessage().contains("1000")
+            v.getPropertyPath().toString().equals("inventories")
+                && v.getMessage().contains("1000")
         );
     }
 
@@ -48,8 +48,8 @@ class SyncFulfillmentVendorInventoryRequestValidationTest {
         Set<ConstraintViolation<SyncFulfillmentVendorInventoryRequest>> violations = validator.validate(request);
 
         assertThat(violations).anyMatch(v ->
-                v.getPropertyPath().toString().equals("inventories")
-                        && v.getMessage().contains("1000")
+            v.getPropertyPath().toString().equals("inventories")
+                && v.getMessage().contains("1000")
         );
     }
 
@@ -61,8 +61,8 @@ class SyncFulfillmentVendorInventoryRequestValidationTest {
         Set<ConstraintViolation<SyncFulfillmentVendorInventoryRequest>> violations = validator.validate(request);
 
         assertThat(violations).anyMatch(v ->
-                v.getPropertyPath().toString().equals("inventories")
-                        && v.getMessage().contains("필수값")
+            v.getPropertyPath().toString().equals("inventories")
+                && v.getMessage().contains("필수값")
         );
     }
 

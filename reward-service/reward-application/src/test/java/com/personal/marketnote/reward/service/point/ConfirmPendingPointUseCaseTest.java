@@ -57,23 +57,23 @@ class ConfirmPendingPointUseCaseTest {
 
     private UserPoint createUserPoint(Long amount, Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.of(addExpectedAmount))
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .userId(USER_ID)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.of(addExpectedAmount))
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
     }
 
     private ConfirmPendingPointCommand createCommand() {
         return ConfirmPendingPointCommand.builder()
-                .userId(USER_ID)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(ORDER_ID)
-                .reason("구매 확정 포인트 적립")
-                .build();
+            .userId(USER_ID)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(ORDER_ID)
+            .reason("구매 확정 포인트 적립")
+            .build();
     }
 
     private UserPointHistory createPendingHistory(Long amount) {
@@ -82,17 +82,17 @@ class ConfirmPendingPointUseCaseTest {
 
     private UserPointHistory createPendingHistory(Long amount, UserPointChangeType changeType) {
         return UserPointHistory.from(UserPointHistorySnapshotState.builder()
-                .id(1L)
-                .userId(USER_ID)
-                .changeType(changeType)
-                .amount(PointAmount.of(amount))
-                .isReflected(Boolean.FALSE)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(ORDER_ID)
-                .reason("주문 결제 적립 예정")
-                .accumulatedAt(NOW)
-                .createdAt(NOW)
-                .build()
+            .id(1L)
+            .userId(USER_ID)
+            .changeType(changeType)
+            .amount(PointAmount.of(amount))
+            .isReflected(Boolean.FALSE)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(ORDER_ID)
+            .reason("주문 결제 적립 예정")
+            .accumulatedAt(NOW)
+            .createdAt(NOW)
+            .build()
         );
     }
 
@@ -104,12 +104,12 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory pendingHistory = createPendingHistory(500L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(pendingHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(updateUserPointHistoryPort.markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(1);
 
         ConfirmPendingPointCommand command = createCommand();
@@ -123,7 +123,7 @@ class ConfirmPendingPointUseCaseTest {
 
         verify(updateUserPointPort).update(any(UserPoint.class));
         verify(updateUserPointHistoryPort).markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         );
 
         ArgumentCaptor<UserPointHistory> historyCaptor = ArgumentCaptor.forClass(UserPointHistory.class);
@@ -144,12 +144,12 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory history2 = createPendingHistory(300L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(history1, history2));
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(updateUserPointHistoryPort.markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(2);
 
         ConfirmPendingPointCommand command = createCommand();
@@ -173,7 +173,7 @@ class ConfirmPendingPointUseCaseTest {
         UserPoint userPoint = createUserPoint(1000L, 0L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(Collections.emptyList());
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
 
@@ -198,16 +198,16 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory pendingHistory = createPendingHistory(500L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(pendingHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID))
-                .thenThrow(new UserPointNotFoundException());
+            .thenThrow(new UserPointNotFoundException());
 
         ConfirmPendingPointCommand command = createCommand();
 
         // expect
         assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
-                .isInstanceOf(UserPointNotFoundException.class);
+            .isInstanceOf(UserPointNotFoundException.class);
 
         verify(updateUserPointPort, never()).update(any());
         verify(saveUserPointHistoryPort, never()).save(any());
@@ -221,7 +221,7 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory pendingHistory = createPendingHistory(500L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(pendingHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
 
@@ -229,7 +229,7 @@ class ConfirmPendingPointUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
-                .isInstanceOf(InsufficientPendingPointAmountException.class);
+            .isInstanceOf(InsufficientPendingPointAmountException.class);
 
         verify(updateUserPointPort, never()).update(any());
         verify(saveUserPointHistoryPort, never()).save(any());
@@ -243,19 +243,19 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory pendingHistory = createPendingHistory(500L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(pendingHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(updateUserPointHistoryPort.markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(0);
 
         ConfirmPendingPointCommand command = createCommand();
 
         // expect
         assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
-                .isInstanceOf(PendingPointReflectionMismatchException.class);
+            .isInstanceOf(PendingPointReflectionMismatchException.class);
 
         verify(saveUserPointHistoryPort, never()).save(any());
     }
@@ -270,12 +270,12 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory deductionHistory = createPendingHistory(200L, UserPointChangeType.DEDUCTION);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(accrualHistory, accrualHistory2, deductionHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(updateUserPointHistoryPort.markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(3);
 
         ConfirmPendingPointCommand command = createCommand();
@@ -298,14 +298,14 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory deductionHistory = createPendingHistory(500L, UserPointChangeType.DEDUCTION);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(accrualHistory, deductionHistory));
 
         ConfirmPendingPointCommand command = createCommand();
 
         // expect
         assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
-                .isInstanceOf(InvalidConfirmPendingAmountException.class);
+            .isInstanceOf(InvalidConfirmPendingAmountException.class);
 
         verify(updateUserPointPort, never()).update(any());
         verify(saveUserPointHistoryPort, never()).save(any());
@@ -319,14 +319,14 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory deductionHistory = createPendingHistory(500L, UserPointChangeType.DEDUCTION);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(accrualHistory, deductionHistory));
 
         ConfirmPendingPointCommand command = createCommand();
 
         // expect
         assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
-                .isInstanceOf(InvalidConfirmPendingAmountException.class);
+            .isInstanceOf(InvalidConfirmPendingAmountException.class);
 
         verify(updateUserPointPort, never()).update(any());
         verify(saveUserPointHistoryPort, never()).save(any());
@@ -340,12 +340,12 @@ class ConfirmPendingPointUseCaseTest {
         UserPointHistory pendingHistory = createPendingHistory(500L);
 
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(pendingHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(updateUserPointHistoryPort.markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(1);
 
         ConfirmPendingPointCommand command = createCommand();
@@ -355,7 +355,7 @@ class ConfirmPendingPointUseCaseTest {
 
         // then
         verify(updateUserPointHistoryPort).markAsReflected(
-                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+            USER_ID, UserPointSourceType.ORDER, ORDER_ID
         );
     }
 }

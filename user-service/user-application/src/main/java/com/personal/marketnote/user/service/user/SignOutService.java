@@ -27,16 +27,16 @@ public class SignOutService implements SignOutUseCase {
     private HttpHeaders generateInvalidCookieHeaders() {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(
-                HttpHeaders.SET_COOKIE,
-                httpCookieUtils.invalidateCookie(HttpCookieName.USER_ID, false).asSetCookieHeaderValue()
+            HttpHeaders.SET_COOKIE,
+            httpCookieUtils.invalidateCookie(HttpCookieName.USER_ID, false).asSetCookieHeaderValue()
         );
         httpHeaders.add(
-                HttpHeaders.SET_COOKIE,
-                httpCookieUtils.invalidateCookie(HttpCookieName.ACCESS_TOKEN, false).asSetCookieHeaderValue()
+            HttpHeaders.SET_COOKIE,
+            httpCookieUtils.invalidateCookie(HttpCookieName.ACCESS_TOKEN, false).asSetCookieHeaderValue()
         );
         httpHeaders.add(
-                HttpHeaders.SET_COOKIE,
-                httpCookieUtils.invalidateCookie(HttpCookieName.REFRESH_TOKEN, false).asSetCookieHeaderValue()
+            HttpHeaders.SET_COOKIE,
+            httpCookieUtils.invalidateCookie(HttpCookieName.REFRESH_TOKEN, false).asSetCookieHeaderValue()
         );
 
         return httpHeaders;

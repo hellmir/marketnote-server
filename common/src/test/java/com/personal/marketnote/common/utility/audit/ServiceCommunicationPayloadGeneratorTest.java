@@ -106,7 +106,7 @@ class ServiceCommunicationPayloadGeneratorTest {
         @DisplayName("2xx 응답이면 status와 body와 attempt를 포함한 페이로드를 생성한다")
         void shouldBuildResponsePayloadForSuccess() {
             ResponseEntity<Map<String, Object>> response =
-                    ResponseEntity.ok(Map.of("result", "ok"));
+                ResponseEntity.ok(Map.of("result", "ok"));
 
             JsonNode result = generator.buildResponsePayloadJson(response, 1);
 

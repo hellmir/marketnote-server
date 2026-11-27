@@ -42,24 +42,24 @@ public class AligoBrandTalkMessage extends BaseDomain {
     public static AligoBrandTalkMessage from(AligoBrandTalkMessageCreateState state) {
         validate(state);
         List<AligoBrandTalkMessageRecipient> recipients = state.getRecipients().stream()
-                .map(AligoBrandTalkMessageRecipient::from)
-                .toList();
+            .map(AligoBrandTalkMessageRecipient::from)
+            .toList();
 
         AligoBrandTalkMessage message = AligoBrandTalkMessage.builder()
-                .senderKey(state.getSenderKey())
-                .sender(state.getSender())
-                .kakaoTarget(state.getKakaoTarget())
-                .advertYn(state.isAdvertYn())
-                .templateCode(state.getTemplateCode())
-                .messageStatus(BrandTalkMessageStatus.REQUESTED)
-                .successCount(0)
-                .failCount(0)
-                .failoverEnabled(state.isFailoverEnabled())
-                .failoverSubject(state.getFailoverSubject())
-                .failoverType(state.getFailoverType())
-                .requestedAt(state.getRequestedAt())
-                .recipients(recipients)
-                .build();
+            .senderKey(state.getSenderKey())
+            .sender(state.getSender())
+            .kakaoTarget(state.getKakaoTarget())
+            .advertYn(state.isAdvertYn())
+            .templateCode(state.getTemplateCode())
+            .messageStatus(BrandTalkMessageStatus.REQUESTED)
+            .successCount(0)
+            .failCount(0)
+            .failoverEnabled(state.isFailoverEnabled())
+            .failoverSubject(state.getFailoverSubject())
+            .failoverType(state.getFailoverType())
+            .requestedAt(state.getRequestedAt())
+            .recipients(recipients)
+            .build();
         message.activate();
         return message;
     }
@@ -68,33 +68,33 @@ public class AligoBrandTalkMessage extends BaseDomain {
         List<AligoBrandTalkMessageRecipient> recipients = List.of();
         if (FormatValidator.hasValue(state.getRecipients())) {
             recipients = state.getRecipients().stream()
-                    .map(AligoBrandTalkMessageRecipient::from)
-                    .toList();
+                .map(AligoBrandTalkMessageRecipient::from)
+                .toList();
         }
 
         AligoBrandTalkMessage message = AligoBrandTalkMessage.builder()
-                .id(state.getId())
-                .senderKey(state.getSenderKey())
-                .sender(state.getSender())
-                .kakaoTarget(state.getKakaoTarget())
-                .advertYn(state.isAdvertYn())
-                .templateCode(state.getTemplateCode())
-                .messageStatus(state.getMessageStatus())
-                .costType(state.getCostType())
-                .unitCost(state.getUnitCost())
-                .totalCost(state.getTotalCost())
-                .aligoMid(state.getAligoMid())
-                .successCount(state.getSuccessCount())
-                .failCount(state.getFailCount())
-                .failoverEnabled(state.isFailoverEnabled())
-                .failoverSubject(state.getFailoverSubject())
-                .failoverType(state.getFailoverType())
-                .requestedAt(state.getRequestedAt())
-                .sentAt(state.getSentAt())
-                .recipients(recipients)
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .senderKey(state.getSenderKey())
+            .sender(state.getSender())
+            .kakaoTarget(state.getKakaoTarget())
+            .advertYn(state.isAdvertYn())
+            .templateCode(state.getTemplateCode())
+            .messageStatus(state.getMessageStatus())
+            .costType(state.getCostType())
+            .unitCost(state.getUnitCost())
+            .totalCost(state.getTotalCost())
+            .aligoMid(state.getAligoMid())
+            .successCount(state.getSuccessCount())
+            .failCount(state.getFailCount())
+            .failoverEnabled(state.isFailoverEnabled())
+            .failoverSubject(state.getFailoverSubject())
+            .failoverType(state.getFailoverType())
+            .requestedAt(state.getRequestedAt())
+            .sentAt(state.getSentAt())
+            .recipients(recipients)
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         message.status = state.getStatus();
         return message;
     }
@@ -116,9 +116,9 @@ public class AligoBrandTalkMessage extends BaseDomain {
     }
 
     public void markAsSent(
-            String aligoMid, BrandTalkMessageCostType costType,
-            int unitCost, int totalCost, int successCount, int failCount,
-            LocalDateTime sentAt
+        String aligoMid, BrandTalkMessageCostType costType,
+        int unitCost, int totalCost, int successCount, int failCount,
+        LocalDateTime sentAt
     ) {
         if (!messageStatus.canTransitionTo(BrandTalkMessageStatus.SENT)) {
             throw new InvalidBrandTalkMessageStatusTransitionException(messageStatus, BrandTalkMessageStatus.SENT);

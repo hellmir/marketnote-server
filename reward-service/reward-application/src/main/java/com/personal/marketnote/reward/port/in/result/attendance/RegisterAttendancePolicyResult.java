@@ -11,8 +11,8 @@ public class RegisterAttendancePolicyResult {
 
     public static RegisterAttendancePolicyResult from(AttendancePolicy policy) {
         return RegisterAttendancePolicyResult.builder()
-                .id(policy.getId())
-                .build();
+            .id(policy.getId())
+            .build();
     }
 }
 

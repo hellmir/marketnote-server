@@ -119,7 +119,7 @@ class TraceIdMdcFilterTest {
 
         // when / then
         assertThatThrownBy(() -> filter.doFilter(request, response, throwingChain))
-                .isInstanceOf(ServletException.class);
+            .isInstanceOf(ServletException.class);
         assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isNull();
     }
 
